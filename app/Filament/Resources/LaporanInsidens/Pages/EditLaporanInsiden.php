@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\LaporanInsidens\Pages;
 
 use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;

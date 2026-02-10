@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use BezhanSalleh\FilamentShield\Facades\FilamentShield;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Redirect role policy to use the built-in RolePolicy
+        Gate::guessPolicyNamesUsing(function (string $modelClass) {
+            return str_replace('Models', 'Policies', $modelClass) . 'Policy';
+        });
     }
 }

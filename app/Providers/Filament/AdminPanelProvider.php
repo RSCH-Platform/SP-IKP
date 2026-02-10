@@ -61,19 +61,33 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentAwinTheme::make(),
                 FilamentShieldPlugin::make()
-                    ->navigationLabel('Label')                  // string|Closure|null
-                    ->navigationIcon('heroicon-o-home')         // string|Closure|null
-                    ->activeNavigationIcon('heroicon-s-home')   // string|Closure|null
-                    ->navigationGroup('Group')                  // string|Closure|null
-                    ->navigationSort(10)                        // int|Closure|null
-                    ->navigationBadge('5')                      // string|Closure|null
-                    ->navigationBadgeColor('success')           // string|array|Closure|null
-                    ->navigationParentItem('parent.item')       // string|Closure|null
-                    ->registerNavigation(true)                  // bool|Closure
-                    ->modelLabel('Model')                       // string|Closure|null
-                    ->pluralModelLabel('Models')                // string|Closure|null
-                    ->recordTitleAttribute('name')              // string|Closure|null
-                    ->titleCaseModelLabel(false)               // bool|Closure
+                    ->navigationLabel('Manajemen Peran & Izin')
+                    ->navigationIcon('heroicon-o-shield-check')
+                    ->activeNavigationIcon('heroicon-s-shield-check')
+                    ->navigationGroup('Keamanan')
+                    ->navigationSort(100)
+                    ->modelLabel('Peran')
+                    ->pluralModelLabel('Peran')
+                    ->recordTitleAttribute('name')
+                    ->titleCaseModelLabel(false)
+                    ->globallySearchable(true)
+                    ->globalSearchResultsLimit(50)
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3,
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ])
+                    ->registerNavigation(true),
             ])
             ->authMiddleware([
                 Authenticate::class,
