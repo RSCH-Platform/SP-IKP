@@ -64,7 +64,7 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationLabel('Manajemen Peran & Izin')
                     ->navigationIcon('heroicon-o-shield-check')
                     ->activeNavigationIcon('heroicon-s-shield-check')
-                    ->navigationGroup('Keamanan')
+                    ->navigationGroup('Administration')
                     ->navigationSort(100)
                     ->modelLabel('Peran')
                     ->pluralModelLabel('Peran')
