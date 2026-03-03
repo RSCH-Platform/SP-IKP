@@ -22,5 +22,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@mail.com',
             'password' => bcrypt('password'),
         ]);
+
+        $this->call([
+            LaporanInsidenSeeder::class,
+            ShieldSeeder::class,
+        ]);
     }
 }
