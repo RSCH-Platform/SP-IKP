@@ -20,6 +20,12 @@ class LaporanInsidenSeeder extends Seeder
             return;
         }
 
+        // Check if sample data already exists to prevent duplicates
+        if (LaporanInsiden::where('nama_pasien', 'Ibu Aminah binti Sulaiman')->exists()) {
+            $this->command->info('✅ Data contoh laporan insiden sudah ada, melewati seeding');
+            return;
+        }
+
         // Laporan 1: KTD - Pasien Jatuh dari Tempat Tidur
         LaporanInsiden::create([
             'user_id' => $user->id,
