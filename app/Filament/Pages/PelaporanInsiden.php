@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\LaporanInsiden;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Form;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
 {
     use Forms\Concerns\InteractsWithForms;
+    use HasPageShield;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 

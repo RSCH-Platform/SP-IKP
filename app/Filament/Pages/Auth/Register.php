@@ -6,24 +6,20 @@ use App\Models\User;
 use Filament\Auth\Pages\Register as BaseRegister;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
 
 class Register extends BaseRegister
 {
-    protected function getForms(): array
+    public function form(Schema $schema): Schema
     {
-        return [
-            'form' => $this->form(
-                $this->makeForm()
-                    ->schema([
-                        $this->getNameFormComponent(),
-                        $this->getNoHpFormComponent(),
-                        $this->getPasswordFormComponent(),
-                        $this->getPasswordConfirmationFormComponent(),
-                    ])
-                    ->statePath('data'),
-            ),
-        ];
+        return $schema
+            ->components([
+                $this->getNameFormComponent(),
+                $this->getNoHpFormComponent(),
+                $this->getPasswordFormComponent(),
+                $this->getPasswordConfirmationFormComponent(),
+            ]);
     }
 
     protected function getNoHpFormComponent(): Component
