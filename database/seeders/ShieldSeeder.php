@@ -84,9 +84,10 @@ class ShieldSeeder extends Seeder
 
         // Optional: Create or update default admin user with super_admin role
         $adminUser = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+            ['nip' => '0000.00000'],
             [
                 'name' => 'Admin',
+                'no_hp' => '081234567890',
                 'password' => bcrypt('password'),
             ]
         );

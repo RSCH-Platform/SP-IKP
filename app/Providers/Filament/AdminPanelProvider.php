@@ -32,7 +32,6 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('')
             ->path('')
-            ->login()
             ->colors([
                 'primary' => Color::Blue,
             ])
@@ -95,6 +94,7 @@ class AdminPanelProvider extends PanelProvider
 
         if (!$ssoEnabled) {
             $panel->login(\App\Filament\Pages\Auth\Login::class);
+            $panel->registration(\App\Filament\Pages\Auth\Register::class);
         }
 
         return $panel;

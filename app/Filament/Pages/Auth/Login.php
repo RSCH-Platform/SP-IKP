@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Auth\Pages\Login as BaseLogin;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
@@ -20,17 +21,9 @@ class Login extends BaseLogin
     {
         parent::mount();
 
-        // If SSO is enabled, redirect to SSO login route
-        $ssoEnabled = config('iam.enabled', false) || env('USE_SSO', false);
-        if ($ssoEnabled && route('sso.login') !== request()->url()) {
-            $this->redirect(route('sso.login'), navigate: false);
-            return;
-        }
-
-        // Auto-fill credentials in local environment for development
         if (app()->isLocal()) {
             $this->form->fill([
-                'email' => 'admin@mail.com',
+                'identifier' => '0000.00000',
                 'password' => 'password',
                 'remember' => true,
             ]);
@@ -39,13 +32,6 @@ class Login extends BaseLogin
 
     public function authenticate(): ?LoginResponse
     {
-        // Prevent custom login if SSO is enabled
-        $ssoEnabled = config('iam.enabled', false) || env('USE_SSO', false);
-        if ($ssoEnabled) {
-            $this->redirect(route('login'), navigate: false);
-            return null;
-        }
-
         try {
             $this->rateLimit(5);
         } catch (TooManyRequestsException $exception) {
@@ -56,77 +42,47 @@ class Login extends BaseLogin
 
         $data = $this->form->getState();
 
-        // Ganti pencarian user dari email ke nip
-        $user = User::where('email', $data['email'])->first();
+        $identifier = $data['identifier'];
 
-        // if ($user && is_null($user->password)) {
-        //     throw ValidationException::withMessages([
-        //         'data.nip' => 'This account was created using social login. Please login with Google.',
-        //     ]);
-        // }
+        // Cari user berdasarkan NIP atau No HP
+        $user = User::where('nip', $identifier)
+            ->orWhere('no_hp', $identifier)
+            ->first();
 
-        if ($user && in_array($user->status, ['inactive', 'suspended'])) {
-            // Tentukan isi pesan dan tipe notifikasi berdasarkan status
-            $statusMessage = match ($user->status) {
-                'inactive' => 'Akun Anda belum diaktifkan. Silakan hubungi administrator.',
-                'suspended' => 'Akun Anda sedang ditangguhkan karena pelanggaran atau alasan lain.',
-            };
-
-            $notificationType = match ($user->status) {
-                'inactive' => 'warning',
-                'suspended' => 'danger',
-            };
-
-            // Tampilkan notifikasi sesuai status
-            Notification::make()
-                ->title('Akses Ditolak')
-                ->body($statusMessage)
-                ->$notificationType()
-                ->persistent()
-                ->send();
-
-            throw ValidationException::withMessages([
-                'data.email' => $statusMessage,
-            ]);
-        }
-
-        if (!Filament::auth()->attempt($this->getCredentialsFromFormData($data), $data['remember'] ?? false)) {
+        if (! $user || ! Hash::check($data['password'], $user->password)) {
             Notification::make()
                 ->title('Login Gagal')
-                ->body('NIP atau password salah. Silakan coba lagi.')
+                ->body('NIP / No HP atau password salah. Silakan coba lagi.')
                 ->danger()
                 ->persistent()
                 ->send();
 
-            $this->throwFailureValidationException();
-        }   
-
-        $user = Filament::auth()->user();
+            throw ValidationException::withMessages([
+                'data.identifier' => __('filament-panels::pages/auth/login.messages.failed'),
+            ]);
+        }
 
         if (
             ($user instanceof FilamentUser) &&
-            (!$user->canAccessPanel(Filament::getCurrentPanel()))
+            (! $user->canAccessPanel(Filament::getCurrentPanel()))
         ) {
-            Filament::auth()->logout();
-
             $this->throwFailureValidationException();
         }
+
+        Filament::auth()->login($user, $data['remember'] ?? false);
 
         session()->regenerate();
 
         return app(LoginResponse::class);
     }
 
-    /**
-     * @return array<int | string, string | Form>
-     */
     protected function getForms(): array
     {
         return [
             'form' => $this->form(
                 $this->makeForm()
                     ->schema([
-                        $this->getNIPFormComponent(),
+                        $this->getIdentifierFormComponent(),
                         $this->getPasswordFormComponent(),
                         $this->getRememberFormComponent(),
                     ])
@@ -135,25 +91,13 @@ class Login extends BaseLogin
         ];
     }
 
-    protected function getNIPFormComponent(): Component
+    protected function getIdentifierFormComponent(): Component
     {
-        return TextInput::make('nip')
-            ->label(__('nip'))
+        return TextInput::make('identifier')
+            ->label('NIP / No HP')
             ->required()
-            ->autocomplete()
+            ->autocomplete('username')
             ->autofocus()
             ->extraInputAttributes(['tabindex' => 1]);
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
-     */
-    protected function getCredentialsFromFormData(array $data): array
-    {
-        return [
-            'email' => $data['email'],
-            'password' => $data['password'],
-        ];
     }
 }
