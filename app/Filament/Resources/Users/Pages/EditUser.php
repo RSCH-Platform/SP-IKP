@@ -13,7 +13,17 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->label('Hapus Pengguna'),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (blank($data['password'] ?? null)) {
+            unset($data['password']);
+        }
+
+        return $data;
     }
 }

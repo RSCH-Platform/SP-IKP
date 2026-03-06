@@ -4,95 +4,134 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class ShieldSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Define all permissions for your application
-        $permissions = [
-            // LaporanInsiden Permissions
-            'ViewAny:LaporanInsiden',
-            'View:LaporanInsiden',
-            'Create:LaporanInsiden',
-            'Update:LaporanInsiden',
-            'Delete:LaporanInsiden',
-            'Restore:LaporanInsiden',
-            'ForceDelete:LaporanInsiden',
-            'ForceDeleteAny:LaporanInsiden',
-            'RestoreAny:LaporanInsiden',
-            'Replicate:LaporanInsiden',
-            'Reorder:LaporanInsiden',
+        $guard = 'web';
 
-            // Role Permissions
-            'ViewAny:Role',
-            'View:Role',
-            'Create:Role',
-            'Update:Role',
-            'Delete:Role',
-            'Restore:Role',
-            'ForceDelete:Role',
-            'ForceDeleteAny:Role',
-            'RestoreAny:Role',
-            'Replicate:Role',
-            'Reorder:Role',
+        /*
+        |--------------------------------------------------------------------------
+        | Permission Actions (standar Filament Shield)
+        |--------------------------------------------------------------------------
+        */
+
+        $actions = [
+            'ViewAny',
+            'View',
+            'Create',
+            'Update',
+            'Delete',
+            'Restore',
+            'ForceDelete',
+            'ForceDeleteAny',
+            'RestoreAny',
+            'Replicate',
+            'Reorder',
         ];
 
-        // Create permissions
+        /*
+        |--------------------------------------------------------------------------
+        | Resources
+        |--------------------------------------------------------------------------
+        */
+
+        $resources = [
+            'LaporanInsiden',
+            'Role',
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Generate Permissions
+        |--------------------------------------------------------------------------
+        */
+
+        $permissions = collect($resources)
+            ->flatMap(function ($resource) use ($actions) {
+                return collect($actions)->map(fn($action) => "{$action}:{$resource}");
+            });
+
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => $guard,
+            ]);
         }
 
-        // Create roles
-        $superAdminRole = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
-        $panelUserRole = Role::firstOrCreate(['name' => 'panel_user', 'guard_name' => 'web']);
-        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        /*
+        |--------------------------------------------------------------------------
+        | Roles
+        |--------------------------------------------------------------------------
+        */
 
-        // Give all permissions to super_admin
+        $roles = [
+            'super_admin',
+            'pengguna_panel',
+            'admin',
+            'tim_mutu',
+            'kepala_unit',
+            'pelapor',
+            'manajemen',
+        ];
+
+        $roleInstances = [];
+
+        foreach ($roles as $role) {
+            $roleInstances[$role] = Role::firstOrCreate([
+                'name' => $role,
+                'guard_name' => $guard,
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Assign Permissions
+        |--------------------------------------------------------------------------
+        */
+
         $allPermissions = Permission::all();
-        $superAdminRole->syncPermissions($allPermissions);
 
-        // Give panel_user basic viewAny permission
-        $panelUserRole->syncPermissions([
+        // Super Admin → semua permission
+        $roleInstances['super_admin']->syncPermissions($allPermissions);
+
+        // Pengguna Panel → hanya melihat laporan
+        $roleInstances['pengguna_panel']->syncPermissions([
             'ViewAny:LaporanInsiden',
         ]);
 
-        // Give admin all LaporanInsiden permissions and Role management
-        $adminRole->syncPermissions([
-            'ViewAny:LaporanInsiden',
-            'View:LaporanInsiden',
-            'Create:LaporanInsiden',
-            'Update:LaporanInsiden',
-            'Delete:LaporanInsiden',
-            'Restore:LaporanInsiden',
-            'ForceDelete:LaporanInsiden',
-            'ForceDeleteAny:LaporanInsiden',
-            'RestoreAny:LaporanInsiden',
-            'Replicate:LaporanInsiden',
-            'Reorder:LaporanInsiden',
-            'ViewAny:Role',
-            'View:Role',
-            'Create:Role',
-            'Update:Role',
-            'Delete:Role',
-        ]);
+        // Admin → semua laporan + manajemen role
+        $adminPermissions = collect($actions)
+            ->map(fn($action) => "{$action}:LaporanInsiden")
+            ->merge([
+                'ViewAny:Role',
+                'View:Role',
+                'Create:Role',
+                'Update:Role',
+                'Delete:Role',
+            ]);
 
-        // Optional: Create or update default admin user with super_admin role
+        $roleInstances['admin']->syncPermissions($adminPermissions);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Default User
+        |--------------------------------------------------------------------------
+        */
+
         $adminUser = User::firstOrCreate(
             ['nip' => '0000.00000'],
             [
                 'name' => 'Admin',
                 'no_hp' => '081234567890',
-                'password' => bcrypt('password'),
+                'password' => Hash::make('password'),
             ]
         );
 
-        // Assign super_admin role to admin user
         $adminUser->syncRoles(['super_admin']);
     }
 }
