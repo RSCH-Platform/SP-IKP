@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LaporanInsidens\Tables;
 
+use Dom\Text;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -45,8 +46,9 @@ class LaporanInsidensTable
                     ->wrap()
                     ->limit(30),
 
-                BadgeColumn::make('status')
+                TextColumn::make('status')
                     ->label('Status')
+                    ->badge()
                     ->colors([
                         'secondary' => 'draft',
                         'warning' => 'submitted',
@@ -61,8 +63,9 @@ class LaporanInsidensTable
                         default => $state,
                     }),
 
-                BadgeColumn::make('dampak_insiden')
+                TextColumn::make('dampak_insiden')
                     ->label('Dampak')
+                    ->badge()
                     ->colors([
                         'success' => 'Tidak ada cedera',
                         'warning' => ['Cedera ringan', 'Cedera sedang'],

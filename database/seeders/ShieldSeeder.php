@@ -71,7 +71,6 @@ class ShieldSeeder extends Seeder
 
         $roles = [
             'super_admin',
-            'pengguna_panel',
             'admin',
             'tim_mutu',
             'kepala_unit',
