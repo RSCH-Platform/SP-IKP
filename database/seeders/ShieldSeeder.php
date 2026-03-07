@@ -98,11 +98,6 @@ class ShieldSeeder extends Seeder
         // Super Admin → semua permission
         $roleInstances['super_admin']->syncPermissions($allPermissions);
 
-        // Pengguna Panel → hanya melihat laporan
-        $roleInstances['pengguna_panel']->syncPermissions([
-            'ViewAny:LaporanInsiden',
-        ]);
-
         // Admin → semua laporan + manajemen role
         $adminPermissions = collect($actions)
             ->map(fn($action) => "{$action}:LaporanInsiden")
