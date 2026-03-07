@@ -11,6 +11,12 @@ class LaporanInsiden extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Status constants
+    const STATUS_DRAFT              = 'draft';
+    const STATUS_DILAPORKAN         = 'dilaporkan';
+    const STATUS_DIVERIFIKASI_UNIT  = 'diverifikasi_unit';
+    const STATUS_REVISI             = 'revisi';
+
     protected $fillable = [
         'user_id',
         'nama_pelapor',
@@ -41,13 +47,23 @@ class LaporanInsiden extends Model
         'catatan_tambahan',
         'reviewed_by',
         'reviewed_at',
+        // Approval workflow columns
+        'reported_at',
+        'verified_by',
+        'verified_at',
+        'rejected_by',
+        'rejected_at',
+        'rejection_reason',
     ];
 
     protected $casts = [
-        'tanggal_lapor' => 'date',
+        'tanggal_lapor'   => 'date',
         'tanggal_insiden' => 'date',
         'tanggal_masuk_rs' => 'datetime',
-        'reviewed_at' => 'datetime',
+        'reviewed_at'     => 'datetime',
+        'reported_at'     => 'datetime',
+        'verified_at'     => 'datetime',
+        'rejected_at'     => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -58,6 +74,45 @@ class LaporanInsiden extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function verifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function rejecter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
+    }
+
+    // --- Approval transition methods ---
+
+    public function submitLaporan(): void
+    {
+        $this->update([
+            'status'      => self::STATUS_DILAPORKAN,
+            'reported_at' => now(),
+        ]);
+    }
+
+    public function verifikasiLaporan(int $userId): void
+    {
+        $this->update([
+            'status'      => self::STATUS_DIVERIFIKASI_UNIT,
+            'verified_by' => $userId,
+            'verified_at' => now(),
+        ]);
+    }
+
+    public function kembalikanLaporan(int $userId, string $reason): void
+    {
+        $this->update([
+            'status'           => self::STATUS_REVISI,
+            'rejected_by'      => $userId,
+            'rejected_at'      => now(),
+            'rejection_reason' => $reason,
+        ]);
     }
 
     protected static function boot()

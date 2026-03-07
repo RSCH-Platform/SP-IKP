@@ -11,6 +11,7 @@ class LaporanInsidenInfolistSchema
     {
         return [
             static::sectionMeta(),
+            static::sectionApproval(),
             static::sectionPelapor(),
             static::sectionInsiden(),
             static::sectionPasien(),
@@ -35,18 +36,26 @@ class LaporanInsidenInfolistSchema
                     ->label('Status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'draft'     => 'secondary',
-                        'submitted' => 'warning',
-                        'reviewed'  => 'info',
-                        'closed'    => 'success',
-                        default     => 'secondary',
+                        'draft'             => 'secondary',
+                        'dilaporkan'        => 'warning',
+                        'diverifikasi_unit' => 'success',
+                        'revisi'            => 'danger',
+                        // legacy
+                        'submitted'         => 'warning',
+                        'reviewed'          => 'info',
+                        'closed'            => 'success',
+                        default             => 'secondary',
                     })
                     ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'draft'     => 'Draft',
-                        'submitted' => 'Disubmit',
-                        'reviewed'  => 'Direview',
-                        'closed'    => 'Selesai',
-                        default     => $state,
+                        'draft'             => 'Draft',
+                        'dilaporkan'        => 'Dilaporkan',
+                        'diverifikasi_unit' => 'Diverifikasi Unit',
+                        'revisi'            => 'Perlu Revisi',
+                        // legacy
+                        'submitted'         => 'Disubmit',
+                        'reviewed'          => 'Direview',
+                        'closed'            => 'Selesai',
+                        default             => $state,
                     }),
 
                 Infolists\Components\TextEntry::make('created_at')
@@ -55,6 +64,54 @@ class LaporanInsidenInfolistSchema
             ])
             ->columns(3)
             ->compact();
+    }
+
+    public static function sectionApproval(): Section
+    {
+        return Section::make('🔄 Riwayat Proses Approval')
+            ->icon('heroicon-o-clock')
+            ->schema([
+                Infolists\Components\TextEntry::make('reported_at')
+                    ->label('Dikirim Pada')
+                    ->dateTime('d F Y, H:i')
+                    ->icon('heroicon-m-paper-airplane')
+                    ->placeholder('Belum dikirim')
+                    ->visible(fn($record) => $record->reported_at !== null),
+
+                Infolists\Components\TextEntry::make('verifier.name')
+                    ->label('Diverifikasi Oleh')
+                    ->icon('heroicon-m-check-circle')
+                    ->visible(fn($record) => $record->verified_by !== null),
+
+                Infolists\Components\TextEntry::make('verified_at')
+                    ->label('Tanggal Verifikasi')
+                    ->dateTime('d F Y, H:i')
+                    ->icon('heroicon-m-calendar')
+                    ->visible(fn($record) => $record->verified_at !== null),
+
+                Infolists\Components\TextEntry::make('rejecter.name')
+                    ->label('Dikembalikan Oleh')
+                    ->icon('heroicon-m-arrow-uturn-left')
+                    ->color('danger')
+                    ->visible(fn($record) => $record->rejected_by !== null),
+
+                Infolists\Components\TextEntry::make('rejected_at')
+                    ->label('Tanggal Dikembalikan')
+                    ->dateTime('d F Y, H:i')
+                    ->icon('heroicon-m-calendar')
+                    ->visible(fn($record) => $record->rejected_at !== null),
+
+                Infolists\Components\TextEntry::make('rejection_reason')
+                    ->label('Alasan Pengembalian')
+                    ->columnSpanFull()
+                    ->html()
+                    ->formatStateUsing(fn(?string $state): string => $state ? nl2br(e($state)) : '—')
+                    ->visible(fn($record) => !empty($record->rejection_reason)),
+            ])
+            ->columns(2)
+            ->collapsible()
+            ->compact()
+            ->visible(fn($record) => $record->status !== 'draft');
     }
 
     public static function sectionPelapor(): Section

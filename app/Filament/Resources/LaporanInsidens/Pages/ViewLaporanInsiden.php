@@ -4,7 +4,12 @@ namespace App\Filament\Resources\LaporanInsidens\Pages;
 
 use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use App\Filament\Resources\LaporanInsidens\Schemas\LaporanInsidenInfolistSchema;
+use App\Models\LaporanInsiden;
+use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Schema;
 
@@ -15,7 +20,113 @@ class ViewLaporanInsiden extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            EditAction::make()
+                ->visible(fn() => in_array($this->record->status, [
+                    LaporanInsiden::STATUS_DRAFT,
+                    LaporanInsiden::STATUS_REVISI,
+                ])),
+
+            Action::make('submit_laporan')
+                ->label('Kirim Laporan')
+                ->icon('heroicon-o-paper-airplane')
+                ->color('warning')
+                ->visible(
+                    fn() =>
+                    auth()->user()?->hasRole('pelapor') &&
+                        $this->record->status === LaporanInsiden::STATUS_DRAFT
+                )
+                ->requiresConfirmation()
+                ->modalHeading('Kirim Laporan Insiden?')
+                ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi. Pastikan semua data sudah lengkap.')
+                ->action(function () {
+                    $this->record->submitLaporan();
+
+                    $kepalaUnits = User::role('kepala_unit')->get();
+                    if ($kepalaUnits->isNotEmpty()) {
+                        Notification::make()
+                            ->title('Laporan Insiden Baru')
+                            ->body("Ada laporan insiden baru dari {$this->record->nama_pelapor} yang perlu diverifikasi.")
+                            ->warning()
+                            ->sendToDatabase($kepalaUnits);
+                    }
+
+                    Notification::make()
+                        ->title('Laporan berhasil dikirim')
+                        ->success()
+                        ->send();
+
+                    $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
+                }),
+
+            Action::make('verifikasi_laporan')
+                ->label('Verifikasi Laporan')
+                ->icon('heroicon-o-check-circle')
+                ->color('success')
+                ->visible(
+                    fn() =>
+                    auth()->user()?->hasAnyRole(['kepala_unit', 'admin', 'super_admin']) &&
+                        $this->record->status === LaporanInsiden::STATUS_DILAPORKAN
+                )
+                ->requiresConfirmation()
+                ->modalHeading('Verifikasi Laporan Insiden?')
+                ->modalDescription('Laporan akan diverifikasi dan diteruskan ke tim mutu.')
+                ->action(function () {
+                    $this->record->verifikasiLaporan(auth()->id());
+
+                    $notifyUsers = User::role(['tim_mutu', 'admin'])->get();
+                    if ($notifyUsers->isNotEmpty()) {
+                        Notification::make()
+                            ->title('Laporan Insiden Diverifikasi')
+                            ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi oleh " . auth()->user()->name . '.')
+                            ->success()
+                            ->sendToDatabase($notifyUsers);
+                    }
+
+                    Notification::make()
+                        ->title('Laporan berhasil diverifikasi')
+                        ->success()
+                        ->send();
+
+                    $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
+                }),
+
+            Action::make('kembalikan_laporan')
+                ->label('Kembalikan ke Pelapor')
+                ->icon('heroicon-o-arrow-uturn-left')
+                ->color('danger')
+                ->visible(
+                    fn() =>
+                    auth()->user()?->hasAnyRole(['kepala_unit', 'admin', 'super_admin']) &&
+                        $this->record->status === LaporanInsiden::STATUS_DILAPORKAN
+                )
+                ->form([
+                    Textarea::make('rejection_reason')
+                        ->label('Alasan Pengembalian')
+                        ->placeholder('Jelaskan apa yang perlu diperbaiki oleh pelapor...')
+                        ->required()
+                        ->minLength(10)
+                        ->rows(4),
+                ])
+                ->modalHeading('Kembalikan Laporan ke Pelapor')
+                ->modalSubmitActionLabel('Kembalikan')
+                ->action(function (array $data) {
+                    $this->record->kembalikanLaporan(auth()->id(), $data['rejection_reason']);
+
+                    if ($this->record->user) {
+                        Notification::make()
+                            ->title('Laporan Perlu Diperbaiki')
+                            ->body("Laporan insiden Anda perlu diperbaiki. Alasan: {$data['rejection_reason']}")
+                            ->danger()
+                            ->sendToDatabase([$this->record->user]);
+                    }
+
+                    Notification::make()
+                        ->title('Laporan dikembalikan ke pelapor')
+                        ->success()
+                        ->send();
+
+                    $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
+                }),
         ];
     }
 

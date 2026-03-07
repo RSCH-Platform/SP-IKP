@@ -4,15 +4,11 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\LaporanInsidens\Schemas\LaporanInsidenFormSchema;
 use App\Models\LaporanInsiden;
+use App\Models\User;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -71,14 +67,25 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
     public function submit(): void
     {
         $data = $this->form->getState();
-        $data['user_id'] = Auth::id();
-        $data['status'] = 'submitted';
+        $data['user_id']     = Auth::id();
+        $data['status']      = LaporanInsiden::STATUS_DILAPORKAN;
+        $data['reported_at'] = now();
 
-        LaporanInsiden::create($data);
+        $laporan = LaporanInsiden::create($data);
+
+        // Notify kepala_unit users about the new report
+        $kepalaUnits = User::role('kepala_unit')->get();
+        if ($kepalaUnits->isNotEmpty()) {
+            Notification::make()
+                ->title('Laporan Insiden Baru')
+                ->body("Ada laporan insiden baru dari {$laporan->nama_pelapor} yang perlu diverifikasi.")
+                ->warning()
+                ->sendToDatabase($kepalaUnits);
+        }
 
         Notification::make()
-            ->title('Laporan berhasil disubmit')
-            ->body('Laporan insiden Anda telah berhasil dikirim untuk direview.')
+            ->title('Laporan berhasil dikirim')
+            ->body('Laporan insiden Anda telah berhasil dikirim untuk diverifikasi oleh kepala unit.')
             ->success()
             ->send();
 
