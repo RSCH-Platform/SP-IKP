@@ -5,6 +5,7 @@ namespace App\Filament\Resources\LaporanInsidens\Tables;
 use App\Models\LaporanInsiden;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -120,169 +121,179 @@ class LaporanInsidensTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make()
-                    ->visible(fn($record) => in_array($record->status, [
-                        LaporanInsiden::STATUS_DRAFT,
-                        LaporanInsiden::STATUS_REVISI,
-                        LaporanInsiden::STATUS_REVISI_UNIT,
-                    ])),
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make()
+                        ->visible(fn($record) => in_array($record->status, [
+                            LaporanInsiden::STATUS_DRAFT,
+                            LaporanInsiden::STATUS_REVISI,
+                            LaporanInsiden::STATUS_REVISI_UNIT,
+                        ])),
+                ])
+                    ->icon('heroicon-o-ellipsis-vertical')
+                    ->button()
+                    ->label('Aksi'),
 
-                // --- Workflow: Pelapor ---
+                /*
+                |--------------------------------------------------------------------------
+                | Workflow Pelapor
+                |--------------------------------------------------------------------------
+                */
 
-                Action::make('submit_laporan')
-                    ->label('Kirim Laporan')
-                    ->icon('heroicon-o-paper-airplane')
-                    ->color('warning')
-                    ->visible(fn($record) =>
-                        auth()->user()?->can('Submit:LaporanInsiden') &&
-                        in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI])
-                    )
-                    ->requiresConfirmation()
-                    ->modalHeading('Kirim Laporan Insiden?')
-                    ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi. Pastikan semua data sudah lengkap.')
-                    ->action(function ($record) {
-                        $record->submitLaporan();
+                ActionGroup::make([
+                    Action::make('submit_laporan')
+                        ->label('Kirim Laporan')
+                        ->icon('heroicon-o-paper-airplane')
+                        ->color('warning')
+                        ->visible(
+                            fn($record) =>
+                            auth()->user()?->can('Submit:LaporanInsiden') &&
+                                in_array($record->status, [
+                                    LaporanInsiden::STATUS_DRAFT,
+                                    LaporanInsiden::STATUS_REVISI
+                                ])
+                        )
+                        ->requiresConfirmation()
+                        ->modalHeading('Kirim Laporan Insiden?')
+                        ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi.')
+                        ->action(function ($record) {
 
-                        $kepalaUnits = User::role('kepala_unit')->get();
-                        if ($kepalaUnits->isNotEmpty()) {
+                            $record->submitLaporan();
+
+                            $kepalaUnits = User::role('kepala_unit')->get();
+
+                            Notification::make()
+                                ->title('Laporan berhasil dikirim')
+                                ->success()
+                                ->send();
+
                             Notification::make()
                                 ->title('Laporan Insiden Baru')
-                                ->body("Ada laporan insiden baru dari {$record->nama_pelapor} yang perlu diverifikasi.")
+                                ->body("Ada laporan insiden baru dari {$record->nama_pelapor}.")
                                 ->warning()
                                 ->sendToDatabase($kepalaUnits);
-                        }
+                        }),
 
-                        Notification::make()
-                            ->title('Laporan berhasil dikirim')
-                            ->body('Laporan Anda telah dikirim ke kepala unit untuk diverifikasi.')
-                            ->success()
-                            ->send();
-                    }),
+                ])
+                    ->button()
+                    ->visible(fn() => auth()->user()?->can('Submit:LaporanInsiden'))
+                    ->label('Pelaporan')
+                    ->icon('heroicon-o-user'),
 
-                // --- Workflow: Kepala Unit ---
+                /*
+                |--------------------------------------------------------------------------
+                | Workflow Kepala Unit
+                |--------------------------------------------------------------------------
+                */
 
-                Action::make('verifikasi_laporan')
-                    ->label('Verifikasi')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->visible(fn($record) =>
-                        auth()->user()?->can('Verifikasi:LaporanInsiden') &&
-                        $record->status === LaporanInsiden::STATUS_DILAPORKAN
-                    )
-                    ->requiresConfirmation()
-                    ->modalHeading('Verifikasi Laporan?')
-                    ->modalDescription('Laporan akan diverifikasi dan diteruskan ke tim mutu untuk investigasi. Pastikan grading dan analisis sudah diisi.')
-                    ->action(function ($record) {
-                        $record->verifikasiLaporan(auth()->id());
+                ActionGroup::make([
 
-                        $timMutu = User::role(['tim_mutu', 'admin'])->get();
-                        if ($timMutu->isNotEmpty()) {
+                    Action::make('verifikasi_laporan')
+                        ->label('Verifikasi')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->visible(
+                            fn($record) =>
+                            auth()->user()?->can('Verifikasi:LaporanInsiden') &&
+                                $record->status === LaporanInsiden::STATUS_DILAPORKAN
+                        )
+                        ->requiresConfirmation()
+                        ->modalHeading('Verifikasi Laporan')
+                        ->action(function ($record) {
+
+                            $record->verifikasiLaporan(auth()->id());
+
+                            $timMutu = User::role(['tim_mutu', 'admin'])->get();
+
                             Notification::make()
-                                ->title('Laporan Siap Investigasi')
-                                ->body("Laporan dari {$record->nama_pelapor} telah diverifikasi oleh " . auth()->user()->name . ' dan siap untuk investigasi.')
+                                ->title('Laporan diverifikasi')
                                 ->success()
+                                ->send();
+
+                            Notification::make()
+                                ->title('Laporan siap investigasi')
                                 ->sendToDatabase($timMutu);
-                        }
+                        }),
 
-                        Notification::make()
-                            ->title('Laporan berhasil diverifikasi')
-                            ->success()
-                            ->send();
-                    }),
+                    Action::make('kembalikan_ke_pelapor')
+                        ->label('Kembalikan ke Pelapor')
+                        ->icon('heroicon-o-arrow-uturn-left')
+                        ->color('danger')
+                        ->visible(
+                            fn($record) =>
+                            auth()->user()?->can('Kembalikan:LaporanInsiden') &&
+                                $record->status === LaporanInsiden::STATUS_DILAPORKAN
+                        )
+                        ->form([
+                            Textarea::make('rejection_reason')
+                                ->label('Alasan Pengembalian')
+                                ->required(),
+                        ])
+                        ->action(function ($record, array $data) {
 
-                Action::make('kembalikan_ke_pelapor')
-                    ->label('Kembalikan ke Pelapor')
-                    ->icon('heroicon-o-arrow-uturn-left')
-                    ->color('danger')
-                    ->visible(fn($record) =>
-                        auth()->user()?->can('Kembalikan:LaporanInsiden') &&
-                        $record->status === LaporanInsiden::STATUS_DILAPORKAN
-                    )
-                    ->form([
-                        Textarea::make('rejection_reason')
-                            ->label('Alasan Pengembalian')
-                            ->placeholder('Jelaskan apa yang perlu diperbaiki oleh pelapor...')
-                            ->required()
-                            ->minLength(10)
-                            ->rows(4),
-                    ])
-                    ->modalHeading('Kembalikan Laporan ke Pelapor')
-                    ->modalSubmitActionLabel('Kembalikan')
-                    ->action(function ($record, array $data) {
-                        $record->kembalikanKePelapor(auth()->id(), $data['rejection_reason']);
+                            $record->kembalikanKePelapor(auth()->id(), $data['rejection_reason']);
 
-                        if ($record->user) {
                             Notification::make()
-                                ->title('Laporan Perlu Diperbaiki')
-                                ->body("Laporan insiden Anda perlu diperbaiki. Alasan: {$data['rejection_reason']}")
+                                ->title('Laporan dikembalikan ke pelapor')
                                 ->danger()
-                                ->sendToDatabase([$record->user]);
-                        }
+                                ->send();
+                        }),
 
-                        Notification::make()
-                            ->title('Laporan dikembalikan ke pelapor')
-                            ->success()
-                            ->send();
-                    }),
+                ])
+                    ->visible(fn() => auth()->user()?->can('Verifikasi:LaporanInsiden'))
+                    ->label('Kepala Unit')
+                    ->button()
+                    ->icon('heroicon-o-building-office'),
 
-                // --- Workflow: Tim Mutu ---
+                /*
+                |--------------------------------------------------------------------------
+                | Workflow Tim Mutu
+                |--------------------------------------------------------------------------
+                */
 
-                Action::make('mulai_investigasi')
-                    ->label('Mulai Investigasi')
-                    ->icon('heroicon-o-magnifying-glass')
-                    ->color('info')
-                    ->visible(fn($record) =>
-                        auth()->user()?->can('Investigasi:LaporanInsiden') &&
-                        $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
-                    )
-                    ->requiresConfirmation()
-                    ->modalHeading('Mulai Investigasi Sederhana?')
-                    ->modalDescription('Laporan akan masuk ke tahap investigasi sederhana.')
-                    ->action(function ($record) {
-                        $record->mulaiInvestigasi(auth()->id());
+                ActionGroup::make([
 
-                        Notification::make()
-                            ->title('Investigasi dimulai')
-                            ->success()
-                            ->send();
-                    }),
+                    Action::make('mulai_investigasi')
+                        ->label('Mulai Investigasi')
+                        ->icon('heroicon-o-magnifying-glass')
+                        ->color('info')
+                        ->visible(
+                            fn($record) =>
+                            auth()->user()?->can('Investigasi:LaporanInsiden') &&
+                                $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
+                        )
+                        ->requiresConfirmation()
+                        ->action(fn($record) => $record->mulaiInvestigasi(auth()->id())),
 
-                Action::make('kembalikan_ke_unit')
-                    ->label('Kembalikan ke Kepala Unit')
-                    ->icon('heroicon-o-arrow-uturn-left')
-                    ->color('danger')
-                    ->visible(fn($record) =>
-                        auth()->user()?->can('KembalikanUnit:LaporanInsiden') &&
-                        $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
-                    )
-                    ->schema([
-                        Textarea::make('rejection_reason')
-                            ->label('Alasan Pengembalian')
-                            ->placeholder('Jelaskan apa yang perlu diperbaiki oleh kepala unit...')
-                            ->required()
-                            ->minLength(10)
-                            ->rows(4),
-                    ])
-                    ->modalHeading('Kembalikan Laporan ke Kepala Unit')
-                    ->modalSubmitActionLabel('Kembalikan')
-                    ->action(function ($record, array $data) {
-                        $record->kembalikanKeKepalaUnit(auth()->id(), $data['rejection_reason']);
+                    Action::make('kembalikan_ke_unit')
+                        ->label('Kembalikan ke Kepala Unit')
+                        ->icon('heroicon-o-arrow-uturn-left')
+                        ->color('danger')
+                        ->visible(
+                            fn($record) =>
+                            auth()->user()?->can('KembalikanUnit:LaporanInsiden') &&
+                                $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
+                        )
+                        ->form([
+                            Textarea::make('rejection_reason')
+                                ->label('Alasan Pengembalian')
+                                ->required(),
+                        ])
+                        ->action(function ($record, array $data) {
 
-                        $kepalaUnits = User::role('kepala_unit')->get();
-                        if ($kepalaUnits->isNotEmpty()) {
+                            $record->kembalikanKeKepalaUnit(auth()->id(), $data['rejection_reason']);
+
                             Notification::make()
-                                ->title('Laporan Perlu Diperbaiki')
-                                ->body("Laporan dari {$record->nama_pelapor} dikembalikan. Alasan: {$data['rejection_reason']}")
+                                ->title('Laporan dikembalikan ke kepala unit')
                                 ->danger()
-                                ->sendToDatabase($kepalaUnits);
-                        }
+                                ->send();
+                        }),
 
-                        Notification::make()
-                            ->title('Laporan dikembalikan ke kepala unit')
-                            ->success()
-                            ->send();
-                    }),
+                ])
+                    ->visible(fn() => auth()->user()?->can('Investigasi:LaporanInsiden'))
+                    ->button()
+                    ->label('Tim Mutu')
+                    ->icon('heroicon-o-shield-check'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

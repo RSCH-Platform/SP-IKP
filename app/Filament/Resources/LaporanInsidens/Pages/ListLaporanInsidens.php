@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\LaporanInsidens\Pages;
 
 use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListLaporanInsidens extends ListRecords
 {
@@ -14,6 +15,54 @@ class ListLaporanInsidens extends ListRecords
     {
         return [
             // CreateAction::make(),
+        ];
+    }
+
+    public function getTabs(): array
+    {
+        return [
+            'draft' => Tab::make('Draft')
+                ->badge(fn() => $this->getModel()::where('status', 'draft')->count())
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    $query->where('status', 'draft')
+                ),
+
+            'dilaporkan' => Tab::make('Dilaporkan')
+                ->badge(fn() => $this->getModel()::where('status', 'dilaporkan')->count())
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    $query->where('status', 'dilaporkan')
+                ),
+
+            'revisi' => Tab::make('Perlu Revisi')
+                ->badge(fn() => $this->getModel()::where('status', 'revisi')->count())
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    $query->where('status', 'revisi')
+                ),
+
+            'diverifikasi' => Tab::make('Diverifikasi')
+                ->badge(fn() => $this->getModel()::where('status', 'diverifikasi')->count())
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    $query->where('status', 'diverifikasi')
+                ),
+
+            'revisi_unit' => Tab::make('Revisi Unit')
+                ->badge(fn() => $this->getModel()::where('status', 'revisi_unit')->count())
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    $query->where('status', 'revisi_unit')
+                ),
+
+            'investigasi' => Tab::make('Investigasi')
+                ->badge(fn() => $this->getModel()::where('status', 'investigasi')->count())
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    $query->where('status', 'investigasi')
+                ),
+            'semua' => Tab::make('Semua Laporan'),
         ];
     }
 }
