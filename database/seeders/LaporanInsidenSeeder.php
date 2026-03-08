@@ -51,8 +51,8 @@ class LaporanInsidenSeeder extends Seeder
             'deskripsi_kategori_insiden' => 'Pasien jatuh dari tempat tidur saat mencoba turun sendiri tanpa memanggil perawat. Side rail tempat tidur dalam kondisi terbuka karena perawat lupa menutup setelah pemberian obat. Pasien post-operasi katarak hari ke-2 dengan faktor risiko usia lanjut (67 tahun) dan penggunaan obat antihipertensi yang dapat menyebabkan pusing. Jatuh mengakibatkan fraktur collum femur dextra yang memerlukan tindakan operasi ORIF.',
             'dampak_insiden' => 'Cedera sedang',
             'tindakan_dilakukan' => "1. Segera membantu pasien dengan hati-hati, memastikan pasien tidak dipindahkan secara tiba-tiba untuk menghindari cedera lebih lanjut\n\n2. Melakukan pemeriksaan kesadaran dan tanda vital:\n   - Kesadaran: Composmentis\n   - TD: 150/90 mmHg\n   - Nadi: 98x/menit\n   - RR: 22x/menit\n   - Suhu: 36.8°C\n\n3. Melakukan pemeriksaan fisik area yang mengeluh nyeri (pinggul kanan), ditemukan bengkak dan nyeri tekan\n\n4. Segera menghubungi dokter jaga (dr. Ahmad Fauzi, Sp.B) untuk melaporkan kejadian dan meminta instruksi\n\n5. Atas instruksi dokter, memindahkan pasien ke tempat tidur dengan bantuan 3 orang perawat menggunakan teknik log-rolling yang benar\n\n6. Memberikan kompres dingin pada area yang bengkak\n\n7. Memberikan analgesik sesuai advice dokter (Ketorolac 30mg IV)\n\n8. Melakukan observasi ketat tanda vital setiap 15 menit selama 1 jam pertama\n\n9. Dokter melakukan pemeriksaan dan memutuskan untuk dilakukan foto rontgen pelvis dan femur kanan\n\n10. Hasil rontgen menunjukkan fraktur collum femur dextra, pasien dikonsulkan ke Sp.OT untuk rencana operasi ORIF\n\n11. Menjelaskan kejadian kepada keluarga pasien dan meminta persetujuan tindakan operasi\n\n12. Mendokumentasikan seluruh kejadian di rekam medis dan membuat laporan insiden\n\n13. Memasang side rail pada posisi terkunci dan menambahkan stiker \"Risiko Jatuh Tinggi\" di tempat tidur pasien\n\n14. Melaporkan kejadian kepada Kepala Ruangan dan Tim IKP",
-            'status' => 'submitted',
-            'grading_risiko' => 'Kuning (Moderat)',
+            'status' => 'dilaporkan',
+            'grading_risiko' => 'Kuning',
             'catatan_tambahan' => 'Side rail tidak terpasang dengan benar. Pasien tidak menggunakan bel panggilan yang sudah tersedia. Perlu edukasi ulang kepada pasien dan keluarga tentang pencegahan jatuh.',
         ]);
 
@@ -81,10 +81,10 @@ class LaporanInsidenSeeder extends Seeder
             'deskripsi_kategori_insiden' => 'Kesalahan dosis Clopidogrel yang disiapkan oleh farmasi. Farmasi menyiapkan Clopidogrel 300mg sedangkan yang diresepkan dokter adalah 75mg. Kesalahan terjadi karena kurangnya komunikasi antara dokter-farmasi-perawat dan tidak adanya double-check saat penyiapan obat. Beruntung kesalahan terdeteksi oleh perawat lain sebelum obat diberikan kepada pasien sehingga tidak menimbulkan cedera.',
             'dampak_insiden' => 'Tidak ada cedera',
             'tindakan_dilakukan' => "1. Segera menghentikan pemberian obat dan melakukan double-check terhadap instruksi dokter\n\n2. Mengkonfirmasi ulang dosis Clopidogrel kepada dokter penanggung jawab (dr. Lisa Permata, Sp.JP)\n\n3. Dokter mengkonfirmasi bahwa dosis yang benar adalah 75mg (loading dose untuk kasus ini seharusnya 300mg, tetapi pasien sudah pernah konsumsi Clopidogrel sebelumnya)\n\n4. Mengembalikan Clopidogrel 300mg ke farmasi dan meminta Clopidogrel 75mg yang benar\n\n5. Melakukan verifikasi ulang dengan prinsip 6 benar:\n   - Benar pasien ✓\n   - Benar obat ✓\n   - Benar dosis ✓ (75mg)\n   - Benar rute ✓ (PO)\n   - Benar waktu ✓\n   - Benar dokumentasi ✓\n\n6. Memberikan obat yang benar kepada pasien pada pukul 08.25 WIB (terlambat 10 menit dari seharusnya)\n\n7. Pasien tidak mengalami adverse event karena kesalahan terdeteksi sebelum obat diberikan\n\n8. Melakukan klarifikasi dengan petugas farmasi tentang kesalahan penyiapan obat\n\n9. Mendokumentasikan kejadian di rekam medis dan membuat laporan KNC (Kejadian Nyaris Cedera)\n\n10. Melaporkan kepada Kepala IGD dan Tim Farmasi untuk evaluasi sistem\n\n11. Memberikan apresiasi kepada Ns. Dewi yang telah membantu mendeteksi kesalahan sebelum obat diberikan",
-            'status' => 'reviewed',
-            'grading_risiko' => 'Hijau (Minor)',
-            'reviewed_by' => $user->id,
-            'reviewed_at' => now(),
+            'status' => 'investigasi',
+            'grading_risiko' => 'Hijau',
+            'verified_by' => $user->id,
+            'verified_at' => now(),
             'catatan_tambahan' => 'Kejadian ini menunjukkan pentingnya double-check sebelum pemberian obat. Perlu perbaikan sistem komunikasi antara dokter-farmasi-perawat dan penerapan CPPT (Catatan Perkembangan Pasien Terintegrasi) secara konsisten.',
         ]);
 
@@ -113,7 +113,7 @@ class LaporanInsidenSeeder extends Seeder
             'deskripsi_kategori_insiden' => 'Infeksi luka operasi (Surgical Site Infection/SSI) superfisial yang terjadi pada hari ke-3 pasca appendektomi. Hasil kultur menunjukkan pertumbuhan Staphylococcus aureus. Diduga terkait dengan kemungkinan kontaminasi saat prosedur operasi atau saat perawatan luka post-operasi. Mengakibatkan perpanjangan masa rawat inap dari 5 hari menjadi 12 hari dan kebutuhan terapi antibiotik tambahan.',
             'dampak_insiden' => 'Cedera sedang',
             'tindakan_dilakukan' => "1. Segera melakukan pemeriksaan fisik menyeluruh pada area luka operasi\n\n2. Mengambil sampel kultur pus dari luka untuk pemeriksaan mikrobiologi dan tes sensitivitas\n\n3. Melakukan pemeriksaan penunjang:\n   - Darah lengkap: Leukosit 15.000/mm³ (meningkat)\n   - LED: 45 mm/jam (meningkat)\n   - CRP: 12 mg/dL (positif)\n\n4. Mengganti antibiotik profilaksis menjadi antibiotik empiris broad-spectrum (Ceftriaxone 2x1gr IV + Metronidazole 3x500mg IV) sambil menunggu hasil kultur\n\n5. Melakukan perawatan luka dengan teknik steril:\n   - Membersihkan luka dengan NaCl 0.9%\n   - Mengangkat jahitan yang terinfeksi\n   - Drainase pus\n   - Menutup luka dengan kassa steril\n   - Ganti balutan 2x sehari\n\n6. Memberikan analgesik untuk mengurangi nyeri (Ketorolac 3x30mg IV)\n\n7. Memberikan antipiretik untuk demam (Paracetamol 3x1gr PO)\n\n8. Melakukan observasi ketat tanda vital dan kondisi luka setiap 6 jam\n\n9. Setelah hasil kultur keluar (hari ke-5), mengganti antibiotik sesuai tes sensitivitas (Vancomycin 2x1gr IV)\n\n10. Memberikan edukasi kepada pasien dan keluarga tentang kondisi dan rencana perawatan\n\n11. Memperpanjang masa rawat inap dari rencana 5 hari menjadi 12 hari untuk memastikan infeksi teratasi\n\n12. Melakukan investigasi terhadap kemungkinan sumber infeksi:\n    - Review sterility kamar operasi\n    - Review teknik aseptik tim bedah\n    - Kultur lingkungan kamar operasi\n\n13. Melaporkan kejadian ke Tim PPI (Pencegahan dan Pengendalian Infeksi) dan Tim IKP\n\n14. Mendokumentasikan seluruh kejadian di rekam medis",
-            'status' => 'submitted',
+            'status' => 'diverifikasi',
             'grading_risiko' => null,
             'catatan_tambahan' => 'Perlu dilakukan audit menyeluruh terhadap prosedur sterilisasi di kamar operasi dan kepatuhan tim bedah terhadap SOP pencegahan infeksi. Surveillance SSI perlu ditingkatkan.',
         ]);
@@ -149,9 +149,9 @@ class LaporanInsidenSeeder extends Seeder
         ]);
 
         $this->command->info('✅ Berhasil membuat 4 contoh data laporan insiden');
-        $this->command->info('   - 1 laporan KTD (Pasien jatuh) - Status: Submitted - Grading: Kuning');
-        $this->command->info('   - 1 laporan KNC (Kesalahan obat terdeteksi) - Status: Reviewed - Grading: Hijau');
-        $this->command->info('   - 1 laporan KTD (Infeksi nosokomial) - Status: Submitted - Belum grading');
-        $this->command->info('   - 1 laporan KTC (Kesalahan identifikasi) - Status: Draft - Belum grading');
+        $this->command->info('   - 1 laporan KTD (Pasien jatuh) - Status: dilaporkan - Grading: Kuning');
+        $this->command->info('   - 1 laporan KNC (Kesalahan obat) - Status: investigasi - Grading: Hijau');
+        $this->command->info('   - 1 laporan KTD (Infeksi nosokomial) - Status: diverifikasi - Belum grading');
+        $this->command->info('   - 1 laporan KTC (Kesalahan identifikasi) - Status: draft - Belum grading');
     }
 }

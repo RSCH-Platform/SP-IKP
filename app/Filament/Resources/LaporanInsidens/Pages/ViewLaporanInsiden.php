@@ -32,8 +32,8 @@ class ViewLaporanInsiden extends ViewRecord
                 ->color('warning')
                 ->visible(
                     fn() =>
-                    auth()->user()?->hasRole('pelapor') &&
-                        $this->record->status === LaporanInsiden::STATUS_DRAFT
+                    auth()->user()?->can('Submit:LaporanInsiden') &&
+                        in_array($this->record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI])
                 )
                 ->requiresConfirmation()
                 ->modalHeading('Kirim Laporan Insiden?')
@@ -64,7 +64,7 @@ class ViewLaporanInsiden extends ViewRecord
                 ->color('success')
                 ->visible(
                     fn() =>
-                    auth()->user()?->hasAnyRole(['kepala_unit', 'admin', 'super_admin']) &&
+                    auth()->user()?->can('Verifikasi:LaporanInsiden') &&
                         $this->record->status === LaporanInsiden::STATUS_DILAPORKAN
                 )
                 ->requiresConfirmation()
@@ -96,7 +96,7 @@ class ViewLaporanInsiden extends ViewRecord
                 ->color('danger')
                 ->visible(
                     fn() =>
-                    auth()->user()?->hasAnyRole(['kepala_unit', 'admin', 'super_admin']) &&
+                    auth()->user()?->can('Kembalikan:LaporanInsiden') &&
                         $this->record->status === LaporanInsiden::STATUS_DILAPORKAN
                 )
                 ->form([
@@ -110,7 +110,7 @@ class ViewLaporanInsiden extends ViewRecord
                 ->modalHeading('Kembalikan Laporan ke Pelapor')
                 ->modalSubmitActionLabel('Kembalikan')
                 ->action(function (array $data) {
-                    $this->record->kembalikanLaporan(auth()->id(), $data['rejection_reason']);
+                    $this->record->kembalikanKePelapor(auth()->id(), $data['rejection_reason']);
 
                     if ($this->record->user) {
                         Notification::make()

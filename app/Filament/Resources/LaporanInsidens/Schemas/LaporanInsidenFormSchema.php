@@ -397,11 +397,11 @@ class LaporanInsidenFormSchema
         return Forms\Components\ToggleButtons::make('grading_risiko')
             ->label('Grading Risiko')
             ->options([
-                'Biru'   => 'Biru',
-                'Hijau'  => 'Hijau',
-                'Kuning' => 'Kuning',
-                'Merah'  => 'Merah',
-                'Hitam'  => 'Hitam',
+                'Biru'   => '🔵 Biru (Tidak signifikan)',
+                'Hijau'  => '🟢 Hijau (Minor)',
+                'Kuning' => '🟡 Kuning (Moderat)',
+                'Merah'  => '🔴 Merah (Mayor)',
+                'Hitam'  => '⚫ Hitam (Katastropik)',
             ])
             ->colors([
                 'Biru'   => 'info',
@@ -472,10 +472,12 @@ class LaporanInsidenFormSchema
                 Forms\Components\Select::make('status')
                     ->label('Status Laporan')
                     ->options([
-                        'draft'     => 'Draft',
-                        'submitted' => 'Disubmit',
-                        'reviewed'  => 'Direview',
-                        'closed'    => 'Selesai',
+                        'draft'        => 'Draft',
+                        'dilaporkan'   => 'Dilaporkan',
+                        'revisi'       => 'Revisi',
+                        'diverifikasi' => 'Diverifikasi',
+                        'revisi_unit'  => 'Revisi Unit',
+                        'investigasi'  => 'Investigasi',
                     ])
                     ->default('draft')
                     ->required()

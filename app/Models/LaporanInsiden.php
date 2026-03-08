@@ -12,10 +12,12 @@ class LaporanInsiden extends Model
     use HasFactory, SoftDeletes;
 
     // Status constants
-    const STATUS_DRAFT              = 'draft';
-    const STATUS_DILAPORKAN         = 'dilaporkan';
-    const STATUS_DIVERIFIKASI_UNIT  = 'diverifikasi_unit';
-    const STATUS_REVISI             = 'revisi';
+    const STATUS_DRAFT          = 'draft';
+    const STATUS_DILAPORKAN     = 'dilaporkan';
+    const STATUS_REVISI         = 'revisi';         // kepala_unit → pelapor
+    const STATUS_DIVERIFIKASI   = 'diverifikasi';   // kepala_unit selesai grading & analisis
+    const STATUS_REVISI_UNIT    = 'revisi_unit';    // tim_mutu → kepala_unit
+    const STATUS_INVESTIGASI    = 'investigasi';    // tim_mutu sedang investigasi sederhana
 
     protected $fillable = [
         'user_id',
@@ -43,12 +45,10 @@ class LaporanInsiden extends Model
         'kategori_insiden',
         'deskripsi_kategori_insiden',
         'tindakan_dilakukan',
-        'status',
         'grading_risiko',
         'catatan_tambahan',
-        'reviewed_by',
-        'reviewed_at',
-        // Approval workflow columns
+        'status',
+        // Workflow columns
         'reported_at',
         'verified_by',
         'verified_at',
@@ -61,7 +61,6 @@ class LaporanInsiden extends Model
         'tanggal_lapor'   => 'date',
         'tanggal_insiden' => 'date',
         'tanggal_masuk_rs' => 'datetime',
-        'reviewed_at'     => 'datetime',
         'reported_at'     => 'datetime',
         'verified_at'     => 'datetime',
         'rejected_at'     => 'datetime',
@@ -70,11 +69,6 @@ class LaporanInsiden extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function reviewer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function verifier(): BelongsTo
@@ -87,8 +81,9 @@ class LaporanInsiden extends Model
         return $this->belongsTo(User::class, 'rejected_by');
     }
 
-    // --- Approval transition methods ---
+    // --- Workflow transition methods ---
 
+    /** Pelapor mengirim laporan ke kepala unit */
     public function submitLaporan(): void
     {
         $this->update([
@@ -97,19 +92,40 @@ class LaporanInsiden extends Model
         ]);
     }
 
+    /** Kepala unit memverifikasi (selesai grading & analisis), teruskan ke tim mutu */
     public function verifikasiLaporan(int $userId): void
     {
         $this->update([
-            'status'      => self::STATUS_DIVERIFIKASI_UNIT,
+            'status'      => self::STATUS_DIVERIFIKASI,
             'verified_by' => $userId,
             'verified_at' => now(),
         ]);
     }
 
-    public function kembalikanLaporan(int $userId, string $reason): void
+    /** Kepala unit mengembalikan laporan ke pelapor untuk diperbaiki */
+    public function kembalikanKePelapor(int $userId, string $reason): void
     {
         $this->update([
             'status'           => self::STATUS_REVISI,
+            'rejected_by'      => $userId,
+            'rejected_at'      => now(),
+            'rejection_reason' => $reason,
+        ]);
+    }
+
+    /** Tim mutu memulai investigasi sederhana */
+    public function mulaiInvestigasi(int $userId): void
+    {
+        $this->update([
+            'status' => self::STATUS_INVESTIGASI,
+        ]);
+    }
+
+    /** Tim mutu mengembalikan laporan ke kepala unit untuk diperbaiki */
+    public function kembalikanKeKepalaUnit(int $userId, string $reason): void
+    {
+        $this->update([
+            'status'           => self::STATUS_REVISI_UNIT,
             'rejected_by'      => $userId,
             'rejected_at'      => now(),
             'rejection_reason' => $reason,

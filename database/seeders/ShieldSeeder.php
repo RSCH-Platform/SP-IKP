@@ -41,9 +41,11 @@ class ShieldSeeder extends Seeder
         */
 
         $workflowPermissions = [
-            'Submit:LaporanInsiden',
-            'Verifikasi:LaporanInsiden',
-            'Kembalikan:LaporanInsiden',
+            'Submit:LaporanInsiden',         // pelapor
+            'Verifikasi:LaporanInsiden',      // kepala_unit: verifikasi (grading selesai) → diverifikasi
+            'Kembalikan:LaporanInsiden',      // kepala_unit: kembalikan ke pelapor → revisi
+            'Investigasi:LaporanInsiden',     // tim_mutu: mulai investigasi → investigasi
+            'KembalikanUnit:LaporanInsiden',  // tim_mutu: kembalikan ke kepala_unit → revisi_unit
         ];
 
         /*
@@ -117,7 +119,7 @@ class ShieldSeeder extends Seeder
         // Super Admin → semua permission
         $roleInstances['super_admin']->syncPermissions($allPermissions);
 
-        // Admin → semua laporan + manajemen role
+        // Admin → semua laporan + manajemen role + semua workflow
         $adminPermissions = collect($actions)
             ->map(fn($action) => "{$action}:LaporanInsiden")
             ->merge([
@@ -126,20 +128,44 @@ class ShieldSeeder extends Seeder
                 'Create:Role',
                 'Update:Role',
                 'Delete:Role',
+                'Submit:LaporanInsiden',
                 'Verifikasi:LaporanInsiden',
                 'Kembalikan:LaporanInsiden',
+                'Investigasi:LaporanInsiden',
+                'KembalikanUnit:LaporanInsiden',
             ]);
 
         $roleInstances['admin']->syncPermissions($adminPermissions);
 
-        // Kepala unit → verifikasi & kembalikan
+        // Kepala unit → verifikasi & kembalikan ke pelapor
         $roleInstances['kepala_unit']->syncPermissions([
+            'ViewAny:LaporanInsiden',
+            'View:LaporanInsiden',
+            'Update:LaporanInsiden',
             'Verifikasi:LaporanInsiden',
             'Kembalikan:LaporanInsiden',
         ]);
 
-        // Pelapor → submit
+        // Tim mutu → investigasi & kembalikan ke kepala unit
+        $roleInstances['tim_mutu']->syncPermissions([
+            'ViewAny:LaporanInsiden',
+            'View:LaporanInsiden',
+            'Investigasi:LaporanInsiden',
+            'KembalikanUnit:LaporanInsiden',
+        ]);
+
+        // Manajemen → hanya lihat
+        $roleInstances['manajemen']->syncPermissions([
+            'ViewAny:LaporanInsiden',
+            'View:LaporanInsiden',
+        ]);
+
+        // Pelapor → submit & lihat
         $roleInstances['pelapor']->syncPermissions([
+            'ViewAny:LaporanInsiden',
+            'View:LaporanInsiden',
+            'Create:LaporanInsiden',
+            'Update:LaporanInsiden',
             'Submit:LaporanInsiden',
         ]);
 
