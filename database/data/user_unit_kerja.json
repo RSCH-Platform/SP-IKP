@@ -1,0 +1,490 @@
+[
+    {
+        "user_id": 2,
+        "user_nip": "0120.01173",
+        "user_name": "Chahyarina Putri Pangesti",
+        "unit_kerja_id": 1,
+        "unit_kerja_name": "IGD",
+        "assigned_at": "2025-07-10 20:27:06"
+    },
+    {
+        "user_id": 3,
+        "user_nip": "0309.01022",
+        "user_name": "Suharnanik",
+        "unit_kerja_id": 1,
+        "unit_kerja_name": "IGD",
+        "assigned_at": "2025-07-10 20:27:06"
+    },
+    {
+        "user_id": 4,
+        "user_nip": "0220.01176",
+        "user_name": "Nur Lela Fitriyani",
+        "unit_kerja_id": 2,
+        "unit_kerja_name": "Rawat Jalan",
+        "assigned_at": "2025-07-10 20:27:06"
+    },
+    {
+        "user_id": 5,
+        "user_nip": "0220.01175",
+        "user_name": "Yasinta Fransisca Anjela Egho",
+        "unit_kerja_id": 2,
+        "unit_kerja_name": "Rawat Jalan",
+        "assigned_at": "2025-07-10 21:12:29"
+    },
+    {
+        "user_id": 6,
+        "user_nip": "0415.01125",
+        "user_name": "Mila Dwi Lestari",
+        "unit_kerja_id": 3,
+        "unit_kerja_name": "Hemodialisa",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 7,
+        "user_nip": "0109.01008",
+        "user_name": "Elfira Octa Periza",
+        "unit_kerja_id": 3,
+        "unit_kerja_name": "Hemodialisa",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 58,
+        "user_nip": "0313.01036",
+        "user_name": "Adi Purnomo, Amd. Kep",
+        "unit_kerja_id": 4,
+        "unit_kerja_name": "OK",
+        "assigned_at": "2025-07-10 22:43:44"
+    },
+    {
+        "user_id": 59,
+        "user_nip": "0823.02197",
+        "user_name": "Erik Arisandi, S.Kep.Ners",
+        "unit_kerja_id": 4,
+        "unit_kerja_name": "OK",
+        "assigned_at": "2025-07-10 22:43:51"
+    },
+    {
+        "user_id": 8,
+        "user_nip": "0313.01026",
+        "user_name": "Hesti Diah Tri Pangranti",
+        "unit_kerja_id": 5,
+        "unit_kerja_name": "ICU",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 9,
+        "user_nip": "0110.01016",
+        "user_name": "Dwi Ningtyas Anggraini",
+        "unit_kerja_id": 5,
+        "unit_kerja_name": "ICU",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 10,
+        "user_nip": "1218.011155",
+        "user_name": "Lidya Octavia Rachmawati, S.Tr. Keb",
+        "unit_kerja_id": 6,
+        "unit_kerja_name": "Tulip",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 11,
+        "user_nip": "1110.01042",
+        "user_name": "Selfi Eka Suraidha Keb",
+        "unit_kerja_id": 6,
+        "unit_kerja_name": "Tulip",
+        "assigned_at": "2025-07-10 21:45:13"
+    },
+    {
+        "user_id": 14,
+        "user_nip": "0919.01135",
+        "user_name": "Ika Rahmawati",
+        "unit_kerja_id": 7,
+        "unit_kerja_name": "Rosalina",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 15,
+        "user_nip": "1213.01086",
+        "user_name": "Ida Istianah",
+        "unit_kerja_id": 7,
+        "unit_kerja_name": "Rosalina",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 16,
+        "user_nip": "0819.01129",
+        "user_name": "Diah Arum Indiastuti",
+        "unit_kerja_id": 8,
+        "unit_kerja_name": "Alamanda",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 17,
+        "user_nip": "0817.01168",
+        "user_name": "Erfina Lestari",
+        "unit_kerja_id": 8,
+        "unit_kerja_name": "Alamanda",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 18,
+        "user_nip": "1022.02172",
+        "user_name": "Muslehatun Hasanah",
+        "unit_kerja_id": 9,
+        "unit_kerja_name": "Teratai",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 19,
+        "user_nip": "0316.01139",
+        "user_name": "Yeni Susilowati",
+        "unit_kerja_id": 9,
+        "unit_kerja_name": "Teratai",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 21,
+        "user_nip": "0518.01186",
+        "user_name": "Ahmad Irvan Roviqi",
+        "unit_kerja_id": 10,
+        "unit_kerja_name": "Anturium",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 62,
+        "user_nip": "1023.02264",
+        "user_name": "Dwi ayu Fitria sari",
+        "unit_kerja_id": 10,
+        "unit_kerja_name": "Anturium",
+        "assigned_at": "2025-07-11 16:54:55"
+    },
+    {
+        "user_id": 22,
+        "user_nip": "1112.01068",
+        "user_name": "Zatika Budianti Kes",
+        "unit_kerja_id": 11,
+        "unit_kerja_name": "Laboratorium",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 23,
+        "user_nip": "0212.01069",
+        "user_name": "Leanidha Erywiyatno AK",
+        "unit_kerja_id": 11,
+        "unit_kerja_name": "Laboratorium",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 24,
+        "user_nip": "0119.01105",
+        "user_name": "Winda Ulifia c. Rad",
+        "unit_kerja_id": 12,
+        "unit_kerja_name": "Radiologi",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 25,
+        "user_nip": "1122.02174",
+        "user_name": "Vidia Dwi Yatmasari Kes",
+        "unit_kerja_id": 12,
+        "unit_kerja_name": "Radiologi",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 26,
+        "user_nip": "0220.01141",
+        "user_name": "Lutvi Anggraeni",
+        "unit_kerja_id": 13,
+        "unit_kerja_name": "Farmasi Rawat Jalan",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 27,
+        "user_nip": "0319.01114",
+        "user_name": "Utari Ardiningdyah, Apt",
+        "unit_kerja_id": 13,
+        "unit_kerja_name": "Farmasi Rawat Jalan",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 28,
+        "user_nip": "102.202.173",
+        "user_name": "Fatima Azzahra",
+        "unit_kerja_id": 14,
+        "unit_kerja_name": "Farmasi Rawat Inap",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 29,
+        "user_nip": "0121.01220",
+        "user_name": "Elly Febry Taufany",
+        "unit_kerja_id": 14,
+        "unit_kerja_name": "Farmasi Rawat Inap",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 30,
+        "user_nip": "0918.01194",
+        "user_name": "Jalu Anggara Winadi",
+        "unit_kerja_id": 15,
+        "unit_kerja_name": "Gudang Farmasi",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 60,
+        "user_nip": "0124.02274",
+        "user_name": "Hasan Huda",
+        "unit_kerja_id": 15,
+        "unit_kerja_name": "Gudang Farmasi",
+        "assigned_at": "2025-07-10 22:44:15"
+    },
+    {
+        "user_id": 32,
+        "user_nip": "0813.01059",
+        "user_name": "Siti Syarifah",
+        "unit_kerja_id": 16,
+        "unit_kerja_name": "Rekam Medis",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 33,
+        "user_nip": "0111.01058",
+        "user_name": "Fitri Nur Azizah Per. Kes",
+        "unit_kerja_id": 16,
+        "unit_kerja_name": "Rekam Medis",
+        "assigned_at": "2025-07-10 20:27:07"
+    },
+    {
+        "user_id": 34,
+        "user_nip": "0419.01119",
+        "user_name": "Freshtin Yuldhialita",
+        "unit_kerja_id": 17,
+        "unit_kerja_name": "Gizi",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 35,
+        "user_nip": "0316.01140",
+        "user_name": "Faidatul Andawiyah",
+        "unit_kerja_id": 17,
+        "unit_kerja_name": "Gizi",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 36,
+        "user_nip": "0113.02099",
+        "user_name": "Etty Rochayati, SE",
+        "unit_kerja_id": 18,
+        "unit_kerja_name": "Kepegawaian & Diklat",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 37,
+        "user_nip": "0613.02097",
+        "user_name": "Brigitta Bika IndiatiKM",
+        "unit_kerja_id": 18,
+        "unit_kerja_name": "Kepegawaian & Diklat",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 38,
+        "user_nip": "0124.02277",
+        "user_name": "Firdha Aura AlvarezaKes",
+        "unit_kerja_id": 19,
+        "unit_kerja_name": "Sanitasi & Kebersihan",
+        "assigned_at": "2025-07-10 22:07:05"
+    },
+    {
+        "user_id": 39,
+        "user_nip": "0816.02139",
+        "user_name": "Ageng Supriyadi",
+        "unit_kerja_id": 19,
+        "unit_kerja_name": "Sanitasi & Kebersihan",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 39,
+        "user_nip": "0816.02139",
+        "user_name": "Ageng Supriyadi",
+        "unit_kerja_id": 22,
+        "unit_kerja_name": "Linen & Laundry",
+        "assigned_at": "2025-07-10 22:23:14"
+    },
+    {
+        "user_id": 53,
+        "user_nip": "0222.00060",
+        "user_name": "Tedy Rachmad Permadi",
+        "unit_kerja_id": 22,
+        "unit_kerja_name": "Linen & Laundry",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 43,
+        "user_nip": "0220.02192",
+        "user_name": "Eka Meidawati, Amd",
+        "unit_kerja_id": 25,
+        "unit_kerja_name": "Informasi dan Komplain",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 44,
+        "user_nip": "1212.02100",
+        "user_name": "Ratih Ika MaharaniKM",
+        "unit_kerja_id": 25,
+        "unit_kerja_name": "Informasi dan Komplain",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 47,
+        "user_nip": "0518.02163",
+        "user_name": "Rani Ekasari Pratiwi",
+        "unit_kerja_id": 26,
+        "unit_kerja_name": "TIK",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 56,
+        "user_nip": "0715.021240",
+        "user_name": "Agung SunaryoKom",
+        "unit_kerja_id": 26,
+        "unit_kerja_name": "TIK",
+        "assigned_at": "2025-07-10 23:00:52"
+    },
+    {
+        "user_id": 45,
+        "user_nip": "0112.02082",
+        "user_name": "Nila Kurnia Trisnovita",
+        "unit_kerja_id": 27,
+        "unit_kerja_name": "Keuangan",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 46,
+        "user_nip": "0109.02086",
+        "user_name": "Valentina Dini Pangesti",
+        "unit_kerja_id": 27,
+        "unit_kerja_name": "Keuangan",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 49,
+        "user_nip": "1122.02238",
+        "user_name": "Mareta Almalia",
+        "unit_kerja_id": 29,
+        "unit_kerja_name": "Akuntansi",
+        "assigned_at": "2025-07-10 20:27:08"
+    },
+    {
+        "user_id": 61,
+        "user_nip": "0325.02250",
+        "user_name": "Rizal Setyobudi",
+        "unit_kerja_id": 30,
+        "unit_kerja_name": "Perpajakan",
+        "assigned_at": "2025-07-10 22:44:44"
+    },
+    {
+        "user_id": 12,
+        "user_nip": "1014.01113",
+        "user_name": "Fareintis Rahayu Idamiah Keb",
+        "unit_kerja_id": 31,
+        "unit_kerja_name": "VK",
+        "assigned_at": "2025-07-10 22:37:37"
+    },
+    {
+        "user_id": 13,
+        "user_nip": "0109.01043",
+        "user_name": "Erna Wayanti Keb",
+        "unit_kerja_id": 31,
+        "unit_kerja_name": "VK",
+        "assigned_at": "2025-07-10 22:37:16"
+    },
+    {
+        "user_id": 54,
+        "user_nip": "0119.01102",
+        "user_name": "Yohana Karolina Patty",
+        "unit_kerja_id": 32,
+        "unit_kerja_name": "Perinatologi",
+        "assigned_at": "2025-07-14 17:55:36"
+    },
+    {
+        "user_id": 55,
+        "user_nip": "0519.01124",
+        "user_name": "Idza Amruhu Rochim",
+        "unit_kerja_id": 32,
+        "unit_kerja_name": "Perinatologi",
+        "assigned_at": "2025-07-14 17:56:02"
+    },
+    {
+        "user_id": 38,
+        "user_nip": "0124.02277",
+        "user_name": "Firdha Aura AlvarezaKes",
+        "unit_kerja_id": 33,
+        "unit_kerja_name": "Bagian Umum",
+        "assigned_at": "2025-07-15 18:11:50"
+    },
+    {
+        "user_id": 39,
+        "user_nip": "0816.02139",
+        "user_name": "Ageng Supriyadi",
+        "unit_kerja_id": 33,
+        "unit_kerja_name": "Bagian Umum",
+        "assigned_at": "2025-07-15 18:11:37"
+    },
+    {
+        "user_id": 41,
+        "user_nip": "0215.02117",
+        "user_name": "Nanang Wulid",
+        "unit_kerja_id": 33,
+        "unit_kerja_name": "Bagian Umum",
+        "assigned_at": "2025-07-15 18:12:09"
+    },
+    {
+        "user_id": 52,
+        "user_nip": "0222.01241",
+        "user_name": "Yuliantri Selvi Anugrahni Kes",
+        "unit_kerja_id": 33,
+        "unit_kerja_name": "Bagian Umum",
+        "assigned_at": "2025-07-15 18:12:00"
+    },
+    {
+        "user_id": 53,
+        "user_nip": "0222.00060",
+        "user_name": "Tedy Rachmad Permadi",
+        "unit_kerja_id": 33,
+        "unit_kerja_name": "Bagian Umum",
+        "assigned_at": "2025-07-15 18:12:20"
+    },
+    {
+        "user_id": 65,
+        "user_nip": "0119.01103",
+        "user_name": "ROSITA DEBBY IRAWAN, S.Kep., Ners",
+        "unit_kerja_id": 34,
+        "unit_kerja_name": "Ruang Lotus",
+        "assigned_at": "2025-10-06 15:57:17"
+    },
+    {
+        "user_id": 66,
+        "user_nip": "0424.02295",
+        "user_name": "YENI PUSPARINI, S.Kep., Ners",
+        "unit_kerja_id": 34,
+        "unit_kerja_name": "Ruang Lotus",
+        "assigned_at": "2025-10-06 15:57:28"
+    },
+    {
+        "user_id": 67,
+        "user_nip": "1211.01020",
+        "user_name": "Ely Diah Kristian Dini S. Kep",
+        "unit_kerja_id": 35,
+        "unit_kerja_name": "TIM PPI",
+        "assigned_at": "2026-01-29 16:38:13"
+    },
+    {
+        "user_id": 68,
+        "user_nip": "0220.02207",
+        "user_name": "Yudha agustio",
+        "unit_kerja_id": 36,
+        "unit_kerja_name": "UNIT CSSD",
+        "assigned_at": "2026-01-30 21:54:33"
+    }
+]

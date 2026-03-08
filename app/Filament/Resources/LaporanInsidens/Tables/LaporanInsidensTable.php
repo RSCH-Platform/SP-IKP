@@ -47,6 +47,19 @@ class LaporanInsidensTable
                     ->searchable()
                     ->limit(30),
 
+                TextColumn::make('dampak_insiden')
+                    ->label('Dampak')
+                    ->badge()
+                    ->colors([
+                        'success' => 'Tidak ada cedera',
+                        'warning' => ['Cedera ringan', 'Cedera sedang'],
+                        'danger' => ['Cedera berat', 'Meninggal'],
+                    ]),
+
+                TextColumn::make('nama_pelapor')
+                    ->label('Pelapor')
+                    ->searchable(),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -68,19 +81,6 @@ class LaporanInsidensTable
                         'investigasi'   => 'Investigasi',
                         default         => $state,
                     }),
-
-                TextColumn::make('dampak_insiden')
-                    ->label('Dampak')
-                    ->badge()
-                    ->colors([
-                        'success' => 'Tidak ada cedera',
-                        'warning' => ['Cedera ringan', 'Cedera sedang'],
-                        'danger' => ['Cedera berat', 'Meninggal'],
-                    ]),
-
-                TextColumn::make('nama_pelapor')
-                    ->label('Pelapor')
-                    ->searchable(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
@@ -176,6 +176,7 @@ class LaporanInsidensTable
 
                 ])
                     ->button()
+                    ->color('warning')
                     ->visible(fn() => auth()->user()?->can('Submit:LaporanInsiden'))
                     ->label('Pelaporan')
                     ->icon('heroicon-o-user'),
@@ -243,6 +244,7 @@ class LaporanInsidensTable
                     ->visible(fn() => auth()->user()?->can('Verifikasi:LaporanInsiden'))
                     ->label('Kepala Unit')
                     ->button()
+                    ->color('info')
                     ->icon('heroicon-o-building-office'),
 
                 /*
@@ -292,6 +294,7 @@ class LaporanInsidensTable
                 ])
                     ->visible(fn() => auth()->user()?->can('Investigasi:LaporanInsiden'))
                     ->button()
+                    ->color('success')
                     ->label('Tim Mutu')
                     ->icon('heroicon-o-shield-check'),
             ])

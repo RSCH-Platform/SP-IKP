@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class LaporanInsidenPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:LaporanInsiden');
@@ -67,4 +67,30 @@ class LaporanInsidenPolicy
         return $authUser->can('Reorder:LaporanInsiden');
     }
 
+    // --- Workflow permissions ---
+
+    public function submit(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
+    {
+        return $authUser->can('Submit:LaporanInsiden');
+    }
+
+    public function verifikasi(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
+    {
+        return $authUser->can('Verifikasi:LaporanInsiden');
+    }
+
+    public function kembalikan(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
+    {
+        return $authUser->can('Kembalikan:LaporanInsiden');
+    }
+
+    public function investigasi(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
+    {
+        return $authUser->can('Investigasi:LaporanInsiden');
+    }
+
+    public function kembalikanUnit(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
+    {
+        return $authUser->can('KembalikanUnit:LaporanInsiden');
+    }
 }
