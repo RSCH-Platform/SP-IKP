@@ -77,6 +77,12 @@ class UserSeeder extends Seeder
         $existingRoles = Role::pluck('name')->flip(); // fast lookup set
         $userMap       = User::pluck('id', 'nip');    // refresh after upsert
 
+        // Role mapping: jika role di JSON tidak ada di DB, gunakan mapping ini
+        $roleMapping = [
+            'validator_pic'   => 'kepala_unit',
+            'pengumpul_data'  => 'pelapor',
+        ];
+
         $assigned = 0;
         foreach ($roleData as $entry) {
             $user = User::find($userMap[$entry['user_nip']] ?? null);
@@ -84,11 +90,14 @@ class UserSeeder extends Seeder
                 continue;
             }
 
-            $roleName = isset($existingRoles[$entry['role_name']])
-                ? $entry['role_name']
-                : 'pelapor';
+            // Tentukan role: gunakan mapping jika role tidak ada di DB
+            if (isset($existingRoles[$entry['role_name']])) {
+                $roleName = $entry['role_name'];
+            } else {
+                $roleName = $roleMapping[$entry['role_name']] ?? 'pelapor';
+            }
 
-            // syncRoles replaces existing roles; use assignRole to add without removing
+            // Assign role jika belum dimiliki
             if (! $user->hasRole($roleName)) {
                 $user->assignRole($roleName);
                 $assigned++;

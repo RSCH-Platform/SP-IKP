@@ -23,14 +23,13 @@ class LaporanInsidenForm
                             LaporanInsidenFormSchema::sectionTindakan(),
                         ]),
                     Step::make('Grading Resiko Laporan Insiden')
-                    ->schema([
-                        LaporanInsidenFormSchema::sectionGradingResiko(),
-                    ]),
+                        ->schema([
+                            LaporanInsidenFormSchema::sectionGradingResiko(),
+                        ]),
 
                     Step::make('Review & Submit')
                         ->schema([
                             LaporanInsidenFormSchema::sectionCatatanTambahan(),
-                            LaporanInsidenFormSchema::sectionStatus()
                         ]),
                 ])
             )->columns(1);

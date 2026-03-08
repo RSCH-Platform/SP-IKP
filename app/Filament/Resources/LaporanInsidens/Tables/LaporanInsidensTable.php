@@ -121,65 +121,45 @@ class LaporanInsidensTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make()
-                        ->visible(fn($record) => in_array($record->status, [
-                            LaporanInsiden::STATUS_DRAFT,
-                            LaporanInsiden::STATUS_REVISI,
-                            LaporanInsiden::STATUS_REVISI_UNIT,
-                        ])),
-                ])
-                    ->icon('heroicon-o-ellipsis-vertical')
-                    ->button()
-                    ->label('Aksi'),
-
                 /*
                 |--------------------------------------------------------------------------
                 | Workflow Pelapor
                 |--------------------------------------------------------------------------
                 */
 
-                ActionGroup::make([
-                    Action::make('submit_laporan')
-                        ->label('Kirim Laporan')
-                        ->icon('heroicon-o-paper-airplane')
-                        ->color('warning')
-                        ->visible(
-                            fn($record) =>
-                            auth()->user()?->can('Submit:LaporanInsiden') &&
-                                in_array($record->status, [
-                                    LaporanInsiden::STATUS_DRAFT,
-                                    LaporanInsiden::STATUS_REVISI
-                                ])
-                        )
-                        ->requiresConfirmation()
-                        ->modalHeading('Kirim Laporan Insiden?')
-                        ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi.')
-                        ->action(function ($record) {
-
-                            $record->submitLaporan();
-
-                            $kepalaUnits = User::role('kepala_unit')->get();
-
-                            Notification::make()
-                                ->title('Laporan berhasil dikirim')
-                                ->success()
-                                ->send();
-
-                            Notification::make()
-                                ->title('Laporan Insiden Baru')
-                                ->body("Ada laporan insiden baru dari {$record->nama_pelapor}.")
-                                ->warning()
-                                ->sendToDatabase($kepalaUnits);
-                        }),
-
-                ])
+                Action::make('submit_laporan')
+                    ->label('Kirim Laporan')
+                    ->icon('heroicon-o-paper-airplane')
                     ->button()
                     ->color('warning')
-                    ->visible(fn() => auth()->user()?->can('Submit:LaporanInsiden'))
-                    ->label('Pelaporan')
-                    ->icon('heroicon-o-user'),
+                    ->visible(
+                        fn($record) =>
+                        auth()->user()?->can('Submit:LaporanInsiden') &&
+                            in_array($record->status, [
+                                LaporanInsiden::STATUS_DRAFT,
+                                LaporanInsiden::STATUS_REVISI
+                            ])
+                    )
+                    ->requiresConfirmation()
+                    ->modalHeading('Kirim Laporan Insiden?')
+                    ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi.')
+                    ->action(function ($record) {
+
+                        $record->submitLaporan();
+
+                        $kepalaUnits = User::role('kepala_unit')->get();
+
+                        Notification::make()
+                            ->title('Laporan berhasil dikirim')
+                            ->success()
+                            ->send();
+
+                        Notification::make()
+                            ->title('Laporan Insiden Baru')
+                            ->body("Ada laporan insiden baru dari {$record->nama_pelapor}.")
+                            ->warning()
+                            ->sendToDatabase($kepalaUnits);
+                    }),
 
                 /*
                 |--------------------------------------------------------------------------
@@ -297,6 +277,19 @@ class LaporanInsidensTable
                     ->color('success')
                     ->label('Tim Mutu')
                     ->icon('heroicon-o-shield-check'),
+
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make()
+                        ->visible(fn($record) => in_array($record->status, [
+                            LaporanInsiden::STATUS_DRAFT,
+                            LaporanInsiden::STATUS_REVISI,
+                            LaporanInsiden::STATUS_REVISI_UNIT,
+                        ])),
+                ])
+                    ->icon('heroicon-o-ellipsis-vertical')
+                    ->button()
+                    ->label('Aksi')
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

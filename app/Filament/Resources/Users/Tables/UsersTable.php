@@ -19,6 +19,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Role;
+use STS\FilamentImpersonate\Actions\Impersonate;
 
 class UsersTable
 {
@@ -89,6 +90,8 @@ class UsersTable
                     ),
             ])
             ->recordActions([
+
+                Impersonate::make(),
 
                 EditAction::make()
                     ->label('Edit')

@@ -1,0 +1,24 @@
+@import '../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../app/Filament/**/*';
+@source '../../../resources/views/filament/**/*';
+
+/* ============================================
+   Custom Filament Styles
+   Edit di bawah ini untuk kustomisasi tampilan
+   ============================================ */
+
+/* Ubah warna sidebar */
+.fi-sidebar {
+    background-color: #1e293b !important;
+}
+
+/* Ubah font */
+:root {
+    --font-family-sans: 'Inter', sans-serif;
+}
+
+/* Custom badge */
+.fi-badge {
+    border-radius: 4px;
+}

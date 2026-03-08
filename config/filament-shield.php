@@ -237,7 +237,13 @@ return [
     |
     */
 
-    'custom_permissions' => [],
+    'custom_permissions' => [
+        'Submit:LaporanInsiden',
+        'Verifikasi:LaporanInsiden',
+        'Kembalikan:LaporanInsiden',
+        'Investigasi:LaporanInsiden',
+        'KembalikanUnit:LaporanInsiden',
+    ],
 
     /*
     |--------------------------------------------------------------------------

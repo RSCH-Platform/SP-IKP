@@ -37,6 +37,14 @@ class ListLaporanInsidens extends ListRecords
                     $query->where('status', 'dilaporkan')
                 ),
 
+            'revisi_unit' => Tab::make('Revisi Unit')
+                ->badge(fn() => $this->getModel()::where('status', 'revisi_unit')->count())
+                ->badgeColor('danger')
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    $query->where('status', 'revisi_unit')
+                ),
+
             'revisi' => Tab::make('Perlu Revisi')
                 ->badge(fn() => $this->getModel()::where('status', 'revisi')->count())
                 ->badgeColor('warning')
@@ -51,14 +59,6 @@ class ListLaporanInsidens extends ListRecords
                 ->modifyQueryUsing(
                     fn(Builder $query) =>
                     $query->where('status', 'diverifikasi')
-                ),
-
-            'revisi_unit' => Tab::make('Revisi Unit')
-                ->badge(fn() => $this->getModel()::where('status', 'revisi_unit')->count())
-                ->badgeColor('danger')
-                ->modifyQueryUsing(
-                    fn(Builder $query) =>
-                    $query->where('status', 'revisi_unit')
                 ),
 
             'investigasi' => Tab::make('Investigasi')

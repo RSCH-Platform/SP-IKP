@@ -25,7 +25,7 @@ class Login extends BaseLogin
         if (app()->isLocal()) {
             $this->form->fill([
                 'identifier' => '0000.00000',
-                'password' => 'password',
+                'password' => 'Rschjaya123',
                 'remember' => true,
             ]);
         }
