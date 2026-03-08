@@ -12,16 +12,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Admin',
-            'nip' => '0000.00000',
-            'no_hp' => '081234567890',
-            'password' => bcrypt('password'),
-        ]);
-
         $this->call([
+            UserSeeder::class,
+            UnitKerjaSeeder::class,
             ShieldSeeder::class,
             LaporanInsidenSeeder::class,
         ]);
