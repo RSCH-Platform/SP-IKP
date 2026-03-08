@@ -21,6 +21,7 @@ class LaporanInsiden extends Model
 
     protected $fillable = [
         'user_id',
+        'unit_kerja_id',
         'nama_pelapor',
         'unit_kerja',
         'nomor_telepon',
@@ -69,6 +70,11 @@ class LaporanInsiden extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function unitKerja(): BelongsTo
+    {
+        return $this->belongsTo(UnitKerja::class);
     }
 
     public function verifier(): BelongsTo

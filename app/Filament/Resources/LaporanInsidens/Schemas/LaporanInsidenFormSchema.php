@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LaporanInsidens\Schemas;
 
+use App\Models\UnitKerja;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -112,11 +113,44 @@ class LaporanInsidenFormSchema
                         ->prefixIcon('heroicon-m-user')
                         ->placeholder('Masukkan nama lengkap'),
 
-                    Forms\Components\TextInput::make('unit_kerja')
+                    Forms\Components\Select::make('unit_kerja_id')
                         ->label('Unit Kerja / Departemen')
                         ->required()
+                        ->options(function () {
+                            $user = Auth::user();
+
+                            // Jika pelapor, tampilkan hanya unit yang dia belong
+                            if ($user->hasRole('pelapor') && !$user->hasAnyRole(['admin', 'super_admin'])) {
+                                return $user->unitKerja()
+                                    ->pluck('unit_name', 'id');
+                            }
+
+                            // Jika admin/super_admin, tampilkan semua unit
+                            return UnitKerja::pluck('unit_name', 'id');
+                        })
+                        ->default(function () {
+                            $user = Auth::user();
+
+                            // Jika pelapor dengan hanya satu unit, set default
+                            if ($user->hasRole('pelapor') && !$user->hasAnyRole(['admin', 'super_admin'])) {
+                                $units = $user->unitKerja()->pluck('id');
+                                return $units->count() === 1 ? $units->first() : null;
+                            }
+
+                            return null;
+                        })
+                        ->native(false)
                         ->prefixIcon('heroicon-m-building-office')
-                        ->placeholder('Contoh: IGD, Rawat Inap, dll'),
+                        ->searchable()
+                        ->helperText('Pilih unit kerja tempat pelapor bekerja')
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            if ($state) {
+                                $unit = UnitKerja::find($state);
+                                if ($unit) {
+                                    $set('unit_kerja', $unit->unit_name);
+                                }
+                            }
+                        }),
                 ]),
 
                 Grid::make(2)->schema([
