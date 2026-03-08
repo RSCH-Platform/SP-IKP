@@ -18,6 +18,8 @@ class EditLaporanInsiden extends EditRecord
 {
     protected static string $resource = LaporanInsidenResource::class;
 
+    protected string $view = 'filament.resources.laporan-insidens.pages.edit-laporan-insiden';
+
     protected function getHeaderActions(): array
     {
         return [
@@ -39,7 +41,6 @@ class EditLaporanInsiden extends EditRecord
             $actions[] = Action::make('save')
                 ->label('Simpan Perubahan')
                 ->color('gray')
-                ->submit()
                 ->icon('heroicon-o-check');
         }
 
