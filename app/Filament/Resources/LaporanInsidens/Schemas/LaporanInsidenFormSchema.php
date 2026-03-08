@@ -4,6 +4,8 @@ namespace App\Filament\Resources\LaporanInsidens\Schemas;
 
 use Filament\Forms;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
@@ -374,25 +376,7 @@ class LaporanInsidenFormSchema
         ];
 
         if ($withGrading) {
-            $schema[] = Forms\Components\ToggleButtons::make('grading_risiko')
-                ->label('Grading Risiko')
-                ->options([
-                    'Biru'   => 'Biru',
-                    'Hijau'  => 'Hijau',
-                    'Kuning' => 'Kuning',
-                    'Merah'  => 'Merah',
-                    'Hitam'  => 'Hitam',
-                ])
-                ->colors([
-                    'Biru'   => 'info',
-                    'Hijau'  => 'success',
-                    'Kuning' => 'warning',
-                    'Merah'  => 'danger',
-                    'Hitam'  => 'gray',
-                ])
-                ->inline()
-                ->helperText('Hanya diisi oleh Validator / Tim IKP')
-                ->visibleOn('edit');
+            $schema[] = static::sectionGradingResiko();
         } else {
             $schema[] = TextEntry::make('info_grading')
                 ->state('ℹ️ Catatan: Grading risiko akan diisi oleh Tim IKP / Validator setelah laporan disubmit.')
@@ -406,6 +390,29 @@ class LaporanInsidenFormSchema
             ->collapsible()
             ->persistCollapsed()
             ->compact();
+    }
+
+    public static function sectionGradingResiko(): ToggleButtons
+    {
+        return Forms\Components\ToggleButtons::make('grading_risiko')
+            ->label('Grading Risiko')
+            ->options([
+                'Biru'   => 'Biru',
+                'Hijau'  => 'Hijau',
+                'Kuning' => 'Kuning',
+                'Merah'  => 'Merah',
+                'Hitam'  => 'Hitam',
+            ])
+            ->colors([
+                'Biru'   => 'info',
+                'Hijau'  => 'success',
+                'Kuning' => 'warning',
+                'Merah'  => 'danger',
+                'Hitam'  => 'gray',
+            ])
+            ->inline()
+            ->helperText('Hanya diisi oleh Validator / Tim IKP')
+            ->visibleOn('edit');
     }
 
     public static function sectionTindakan(bool $withAnalysis = false): Section

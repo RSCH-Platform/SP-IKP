@@ -41,6 +41,7 @@ class LaporanInsiden extends Model
         'insiden_terjadi_pada_lainnya',
         'dampak_insiden',
         'kategori_insiden',
+        'deskripsi_kategori_insiden',
         'tindakan_dilakukan',
         'status',
         'grading_risiko',
