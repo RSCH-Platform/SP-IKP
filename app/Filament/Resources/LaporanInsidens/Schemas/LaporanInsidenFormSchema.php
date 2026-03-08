@@ -430,6 +430,7 @@ class LaporanInsidenFormSchema
     {
         return Forms\Components\ToggleButtons::make('grading_risiko')
             ->label('Grading Risiko')
+            ->required()
             ->options([
                 'Biru'   => '🔵 Biru (Tidak signifikan)',
                 'Hijau'  => '🟢 Hijau (Minor)',

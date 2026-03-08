@@ -363,7 +363,7 @@
                     </div>
                     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                         @foreach ($this->getFormActions() as $action)
-                        {{ $action }}
+                            {{ $action }}
                         @endforeach
                     </div>
                 </div>
