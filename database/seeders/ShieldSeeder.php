@@ -36,6 +36,18 @@ class ShieldSeeder extends Seeder
 
         /*
         |--------------------------------------------------------------------------
+        | Workflow Actions (custom, bukan dari Shield)
+        |--------------------------------------------------------------------------
+        */
+
+        $workflowPermissions = [
+            'Submit:LaporanInsiden',
+            'Verifikasi:LaporanInsiden',
+            'Kembalikan:LaporanInsiden',
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
         | Resources
         |--------------------------------------------------------------------------
         */
@@ -57,6 +69,13 @@ class ShieldSeeder extends Seeder
             });
 
         foreach ($permissions as $permission) {
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => $guard,
+            ]);
+        }
+
+        foreach ($workflowPermissions as $permission) {
             Permission::firstOrCreate([
                 'name' => $permission,
                 'guard_name' => $guard,
@@ -107,9 +126,22 @@ class ShieldSeeder extends Seeder
                 'Create:Role',
                 'Update:Role',
                 'Delete:Role',
+                'Verifikasi:LaporanInsiden',
+                'Kembalikan:LaporanInsiden',
             ]);
 
         $roleInstances['admin']->syncPermissions($adminPermissions);
+
+        // Kepala unit → verifikasi & kembalikan
+        $roleInstances['kepala_unit']->syncPermissions([
+            'Verifikasi:LaporanInsiden',
+            'Kembalikan:LaporanInsiden',
+        ]);
+
+        // Pelapor → submit
+        $roleInstances['pelapor']->syncPermissions([
+            'Submit:LaporanInsiden',
+        ]);
 
         /*
         |--------------------------------------------------------------------------

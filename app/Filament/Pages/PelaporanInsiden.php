@@ -34,12 +34,38 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
 
     public function mount(): void
     {
-        $this->form->fill([
-            'nama_pelapor' => Auth::user()->name,
-            'tanggal_lapor' => now()->format('Y-m-d'),
+        $defaults = [
+            'nama_pelapor'   => Auth::user()->name,
+            'tanggal_lapor'  => now()->format('Y-m-d'),
             'tanggal_insiden' => now()->format('Y-m-d'),
-            'status' => 'draft',
-        ]);
+            'status'         => 'draft',
+        ];
+
+        if (app()->environment('local', 'dev')) {
+            $defaults = array_merge($defaults, [
+                'unit_kerja'              => 'IGD',
+                'nomor_telepon'           => '08123456789',
+                'waktu_insiden'           => now()->format('H:i'),
+                'jenis_insiden'           => 'KPC (Kondisi Potensial Cedera)',
+                'lokasi_insiden'          => 'Ruang IGD Lantai 1',
+                'nama_pasien'             => 'Budi Santoso (Dev)',
+                'nomor_rekam_medis'       => 'RM-DEV-001',
+                'ruangan'                 => 'Ruang Anggrek',
+                'umur'                    => 45,
+                'kelompok_umur'           => '>30 tahun - 65 tahun',
+                'jenis_kelamin'           => 'Laki-laki',
+                'penanggung_biaya'        => 'BPJS',
+                'tanggal_masuk_rs'        => now()->format('Y-m-d H:i'),
+                'insiden_terjadi_pada'    => 'Pasien',
+                'kronologi'               => '[DEV] Pada pukul 08.00 WIB pasien ditemukan terjatuh di kamar mandi ruang rawat inap. Petugas jaga segera memberikan pertolongan pertama dan menghubungi dokter jaga. Tidak ada luka serius yang ditemukan.',
+                'kategori_insiden'        => 'Pasien Jatuh',
+                'dampak_insiden'          => 'Tidak ada cedera',
+                'deskripsi_kategori_insiden' => '[DEV] Insiden pasien jatuh di kamar mandi disebabkan oleh lantai yang licin dan tidak adanya pegangan. Faktor risiko pasien meliputi usia lanjut dan penggunaan obat antihipertensi.',
+                'tindakan_dilakukan'      => "[DEV] 1. Memberikan pertolongan pertama kepada pasien\n2. Menghubungi dokter jaga\n3. Melaporkan kepada kepala ruangan\n4. Mengisi formulir laporan insiden\n5. Memasang tanda lantai licin di kamar mandi",
+            ]);
+        }
+
+        $this->form->fill($defaults);
     }
 
     public function form(Schema $form): Schema

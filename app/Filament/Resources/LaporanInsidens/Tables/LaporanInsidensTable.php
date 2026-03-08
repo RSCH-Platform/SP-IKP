@@ -35,18 +35,15 @@ class LaporanInsidensTable
 
                 TextColumn::make('jenis_insiden')
                     ->label('Jenis')
-                    ->searchable()
-                    ->wrap(),
+                    ->searchable(),
 
                 TextColumn::make('kategori_insiden')
                     ->label('Kategori')
-                    ->searchable()
-                    ->wrap(),
+                    ->searchable(),
 
                 TextColumn::make('lokasi_insiden')
                     ->label('Lokasi')
                     ->searchable()
-                    ->wrap()
                     ->limit(30),
 
                 TextColumn::make('status')
@@ -140,7 +137,7 @@ class LaporanInsidensTable
                     ->color('warning')
                     ->visible(
                         fn($record) =>
-                        auth()->user()?->hasRole('pelapor') &&
+                        auth()->user()?->can('Submit:LaporanInsiden') &&
                             $record->status === LaporanInsiden::STATUS_DRAFT
                     )
                     ->requiresConfirmation()
@@ -171,7 +168,7 @@ class LaporanInsidensTable
                     ->color('success')
                     ->visible(
                         fn($record) =>
-                        auth()->user()?->hasAnyRole(['kepala_unit', 'admin', 'super_admin']) &&
+                        auth()->user()?->can('Verifikasi:LaporanInsiden') &&
                             $record->status === LaporanInsiden::STATUS_DILAPORKAN
                     )
                     ->requiresConfirmation()
@@ -201,7 +198,7 @@ class LaporanInsidensTable
                     ->color('danger')
                     ->visible(
                         fn($record) =>
-                        auth()->user()?->hasAnyRole(['kepala_unit', 'admin', 'super_admin']) &&
+                        auth()->user()?->can('Kembalikan:LaporanInsiden') &&
                             $record->status === LaporanInsiden::STATUS_DILAPORKAN
                     )
                     ->form([

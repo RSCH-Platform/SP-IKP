@@ -330,20 +330,20 @@ class LaporanInsidenFormSchema
                 Select::make('kategori_insiden')
                     ->label('Kategori Insiden')
                     ->options([
-                        'medication' => 'Medication / Cairan IV',
-                        'prosedur_klinis' => 'Prosedur Klinis',
-                        'diagnostik' => 'Diagnostik',
-                        'infeksi' => 'Infeksi Terkait Pelayanan Kesehatan',
-                        'pasien_jatuh' => 'Pasien Jatuh',
-                        'identifikasi_pasien' => 'Identifikasi Pasien',
-                        'komunikasi' => 'Komunikasi',
-                        'dokumentasi' => 'Dokumentasi Klinis',
-                        'peralatan_medis' => 'Peralatan Medis',
-                        'transfusi_darah' => 'Transfusi Darah / Produk Darah',
-                        'administrasi' => 'Administrasi / Proses Pelayanan',
-                        'lingkungan' => 'Lingkungan / Fasilitas',
-                        'faktor_manusia' => 'Faktor Manusia',
-                        'lainnya' => 'Lainnya',
+                        'Medication / Cairan IV'              => 'Medication / Cairan IV',
+                        'Prosedur Klinis'                    => 'Prosedur Klinis',
+                        'Diagnostik'                         => 'Diagnostik',
+                        'Infeksi Terkait Pelayanan Kesehatan' => 'Infeksi Terkait Pelayanan Kesehatan',
+                        'Pasien Jatuh'                       => 'Pasien Jatuh',
+                        'Identifikasi Pasien'                => 'Identifikasi Pasien',
+                        'Komunikasi'                         => 'Komunikasi',
+                        'Dokumentasi Klinis'                 => 'Dokumentasi Klinis',
+                        'Peralatan Medis'                    => 'Peralatan Medis',
+                        'Transfusi Darah / Produk Darah'     => 'Transfusi Darah / Produk Darah',
+                        'Administrasi / Proses Pelayanan'    => 'Administrasi / Proses Pelayanan',
+                        'Lingkungan / Fasilitas'             => 'Lingkungan / Fasilitas',
+                        'Faktor Manusia'                     => 'Faktor Manusia',
+                        'Lainnya'                            => 'Lainnya',
                     ])
                     ->searchable()
                     ->required(),
@@ -374,17 +374,23 @@ class LaporanInsidenFormSchema
         ];
 
         if ($withGrading) {
-            $schema[] = Forms\Components\Select::make('grading_risiko')
+            $schema[] = Forms\Components\ToggleButtons::make('grading_risiko')
                 ->label('Grading Risiko')
                 ->options([
-                    'Biru (Tidak signifikan)' => 'Biru (Tidak signifikan)',
-                    'Hijau (Minor)'           => 'Hijau (Minor)',
-                    'Kuning (Moderat)'        => 'Kuning (Moderat)',
-                    'Merah (Mayor)'           => 'Merah (Mayor)',
-                    'Hitam (Katastropik)'     => 'Hitam (Katastropik)',
+                    'Biru'   => 'Biru',
+                    'Hijau'  => 'Hijau',
+                    'Kuning' => 'Kuning',
+                    'Merah'  => 'Merah',
+                    'Hitam'  => 'Hitam',
                 ])
-                ->native(false)
-                ->prefixIcon('heroicon-m-signal')
+                ->colors([
+                    'Biru'   => 'info',
+                    'Hijau'  => 'success',
+                    'Kuning' => 'warning',
+                    'Merah'  => 'danger',
+                    'Hitam'  => 'gray',
+                ])
+                ->inline()
                 ->helperText('Hanya diisi oleh Validator / Tim IKP')
                 ->visibleOn('edit');
         } else {
