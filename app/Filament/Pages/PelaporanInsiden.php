@@ -7,8 +7,13 @@ use App\Models\LaporanInsiden;
 use App\Models\User;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,7 +46,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
     {
         return $form
             ->schema([
-                ...LaporanInsidenFormSchema::sections(withAdminFields: false),
+                Wizard::make(LaporanInsidenFormSchema::steps(withAdminFields: false))->columnSpanFull(),
                 Forms\Components\Hidden::make('status')->default('draft'),
                 Forms\Components\Hidden::make('user_id')->default(Auth::id()),
             ])

@@ -3,15 +3,75 @@
 namespace App\Filament\Resources\LaporanInsidens\Schemas;
 
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Wizard\Step;
 use Illuminate\Support\Facades\Auth;
 
 class LaporanInsidenFormSchema
 {
+
+    public static function steps(bool $withAdminFields = false): array
+    {
+        $steps = [
+            Step::make('Pelapor')
+                ->icon('heroicon-o-user-circle')
+                ->schema([
+                    static::sectionPelapor(),
+                ]),
+
+            Step::make('Insiden')
+                ->icon('heroicon-o-exclamation-triangle')
+                ->schema([
+                    static::sectionInsiden(),
+                ]),
+
+            Step::make('Pasien')
+                ->icon('heroicon-o-identification')
+                ->schema([
+                    static::sectionPasien(),
+                ]),
+
+            Step::make('Kronologi')
+                ->icon('heroicon-o-document-text')
+                ->schema([
+                    static::sectionKronologi(),
+                ]),
+
+            Step::make('Kategori & Dampak')
+                ->icon('heroicon-o-shield-exclamation')
+                ->schema([
+                    static::sectionKategoriDampak($withAdminFields),
+                ]),
+
+            Step::make('Tindakan')
+                ->icon('heroicon-o-hand-raised')
+                ->schema([
+                    static::sectionTindakan($withAdminFields),
+                ]),
+        ];
+
+        if ($withAdminFields) {
+            $steps[] = Step::make('Catatan')
+                ->icon('heroicon-o-paper-clip')
+                ->schema([
+                    static::sectionCatatanTambahan(),
+                ]);
+
+            $steps[] = Step::make('Status')
+                ->icon('heroicon-o-check-circle')
+                ->schema([
+                    static::sectionStatus(),
+                ]);
+        }
+
+        return $steps;
+    }
+
     /**
      * Kembalikan semua section form.
      *
@@ -25,7 +85,7 @@ class LaporanInsidenFormSchema
             static::sectionPasien(),
             static::sectionKronologi(),
             static::sectionKategoriDampak($withAdminFields),
-            static::sectionTindakan(),
+            static::sectionTindakan($withAdminFields),
         ];
 
         if ($withAdminFields) {
@@ -89,6 +149,7 @@ class LaporanInsidenFormSchema
                         ->label('Jenis Insiden')
                         ->required()
                         ->options([
+                            'KPC (Kondisi Potensial Cedera)' => 'KPC (Kondisi Potensial Cedera)',
                             'KNC (Kejadian Nyaris Cedera)'      => 'KNC (Kejadian Nyaris Cedera)',
                             'KTD (Kejadian Tidak Diharapkan)'   => 'KTD (Kejadian Tidak Diharapkan)',
                             'KTC (Kejadian Tidak Cedera)'       => 'KTC (Kejadian Tidak Cedera)',
@@ -118,7 +179,6 @@ class LaporanInsidenFormSchema
                     Forms\Components\TimePicker::make('waktu_insiden')
                         ->label('Waktu Insiden')
                         ->required()
-                        ->native(false)
                         ->prefixIcon('heroicon-m-clock')
                         ->seconds(false)
                         ->helperText('Jam terjadinya insiden (format 24 jam)'),
@@ -211,8 +271,6 @@ class LaporanInsidenFormSchema
                     ->seconds(false),
             ])
             ->collapsible()
-            ->collapsed()
-            ->persistCollapsed()
             ->compact();
     }
 
@@ -269,11 +327,26 @@ class LaporanInsidenFormSchema
     {
         $schema = [
             Grid::make(2)->schema([
-                Forms\Components\TextInput::make('kategori_insiden')
+                Select::make('kategori_insiden')
                     ->label('Kategori Insiden')
-                    ->required()
-                    ->prefixIcon('heroicon-m-tag')
-                    ->helperText('Isi kategori yang paling sesuai'),
+                    ->options([
+                        'medication' => 'Medication / Cairan IV',
+                        'prosedur_klinis' => 'Prosedur Klinis',
+                        'diagnostik' => 'Diagnostik',
+                        'infeksi' => 'Infeksi Terkait Pelayanan Kesehatan',
+                        'pasien_jatuh' => 'Pasien Jatuh',
+                        'identifikasi_pasien' => 'Identifikasi Pasien',
+                        'komunikasi' => 'Komunikasi',
+                        'dokumentasi' => 'Dokumentasi Klinis',
+                        'peralatan_medis' => 'Peralatan Medis',
+                        'transfusi_darah' => 'Transfusi Darah / Produk Darah',
+                        'administrasi' => 'Administrasi / Proses Pelayanan',
+                        'lingkungan' => 'Lingkungan / Fasilitas',
+                        'faktor_manusia' => 'Faktor Manusia',
+                        'lainnya' => 'Lainnya',
+                    ])
+                    ->searchable()
+                    ->required(),
 
                 Forms\Components\Select::make('dampak_insiden')
                     ->label('Dampak Insiden')
@@ -289,6 +362,14 @@ class LaporanInsidenFormSchema
                     ->default('Tidak ada cedera')
                     ->prefixIcon('heroicon-m-heart')
                     ->helperText('Tingkat dampak yang dialami'),
+
+                Forms\Components\TextArea::make('deskripsi_kategori_insiden')
+                    ->label('Deskripsi Insiden')
+                    ->required()
+                    ->rows(8)
+                    ->helperText('Jelaskan secara rinci kategori insiden yang dipilih, termasuk faktor penyebab dan kondisi yang berkontribusi.')
+                    ->placeholder('Contoh: Insiden terkait medication terjadi karena kesalahan pemberian obat oleh petugas, dimana pasien menerima obat yang salah dosisnya. Faktor penyebabnya adalah kurangnya komunikasi antara petugas dan kurang teliti dalam membaca label obat.')
+                    ->columnSpanFull(),
             ]),
         ];
 
@@ -321,24 +402,31 @@ class LaporanInsidenFormSchema
             ->compact();
     }
 
-    public static function sectionTindakan(): Section
+    public static function sectionTindakan(bool $withAnalysis = false): Section
     {
+        $fields = [
+            Forms\Components\Textarea::make('tindakan_dilakukan')
+                ->label('Tindakan yang Telah Dilakukan Setelah Insiden')
+                ->required()
+                ->rows(6)
+                ->helperText('Jelaskan seluruh tindakan yang telah dilakukan setelah insiden terjadi.')
+                ->placeholder("Contoh:\n1. Segera memberikan pertolongan pertama\n2. Menghubungi dokter jaga\n3. Melaporkan kepada kepala ruangan")
+                ->columnSpanFull(),
+        ];
+
+        if ($withAnalysis) {
+            $fields[] = Forms\Components\Textarea::make('analisis_penyebab')
+                ->label('Analisis Penyebab Insiden')
+                ->rows(6)
+                ->helperText('Analisis mendalam tentang penyebab insiden, faktor yang berkontribusi, dan rencana tindakan pencegahan ke depan.')
+                ->placeholder("Contoh:\nPenyebab utama insiden adalah kurangnya komunikasi antara petugas saat shift change. Faktor yang berkontribusi termasuk kurangnya standar komunikasi yang jelas dan tidak adanya checklist handover. Rencana tindakan pencegahan meliputi implementasi SBAR untuk komunikasi antar shift dan pelatihan ulang bagi seluruh staf.")
+                ->columnSpanFull();
+        };
+
         return Section::make('🩹 BAGIAN F: TINDAKAN YANG DILAKUKAN')
             ->description('Tindakan yang telah dilakukan setelah terjadinya insiden')
             ->icon('heroicon-o-hand-raised')
-            ->schema([
-                Forms\Components\Textarea::make('tindakan_dilakukan')
-                    ->label('Tindakan yang Telah Dilakukan Setelah Insiden')
-                    ->required()
-                    ->rows(6)
-                    ->helperText('Jelaskan seluruh tindakan yang telah dilakukan setelah insiden terjadi.')
-                    ->placeholder("Contoh:\n1. Segera memberikan pertolongan pertama\n2. Menghubungi dokter jaga\n3. Melaporkan kepada kepala ruangan")
-                    ->columnSpanFull(),
-
-                TextEntry::make('info_analisis')
-                    ->state('ℹ️ Catatan: Analisis penyebab dan rencana tindakan pencegahan akan diisi oleh Tim IKP setelah investigasi mendalam.')
-                    ->columnSpanFull(),
-            ])
+            ->schema($fields)
             ->collapsible()
             ->persistCollapsed()
             ->compact();

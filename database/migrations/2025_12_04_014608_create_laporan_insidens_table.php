@@ -24,6 +24,7 @@ return new class extends Migration
             // Data Insiden
             $table->string('nomor_laporan')->unique();
             $table->enum('jenis_insiden', [
+                'KPC (Kondisi Potensial Cedera)',
                 'KNC (Kejadian Nyaris Cedera)',
                 'KTD (Kejadian Tidak Diharapkan)',
                 'KTC (Kejadian Tidak Cedera)',
