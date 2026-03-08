@@ -50,6 +50,16 @@ class ShieldSeeder extends Seeder
 
         /*
         |--------------------------------------------------------------------------
+        | Page Permissions (Shield HasPageShield)
+        |--------------------------------------------------------------------------
+        */
+
+        $pagePermissions = [
+            'View:PelaporanInsiden',  // akses halaman form pelaporan insiden
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
         | Resources
         |--------------------------------------------------------------------------
         */
@@ -78,6 +88,13 @@ class ShieldSeeder extends Seeder
         }
 
         foreach ($workflowPermissions as $permission) {
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => $guard,
+            ]);
+        }
+
+        foreach ($pagePermissions as $permission) {
             Permission::firstOrCreate([
                 'name' => $permission,
                 'guard_name' => $guard,
@@ -133,6 +150,7 @@ class ShieldSeeder extends Seeder
                 'Kembalikan:LaporanInsiden',
                 'Investigasi:LaporanInsiden',
                 'KembalikanUnit:LaporanInsiden',
+                'View:PelaporanInsiden',
             ]);
 
         $roleInstances['admin']->syncPermissions($adminPermissions);
@@ -142,16 +160,22 @@ class ShieldSeeder extends Seeder
             'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
             'Update:LaporanInsiden',
+            'Create:LaporanInsiden',
             'Verifikasi:LaporanInsiden',
             'Kembalikan:LaporanInsiden',
+            'Submit:LaporanInsiden',
+            'View:PelaporanInsiden',
         ]);
 
         // Tim mutu → investigasi & kembalikan ke kepala unit
         $roleInstances['tim_mutu']->syncPermissions([
             'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
+            'Create:LaporanInsiden',
             'Investigasi:LaporanInsiden',
             'KembalikanUnit:LaporanInsiden',
+            'Submit:LaporanInsiden',
+            'View:PelaporanInsiden',
         ]);
 
         // Manajemen → hanya lihat
@@ -167,6 +191,7 @@ class ShieldSeeder extends Seeder
             'Create:LaporanInsiden',
             'Update:LaporanInsiden',
             'Submit:LaporanInsiden',
+            'View:PelaporanInsiden',
         ]);
 
         /*
