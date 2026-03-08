@@ -15,11 +15,18 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use BezhanSalleh\PluginEssentials\Concerns\Resource as Essentials;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UnitKerjaResource extends Resource
 {
+    use Essentials\BelongsToParent;
+    use Essentials\BelongsToTenant;
+    use Essentials\HasGlobalSearch;
+    use Essentials\HasLabels;
+    use Essentials\HasNavigation;
+
     protected static ?string $model = UnitKerja::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-office';
