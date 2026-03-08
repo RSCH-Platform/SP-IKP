@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\UnitKerja;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -32,17 +31,14 @@ class UserSeeder extends Seeder
         $this->command->info('Users seeded: ' . count($users) . ' records.');
 
         // --- 2. Seed pivot user_unit_kerja ---
-        // Build lookup maps to avoid N+1 queries
-        $userMap     = User::pluck('id', 'nip');
-        $unitKerjaMap = UnitKerja::pluck('id', 'slug');
+        $userMap = User::pluck('id', 'nip');
 
         $rows = [];
         $seen = [];
 
         foreach ($pivots as $pivot) {
-            $userId     = $userMap[$pivot['user_nip']] ?? null;
-            $unitSlug   = \Illuminate\Support\Str::slug($pivot['unit_kerja_name']);
-            $unitId     = $unitKerjaMap[$unitSlug] ?? null;
+            $userId = $userMap[$pivot['user_nip']] ?? null;
+            $unitId = $pivot['unit_kerja_id'];
 
             if (! $userId || ! $unitId) {
                 continue;
@@ -55,10 +51,10 @@ class UserSeeder extends Seeder
 
             $seen[$key] = true;
             $rows[] = [
-                'user_id'      => $userId,
+                'user_id'       => $userId,
                 'unit_kerja_id' => $unitId,
-                'created_at'   => $pivot['assigned_at'] ?? now(),
-                'updated_at'   => $pivot['assigned_at'] ?? now(),
+                'created_at'    => $pivot['assigned_at'] ?? now(),
+                'updated_at'    => $pivot['assigned_at'] ?? now(),
             ];
         }
 

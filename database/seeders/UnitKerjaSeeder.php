@@ -15,9 +15,10 @@ class UnitKerjaSeeder extends Seeder
 
         foreach ($units as $unit) {
             UnitKerja::updateOrCreate(
-                ['slug' => \Illuminate\Support\Str::slug($unit['nama_unit'])],
+                ['id' => $unit['id']],
                 [
                     'unit_name'   => $unit['nama_unit'],
+                    'slug'        => $unit['slug'],
                     'description' => $unit['deskripsi'] ?? null,
                 ]
             );

@@ -6,6 +6,7 @@ use App\Filament\Resources\UnitKerjas\Pages\CreateUnitKerja;
 use App\Filament\Resources\UnitKerjas\Pages\EditUnitKerja;
 use App\Filament\Resources\UnitKerjas\Pages\ListUnitKerjas;
 use App\Filament\Resources\UnitKerjas\Pages\ViewUnitKerja;
+use App\Filament\Resources\UnitKerjas\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\UnitKerjas\Schemas\UnitKerjaForm;
 use App\Filament\Resources\UnitKerjas\Schemas\UnitKerjaInfolist;
 use App\Filament\Resources\UnitKerjas\Tables\UnitKerjasTable;
@@ -51,7 +52,7 @@ class UnitKerjaResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            UsersRelationManager::class,
         ];
     }
 
