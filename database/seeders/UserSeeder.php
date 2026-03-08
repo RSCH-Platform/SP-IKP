@@ -8,6 +8,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -23,7 +24,7 @@ class UserSeeder extends Seeder
                 [
                     'name'     => $data['nama'],
                     'no_hp'    => $data['nomor_telepon'] ?? null,
-                    'password' => Hash::make($data['nip']), // default password = NIP
+                    'password' => Hash::make('Rschjaya123'), // default password = NIP
                 ]
             );
         }
@@ -70,5 +71,30 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info('user_unit_kerja pivot seeded: ' . count($rows) . ' records.');
+
+        // --- 3. Assign roles from user_roles.json ---
+        $roleData     = json_decode(File::get(database_path('data/user_roles.json')), true);
+        $existingRoles = Role::pluck('name')->flip(); // fast lookup set
+        $userMap       = User::pluck('id', 'nip');    // refresh after upsert
+
+        $assigned = 0;
+        foreach ($roleData as $entry) {
+            $user = User::find($userMap[$entry['user_nip']] ?? null);
+            if (! $user) {
+                continue;
+            }
+
+            $roleName = isset($existingRoles[$entry['role_name']])
+                ? $entry['role_name']
+                : 'pelapor';
+
+            // syncRoles replaces existing roles; use assignRole to add without removing
+            if (! $user->hasRole($roleName)) {
+                $user->assignRole($roleName);
+                $assigned++;
+            }
+        }
+
+        $this->command->info("Roles assigned: {$assigned} new assignments.");
     }
 }

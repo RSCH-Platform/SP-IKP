@@ -1,0 +1,586 @@
+[
+    {
+        "user_id": 125,
+        "user_nip": "0000.11111",
+        "user_name": "admin",
+        "role_id": 5,
+        "role_name": "admin",
+        "role_label": "Admin"
+    },
+    {
+        "user_id": 57,
+        "user_nip": "0315.01166",
+        "user_name": "tim_mutu",
+        "role_id": 6,
+        "role_name": "tim_mutu",
+        "role_label": "Tim Mutu"
+    },
+    {
+        "user_id": 2,
+        "user_nip": "0120.01173",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 5,
+        "user_nip": "0220.01175",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 6,
+        "user_nip": "0415.01125",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 8,
+        "user_nip": "0313.01026",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 10,
+        "user_nip": "1218.011155",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 12,
+        "user_nip": "1014.01113",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 14,
+        "user_nip": "0919.01135",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 16,
+        "user_nip": "0819.01129",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 18,
+        "user_nip": "1022.02172",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 20,
+        "user_nip": "1220.01204",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 22,
+        "user_nip": "1112.01068",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 25,
+        "user_nip": "1122.02174",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 26,
+        "user_nip": "0220.01141",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 28,
+        "user_nip": "102.202.173",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 31,
+        "user_nip": "0422.01253",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 32,
+        "user_nip": "0813.01059",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 34,
+        "user_nip": "0419.01119",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 36,
+        "user_nip": "0113.02099",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 38,
+        "user_nip": "0124.02277",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 40,
+        "user_nip": "0122.00046",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 41,
+        "user_nip": "0215.02117",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 42,
+        "user_nip": "0520.02223",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 43,
+        "user_nip": "0220.02192",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 45,
+        "user_nip": "0112.02082",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 47,
+        "user_nip": "0518.02163",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 48,
+        "user_nip": "0610.02084",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 49,
+        "user_nip": "1122.02238",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 51,
+        "user_nip": "0121.02229",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 52,
+        "user_nip": "0222.01241",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 53,
+        "user_nip": "0222.00060",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 55,
+        "user_nip": "0519.01124",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 59,
+        "user_nip": "0823.02197",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 60,
+        "user_nip": "0124.02274",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 61,
+        "user_nip": "0325.02250",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 62,
+        "user_nip": "1023.02264",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 63,
+        "user_nip": "1122.02171",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 66,
+        "user_nip": "0424.02295",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 68,
+        "user_nip": "0220.02207",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 77,
+        "user_nip": "0110.01016",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 78,
+        "user_nip": "1218.01115",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 93,
+        "user_nip": "1122.02174",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 121,
+        "user_nip": "0222.00060",
+        "user_name": "pengumpul_data",
+        "role_id": 7,
+        "role_name": "pengumpul_data",
+        "role_label": "Pengumpul Data"
+    },
+    {
+        "user_id": 3,
+        "user_nip": "0309.01022",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 4,
+        "user_nip": "0220.01176",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 7,
+        "user_nip": "0109.01008",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 9,
+        "user_nip": "0110.01016",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 11,
+        "user_nip": "1110.01042",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 13,
+        "user_nip": "0109.01043",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 15,
+        "user_nip": "1213.01086",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 17,
+        "user_nip": "0817.01168",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 19,
+        "user_nip": "0316.01139",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 21,
+        "user_nip": "0518.01186",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 23,
+        "user_nip": "0212.01069",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 24,
+        "user_nip": "0119.01105",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 27,
+        "user_nip": "0319.01114",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 29,
+        "user_nip": "0121.01220",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 30,
+        "user_nip": "0918.01194",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 33,
+        "user_nip": "0111.01058",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 35,
+        "user_nip": "0316.01140",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 37,
+        "user_nip": "0613.02097",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 39,
+        "user_nip": "0816.02139",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 44,
+        "user_nip": "1212.02100",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 46,
+        "user_nip": "0109.02086",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 54,
+        "user_nip": "0119.01102",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 56,
+        "user_nip": "0715.021240",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 58,
+        "user_nip": "0313.01036",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 64,
+        "user_nip": "1116.01157",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 65,
+        "user_nip": "0119.01103",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 67,
+        "user_nip": "1211.01020",
+        "user_name": "validator_pic",
+        "role_id": 8,
+        "role_name": "validator_pic",
+        "role_label": "Validator PIC"
+    },
+    {
+        "user_id": 1,
+        "user_nip": "0000.00000",
+        "user_name": "super_admin",
+        "role_id": 9,
+        "role_name": "super_admin",
+        "role_label": "Super Admin"
+    },
+    {
+        "user_id": 50,
+        "user_nip": "0309.02117",
+        "user_name": "super_admin",
+        "role_id": 9,
+        "role_name": "super_admin",
+        "role_label": "Super Admin"
+    }
+]
