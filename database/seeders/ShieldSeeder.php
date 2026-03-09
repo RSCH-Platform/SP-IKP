@@ -21,6 +21,7 @@ class ShieldSeeder extends Seeder
         */
 
         $actions = [
+            'ViewAllData',
             'ViewAny',
             'View',
             'Create',
@@ -151,6 +152,7 @@ class ShieldSeeder extends Seeder
                 'Investigasi:LaporanInsiden',
                 'KembalikanUnit:LaporanInsiden',
                 'View:PelaporanInsiden',
+                'ViewAllData:LaporanInsiden'
             ]);
 
         $roleInstances['admin']->syncPermissions($adminPermissions);
@@ -169,6 +171,7 @@ class ShieldSeeder extends Seeder
 
         // Tim mutu → investigasi & kembalikan ke kepala unit
         $roleInstances['tim_mutu']->syncPermissions([
+            'ViewAllData:LaporanInsiden',
             'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
             'Create:LaporanInsiden',
@@ -180,6 +183,7 @@ class ShieldSeeder extends Seeder
 
         // Manajemen → hanya lihat
         $roleInstances['manajemen']->syncPermissions([
+            'ViewAllData:LaporanInsiden',
             'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
         ]);
@@ -187,6 +191,7 @@ class ShieldSeeder extends Seeder
         // Pelapor → submit & lihat
         $roleInstances['pelapor']->syncPermissions([
             'View:LaporanInsiden',
+            'ViewAny:LaporanInsiden',
             'Create:LaporanInsiden',
             'Update:LaporanInsiden',
             'Submit:LaporanInsiden',

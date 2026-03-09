@@ -16,6 +16,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class LaporanInsidenResource extends Resource
 {
@@ -41,13 +42,6 @@ class LaporanInsidenResource extends Resource
         return LaporanInsidensTable::configure($table);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
@@ -64,5 +58,19 @@ class LaporanInsidenResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+
+        // Jika user punya permission View dan ViewAny, filter hanya unit kerja user
+        if ($user && $user->hasPermissionTo('View:LaporanInsiden') && $user->hasPermissionTo('ViewAny:LaporanInsiden')) {
+            $unitKerjaIds = $user->unitKerja()->pluck('id');
+            $query->whereIn('unit_kerja_id', $unitKerjaIds);
+        }
+
+        return $query;
     }
 }

@@ -12,19 +12,36 @@ class LaporanInsidenPolicy
 {
     use HandlesAuthorization;
 
+    public function viewAllData(AuthUser $authUser): bool
+    {
+        return $authUser->can('ViewAllData:LaporanInsiden');
+    }
+
     public function viewAny(AuthUser $authUser): bool
     {
+        // User harus punya unit kerja dan permission ViewAny
         return $authUser->can('ViewAny:LaporanInsiden');
     }
 
     public function view(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('View:LaporanInsiden');
+        // Jika punya permission ViewAllData, bisa lihat semua laporan
+        if ($authUser->can('ViewAllData:LaporanInsiden')) {
+            return true;
+        }
+
+        // Jika punya View permission tapi tidak ViewAllData, hanya bisa lihat laporan dari unit kerja user
+        if ($authUser->can('View:LaporanInsiden')) {
+            $userUnitIds = $authUser->unitKerja()->pluck('id');
+            return $userUnitIds->contains($laporanInsiden->unit_kerja_id);
+        }
+
+        return false;
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:LaporanInsiden');
+        return $authUser->can('Create:LaporanInsiden'); 
     }
 
     public function update(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool

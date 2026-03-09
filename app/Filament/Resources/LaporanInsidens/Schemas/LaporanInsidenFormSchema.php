@@ -120,7 +120,7 @@ class LaporanInsidenFormSchema
                             $user = Auth::user();
 
                             // Jika pelapor (memiliki Create:LaporanInsiden tapi tidak ViewAny), tampilkan hanya unit yang dia belong
-                            if ($user->hasPermissionTo('Create:LaporanInsiden') && !$user->hasPermissionTo('ViewAny:LaporanInsiden')) {
+                            if (($user->hasPermissionTo('Create:LaporanInsiden') && !$user->hasPermissionTo('ViewAny:LaporanInsiden') || $user->unitKerja()->count() > 0)) {
                                 return $user->unitKerja()
                                     ->pluck('unit_name', 'id');
                             }
@@ -131,13 +131,11 @@ class LaporanInsidenFormSchema
                         ->default(function () {
                             $user = Auth::user();
 
-                            // Jika pelapor dengan hanya satu unit, set default
-                            if ($user->hasPermissionTo('Create:LaporanInsiden') && !$user->hasPermissionTo('ViewAny:LaporanInsiden')) {
-                                $units = $user->unitKerja()->pluck('id');
-                                return $units->count() === 1 ? $units->first() : null;
+                            if ($user->unitKerja()->count() === 0) {
+                                return null;
+                            } else {
+                                return $user->unitKerja()->orderBy('unit_name')->first()->id;
                             }
-
-                            return null;
                         })
                         ->native(false)
                         ->prefixIcon('heroicon-m-building-office')

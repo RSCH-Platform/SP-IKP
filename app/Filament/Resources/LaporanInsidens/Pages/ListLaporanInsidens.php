@@ -13,65 +13,61 @@ class ListLaporanInsidens extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            // CreateAction::make(),
-        ];
+        return [];
+    }
+
+    protected function baseQuery(): Builder
+    {
+        $user = auth()->user();
+        $unitKerja = $user->unitKerja;
+
+        $query = $this->getModel()::query();
+
+        if ($unitKerja && !$user->hasPermissionTo('ViewAllData:LaporanInsiden')) {
+            $query->whereHas(
+                'pelapor',
+                fn($q) =>
+                $q->where('unit_kerja_id', $unitKerja->id)
+            );
+        }
+
+        return $query;
+    }
+
+    protected function statusCount(string $status): int
+    {
+        return (clone $this->baseQuery())
+            ->where('status', $status)
+            ->count();
     }
 
     public function getTabs(): array
     {
-        return [
-            'draft' => Tab::make('Draft')
-                ->badge(fn() => $this->getModel()::where('status', 'draft')->count())
-                ->badgeColor('gray')
-                ->modifyQueryUsing(
-                    fn(Builder $query) =>
-                    $query->where('status', 'draft')
-                ),
-
-            'dilaporkan' => Tab::make('Dilaporkan')
-                ->badge(fn() => $this->getModel()::where('status', 'dilaporkan')->count())
-                ->badgeColor('info')
-                ->modifyQueryUsing(
-                    fn(Builder $query) =>
-                    $query->where('status', 'dilaporkan')
-                ),
-
-            'revisi_unit' => Tab::make('Revisi Unit')
-                ->badge(fn() => $this->getModel()::where('status', 'revisi_unit')->count())
-                ->badgeColor('danger')
-                ->modifyQueryUsing(
-                    fn(Builder $query) =>
-                    $query->where('status', 'revisi_unit')
-                ),
-
-            'revisi' => Tab::make('Perlu Revisi')
-                ->badge(fn() => $this->getModel()::where('status', 'revisi')->count())
-                ->badgeColor('warning')
-                ->modifyQueryUsing(
-                    fn(Builder $query) =>
-                    $query->where('status', 'revisi')
-                ),
-
-            'diverifikasi' => Tab::make('Diverifikasi')
-                ->badge(fn() => $this->getModel()::where('status', 'diverifikasi')->count())
-                ->badgeColor('success')
-                ->modifyQueryUsing(
-                    fn(Builder $query) =>
-                    $query->where('status', 'diverifikasi')
-                ),
-
-            'investigasi' => Tab::make('Investigasi')
-                ->badge(fn() => $this->getModel()::where('status', 'investigasi')->count())
-                ->badgeColor('primary')
-                ->modifyQueryUsing(
-                    fn(Builder $query) =>
-                    $query->where('status', 'investigasi')
-                ),
-
-            'semua' => Tab::make('Semua Laporan')
-                ->badge(fn() => $this->getModel()::count())
-                ->badgeColor('gray'),
+        $statuses = [
+            'draft' => ['label' => 'Draft', 'color' => 'gray'],
+            'dilaporkan' => ['label' => 'Dilaporkan', 'color' => 'info'],
+            'revisi_unit' => ['label' => 'Revisi Unit', 'color' => 'danger'],
+            'revisi' => ['label' => 'Perlu Revisi', 'color' => 'warning'],
+            'diverifikasi' => ['label' => 'Diverifikasi', 'color' => 'success'],
+            'investigasi' => ['label' => 'Investigasi', 'color' => 'primary'],
         ];
+
+        $tabs = [];
+
+        foreach ($statuses as $status => $config) {
+            $tabs[$status] = Tab::make($config['label'])
+                ->badge(fn() => $this->statusCount($status))
+                ->badgeColor($config['color'])
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    $query->where('status', $status)
+                );
+        }
+
+        $tabs['semua'] = Tab::make('Semua Laporan')
+            ->badge(fn() => $this->baseQuery()->count())
+            ->badgeColor('gray');
+
+        return $tabs;
     }
 }
