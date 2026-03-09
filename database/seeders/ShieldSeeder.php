@@ -163,6 +163,8 @@ class ShieldSeeder extends Seeder
             'View:LaporanInsiden',
             'Update:LaporanInsiden',
             'Create:LaporanInsiden',
+            'Investigasi:LaporanInsiden',
+            'KembalikanUnit:LaporanInsiden',
             'Verifikasi:LaporanInsiden',
             'Kembalikan:LaporanInsiden',
             'Submit:LaporanInsiden',

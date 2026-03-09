@@ -72,7 +72,7 @@ class LaporanInsidenInfolistSchema
                     ->dateTime('d F Y, H:i')
                     ->icon('heroicon-m-paper-airplane')
                     ->placeholder('Belum dikirim')
-                    ->visible(fn($record) => $record->reported_at !== null),
+                    ->visible(fn($record) => dd($record)),
 
                 Infolists\Components\TextEntry::make('verifier.name')
                     ->label('Diverifikasi Oleh')

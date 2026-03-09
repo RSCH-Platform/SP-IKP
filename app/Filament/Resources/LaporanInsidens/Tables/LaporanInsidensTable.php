@@ -12,6 +12,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -23,8 +24,30 @@ class LaporanInsidensTable
 {
     public static function configure(Table $table): Table
     {
+        $requiredFieldsForSubmit = [
+            'nama_pelapor' => 'Nama Pelapor',
+            'unit_kerja_id' => 'Unit Kerja',
+            'tanggal_lapor' => 'Tanggal Lapor',
+            'jenis_insiden' => 'Jenis Insiden',
+            'tanggal_insiden' => 'Tanggal Insiden',
+            'waktu_insiden' => 'Waktu Insiden',
+            'lokasi_insiden' => 'Lokasi Insiden',
+            'kronologi' => 'Kronologi',
+            'insiden_terjadi_pada' => 'Insiden Terjadi Pada',
+            'kategori_insiden' => 'Kategori Insiden',
+            'deskripsi_kategori_insiden' => 'Deskripsi Kategori Insiden',
+            'dampak_insiden' => 'Dampak Insiden',
+            'tindakan_dilakukan' => 'Tindakan Dilakukan',
+        ];
+
         return $table
             ->columns([
+                TextColumn::make('nomor_laporan')
+                    ->label('No. Laporan')
+                    ->icon('heroicon-m-document-text')
+                    ->weight('bold')
+                    ->searchable(),
+
                 TextColumn::make('tanggal_insiden')
                     ->label('Tanggal Insiden')
                     ->date('d M Y')
@@ -32,16 +55,35 @@ class LaporanInsidensTable
 
                 TextColumn::make('jenis_insiden')
                     ->label('Jenis')
+                    ->badge()
                     ->searchable(),
 
                 TextColumn::make('kategori_insiden')
                     ->label('Kategori')
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(35),
 
                 TextColumn::make('lokasi_insiden')
                     ->label('Lokasi')
                     ->searchable()
-                    ->limit(30),
+                    ->limit(35),
+
+                TextColumn::make('nama_pelapor')
+                    ->label('Pelapor')
+                    ->searchable(),
+
+                TextColumn::make('unit_kerja')
+                    ->label('Unit Kerja')
+                    ->formatStateUsing(fn($state, $record) => $state ?: ($record->unitKerja?->unit_name ?? '-'))
+                    ->searchable()
+                    ->toggleable(),
+
+                TextColumn::make('nomor_telepon')
+                    ->label('No. Telepon')
+                    ->copyable()
+                    ->copyMessage('Nomor telepon berhasil disalin!')
+                    ->copyMessageDuration(1500)
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('dampak_insiden')
                     ->label('Dampak')
@@ -51,10 +93,6 @@ class LaporanInsidensTable
                         'warning' => ['Cedera ringan', 'Cedera sedang'],
                         'danger' => ['Cedera berat', 'Meninggal'],
                     ]),
-
-                TextColumn::make('nama_pelapor')
-                    ->label('Pelapor')
-                    ->searchable(),
 
                 TextColumn::make('status')
                     ->label('Status')
@@ -140,6 +178,20 @@ class LaporanInsidensTable
                     ->modalHeading('Kirim Laporan Insiden?')
                     ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi.')
                     ->action(function ($record) {
+                        $missingFields = collect($requiredFieldsForSubmit)
+                            ->filter(fn($label, $field) => blank(data_get($record, $field)))
+                            ->values()
+                            ->all();
+
+                        if (! empty($missingFields)) {
+                            Notification::make()
+                                ->title('Laporan belum bisa dikirim')
+                                ->body('Lengkapi field wajib berikut: ' . implode(', ', $missingFields))
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
 
                         $record->submitLaporan();
 
@@ -176,7 +228,29 @@ class LaporanInsidensTable
                         )
                         ->requiresConfirmation()
                         ->modalHeading('Verifikasi Laporan')
-                        ->action(function ($record) {
+                        ->form([
+                            Select::make('grading_risiko')
+                                ->label('Grading Risiko')
+                                ->required()
+                                ->options([
+                                    'Biru' => 'Biru',
+                                    'Hijau' => 'Hijau',
+                                    'Kuning' => 'Kuning',
+                                    'Merah' => 'Merah',
+                                    'Hitam' => 'Hitam',
+                                ])
+                                ->native(false)
+                                ->default(fn($record) => $record->grading_risiko),
+                            Textarea::make('catatan_tambahan')
+                                ->label('Catatan Verifikasi')
+                                ->rows(3)
+                                ->default(fn($record) => $record->catatan_tambahan),
+                        ])
+                        ->action(function ($record, array $data) {
+                            $record->update([
+                                'grading_risiko' => $data['grading_risiko'],
+                                'catatan_tambahan' => $data['catatan_tambahan'] ?? $record->catatan_tambahan,
+                            ]);
 
                             $record->verifikasiLaporan(auth()->id());
 
@@ -241,7 +315,19 @@ class LaporanInsidensTable
                                 $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
                         )
                         ->requiresConfirmation()
-                        ->action(fn($record) => $record->mulaiInvestigasi(auth()->id())),
+                        ->action(function ($record) {
+                            if (blank($record->grading_risiko)) {
+                                Notification::make()
+                                    ->title('Belum bisa investigasi')
+                                    ->body('Grading risiko wajib diisi saat verifikasi sebelum memulai investigasi.')
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $record->mulaiInvestigasi(auth()->id());
+                        }),
 
                     Action::make('kembalikan_ke_unit')
                         ->label('Kembalikan ke Kepala Unit')
@@ -277,11 +363,27 @@ class LaporanInsidensTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn($record) => in_array($record->status, [
-                            LaporanInsiden::STATUS_DRAFT,
-                            LaporanInsiden::STATUS_REVISI,
-                            LaporanInsiden::STATUS_REVISI_UNIT,
-                        ])),
+                        ->visible(function ($record) {
+                            $user = auth()->user();
+
+                            if (! $user || ! $user->can('Update:LaporanInsiden')) {
+                                return false;
+                            }
+
+                            if (in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI], true)) {
+                                return $user->can('Submit:LaporanInsiden');
+                            }
+
+                            if ($record->status === LaporanInsiden::STATUS_DILAPORKAN) {
+                                return $user->can('Verifikasi:LaporanInsiden') || $user->can('Kembalikan:LaporanInsiden');
+                            }
+
+                            if ($record->status === LaporanInsiden::STATUS_REVISI_UNIT) {
+                                return $user->can('Verifikasi:LaporanInsiden');
+                            }
+
+                            return false;
+                        }),
                 ])
                     ->icon('heroicon-o-ellipsis-vertical')
                     ->button()

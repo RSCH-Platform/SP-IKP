@@ -50,6 +50,7 @@ class UsersTable
                         TextColumn::make('unitKerja.unit_name')
                             ->label('')
                             ->grow(false)
+                            ->searchable()
                             ->icon('heroicon-m-building-office')
                             ->formatStateUsing(function ($record) {
                                 $roles = $record->unitKerja->pluck('unit_name')->toArray();

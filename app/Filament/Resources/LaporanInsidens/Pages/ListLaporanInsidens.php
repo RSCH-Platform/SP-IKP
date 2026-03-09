@@ -18,12 +18,8 @@ class ListLaporanInsidens extends ListRecords
 
     protected function baseQuery(): Builder
     {
-        $user = auth()->user();
-        $unitKerja = $user->unitKerja;
-
-        $query = $this->getModel()::query();
-
-        return $query;
+        // Reuse resource query so counts and tabs follow the same access scope.
+        return LaporanInsidenResource::getEloquentQuery();
     }
 
     protected function statusCount(string $status): int
@@ -31,6 +27,27 @@ class ListLaporanInsidens extends ListRecords
         return (clone $this->baseQuery())
             ->where('status', $status)
             ->count();
+    }
+
+    protected function canViewStatusTab(string $status): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->can('ViewAllData:LaporanInsiden')) {
+            return true;
+        }
+
+        return match ($status) {
+            'draft', 'revisi' => $user->can('Submit:LaporanInsiden') || $user->can('Create:LaporanInsiden'),
+            'dilaporkan' => $user->can('Verifikasi:LaporanInsiden') || $user->can('Kembalikan:LaporanInsiden') || $user->can('Submit:LaporanInsiden'),
+            'revisi_unit' => $user->can('Verifikasi:LaporanInsiden'),
+            'diverifikasi', 'investigasi' => $user->can('Investigasi:LaporanInsiden') || $user->can('KembalikanUnit:LaporanInsiden'),
+            default => $user->can('ViewAny:LaporanInsiden'),
+        };
     }
 
     public function getTabs(): array
@@ -47,6 +64,10 @@ class ListLaporanInsidens extends ListRecords
         $tabs = [];
 
         foreach ($statuses as $status => $config) {
+            if (! $this->canViewStatusTab($status)) {
+                continue;
+            }
+
             $tabs[$status] = Tab::make($config['label'])
                 ->badge(fn() => $this->statusCount($status))
                 ->badgeColor($config['color'])
@@ -56,9 +77,11 @@ class ListLaporanInsidens extends ListRecords
                 );
         }
 
-        $tabs['semua'] = Tab::make('Semua Laporan')
-            ->badge(fn() => $this->baseQuery()->count())
-            ->badgeColor('gray');
+        if (auth()->user()?->can('ViewAny:LaporanInsiden')) {
+            $tabs['semua'] = Tab::make('Semua Laporan')
+                ->badge(fn() => $this->baseQuery()->count())
+                ->badgeColor('gray');
+        }
 
         return $tabs;
     }

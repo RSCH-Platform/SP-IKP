@@ -50,6 +50,7 @@ class LaporanInsiden extends Model
         'catatan_tambahan',
         'status',
         // Workflow columns
+        'reported_by',
         'reported_at',
         'verified_by',
         'verified_at',
@@ -72,9 +73,19 @@ class LaporanInsiden extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function unitKerja(): BelongsTo
     {
         return $this->belongsTo(UnitKerja::class);
+    }
+
+    public function reporter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reported_by');
     }
 
     public function verifier(): BelongsTo
@@ -94,6 +105,7 @@ class LaporanInsiden extends Model
     {
         $this->update([
             'status'      => self::STATUS_DILAPORKAN,
+            'reported_by' => auth()->id(),
             'reported_at' => now(),
         ]);
     }
@@ -105,6 +117,9 @@ class LaporanInsiden extends Model
             'status'      => self::STATUS_DIVERIFIKASI,
             'verified_by' => $userId,
             'verified_at' => now(),
+            // Ensure reported_by and reported_at are set if not already (defensive)
+            'reported_by' => $this->reported_by ?? auth()->id(),
+            'reported_at' => $this->reported_at ?? now(),
         ]);
     }
 
@@ -123,7 +138,10 @@ class LaporanInsiden extends Model
     public function mulaiInvestigasi(int $userId): void
     {
         $this->update([
-            'status' => self::STATUS_INVESTIGASI,
+            'status'      => self::STATUS_INVESTIGASI,
+            // Ensure reported_by and reported_at are set if not already (defensive)
+            'reported_by' => $this->reported_by ?? auth()->id(),
+            'reported_at' => $this->reported_at ?? now(),
         ]);
     }
 
@@ -146,7 +164,81 @@ class LaporanInsiden extends Model
             if (empty($model->nomor_laporan)) {
                 $model->nomor_laporan = self::generateNomorLaporan();
             }
+
+            // Auto-sync timestamps dan user ID saat membuat record
+            self::syncStatusTimestamps($model);
         });
+
+        static::updating(function ($model) {
+            // Auto-sync timestamps dan user ID saat status berubah
+            if ($model->isDirty('status')) {
+                self::syncStatusTimestamps($model);
+            }
+        });
+    }
+
+    /**
+     * Sync timestamps dan user IDs berdasarkan status
+     */
+    protected static function syncStatusTimestamps($model): void
+    {
+        $currentUserId = auth()->id();
+
+        switch ($model->status) {
+            case self::STATUS_DILAPORKAN:
+                // Set reported_at dan reported_by jika belum ada
+                if (empty($model->reported_at)) {
+                    $model->reported_at = now();
+                }
+                if (empty($model->reported_by) && $currentUserId) {
+                    $model->reported_by = $currentUserId;
+                }
+                break;
+
+            case self::STATUS_DIVERIFIKASI:
+                // Set verified_at dan verified_by jika belum ada
+                if (empty($model->verified_at)) {
+                    $model->verified_at = now();
+                }
+                if (empty($model->verified_by) && $currentUserId) {
+                    $model->verified_by = $currentUserId;
+                }
+                // Pastikan reported_at dan reported_by juga terisi (defensive)
+                if (empty($model->reported_at)) {
+                    $model->reported_at = now();
+                }
+                if (empty($model->reported_by) && $currentUserId) {
+                    $model->reported_by = $currentUserId;
+                }
+                break;
+
+            case self::STATUS_REVISI:
+            case self::STATUS_REVISI_UNIT:
+                // Set rejected_at dan rejected_by jika belum ada
+                if (empty($model->rejected_at)) {
+                    $model->rejected_at = now();
+                }
+                if (empty($model->rejected_by) && $currentUserId) {
+                    $model->rejected_by = $currentUserId;
+                }
+                break;
+
+            case self::STATUS_INVESTIGASI:
+                // Pastikan reported_at, reported_by, verified_at, verified_by terisi
+                if (empty($model->reported_at)) {
+                    $model->reported_at = now();
+                }
+                if (empty($model->reported_by) && $currentUserId) {
+                    $model->reported_by = $currentUserId;
+                }
+                if (empty($model->verified_at)) {
+                    $model->verified_at = now();
+                }
+                if (empty($model->verified_by) && $currentUserId) {
+                    $model->verified_by = $currentUserId;
+                }
+                break;
+        }
     }
 
     public static function generateNomorLaporan(): string
@@ -162,5 +254,4 @@ class LaporanInsiden extends Model
 
         return sprintf('IKP/%s/%s/%04d', $year, $month, $sequence);
     }
-    
 }
