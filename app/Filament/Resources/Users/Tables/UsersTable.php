@@ -39,33 +39,21 @@ class UsersTable
                             ->searchable()
                             ->weight('bold'),
 
-                        TextColumn::make('roles.label')
+                        TextColumn::make('roles.name')
                             ->label('Role')
-                            ->searchable()
                             ->icon('heroicon-o-shield-check')
+                            ->searchable()
                             ->grow(false)
                     ])->alignStart()->space(1),
 
                     Stack::make([
-                        TextColumn::make('roles.name')
-                            ->label(__('filament-forms::users.fields.roles'))
-                            ->searchable()
-                            ->icon('heroicon-o-document-text')
+                        TextColumn::make('unitKerja.unit_name')
+                            ->label('')
                             ->grow(false)
+                            ->icon('heroicon-m-building-office')
                             ->formatStateUsing(function ($record) {
-                                $roles = $record->roles->pluck('name')->toArray();
-
-                                // Untuk admin dan tim_mutu, tampilkan label role
-                                $roleLabels = [
-                                    'admin' => 'Administrator',
-                                    'tim_mutu' => 'Tim Mutu',
-                                ];
-
-                                $displayRoles = array_map(function ($role) use ($roleLabels) {
-                                    return $roleLabels[$role] ?? ucwords(str_replace('_', ' ', $role));
-                                }, $roles);
-
-                                return implode(', ', $displayRoles);
+                                $roles = $record->unitKerja->pluck('unit_name')->toArray();
+                                return 'Unit Kerja: ' . implode(', ', $roles);
                             }),
                         TextColumn::make('nip')
                             ->label(__('filament-forms::users.fields.email'))

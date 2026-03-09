@@ -162,4 +162,5 @@ class LaporanInsiden extends Model
 
         return sprintf('IKP/%s/%s/%04d', $year, $month, $sequence);
     }
+    
 }

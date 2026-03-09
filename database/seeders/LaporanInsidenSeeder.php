@@ -29,7 +29,7 @@ class LaporanInsidenSeeder extends Seeder
         // Laporan 1: KTD - Pasien Jatuh dari Tempat Tidur
         LaporanInsiden::create([
             'user_id' => $user->id,
-            'nama_pelapor' => 'dr. Siti Nurhaliza, Sp.PD',
+            'nama_pelapor' => $user->name,
             'unit_kerja' => 'Rawat Inap Lantai 3',
             'nomor_telepon' => '08123456789',
             'tanggal_lapor' => now()->subDays(2),
@@ -59,7 +59,7 @@ class LaporanInsidenSeeder extends Seeder
         // Laporan 2: KNC - Kesalahan Pemberian Obat yang Terdeteksi
         LaporanInsiden::create([
             'user_id' => $user->id,
-            'nama_pelapor' => 'Ns. Budi Santoso, S.Kep',
+            'nama_pelapor' => $user->name,
             'unit_kerja' => 'IGD (Instalasi Gawat Darurat)',
             'nomor_telepon' => '08234567890',
             'tanggal_lapor' => now()->subDays(1),
@@ -91,7 +91,7 @@ class LaporanInsidenSeeder extends Seeder
         // Laporan 3: KTD - Infeksi Nosokomial Luka Operasi
         LaporanInsiden::create([
             'user_id' => $user->id,
-            'nama_pelapor' => 'dr. Andi Prasetyo, Sp.B',
+            'nama_pelapor' => $user->name,
             'unit_kerja' => 'Bedah Sentral',
             'nomor_telepon' => '08345678901',
             'tanggal_lapor' => now(),
@@ -121,7 +121,7 @@ class LaporanInsidenSeeder extends Seeder
         // Laporan 4: KTC - Kesalahan Identifikasi Pasien (Terdeteksi)
         LaporanInsiden::create([
             'user_id' => $user->id,
-            'nama_pelapor' => 'Ns. Rina Marlina, S.Kep',
+            'nama_pelapor' => $user->name,
             'unit_kerja' => 'Laboratorium',
             'nomor_telepon' => '08456789012',
             'tanggal_lapor' => now()->subHours(5),

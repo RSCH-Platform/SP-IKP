@@ -23,14 +23,6 @@ class ListLaporanInsidens extends ListRecords
 
         $query = $this->getModel()::query();
 
-        if ($unitKerja && !$user->hasPermissionTo('ViewAllData:LaporanInsiden')) {
-            $query->whereHas(
-                'pelapor',
-                fn($q) =>
-                $q->where('unit_kerja_id', $unitKerja->id)
-            );
-        }
-
         return $query;
     }
 

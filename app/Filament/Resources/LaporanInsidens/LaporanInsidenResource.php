@@ -65,12 +65,15 @@ class LaporanInsidenResource extends Resource
         $query = parent::getEloquentQuery();
         $user = Auth::user();
 
+        if ($user->can('ViewAllData:LaporanInsiden')) {
+            return $query; 
+        }   
+        
         // Jika user punya permission View dan ViewAny, filter hanya unit kerja user
         if ($user && $user->hasPermissionTo('View:LaporanInsiden') && $user->hasPermissionTo('ViewAny:LaporanInsiden')) {
             $unitKerjaIds = $user->unitKerja()->pluck('id');
             $query->whereIn('unit_kerja_id', $unitKerjaIds);
         }
-
         return $query;
     }
 }
