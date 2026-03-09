@@ -13,12 +13,25 @@ class LaporanInsidenSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::first();
+        $reporters = User::query()
+            ->whereHas('unitKerja')
+            ->whereDoesntHave('roles', function ($query) {
+                $query->whereIn('name', ['admin', 'super_admin']);
+            })
+            ->with('unitKerja:id,unit_name')
+            ->get();
 
-        if (!$user) {
-            $this->command->error('Tidak ada user di database. Jalankan seeder User terlebih dahulu.');
+        if ($reporters->isEmpty()) {
+            $this->command->error('Tidak ada user non-admin yang memiliki unit kerja. Jalankan seeder User dan UnitKerja terlebih dahulu.');
             return;
         }
+
+        $pickReporter = function () use ($reporters) {
+            $reporter = $reporters->random();
+            $unitKerja = $reporter->unitKerja->random();
+
+            return [$reporter, $unitKerja];
+        };
 
         // Check if sample data already exists to prevent duplicates
         if (LaporanInsiden::where('nama_pasien', 'Ibu Aminah binti Sulaiman')->exists()) {
@@ -27,11 +40,14 @@ class LaporanInsidenSeeder extends Seeder
         }
 
         // Laporan 1: KTD - Pasien Jatuh dari Tempat Tidur
+        [$reporter, $unitKerja] = $pickReporter();
+
         LaporanInsiden::create([
-            'user_id' => $user->id,
-            'nama_pelapor' => $user->name,
-            'unit_kerja' => 'Rawat Inap Lantai 3',
-            'nomor_telepon' => '08123456789',
+            'user_id' => $reporter->id,
+            'unit_kerja_id' => $unitKerja->id,
+            'nama_pelapor' => $reporter->name,
+            'unit_kerja' => $unitKerja->unit_name,
+            'nomor_telepon' => $reporter->no_hp ?? '080000000000',
             'tanggal_lapor' => now()->subDays(2),
             'jenis_insiden' => 'KTD (Kejadian Tidak Diharapkan)',
             'tanggal_insiden' => now()->subDays(3),
@@ -57,11 +73,14 @@ class LaporanInsidenSeeder extends Seeder
         ]);
 
         // Laporan 2: KNC - Kesalahan Pemberian Obat yang Terdeteksi
+        [$reporter, $unitKerja] = $pickReporter();
+
         LaporanInsiden::create([
-            'user_id' => $user->id,
-            'nama_pelapor' => $user->name,
-            'unit_kerja' => 'IGD (Instalasi Gawat Darurat)',
-            'nomor_telepon' => '08234567890',
+            'user_id' => $reporter->id,
+            'unit_kerja_id' => $unitKerja->id,
+            'nama_pelapor' => $reporter->name,
+            'unit_kerja' => $unitKerja->unit_name,
+            'nomor_telepon' => $reporter->no_hp ?? '080000000000',
             'tanggal_lapor' => now()->subDays(1),
             'jenis_insiden' => 'KNC (Kejadian Nyaris Cedera)',
             'tanggal_insiden' => now()->subDays(1),
@@ -83,17 +102,20 @@ class LaporanInsidenSeeder extends Seeder
             'tindakan_dilakukan' => "1. Segera menghentikan pemberian obat dan melakukan double-check terhadap instruksi dokter\n\n2. Mengkonfirmasi ulang dosis Clopidogrel kepada dokter penanggung jawab (dr. Lisa Permata, Sp.JP)\n\n3. Dokter mengkonfirmasi bahwa dosis yang benar adalah 75mg (loading dose untuk kasus ini seharusnya 300mg, tetapi pasien sudah pernah konsumsi Clopidogrel sebelumnya)\n\n4. Mengembalikan Clopidogrel 300mg ke farmasi dan meminta Clopidogrel 75mg yang benar\n\n5. Melakukan verifikasi ulang dengan prinsip 6 benar:\n   - Benar pasien ✓\n   - Benar obat ✓\n   - Benar dosis ✓ (75mg)\n   - Benar rute ✓ (PO)\n   - Benar waktu ✓\n   - Benar dokumentasi ✓\n\n6. Memberikan obat yang benar kepada pasien pada pukul 08.25 WIB (terlambat 10 menit dari seharusnya)\n\n7. Pasien tidak mengalami adverse event karena kesalahan terdeteksi sebelum obat diberikan\n\n8. Melakukan klarifikasi dengan petugas farmasi tentang kesalahan penyiapan obat\n\n9. Mendokumentasikan kejadian di rekam medis dan membuat laporan KNC (Kejadian Nyaris Cedera)\n\n10. Melaporkan kepada Kepala IGD dan Tim Farmasi untuk evaluasi sistem\n\n11. Memberikan apresiasi kepada Ns. Dewi yang telah membantu mendeteksi kesalahan sebelum obat diberikan",
             'status' => 'investigasi',
             'grading_risiko' => 'Hijau',
-            'verified_by' => $user->id,
+            'verified_by' => $reporter->id,
             'verified_at' => now(),
             'catatan_tambahan' => 'Kejadian ini menunjukkan pentingnya double-check sebelum pemberian obat. Perlu perbaikan sistem komunikasi antara dokter-farmasi-perawat dan penerapan CPPT (Catatan Perkembangan Pasien Terintegrasi) secara konsisten.',
         ]);
 
         // Laporan 3: KTD - Infeksi Nosokomial Luka Operasi
+        [$reporter, $unitKerja] = $pickReporter();
+
         LaporanInsiden::create([
-            'user_id' => $user->id,
-            'nama_pelapor' => $user->name,
-            'unit_kerja' => 'Bedah Sentral',
-            'nomor_telepon' => '08345678901',
+            'user_id' => $reporter->id,
+            'unit_kerja_id' => $unitKerja->id,
+            'nama_pelapor' => $reporter->name,
+            'unit_kerja' => $unitKerja->unit_name,
+            'nomor_telepon' => $reporter->no_hp ?? '080000000000',
             'tanggal_lapor' => now(),
             'jenis_insiden' => 'KTD (Kejadian Tidak Diharapkan)',
             'tanggal_insiden' => now()->subDays(7),
@@ -119,11 +141,14 @@ class LaporanInsidenSeeder extends Seeder
         ]);
 
         // Laporan 4: KTC - Kesalahan Identifikasi Pasien (Terdeteksi)
+        [$reporter, $unitKerja] = $pickReporter();
+
         LaporanInsiden::create([
-            'user_id' => $user->id,
-            'nama_pelapor' => $user->name,
-            'unit_kerja' => 'Laboratorium',
-            'nomor_telepon' => '08456789012',
+            'user_id' => $reporter->id,
+            'unit_kerja_id' => $unitKerja->id,
+            'nama_pelapor' => $reporter->name,
+            'unit_kerja' => $unitKerja->unit_name,
+            'nomor_telepon' => $reporter->no_hp ?? '080000000000',
             'tanggal_lapor' => now()->subHours(5),
             'jenis_insiden' => 'KTC (Kejadian Tidak Cedera)',
             'tanggal_insiden' => now()->subHours(6),
