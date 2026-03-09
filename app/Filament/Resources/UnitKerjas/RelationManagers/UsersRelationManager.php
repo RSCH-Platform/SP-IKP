@@ -37,10 +37,10 @@ class UsersRelationManager extends RelationManager
                     ->preloadRecordSelect()
                     ->recordSelectSearchColumns(['name', 'nip']),
             ])
-            ->actions([
+            ->recordActions([
                 \Filament\Actions\DetachAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 \Filament\Actions\DetachBulkAction::make(),
             ]);
     }

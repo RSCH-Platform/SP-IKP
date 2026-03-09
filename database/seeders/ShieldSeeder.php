@@ -186,29 +186,11 @@ class ShieldSeeder extends Seeder
 
         // Pelapor → submit & lihat
         $roleInstances['pelapor']->syncPermissions([
-            'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
             'Create:LaporanInsiden',
             'Update:LaporanInsiden',
             'Submit:LaporanInsiden',
             'View:PelaporanInsiden',
         ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Default User
-        |--------------------------------------------------------------------------
-        */
-
-        $adminUser = User::firstOrCreate(
-            ['nip' => '0000.00000'],
-            [
-                'name' => 'Admin',
-                'no_hp' => '081234567890',
-                'password' => Hash::make('password'),
-            ]
-        );
-
-        $adminUser->syncRoles(['super_admin']);
     }
 }

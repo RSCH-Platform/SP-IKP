@@ -36,6 +36,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
     {
         $defaults = [
             'nama_pelapor'   => Auth::user()->name,
+            'unit_kerja'     => Auth::user()->unitKerja->first()->unit_name ?? 'Unit Kerja Tidak Ditemukan',
             'tanggal_lapor'  => now()->format('Y-m-d'),
             'tanggal_insiden' => now()->format('Y-m-d'),
             'status'         => 'draft',
@@ -43,7 +44,6 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
 
         if (app()->environment('local', 'dev')) {
             $defaults = array_merge($defaults, [
-                'unit_kerja'              => 'IGD',
                 'nomor_telepon'           => '08123456789',
                 'waktu_insiden'           => now()->format('H:i'),
                 'jenis_insiden'           => 'KPC (Kondisi Potensial Cedera)',

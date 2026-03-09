@@ -119,20 +119,20 @@ class LaporanInsidenFormSchema
                         ->options(function () {
                             $user = Auth::user();
 
-                            // Jika pelapor, tampilkan hanya unit yang dia belong
-                            if ($user->hasRole('pelapor') && !$user->hasAnyRole(['admin', 'super_admin'])) {
+                            // Jika pelapor (memiliki Create:LaporanInsiden tapi tidak ViewAny), tampilkan hanya unit yang dia belong
+                            if ($user->hasPermissionTo('Create:LaporanInsiden') && !$user->hasPermissionTo('ViewAny:LaporanInsiden')) {
                                 return $user->unitKerja()
                                     ->pluck('unit_name', 'id');
                             }
 
-                            // Jika admin/super_admin, tampilkan semua unit
-                            return UnitKerja::pluck('unit_name', 'id');
+                            // Jika admin atau user dengan ViewAny permission, tampilkan semua unit
+                            // return UnitKerja::pluck('unit_name', 'id');
                         })
                         ->default(function () {
                             $user = Auth::user();
 
                             // Jika pelapor dengan hanya satu unit, set default
-                            if ($user->hasRole('pelapor') && !$user->hasAnyRole(['admin', 'super_admin'])) {
+                            if ($user->hasPermissionTo('Create:LaporanInsiden') && !$user->hasPermissionTo('ViewAny:LaporanInsiden')) {
                                 $units = $user->unitKerja()->pluck('id');
                                 return $units->count() === 1 ? $units->first() : null;
                             }

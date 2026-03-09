@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Filament\Resources\Users\RelationManagers\RolesRelationManager;
+use App\Filament\Resources\Users\RelationManagers\UnitKerjaRelationManager;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -14,10 +16,13 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Guava\FilamentModalRelationManagers\Actions\RelationManagerAction;
 use Spatie\Permission\Models\Role;
 use STS\FilamentImpersonate\Actions\Impersonate;
 
@@ -27,40 +32,68 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label('Nama')
-                    ->searchable()
-                    ->sortable(),
+                Split::make([
+                    Stack::make([
+                        TextColumn::make('name')
+                            ->label('Nama')
+                            ->searchable()
+                            ->weight('bold'),
 
-                TextColumn::make('nip')
-                    ->label('NIP')
-                    ->searchable()
-                    ->placeholder('—')
-                    ->copyable(),
+                        TextColumn::make('roles.label')
+                            ->label('Role')
+                            ->searchable()
+                            ->icon('heroicon-o-shield-check')
+                            ->grow(false)
+                    ])->alignStart()->space(1),
 
-                TextColumn::make('no_hp')
-                    ->label('No HP')
-                    ->searchable()
-                    ->copyable(),
+                    Stack::make([
+                        TextColumn::make('roles.name')
+                            ->label(__('filament-forms::users.fields.roles'))
+                            ->searchable()
+                            ->icon('heroicon-o-document-text')
+                            ->grow(false)
+                            ->formatStateUsing(function ($record) {
+                                $roles = $record->roles->pluck('name')->toArray();
 
-                BadgeColumn::make('is_verified')
-                    ->label('Status')
-                    ->getStateUsing(fn($record) => $record->is_verified ? 'Terverifikasi' : 'Belum Verifikasi')
-                    ->colors([
-                        'success' => 'Terverifikasi',
-                        'warning' => 'Belum Verifikasi',
-                    ]),
+                                // Untuk admin dan tim_mutu, tampilkan label role
+                                $roleLabels = [
+                                    'admin' => 'Administrator',
+                                    'tim_mutu' => 'Tim Mutu',
+                                ];
 
-                TextColumn::make('roles.name')
-                    ->label('Role')
-                    ->badge()
-                    ->separator(','),
+                                $displayRoles = array_map(function ($role) use ($roleLabels) {
+                                    return $roleLabels[$role] ?? ucwords(str_replace('_', ' ', $role));
+                                }, $roles);
 
-                TextColumn::make('created_at')
-                    ->label('Terdaftar')
-                    ->date('d M Y')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                                return implode(', ', $displayRoles);
+                            }),
+                        TextColumn::make('nip')
+                            ->label(__('filament-forms::users.fields.email'))
+                            ->icon('heroicon-m-finger-print')
+                            ->searchable()
+                            ->copyable()
+                            ->copyMessage('NIP berhasil disalin!')
+                            ->copyMessageDuration(1500)
+                            ->grow(false),
+                    ])->alignStart()->visibleFrom('lg')->space(1),
+
+                    Stack::make([
+                        TextColumn::make('is_verified')
+                            ->label('Status')
+                            ->badge()
+                            ->getStateUsing(fn($record) => $record->is_verified ? 'Terverifikasi' : 'Belum Verifikasi')
+                            ->colors([
+                                'success' => 'Terverifikasi',
+                                'warning' => 'Belum Verifikasi',
+                            ]),
+
+                        TextColumn::make('created_at')
+                            ->label('Terdaftar')
+                            ->date('d M Y')
+                            ->sortable()
+                            ->toggleable(isToggledHiddenByDefault: true),
+                    ])
+                ]),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -105,7 +138,7 @@ class UsersTable
                         ->icon('heroicon-m-shield-check')
                         ->color('info')
                         ->visible(fn($record) => $record->deleted_at === null)
-                        ->form([
+                        ->schema([
                             Select::make('roles')
                                 ->label('Role')
                                 ->options(Role::orderBy('name')->pluck('name', 'name'))
@@ -128,7 +161,7 @@ class UsersTable
                         ->icon('heroicon-m-identification')
                         ->color('warning')
                         ->visible(fn($record) => $record->deleted_at === null)
-                        ->form([
+                        ->schema([
                             TextInput::make('nip')
                                 ->label('NIP')
                                 ->required()
@@ -180,6 +213,14 @@ class UsersTable
                                 ->success()
                                 ->send();
                         }),
+
+                    RelationManagerAction::make('unit-kerja')
+                        ->label('Unit Kerja')
+                        ->icon('heroicon-m-building-office')
+                        ->color('info')
+                        ->relationManager(UnitKerjaRelationManager::class)
+                        ->modalWidth('5xl')
+                        ->visible(fn($record) => $record->deleted_at === null),
 
                     DeleteAction::make()
                         ->label('Soft Delete')
