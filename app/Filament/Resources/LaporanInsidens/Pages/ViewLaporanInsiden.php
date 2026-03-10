@@ -12,6 +12,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class ViewLaporanInsiden extends ViewRecord
 {
@@ -20,12 +21,6 @@ class ViewLaporanInsiden extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make()
-                ->visible(fn() => in_array($this->record->status, [
-                    LaporanInsiden::STATUS_DRAFT,
-                    LaporanInsiden::STATUS_REVISI,
-                ])),
-
             Action::make('submit_laporan')
                 ->label('Kirim Laporan')
                 ->icon('heroicon-o-paper-airplane')
@@ -99,7 +94,7 @@ class ViewLaporanInsiden extends ViewRecord
                     auth()->user()?->can('Kembalikan:LaporanInsiden') &&
                         $this->record->status === LaporanInsiden::STATUS_DILAPORKAN
                 )
-                ->form([
+                ->schema([
                     Textarea::make('rejection_reason')
                         ->label('Alasan Pengembalian')
                         ->placeholder('Jelaskan apa yang perlu diperbaiki oleh pelapor...')
@@ -127,6 +122,14 @@ class ViewLaporanInsiden extends ViewRecord
 
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
                 }),
+
+            EditAction::make()
+                ->label('Edit Laporan')
+                ->icon('heroicon-o-pencil-square')
+                ->visible(fn() => Auth::user()?->can('ViewAllData:LaporanInsiden') ||
+                    (Auth::id() === $this->record->user_id &&
+                        in_array($this->record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI])))
+
         ];
     }
 

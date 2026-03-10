@@ -17,7 +17,6 @@ class CreateLaporanInsiden extends CreateRecord
             Action::make('simpanDraft')
                 ->label('Simpan sebagai Draft')
                 ->color('gray')
-                ->submit()
                 ->icon('heroicon-o-document')
                 ->action(function () {
                     $this->record->status = LaporanInsiden::STATUS_DRAFT;
@@ -27,7 +26,6 @@ class CreateLaporanInsiden extends CreateRecord
             Action::make('submit')
                 ->label('Simpan & Kirim Laporan')
                 ->color('warning')
-                ->submit()
                 ->icon('heroicon-o-paper-airplane')
                 ->action(function () {
                     $this->record->status = LaporanInsiden::STATUS_DRAFT;

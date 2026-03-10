@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\LaporanInsidens\Schemas;
 
 use Filament\Infolists;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 
 class LaporanInsidenInfolistSchema
@@ -67,44 +68,73 @@ class LaporanInsidenInfolistSchema
         return Section::make('🔄 Riwayat Workflow')
             ->icon('heroicon-o-clock')
             ->schema([
-                Infolists\Components\TextEntry::make('reported_at')
-                    ->label('Dikirim Pada')
-                    ->dateTime('d F Y, H:i')
-                    ->icon('heroicon-m-paper-airplane')
-                    ->placeholder('Belum dikirim')
-                    ->visible(fn($record) => dd($record)),
 
-                Infolists\Components\TextEntry::make('verifier.name')
-                    ->label('Diverifikasi Oleh')
-                    ->icon('heroicon-m-check-circle')
-                    ->visible(fn($record) => $record->verified_by !== null),
+                // ======================
+                // DILAPORKAN
+                // ======================
+                Section::make('Laporan Dikirim')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('reported_by')
+                            ->label('Dikirim Oleh')
+                            ->icon('heroicon-m-user-circle')
+                            ->getStateUsing(fn($record) => $record->reporter->name),
 
-                Infolists\Components\TextEntry::make('verified_at')
-                    ->label('Tanggal Verifikasi')
-                    ->dateTime('d F Y, H:i')
-                    ->icon('heroicon-m-calendar')
-                    ->visible(fn($record) => $record->verified_at !== null),
+                        Infolists\Components\TextEntry::make('reported_at')
+                            ->label('Tanggal Kirim')
+                            ->dateTime('d F Y, H:i')
+                            ->icon('heroicon-m-paper-airplane'),
+                    ])
+                    ->columns(2)
+                    ->visible(fn($record) => filled($record->reporter->name)),
 
-                Infolists\Components\TextEntry::make('rejecter.name')
-                    ->label('Dikembalikan Oleh')
-                    ->icon('heroicon-m-arrow-uturn-left')
-                    ->color('danger')
-                    ->visible(fn($record) => $record->rejected_by !== null),
+                // ======================
+                // VERIFIKASI
+                // ======================
+                Section::make('Verifikasi')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('verifier.name')
+                            ->label('Diverifikasi Oleh')
+                            ->icon('heroicon-m-check-circle'),
 
-                Infolists\Components\TextEntry::make('rejected_at')
-                    ->label('Tanggal Dikembalikan')
-                    ->dateTime('d F Y, H:i')
-                    ->icon('heroicon-m-calendar')
-                    ->visible(fn($record) => $record->rejected_at !== null),
+                        Infolists\Components\TextEntry::make('verified_at')
+                            ->label('Tanggal Verifikasi')
+                            ->dateTime('d F Y, H:i')
+                            ->icon('heroicon-m-calendar'),
+                    ])
+                    ->columns(2)
+                    ->visible(fn($record) => filled($record->verified_at)),
 
-                Infolists\Components\TextEntry::make('rejection_reason')
-                    ->label('Alasan Pengembalian')
-                    ->columnSpanFull()
-                    ->html()
-                    ->formatStateUsing(fn(?string $state): string => $state ? nl2br(e($state)) : '—')
-                    ->visible(fn($record) => !empty($record->rejection_reason)),
+                // ======================
+                // REVISI / REJECT
+                // ======================
+                Section::make('Pengembalian / Revisi')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('rejecter.name')
+                            ->label('Dikembalikan Oleh')
+                            ->icon('heroicon-m-arrow-uturn-left')
+                            ->color('danger'),
+
+                        Infolists\Components\TextEntry::make('rejected_at')
+                            ->label('Tanggal Dikembalikan')
+                            ->dateTime('d F Y, H:i')
+                            ->icon('heroicon-m-calendar'),
+
+                        Infolists\Components\TextEntry::make('rejection_reason')
+                            ->label('Alasan Pengembalian')
+                            ->columnSpanFull()
+                            ->placeholder('—')
+                            ->html()
+                            ->formatStateUsing(
+                                fn(?string $state) => filled($state)
+                                    ? nl2br(e($state))
+                                    : '—'
+                            ),
+                    ])
+                    ->columns(2)
+                    ->visible(fn($record) => filled($record->rejected_at)),
+
             ])
-            ->columns(2)
+            ->columns(1)
             ->collapsible()
             ->compact()
             ->visible(fn($record) => $record->status !== 'draft');

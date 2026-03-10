@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\LaporanInsidens\Schemas;
 
 use App\Models\UnitKerja;
+use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
@@ -14,6 +16,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard\Step;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Form;
 
 class LaporanInsidenFormSchema
 {
@@ -106,49 +109,97 @@ class LaporanInsidenFormSchema
             ->icon('heroicon-o-user-circle')
             ->schema([
                 Grid::make(2)->schema([
-                    Forms\Components\TextInput::make('nama_pelapor')
+                    Hidden::make('nama_pelapor')
+                        ->label(''),
+
+                    Forms\Components\Select::make('user_id')
                         ->label('Nama Lengkap Pelapor')
                         ->required()
-                        ->default(fn() => Auth::user()?->name)
+                        ->live()
+                        ->options(function (): array {
+                            $authUser = static::getAuthenticatedUser();
+
+                            if (static::shouldLockPelaporIdentityFields() && $authUser instanceof User) {
+                                return User::query()
+                                    ->whereKey($authUser->getKey())
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                    ->all();
+                            }
+
+                            return User::query()
+                                ->orderBy('name')
+                                ->pluck('name', 'id')
+                                ->all();
+                        })
+                        ->default(fn(): ?int => Auth::id())
+                        ->afterStateHydrated(function ($state, callable $set): void {
+                            if (! static::shouldLockPelaporIdentityFields()) {
+                                return;
+                            }
+
+                            $authUser = static::getAuthenticatedUser();
+                            if (! $authUser instanceof User) {
+                                return;
+                            }
+
+                            $set('user_id', $authUser->getKey());
+                            $set('unit_kerja_id', $authUser->unitKerja()->first()?->id);
+                        })
+                        ->afterStateUpdated(function ($state, callable $set): void {
+                            $selectedUser = User::with('unitKerja')->find($state);
+
+                            if (! $selectedUser instanceof User) {
+                                $set('unit_kerja_id', null);
+                                return;
+                            }
+
+                            $set('unit_kerja_id', $selectedUser->unitKerja()->first()?->id);
+                        })
+                        ->disabled(fn(): bool => static::shouldLockPelaporIdentityFields())
+                        ->dehydrated()
                         ->prefixIcon('heroicon-m-user')
-                        ->placeholder('Masukkan nama lengkap'),
+                        ->placeholder('Pilih Pelapor'),
 
                     Forms\Components\Select::make('unit_kerja_id')
                         ->label('Unit Kerja / Departemen')
-                        ->required()
-                        ->options(function () {
-                            $user = Auth::user();
-
-                            // Jika pelapor (memiliki Create:LaporanInsiden tapi tidak ViewAny), tampilkan hanya unit yang dia belong
-                            if (($user->hasPermissionTo('Create:LaporanInsiden') && !$user->hasPermissionTo('ViewAny:LaporanInsiden') || $user->unitKerja()->count() > 0)) {
-                                return $user->unitKerja()
-                                    ->pluck('unit_name', 'id');
-                            }
-
-                            // Jika admin atau user dengan ViewAny permission, tampilkan semua unit
-                            // return UnitKerja::pluck('unit_name', 'id');
-                        })
-                        ->default(function () {
-                            $user = Auth::user();
-
-                            if ($user->unitKerja()->count() === 0) {
-                                return null;
-                            } else {
-                                return $user->unitKerja()->orderBy('unit_name')->first()->id;
-                            }
-                        })
-                        ->native(false)
-                        ->prefixIcon('heroicon-m-building-office')
+                        ->relationship('unitKerja', 'unit_name')
                         ->searchable()
-                        ->helperText('Pilih unit kerja tempat pelapor bekerja')
-                        ->afterStateUpdated(function ($state, callable $set) {
-                            if ($state) {
-                                $unit = UnitKerja::find($state);
-                                if ($unit) {
-                                    $set('unit_kerja', $unit->unit_name);
-                                }
+                        ->preload()
+                        ->native(false)
+                        ->required()
+                        ->prefixIcon('heroicon-m-building-office')
+                        ->helperText('Unit kerja pelapor')
+                        ->placeholder('Pilih unit kerja')
+                        ->default(function (): ?int {
+                            return static::getAuthenticatedUser()?->unitKerja()->first()?->id;
+                        })
+                        ->options(function (): array {
+                            $authUser = static::getAuthenticatedUser();
+
+                            if (! $authUser instanceof User) {
+                                return [];
                             }
-                        }),
+
+                            if (static::shouldLockPelaporIdentityFields()) {
+                                return $authUser->unitKerja()
+                                    ->pluck('unit_name', 'unit_kerja.id')
+                                    ->all();
+                            }
+
+                            return UnitKerja::query()->pluck('unit_name', 'id')->all();
+                        })
+                        ->afterStateHydrated(function ($state, callable $set): void {
+                            if (! static::shouldLockPelaporIdentityFields() || filled($state)) {
+                                return;
+                            }
+
+                            $set('unit_kerja_id', static::getAuthenticatedUser()?->unitKerja()->first()?->id);
+                        })
+                        ->disabled(fn(): bool => static::shouldLockPelaporIdentityFields())
+                        ->dehydrated(),
+
+
                 ]),
 
                 Grid::make(2)->schema([
@@ -170,6 +221,24 @@ class LaporanInsidenFormSchema
             ->collapsible()
             ->persistCollapsed()
             ->compact();
+    }
+
+    protected static function getAuthenticatedUser(): ?User
+    {
+        $authUser = Auth::user();
+
+        return $authUser instanceof User ? $authUser : null;
+    }
+
+    protected static function shouldLockPelaporIdentityFields(): bool
+    {
+        $authUser = static::getAuthenticatedUser();
+
+        if (! $authUser instanceof User) {
+            return false;
+        }
+
+        return ! $authUser->can('ViewAllData:LaporanInsiden');
     }
 
     public static function sectionInsiden(): Section

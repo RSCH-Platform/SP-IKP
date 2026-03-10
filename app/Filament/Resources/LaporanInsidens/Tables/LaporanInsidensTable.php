@@ -177,7 +177,7 @@ class LaporanInsidensTable
                     ->requiresConfirmation()
                     ->modalHeading('Kirim Laporan Insiden?')
                     ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi.')
-                    ->action(function ($record) {
+                    ->action(function ($record) use ($requiredFieldsForSubmit) {
                         $missingFields = collect($requiredFieldsForSubmit)
                             ->filter(fn($label, $field) => blank(data_get($record, $field)))
                             ->values()
@@ -199,12 +199,13 @@ class LaporanInsidensTable
 
                         Notification::make()
                             ->title('Laporan berhasil dikirim')
+                            ->body("Laporan {$record->nomor_laporan} berhasil dikirim ke kepala unit.")
                             ->success()
                             ->send();
 
                         Notification::make()
                             ->title('Laporan Insiden Baru')
-                            ->body("Ada laporan insiden baru dari {$record->nama_pelapor}.")
+                            ->body("Ada laporan insiden baru dari {$record->nama_pelapor} - {$record->nomor_laporan}")
                             ->warning()
                             ->sendToDatabase($kepalaUnits);
                     }),
@@ -228,7 +229,7 @@ class LaporanInsidensTable
                         )
                         ->requiresConfirmation()
                         ->modalHeading('Verifikasi Laporan')
-                        ->form([
+                        ->schema([
                             Select::make('grading_risiko')
                                 ->label('Grading Risiko')
                                 ->required()
@@ -275,7 +276,7 @@ class LaporanInsidensTable
                             auth()->user()?->can('Kembalikan:LaporanInsiden') &&
                                 $record->status === LaporanInsiden::STATUS_DILAPORKAN
                         )
-                        ->form([
+                        ->schema([
                             Textarea::make('rejection_reason')
                                 ->label('Alasan Pengembalian')
                                 ->required(),
@@ -338,7 +339,7 @@ class LaporanInsidensTable
                             auth()->user()?->can('KembalikanUnit:LaporanInsiden') &&
                                 $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
                         )
-                        ->form([
+                        ->schema([
                             Textarea::make('rejection_reason')
                                 ->label('Alasan Pengembalian')
                                 ->required(),

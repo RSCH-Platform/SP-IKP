@@ -193,7 +193,7 @@ class ShieldSeeder extends Seeder
         // Pelapor → submit & lihat
         $roleInstances['pelapor']->syncPermissions([
             'View:LaporanInsiden',
-            'ViewAny:LaporanInsiden',
+            // 'ViewAny:LaporanInsiden',
             'Create:LaporanInsiden',
             'Update:LaporanInsiden',
             'Submit:LaporanInsiden',

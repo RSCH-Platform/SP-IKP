@@ -34,17 +34,22 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
 
     public function mount(): void
     {
+        /** @var User|null $authUser */
+        $authUser = Auth::user();
+
         $defaults = [
-            'nama_pelapor'   => Auth::user()->name,
-            'unit_kerja'     => Auth::user()->unitKerja->first()->unit_name ?? 'Unit Kerja Tidak Ditemukan',
+            'user_id'        => $authUser?->id,
+            'unit_kerja_id'  => $authUser?->unitKerja()->first()?->id,
+            'nama_pelapor'   => $authUser?->name,
+            'unit_kerja'     => $authUser?->unitKerja->first()->unit_name ?? 'Unit Kerja Tidak Ditemukan',
             'tanggal_lapor'  => now()->format('Y-m-d'),
             'tanggal_insiden' => now()->format('Y-m-d'),
             'status'         => 'draft',
+            'nomor_telepon'           => $authUser?->no_hp,
         ];
 
         if (app()->environment('local', 'dev')) {
             $defaults = array_merge($defaults, [
-                'nomor_telepon'           => '08123456789',
                 'waktu_insiden'           => now()->format('H:i'),
                 'jenis_insiden'           => 'KPC (Kondisi Potensial Cedera)',
                 'lokasi_insiden'          => 'Ruang IGD Lantai 1',
@@ -71,6 +76,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
     public function form(Schema $form): Schema
     {
         return $form
+            ->model(LaporanInsiden::class)
             ->schema([
                 Wizard::make(LaporanInsidenFormSchema::steps(withAdminFields: false))->columnSpanFull(),
                 Forms\Components\Hidden::make('status')->default('draft'),
