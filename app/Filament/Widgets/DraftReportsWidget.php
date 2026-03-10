@@ -2,9 +2,12 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Pages\PelaporanInsiden;
 use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use App\Models\LaporanInsiden;
+use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -27,7 +30,11 @@ class DraftReportsWidget extends BaseWidget implements HasTable
 
     protected function getTableQuery(): Builder
     {
-        $query = LaporanInsiden::where('status', [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI]);
+        $query = LaporanInsiden::whereIn(
+            'status',
+            [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI]
+        )
+            ->where('user_id', Auth::id());
 
         return $query->latest('created_at');
     }
@@ -80,21 +87,47 @@ class DraftReportsWidget extends BaseWidget implements HasTable
     protected function getTableActions(): array
     {
         return [
-            Action::make('edit')
-                ->label('Edit')
-                ->icon('heroicon-m-pencil-square')
-                ->button()
-                ->color('info')
-                ->url(fn(LaporanInsiden $record) => LaporanInsidenResource::getUrl('edit', ['record' => $record]))
-                ->openUrlInNewTab(false),
+            /*
+                |--------------------------------------------------------------------------
+                | Workflow Pelapor
+                |--------------------------------------------------------------------------
+                */
 
-            Action::make('view')
-                ->label('Lihat')
-                ->icon('heroicon-m-eye')
+            Action::make('submit_laporan')
+                ->label('Kirim Laporan')
+                ->icon('heroicon-o-paper-airplane')
                 ->button()
-                ->color('success')
-                ->url(fn(LaporanInsiden $record) => LaporanInsidenResource::getUrl('view', ['record' => $record]))
-                ->openUrlInNewTab(false),
+                ->color('warning')
+                ->visible(
+                    fn($record) =>
+                    auth()->user()?->can('Submit:LaporanInsiden') &&
+                        in_array($record->status, [
+                            LaporanInsiden::STATUS_DRAFT,
+                            LaporanInsiden::STATUS_REVISI
+                        ])
+                )
+                ->requiresConfirmation()
+                ->modalHeading('Kirim Laporan Insiden?')
+                ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi.')
+                ->action(function ($record) {
+                    $record->submitLaporan();
+
+                    $kepalaUnits = User::role('kepala_unit')
+                        ->whereHas('unitKerja', fn(Builder $query) => $query->where('unit_kerja.id', $record->unit_kerja_id))
+                        ->get();
+
+                    Notification::make()
+                        ->title('Laporan berhasil dikirim')
+                        ->body("Laporan {$record->nomor_laporan} berhasil dikirim ke kepala unit.")
+                        ->success()
+                        ->send();
+
+                    Notification::make()
+                        ->title('Laporan Insiden Baru')
+                        ->body("Ada laporan insiden baru dari {$record->nama_pelapor} - {$record->nomor_laporan}")
+                        ->warning()
+                        ->sendToDatabase($kepalaUnits);
+                }),
         ];
     }
 
@@ -106,7 +139,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                 ->icon('heroicon-m-plus')
                 ->button()
                 ->color('primary')
-                ->url(LaporanInsidenResource::getUrl('create'))
+                ->url(PelaporanInsiden::getUrl())
                 ->openUrlInNewTab(false),
         ];
     }
