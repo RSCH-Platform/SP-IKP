@@ -11,31 +11,32 @@ class DraftReportsStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
 
+    protected static function shouldRender(): bool
+    {
+        return auth()->check() && auth()->user()->can('viewWidget:LaporanStatsWidget');
+    }
+
+    /**
+     * Return a query builder scoped to the current user's permissions/units.
+     */
+    protected function scopedQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = LaporanInsiden::query();
+
+        if (!auth()->user()?->can('viewAllData', LaporanInsiden::class)) {
+            $unitIds = auth()->user()->unitKerja()->pluck('id');
+            $query->whereIn('unit_kerja_id', $unitIds);
+        }
+
+        return $query;
+    }
+
     protected function getStats(): array
     {
-        $user = Auth::user();
+        $base = $this->scopedQuery()->where('status', LaporanInsiden::STATUS_DRAFT);
 
-        // Query untuk mendapatkan total draft reports
-        $query = LaporanInsiden::where('status', LaporanInsiden::STATUS_DRAFT);
-
-        // Jika user tidak punya permission ViewAllData, filter berdasarkan unit kerja mereka
-        if (!$user->can('viewAllData', LaporanInsiden::class)) {
-            $userUnitIds = $user->unitKerja()->pluck('id');
-            $query->whereIn('unit_kerja_id', $userUnitIds);
-        }
-
-        $totalDraft = $query->count();
-
-        // Query untuk laporan yang dibuat hari ini (dalam status draft)
-        $queryToday = LaporanInsiden::where('status', LaporanInsiden::STATUS_DRAFT)
-            ->whereDate('created_at', today());
-
-        if (!$user->can('viewAllData', LaporanInsiden::class)) {
-            $userUnitIds = $user->unitKerja()->pluck('id');
-            $queryToday->whereIn('unit_kerja_id', $userUnitIds);
-        }
-
-        $draftToday = $queryToday->count();
+        $totalDraft = (clone $base)->count();
+        $draftToday = (clone $base)->whereDate('created_at', today())->count();
 
         return [
             Stat::make('Total Laporan Draft', $totalDraft)

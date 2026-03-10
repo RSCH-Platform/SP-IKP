@@ -3,7 +3,6 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Pages\PelaporanInsiden;
-use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use App\Models\LaporanInsiden;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -19,6 +18,11 @@ class DraftReportsWidget extends BaseWidget implements HasTable
 {
     use InteractsWithTable;
 
+    protected static function shouldRender(): bool
+    {
+        return auth()->check() && auth()->user()->can('viewAny', \App\Models\LaporanInsiden::class);
+    }
+
     protected static ?string $heading = 'Laporan Draft Berdasarkan Unit Kerja';
 
     protected static ?int $sort = 2;
@@ -28,15 +32,26 @@ class DraftReportsWidget extends BaseWidget implements HasTable
      */
     protected int | string | array $columnSpan = 2;
 
+    protected function scopedQuery(): Builder
+    {
+        $query = LaporanInsiden::query()
+            ->whereIn('status', [
+                LaporanInsiden::STATUS_DRAFT,
+                LaporanInsiden::STATUS_REVISI,
+            ]);
+
+        if (!auth()->user()?->can('viewAllData', LaporanInsiden::class)) {
+            $unitIds = auth()->user()->unitKerja()->pluck('id');
+            $query->whereIn('unit_kerja_id', $unitIds);
+        }
+
+        return $query;
+    }
+
     protected function getTableQuery(): Builder
     {
-        $query = LaporanInsiden::whereIn(
-            'status',
-            [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI]
-        )
-            ->where('user_id', Auth::id());
-
-        return $query->latest('created_at');
+        // start with scoped query, then order
+        return $this->scopedQuery()->latest('created_at');
     }
 
     protected function getTableColumns(): array

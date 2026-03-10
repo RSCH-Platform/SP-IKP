@@ -59,6 +59,11 @@ class ShieldSeeder extends Seeder
             'View:PelaporanInsiden',  // akses halaman form pelaporan insiden
         ];
 
+        // custom widget permissions
+        $widgetPermissions = [
+            'viewWidget:LaporanStatsWidget',
+        ];
+
         /*
         |--------------------------------------------------------------------------
         | Resources
@@ -96,6 +101,14 @@ class ShieldSeeder extends Seeder
         }
 
         foreach ($pagePermissions as $permission) {
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => $guard,
+            ]);
+        }
+
+        // create widget permissions as well
+        foreach ($widgetPermissions as $permission) {
             Permission::firstOrCreate([
                 'name' => $permission,
                 'guard_name' => $guard,
@@ -199,5 +212,18 @@ class ShieldSeeder extends Seeder
             'Submit:LaporanInsiden',
             'View:PelaporanInsiden',
         ]);
+
+        /*
+         |--------------------------------------------------------------------------
+         | Widget permission assignments
+         |--------------------------------------------------------------------------
+         | give the stats widget perm to any role that can view
+'this resource (viewAny or viewAllData)
+         */
+        foreach ($roleInstances as $role) {
+            if ($role->hasPermissionTo('ViewAny:LaporanInsiden') || $role->hasPermissionTo('ViewAllData:LaporanInsiden')) {
+                $role->givePermissionTo('viewWidget:LaporanStatsWidget');
+            }
+        }
     }
 }
