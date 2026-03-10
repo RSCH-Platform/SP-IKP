@@ -19,6 +19,7 @@ use Filament\Tables\Table;
 use BezhanSalleh\PluginEssentials\Concerns\Resource as Essentials;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class UnitKerjaResource extends Resource
 {
@@ -33,6 +34,9 @@ class UnitKerjaResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-office';
 
     protected static ?string $recordTitleAttribute = 'unit_name';
+
+    // must match parent signature exactly (order and imported type)
+    protected static UnitEnum|string|null $navigationGroup = 'Administration';
 
     public static function form(Schema $schema): Schema
     {

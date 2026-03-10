@@ -3,18 +3,16 @@
 namespace App\Filament\Widgets;
 
 use App\Models\LaporanInsiden;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Auth;
 
 class DraftReportsStatsWidget extends BaseWidget
 {
-    protected static ?int $sort = 1;
+    use HasWidgetShield;
 
-    public static function canView(): bool
-    {
-        return auth()->check() && auth()->user()->can('viewWidget:LaporanStatsWidget');
-    }
+    protected static ?int $sort = 1;
 
     /**
      * Return a query builder scoped to the current user's permissions/units.
@@ -33,23 +31,23 @@ class DraftReportsStatsWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $base = $this->scopedQuery()->where('status', LaporanInsiden::STATUS_DRAFT);
+        // count reports that are already submitted/processed (anything except draft)
+        $completedBase = $this->scopedQuery()->where('status', LaporanInsiden::STATUS_DRAFT);
+        $totalCompleted = $completedBase->count();
 
-        $totalDraft = (clone $base)->count();
-        $draftToday = (clone $base)->whereDate('created_at', today())->count();
+        // count all reports
+        $totalTerlaporkan = $this->scopedQuery()->where('status', '!=', LaporanInsiden::STATUS_DRAFT)->count();
 
         return [
-            Stat::make('Total Laporan Draft', $totalDraft)
-                ->description('Laporan menunggu untuk dilaporkan')
-                ->descriptionIcon('heroicon-m-document-text')
-                ->color('warning')
-                ->icon('heroicon-m-clipboard-document-list'),
+            Stat::make('Total Draft Laporan', $totalCompleted)
+                ->description('Semua laporan yang sedang dalam draft')
+                ->descriptionIcon('heroicon-m-check-circle')
+                ->color('success'),
 
-            Stat::make('Draft Hari Ini', $draftToday)
-                ->description('Laporan baru dibuat hari ini')
-                ->descriptionIcon('heroicon-m-plus-circle')
-                ->color('info')
-                ->icon('heroicon-m-calendar'),
+            Stat::make('Total IKP yang dilaporkan', $totalTerlaporkan)
+                ->description('Jumlah keseluruhan laporan yang ada')
+                ->descriptionIcon('heroicon-m-document-text')
+                ->color('info'),
         ];
     }
 }

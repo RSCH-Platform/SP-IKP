@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Filament\Pages\PelaporanInsiden;
 use App\Models\LaporanInsiden;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Tables;
@@ -16,14 +17,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DraftReportsWidget extends BaseWidget implements HasTable
 {
-    use InteractsWithTable;
-
-    public static function canView(): bool
-    {
-        return auth()->check() && auth()->user()->can('viewWidget:DraftReportsWidget');
-    }
-
-    protected static ?string $heading = 'Laporan Draft Berdasarkan Unit Kerja';
+    use InteractsWithTable, HasWidgetShield;
 
     protected static ?int $sort = 2;
 

@@ -47,6 +47,7 @@ class UnitKerjasTable
                     ->label('Anggota')
                     ->icon('heroicon-m-users')
                     ->color('info')
+                    ->slideOver()
                     ->relationManager(UsersRelationManager::class)
                     ->modalWidth('5xl'),
             ])
