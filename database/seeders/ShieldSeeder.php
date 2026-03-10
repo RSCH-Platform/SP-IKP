@@ -62,6 +62,7 @@ class ShieldSeeder extends Seeder
         // custom widget permissions
         $widgetPermissions = [
             'viewWidget:LaporanStatsWidget',
+            'viewWidget:DraftReportsWidget',
         ];
 
         /*
@@ -223,6 +224,7 @@ class ShieldSeeder extends Seeder
         foreach ($roleInstances as $role) {
             if ($role->hasPermissionTo('ViewAny:LaporanInsiden') || $role->hasPermissionTo('ViewAllData:LaporanInsiden')) {
                 $role->givePermissionTo('viewWidget:LaporanStatsWidget');
+                $role->givePermissionTo('viewWidget:DraftReportsWidget');
             }
         }
     }

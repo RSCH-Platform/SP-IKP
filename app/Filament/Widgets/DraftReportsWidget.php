@@ -20,7 +20,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
 
     protected static function shouldRender(): bool
     {
-        return auth()->check() && auth()->user()->can('viewAny', \App\Models\LaporanInsiden::class);
+        return auth()->check() && auth()->user()->can('viewWidget:DraftReportsWidget');
     }
 
     protected static ?string $heading = 'Laporan Draft Berdasarkan Unit Kerja';
