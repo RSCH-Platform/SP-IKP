@@ -183,6 +183,10 @@ class ShieldSeeder extends Seeder
             'Kembalikan:LaporanInsiden',
             'Submit:LaporanInsiden',
             'View:PelaporanInsiden',
+
+            // Widget permissions
+            'viewWidget:LaporanStatsWidget',
+            'viewWidget:DraftReportsWidget',
         ]);
 
         // Tim mutu → investigasi & kembalikan ke kepala unit
@@ -212,14 +216,17 @@ class ShieldSeeder extends Seeder
             'Update:LaporanInsiden',
             'Submit:LaporanInsiden',
             'View:PelaporanInsiden',
+
+            // Widgets Permission 
+            'viewWidget:LaporanStatsWidget',
+            'viewWidget:DraftReportsWidget',
         ]);
 
         /*
          |--------------------------------------------------------------------------
          | Widget permission assignments
          |--------------------------------------------------------------------------
-         | give the stats widget perm to any role that can view
-'this resource (viewAny or viewAllData)
+         | give the stats widget perm to any role that can view 'this resource (viewAny or viewAllData)
          */
         foreach ($roleInstances as $role) {
             if ($role->hasPermissionTo('ViewAny:LaporanInsiden') || $role->hasPermissionTo('ViewAllData:LaporanInsiden')) {

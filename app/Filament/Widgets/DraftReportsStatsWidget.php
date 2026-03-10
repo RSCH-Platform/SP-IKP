@@ -11,7 +11,7 @@ class DraftReportsStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
 
-    protected static function shouldRender(): bool
+    public static function canView(): bool
     {
         return auth()->check() && auth()->user()->can('viewWidget:LaporanStatsWidget');
     }

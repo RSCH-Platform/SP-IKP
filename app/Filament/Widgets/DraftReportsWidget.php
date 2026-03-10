@@ -18,7 +18,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
 {
     use InteractsWithTable;
 
-    protected static function shouldRender(): bool
+    public static function canView(): bool
     {
         return auth()->check() && auth()->user()->can('viewWidget:DraftReportsWidget');
     }
@@ -40,10 +40,8 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                 LaporanInsiden::STATUS_REVISI,
             ]);
 
-        if (!auth()->user()?->can('viewAllData', LaporanInsiden::class)) {
-            $unitIds = auth()->user()->unitKerja()->pluck('id');
-            $query->whereIn('unit_kerja_id', $unitIds);
-        }
+        $unitIds = auth()->user()->unitKerja()->pluck('id');
+        $query->whereIn('unit_kerja_id', $unitIds);
 
         return $query;
     }
