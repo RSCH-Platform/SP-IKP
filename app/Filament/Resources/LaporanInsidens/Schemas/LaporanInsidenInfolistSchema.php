@@ -11,8 +11,6 @@ class LaporanInsidenInfolistSchema
     public static function sections(): array
     {
         return [
-            static::sectionMeta(),
-            static::sectionApproval(),
             static::sectionPelapor(),
             static::sectionInsiden(),
             static::sectionPasien(),
@@ -20,124 +18,8 @@ class LaporanInsidenInfolistSchema
             static::sectionKategoriDampak(),
             static::sectionTindakan(),
             static::sectionCatatanTambahan(),
-            static::sectionVerifikasi(),
+            // static::sectionVerifikasi(),
         ];
-    }
-
-    public static function sectionMeta(): Section
-    {
-        return Section::make('📌 Informasi Laporan')
-            ->icon('heroicon-o-information-circle')
-            ->schema([
-                Infolists\Components\TextEntry::make('nomor_laporan')
-                    ->label('Nomor Laporan')
-                    ->placeholder('—'),
-
-                Infolists\Components\TextEntry::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'draft'         => 'gray',
-                        'dilaporkan'    => 'warning',
-                        'revisi'        => 'danger',
-                        'diverifikasi'  => 'info',
-                        'revisi_unit'   => 'danger',
-                        'investigasi'   => 'success',
-                        default         => 'gray',
-                    })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'draft'         => 'Draft',
-                        'dilaporkan'    => 'Dilaporkan',
-                        'revisi'        => 'Perlu Revisi',
-                        'diverifikasi'  => 'Diverifikasi',
-                        'revisi_unit'   => 'Perlu Revisi (Unit)',
-                        'investigasi'   => 'Investigasi',
-                        default         => $state,
-                    }),
-
-                Infolists\Components\TextEntry::make('created_at')
-                    ->label('Tanggal Dibuat')
-                    ->dateTime('d F Y, H:i'),
-            ])
-            ->columns(3)
-            ->compact();
-    }
-
-    public static function sectionApproval(): Section
-    {
-        return Section::make('🔄 Riwayat Workflow')
-            ->icon('heroicon-o-clock')
-            ->schema([
-
-                // ======================
-                // DILAPORKAN
-                // ======================
-                Section::make('Laporan Dikirim')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('reported_by')
-                            ->label('Dikirim Oleh')
-                            ->icon('heroicon-m-user-circle')
-                            ->getStateUsing(fn($record) => $record->reporter->name),
-
-                        Infolists\Components\TextEntry::make('reported_at')
-                            ->label('Tanggal Kirim')
-                            ->dateTime('d F Y, H:i')
-                            ->icon('heroicon-m-paper-airplane'),
-                    ])
-                    ->columns(2)
-                    ->visible(fn($record) => filled($record->reporter->name)),
-
-                // ======================
-                // VERIFIKASI
-                // ======================
-                Section::make('Verifikasi')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('verifier.name')
-                            ->label('Diverifikasi Oleh')
-                            ->icon('heroicon-m-check-circle'),
-
-                        Infolists\Components\TextEntry::make('verified_at')
-                            ->label('Tanggal Verifikasi')
-                            ->dateTime('d F Y, H:i')
-                            ->icon('heroicon-m-calendar'),
-                    ])
-                    ->columns(2)
-                    ->visible(fn($record) => filled($record->verified_at)),
-
-                // ======================
-                // REVISI / REJECT
-                // ======================
-                Section::make('Pengembalian / Revisi')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('rejecter.name')
-                            ->label('Dikembalikan Oleh')
-                            ->icon('heroicon-m-arrow-uturn-left')
-                            ->color('danger'),
-
-                        Infolists\Components\TextEntry::make('rejected_at')
-                            ->label('Tanggal Dikembalikan')
-                            ->dateTime('d F Y, H:i')
-                            ->icon('heroicon-m-calendar'),
-
-                        Infolists\Components\TextEntry::make('rejection_reason')
-                            ->label('Alasan Pengembalian')
-                            ->columnSpanFull()
-                            ->placeholder('—')
-                            ->html()
-                            ->formatStateUsing(
-                                fn(?string $state) => filled($state)
-                                    ? nl2br(e($state))
-                                    : '—'
-                            ),
-                    ])
-                    ->columns(2)
-                    ->visible(fn($record) => filled($record->rejected_at)),
-
-            ])
-            ->columns(1)
-            ->collapsible()
-            ->compact()
-            ->visible(fn($record) => $record->status !== 'draft');
     }
 
     public static function sectionPelapor(): Section
@@ -355,37 +237,37 @@ class LaporanInsidenInfolistSchema
             ->compact();
     }
 
-    public static function sectionVerifikasi(): Section
-    {
-        return Section::make('✅ Informasi Verifikasi')
-            ->icon('heroicon-o-check-badge')
-            ->schema([
-                Infolists\Components\TextEntry::make('verifier.name')
-                    ->label('Diverifikasi Oleh')
-                    ->icon('heroicon-m-user-circle')
-                    ->placeholder('Belum diverifikasi'),
+    // public static function sectionVerifikasi(): Section
+    // {
+    //     return Section::make('✅ Informasi Verifikasi')
+    //         ->icon('heroicon-o-check-badge')
+    //         ->schema([
+    //             Infolists\Components\TextEntry::make('verifier.name')
+    //                 ->label('Diverifikasi Oleh')
+    //                 ->icon('heroicon-m-user-circle')
+    //                 ->placeholder('Belum diverifikasi'),
 
-                Infolists\Components\TextEntry::make('verified_at')
-                    ->label('Tanggal Verifikasi')
-                    ->dateTime('d F Y, H:i')
-                    ->icon('heroicon-m-calendar')
-                    ->placeholder('—'),
+    //             Infolists\Components\TextEntry::make('verified_at')
+    //                 ->label('Tanggal Verifikasi')
+    //                 ->dateTime('d F Y, H:i')
+    //                 ->icon('heroicon-m-calendar')
+    //                 ->placeholder('—'),
 
-                Infolists\Components\TextEntry::make('rejecter.name')
-                    ->label('Dikembalikan Oleh')
-                    ->icon('heroicon-m-user-circle')
-                    ->placeholder('—')
-                    ->visible(fn($record) => $record->rejected_by !== null),
+    //             Infolists\Components\TextEntry::make('rejecter.name')
+    //                 ->label('Dikembalikan Oleh')
+    //                 ->icon('heroicon-m-user-circle')
+    //                 ->placeholder('—')
+    //                 ->visible(fn($record) => $record->rejected_by !== null),
 
-                Infolists\Components\TextEntry::make('rejection_reason')
-                    ->label('Alasan Pengembalian')
-                    ->icon('heroicon-m-chat-bubble-left-ellipsis')
-                    ->placeholder('—')
-                    ->visible(fn($record) => !empty($record->rejection_reason))
-                    ->columnSpanFull(),
-            ])
-            ->columns(2)
-            ->visible(fn($record) => $record->verified_by !== null || $record->rejected_by !== null)
-            ->compact();
-    }
+    //             Infolists\Components\TextEntry::make('rejection_reason')
+    //                 ->label('Alasan Pengembalian')
+    //                 ->icon('heroicon-m-chat-bubble-left-ellipsis')
+    //                 ->placeholder('—')
+    //                 ->visible(fn($record) => !empty($record->rejection_reason))
+    //                 ->columnSpanFull(),
+    //         ])
+    //         ->columns(2)
+    //         ->visible(fn($record) => $record->verified_by !== null || $record->rejected_by !== null)
+    //         ->compact();
+    // }
 }

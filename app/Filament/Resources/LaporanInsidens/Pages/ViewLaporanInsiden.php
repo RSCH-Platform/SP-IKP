@@ -18,6 +18,8 @@ class ViewLaporanInsiden extends ViewRecord
 {
     protected static string $resource = LaporanInsidenResource::class;
 
+    protected string $view = 'filament.resources.laporan-insidens.pages.view-laporan-insiden';
+
     protected function getHeaderActions(): array
     {
         return [
@@ -128,7 +130,7 @@ class ViewLaporanInsiden extends ViewRecord
                 ->icon('heroicon-o-pencil-square')
                 ->visible(fn() => Auth::user()?->can('ViewAllData:LaporanInsiden') ||
                     (Auth::id() === $this->record->user_id &&
-                        in_array($this->record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI])))
+                        in_array($this->record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI, LaporanInsiden::STATUS_INVESTIGASI])))
 
         ];
     }

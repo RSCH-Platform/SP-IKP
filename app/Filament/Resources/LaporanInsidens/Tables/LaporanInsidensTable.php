@@ -247,19 +247,17 @@ class LaporanInsidensTable
                                 ->rows(3)
                                 ->default(fn($record) => $record->catatan_tambahan),
                         ])
-                        ->action(function ($record) {
+                        ->action(function ($record, array $data) {
+                            $record->update([
+                                'grading_risiko' => $data['grading_risiko'],
+                                'catatan_tambahan' => $data['catatan_tambahan'],
+                            ]);
                             $record->verifikasiLaporan(auth()->id());
-
-                            $timMutu = User::role(['tim_mutu', 'admin'])->get();
 
                             Notification::make()
                                 ->title('Laporan diverifikasi')
                                 ->success()
                                 ->send();
-
-                            Notification::make()
-                                ->title('Laporan siap investigasi')
-                                ->sendToDatabase($timMutu);
                         }),
 
                     Action::make('kembalikan_ke_pelapor')

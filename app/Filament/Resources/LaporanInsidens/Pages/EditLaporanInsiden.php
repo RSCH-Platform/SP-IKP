@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditLaporanInsiden extends EditRecord
 {
@@ -25,24 +26,8 @@ class EditLaporanInsiden extends EditRecord
         abort_unless(static::getResource()::canEdit($this->getRecord()), 404);
     }
 
-    protected function getHeaderActions(): array
+    public function submitLaporan(): void
     {
-        return [
-            DeleteAction::make()->visible(fn() => $this->record->created_by === auth()->id() && in_array($this->record->status, [
-                'draft',
-                'revisi',
-            ])),
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
-        ];
-    }
-
-    protected function getFormActions(): array
-    {
-        $actions = [];
-        $user = auth()->user();
-
-        // Field wajib untuk submit laporan
         $requiredFieldsForSubmit = [
             'nama_pelapor' => 'Nama Pelapor',
             'unit_kerja_id' => 'Unit Kerja',
@@ -59,7 +44,183 @@ class EditLaporanInsiden extends EditRecord
             'tindakan_dilakukan' => 'Tindakan Dilakukan',
         ];
 
-        // Tombol simpan biasa (untuk status draft, revisi, revisi_unit)
+        try {
+            $this->save();
+
+            $missingFields = collect($requiredFieldsForSubmit)
+                ->filter(fn($label, $field) => blank(data_get($this->record, $field)))
+                ->values()
+                ->all();
+
+            if (!empty($missingFields)) {
+                Notification::make()
+                    ->title('Laporan belum bisa dikirim')
+                    ->body('Lengkapi field wajib berikut: ' . implode(', ', $missingFields))
+                    ->danger()
+                    ->send();
+
+                return;
+            }
+
+            $this->record->refresh();
+            $this->record->submitLaporan();
+
+            $kepalaUnits = User::role('kepala_unit')->get();
+
+            if ($kepalaUnits->isNotEmpty()) {
+                Notification::make()
+                    ->title('Laporan Insiden Baru')
+                    ->body("Ada laporan insiden baru dari {$this->record->nama_pelapor} yang perlu diverifikasi.")
+                    ->warning()
+                    ->sendToDatabase($kepalaUnits);
+            }
+
+            Notification::make()
+                ->title('Laporan berhasil dikirim')
+                ->success()
+                ->send();
+
+            $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Gagal mengirim laporan')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function kembalikanLaporan(array $data): void
+    {
+        try {
+            $this->save();
+
+            $this->record->kembalikanKePelapor(Auth::id(), $data['alasan_pengembalian']);
+
+            $pelapor = User::find($this->record->created_by);
+
+            if ($pelapor) {
+                Notification::make()
+                    ->title('Laporan Dikembalikan untuk Revisi')
+                    ->body("Laporan Anda perlu diperbaiki. Alasan: {$data['alasan_pengembalian']}")
+                    ->warning()
+                    ->sendToDatabase($pelapor);
+            }
+
+            Notification::make()
+                ->title('Laporan dikembalikan untuk revisi')
+                ->success()
+                ->send();
+
+            $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Gagal mengembalikan laporan')
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function verifikasiLaporan(): void
+    {
+        try {
+            $this->save();
+
+            $missing = [];
+
+            if (!$this->record->grading_risiko) {
+                $missing[] = 'grading risiko';
+            }
+
+            if (!$this->record->catatan_tambahan) {
+                $missing[] = 'catatan tambahan';
+            }
+
+            if ($missing) {
+                Notification::make()
+                    ->title('Data belum lengkap')
+                    ->body('Harap isi: ' . implode(' dan ', $missing) . ' sebelum memverifikasi laporan.')
+                    ->danger()
+                    ->send();
+
+                return;
+            }
+
+            $this->record->verifikasiLaporan(Auth::id());
+
+            $timMutu = User::role(['tim_mutu', 'admin'])->get();
+
+            Notification::make()
+                ->title('Laporan berhasil diverifikasi')
+                ->success()
+                ->send();
+
+            if ($timMutu->isNotEmpty()) {
+                Notification::make()
+                    ->title('Laporan Siap Investigasi')
+                    ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi dan siap untuk investigasi.")
+                    ->info()
+                    ->sendToDatabase($timMutu);
+            }
+
+            $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Gagal memverifikasi laporan')
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function verifikasiUlang(array $data): void
+    {
+        try {
+            $this->save();
+
+            $this->record->update([
+                'grading_risiko' => $data['grading_risiko'],
+                'catatan_tambahan' => $data['catatan_tambahan'] ?? $this->record->catatan_tambahan,
+            ]);
+
+            $this->record->verifikasiLaporan(Auth::id());
+
+            $timMutu = User::role(['tim_mutu', 'admin'])->get();
+
+            Notification::make()
+                ->title('Laporan diverifikasi ulang')
+                ->success()
+                ->send();
+
+            if ($timMutu->isNotEmpty()) {
+                Notification::make()
+                    ->title('Laporan siap investigasi')
+                    ->sendToDatabase($timMutu);
+            }
+
+            $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Gagal memverifikasi ulang laporan')
+                ->danger()
+                ->send();
+        }
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            DeleteAction::make()->visible(fn() => $this->record->created_by === Auth::id() && in_array($this->record->status, ['draft', 'revisi'])),
+            ForceDeleteAction::make(),
+            RestoreAction::make(),
+        ];
+    }
+
+    protected function getFormActions(): array
+    {
+        $actions = [];
+        $user = Auth::user();
+
+        // Save button for draft/revisi/revisi_unit statuses
         if (
             ($user?->can('Submit:LaporanInsiden') && in_array($this->record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI], true))
             || ($user?->can('Verifikasi:LaporanInsiden') && $this->record->status === LaporanInsiden::STATUS_REVISI_UNIT)
@@ -68,86 +229,22 @@ class EditLaporanInsiden extends EditRecord
                 ->label('Simpan Perubahan')
                 ->color('gray')
                 ->icon('heroicon-o-check')
-                ->action(function () {
-                    try {
-                        $this->save();
-
-                        Notification::make()
-                            ->title('Data berhasil disimpan')
-                            ->success()
-                            ->send();
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('Gagal menyimpan data')
-                            ->body($e->getMessage())
-                            ->danger()
-                            ->send();
-                    }
-                });
+                ->action('save');
         }
 
-        ######################################
-        ### Workflow actions sesuai status ### 
-        ######################################
-
-        // Tombol submit laporan (untuk status draft, revisi)
+        // Submit button for draft/revisi
         if (in_array($this->record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI], true) && $user?->can('Submit:LaporanInsiden')) {
             $actions[] = Action::make('submitLaporan')
                 ->label($this->record->status === LaporanInsiden::STATUS_REVISI ? 'Kirim Ulang Laporan' : 'Kirim Laporan')
                 ->color('warning')
+                ->icon('heroicon-o-paper-airplane')
                 ->requiresConfirmation()
                 ->modalHeading('Kirim Laporan Insiden?')
                 ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi. Pastikan semua data sudah lengkap.')
-                ->icon('heroicon-o-paper-airplane')
-                ->action(function () use ($requiredFieldsForSubmit) {
-                    try {
-                        $this->save();
-
-                        $missingFields = collect($requiredFieldsForSubmit)
-                            ->filter(fn($label, $field) => blank(data_get($this->record, $field)))
-                            ->values()
-                            ->all();
-
-                        if (! empty($missingFields)) {
-                            Notification::make()
-                                ->title('Laporan belum bisa dikirim')
-                                ->body('Lengkapi field wajib berikut: ' . implode(', ', $missingFields))
-                                ->danger()
-                                ->send();
-
-                            return;
-                        }
-
-                        $this->record->refresh();
-                        $this->record->submitLaporan();
-
-                        $kepalaUnits = User::role('kepala_unit')->get();
-
-                        if ($kepalaUnits->isNotEmpty()) {
-                            Notification::make()
-                                ->title('Laporan Insiden Baru')
-                                ->body("Ada laporan insiden baru dari {$this->record->nama_pelapor} yang perlu diverifikasi.")
-                                ->warning()
-                                ->sendToDatabase($kepalaUnits);
-                        }
-
-                        Notification::make()
-                            ->title('Laporan berhasil dikirim')
-                            ->success()
-                            ->send();
-
-                        $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
-                    } catch (\Exception $e) {
-                        Notification::make()
-                            ->title('Gagal mengirim laporan')
-                            ->body($e->getMessage())
-                            ->danger()
-                            ->send();
-                    }
-                });
+                ->action('submitLaporan');
         }
 
-        // Tombol verifikasi laporan (untuk status dilaporkan)
+        // Return/Verify buttons for dilaporkan status
         if ($this->record->status === LaporanInsiden::STATUS_DILAPORKAN && $user?->can('Verifikasi:LaporanInsiden')) {
             $actions[] = Action::make('kembalikanLaporan')
                 ->label('Kembalikan untuk Revisi')
@@ -164,26 +261,7 @@ class EditLaporanInsiden extends EditRecord
                         ->placeholder('Jelaskan alasan pengembalian dan apa yang perlu diperbaiki...'),
                 ])
                 ->action(function (array $data) {
-                    $this->save();
-
-                    $this->record->kembalikanKePelapor(auth()->id(), $data['alasan_pengembalian']);
-
-                    $pelapor = User::find($this->record->created_by);
-
-                    if ($pelapor) {
-                        Notification::make()
-                            ->title('Laporan Dikembalikan untuk Revisi')
-                            ->body("Laporan Anda perlu diperbaiki. Alasan: {$data['alasan_pengembalian']}")
-                            ->warning()
-                            ->sendToDatabase($pelapor);
-                    }
-
-                    Notification::make()
-                        ->title('Laporan dikembalikan untuk revisi')
-                        ->success()
-                        ->send();
-
-                    $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
+                    $this->kembalikanLaporan($data);
                 });
 
             $actions[] = Action::make('verifikasiLaporan')
@@ -193,52 +271,10 @@ class EditLaporanInsiden extends EditRecord
                 ->requiresConfirmation()
                 ->modalHeading('Verifikasi Laporan?')
                 ->modalDescription('Setelah diverifikasi, laporan akan dikirim ke tim mutu untuk investigasi.')
-                ->action(function () {
-
-                    $this->save();
-
-                    $missing = [];
-
-                    if (!$this->record->grading_risiko) {
-                        $missing[] = 'grading risiko';
-                    }
-
-                    if (!$this->record->catatan_tambahan) {
-                        $missing[] = 'catatan tambahan';
-                    }
-
-                    if ($missing) {
-                        Notification::make()
-                            ->title('Data belum lengkap')
-                            ->body('Harap isi: ' . implode(' dan ', $missing) . ' sebelum memverifikasi laporan.')
-                            ->danger()
-                            ->send();
-
-                        return;
-                    }
-
-                    $this->record->verifikasiLaporan(auth()->id());
-
-                    $timMutu = User::role(['tim_mutu', 'admin'])->get();
-
-                    Notification::make()
-                        ->title('Laporan berhasil diverifikasi')
-                        ->success()
-                        ->send();
-
-                    if ($timMutu->isNotEmpty()) {
-                        Notification::make()
-                            ->title('Laporan Siap Investigasi')
-                            ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi dan siap untuk investigasi.")
-                            ->info()
-                            ->sendToDatabase($timMutu);
-                    }
-
-                    $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
-                });
+                ->action('verifikasiLaporan');
         }
 
-        // Tombol verifikasi ulang (untuk status revisi_unit)
+        // Re-verify button for revisi_unit
         if ($this->record->status === LaporanInsiden::STATUS_REVISI_UNIT && $user?->can('Verifikasi:LaporanInsiden')) {
             $actions[] = Action::make('verifikasiUlang')
                 ->label('Verifikasi Ulang & Kirim ke Tim Mutu')
@@ -265,29 +301,7 @@ class EditLaporanInsiden extends EditRecord
                         ->default(fn() => $this->record->catatan_tambahan),
                 ])
                 ->action(function (array $data) {
-                    $this->save();
-
-                    $this->record->update([
-                        'grading_risiko' => $data['grading_risiko'],
-                        'catatan_tambahan' => $data['catatan_tambahan'] ?? $this->record->catatan_tambahan,
-                    ]);
-
-                    $this->record->verifikasiLaporan(auth()->id());
-
-                    $timMutu = User::role(['tim_mutu', 'admin'])->get();
-
-                    Notification::make()
-                        ->title('Laporan diverifikasi ulang')
-                        ->success()
-                        ->send();
-
-                    if ($timMutu->isNotEmpty()) {
-                        Notification::make()
-                            ->title('Laporan siap investigasi')
-                            ->sendToDatabase($timMutu);
-                    }
-
-                    $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
+                    $this->verifikasiUlang($data);
                 });
         }
 

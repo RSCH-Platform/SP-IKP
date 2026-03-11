@@ -1,0 +1,45 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-C1t7IF2j.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/css/filament/theme.css": {
+    "file": "assets/theme-C3gTZFDU.css",
+    "src": "resources/css/filament/theme.css",
+    "isEntry": true,
+    "name": "theme",
+    "names": [
+      "theme.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-CAiCLEjY.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "vendor/filament/filament/resources/js/index.js": {
+    "file": "assets/index-D16Npr4r.js",
+    "name": "index",
+    "src": "vendor/filament/filament/resources/js/index.js",
+    "isEntry": true
+  },
+  "vendor/filament/support/resources/js/index.js": {
+    "file": "assets/index-C01MSJWm.js",
+    "name": "index",
+    "src": "vendor/filament/support/resources/js/index.js",
+    "isEntry": true,
+    "css": [
+      "assets/index-D04_KDLT.css"
+    ]
+  },
+  "vendor/resma/filament-awin-theme/resources/css/theme.css": {
+    "file": "assets/theme-DTdd790s.css",
+    "src": "vendor/resma/filament-awin-theme/resources/css/theme.css"
+  }
+}

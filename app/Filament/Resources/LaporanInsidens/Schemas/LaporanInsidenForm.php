@@ -26,14 +26,14 @@ class LaporanInsidenForm
                         ]),
                     Step::make('Grading Resiko Laporan Insiden')
                         ->hidden(fn() => !Auth::user()->can('Verifikasi:LaporanInsiden'))
-                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DILAPORKAN)
+                        ->disabled(fn($record) => !($record->status !== LaporanInsiden::STATUS_DILAPORKAN))
                         ->schema([
                             LaporanInsidenFormSchema::sectionGradingResiko(),
                         ]),
 
                     Step::make('Review & Submit')
                         ->hidden(fn() => !Auth::user()->can('Verifikasi:LaporanInsiden'))
-                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DIVERIFIKASI)
+                        ->disabled(fn($record) => !($record->status !== LaporanInsiden::STATUS_DILAPORKAN))
                         ->schema([
                             LaporanInsidenFormSchema::sectionCatatanTambahan(),
                         ]),
