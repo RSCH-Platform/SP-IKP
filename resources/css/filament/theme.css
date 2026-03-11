@@ -2,7 +2,32 @@
 
 @source '../../../app/Filament/**/*';
 @source '../../../resources/views/filament/**/*';
+@source '../../../resources/views/livewire/**/*';
+@source '../../../app/Livewire/**/*';
 @source '../../../vendor/guava/filament-modal-relation-managers/resources/**/*';
+
+/* Explicit safelist for workflow timeline component */
+@layer components {
+    .step-icon-done {
+        @apply relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 border-white dark:border-gray-900 bg-green-500 text-white;
+    }
+
+    .step-icon-current {
+        @apply relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 border-white dark:border-gray-900 bg-blue-500 text-white animate-pulse;
+    }
+
+    .step-icon-pending {
+        @apply relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 border-white dark:border-gray-900 bg-gray-300 text-gray-600 dark:bg-gray-600;
+    }
+
+    .step-badge-done {
+        @apply rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 whitespace-nowrap;
+    }
+
+    .step-badge-current {
+        @apply rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 whitespace-nowrap;
+    }
+}
 
 /* ============================================
    Custom Filament Styles

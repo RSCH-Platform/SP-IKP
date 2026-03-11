@@ -75,6 +75,34 @@ class LaporanWorkflowTimeline extends Component
         return 'pending';
     }
 
+    public function getStepIconClasses($stepKey)
+    {
+        $status = $this->stepStatus($stepKey);
+        $base = 'relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 border-white dark:border-gray-900';
+
+        return match ($status) {
+            'done' => "$base bg-green-500 text-white",
+            'current' => "$base bg-blue-500 text-white animate-pulse",
+            'pending' => "$base bg-gray-300 text-gray-600 dark:bg-gray-600",
+        };
+    }
+
+    public function getStatusBadgeClasses($stepKey)
+    {
+        $status = $this->stepStatus($stepKey);
+
+        return match ($status) {
+            'done' => 'rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 whitespace-nowrap',
+            'current' => 'rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 whitespace-nowrap',
+            default => '',
+        };
+    }
+
+    public function shouldShowCheckmark($stepKey)
+    {
+        return $this->stepStatus($stepKey) === 'done';
+    }
+
     public function getStepsProperty()
     {
         return [
