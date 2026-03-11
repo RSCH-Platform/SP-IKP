@@ -24,8 +24,9 @@ class LaporanInsidenForm
                             LaporanInsidenFormSchema::sectionKategoriDampak(),
                             LaporanInsidenFormSchema::sectionTindakan(),
                         ]),
+                    // Step::make('Grading Resiko & Catatan Tambahan') (Laporan Status: Dilaporkan)
                     Step::make('Grading Resiko & Catatan Tambahan')
-                        ->hidden(fn() => !Auth::user()->can('Verifikasi:LaporanInsiden'))
+                        ->hidden(fn($record) => !Auth::user()->can('Verifikasi:LaporanInsiden') || $record->status !== LaporanInsiden::STATUS_DILAPORKAN)
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_DILAPORKAN))
                         ->schema([
                             LaporanInsidenFormSchema::sectionGradingResiko(),

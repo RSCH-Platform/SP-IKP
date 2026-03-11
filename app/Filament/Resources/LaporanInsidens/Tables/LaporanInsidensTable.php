@@ -14,6 +14,7 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -230,17 +231,25 @@ class LaporanInsidensTable
                         ->requiresConfirmation()
                         ->modalHeading('Verifikasi Laporan')
                         ->schema([
-                            Select::make('grading_risiko')
+                            ToggleButtons::make('grading_risiko')
                                 ->label('Grading Risiko')
                                 ->required()
                                 ->options([
-                                    'Biru' => 'Biru',
-                                    'Hijau' => 'Hijau',
-                                    'Kuning' => 'Kuning',
-                                    'Merah' => 'Merah',
-                                    'Hitam' => 'Hitam',
+                                    'Biru'   => '🔵 Biru (Tidak signifikan)',
+                                    'Hijau'  => '🟢 Hijau (Minor)',
+                                    'Kuning' => '🟡 Kuning (Moderat)',
+                                    'Merah'  => '🔴 Merah (Mayor)',
+                                    'Hitam'  => '⚫ Hitam (Katastropik)',
                                 ])
-                                ->native(false)
+                                ->colors([
+                                    'Biru'   => 'info',
+                                    'Hijau'  => 'success',
+                                    'Kuning' => 'warning',
+                                    'Merah'  => 'danger',
+                                    'Hitam'  => 'gray',
+                                ])
+                                ->inline()
+                                ->helperText('Hanya diisi oleh Validator / Tim IKP')
                                 ->default(fn($record) => $record->grading_risiko),
                             Textarea::make('catatan_tambahan')
                                 ->label('Catatan Verifikasi')

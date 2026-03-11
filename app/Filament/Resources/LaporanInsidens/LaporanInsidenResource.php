@@ -72,7 +72,7 @@ class LaporanInsidenResource extends Resource
         // if the currently authenticated user only has submit-rights (no ability to view
         // lists of reports) then limit the query to their own rows. this covers the case
         // where a 'pelapor' can submit but shouldn't see other people's drafts.
-        
+
         if ($user->can('Submit:LaporanInsiden') && ! $user->can('Verifikasi:LaporanInsiden') && ! $user->can('ViewAllData:LaporanInsiden')) {
             return $query->where('user_id', $user->getKey());
         }

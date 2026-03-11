@@ -331,16 +331,120 @@
                 </div>
             </div>
 
-            {{-- Important Notice --}}
-            @if(in_array($record->status ?? 'draft', ['dilaporkan', 'revisi', 'revisi_unit', 'diverifikasi', 'investigasi']))
-            <div class="ikp-notice">
-                <h3 class="ikp-notice-title">⚠️ Catatan Edit Laporan</h3>
-                <p class="ikp-notice-text">
-                    Laporan ini sedang dalam proses. Perubahan yang Anda lakukan akan tersimpan dan dapat mempengaruhi status verifikasi.
-                    @if($record->rejection_reason ?? false)
-                    <br><br><strong>Alasan Pengembalian:</strong> {{ $record->rejection_reason }}
+            <div x-data="{open:false}" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+                {{-- Header --}}
+                <div class="flex justify-between border-b px-6 py-4 dark:border-gray-600">
+                    <h3 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white"> <x-heroicon-o-clock class="h-5 w-5" /> Workflow Progress </h3>
+
+                    <button
+                        @click="open = !open"
+                        class="flex w-full items-center justify-between border-b px-6 py-4 text-left transition hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
+                        <x-heroicon-o-chevron-down
+                            class="h-5 w-5 text-gray-500 transition-transform duration-200"
+                            ::class="{ 'rotate-180': open }" />
+                    </button>
+                </div>
+
+                {{-- COLLAPSED SUMMARY --}}
+                <div
+                    x-show="!open"
+                    x-transition.opacity
+                    class="px-6 py-4">
+                    @php
+                    $current = collect($this->getWorkflowSteps())
+                    ->first(fn($s) => $this->getStepStatus($s['key'], $record->status) === 'current');
+                    @endphp
+
+                    @if($current)
+                    <div class="flex items-center gap-4">
+
+                        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white">
+                            <x-dynamic-component :component="$current['icon']" class="h-4 w-4" />
+                        </div>
+
+                        <div>
+                            <div class="font-semibold text-slate-900 dark:text-slate-100">
+                                {{ $current['title'] }}
+                            </div>
+
+                            <div class="text-sm text-slate-500 dark:text-slate-400">
+                                {{ $current['desc'] }}
+                            </div>
+                        </div>
+
+                        <span class="ml-auto rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                            proses
+                        </span>
+
+                    </div>
                     @endif
-                </p>
+                </div>
+                {{-- CONTENT --}}
+                <div x-show="open" x-transition class="p-8">
+                    <div class="relative">
+                        {{-- vertical line --}}
+                        <div class="absolute left-5 top-0 h-full w-px bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="space-y-10">
+                            @foreach($this->getWorkflowSteps() as $step)
+                            @php $state = $this->getStepStatus($step['key'], $record->status); @endphp
+                            <div x-data="{open:false}" class="relative flex items-start gap-6">
+                                {{-- ICON --}}
+                                <div class="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white dark:border-slate-900 shadow-sm @if($state === 'done') bg-emerald-500 text-white @elseif($state === 'current') bg-blue-600 text-white @else bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300 @endif">
+                                    @if($state === 'done') <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg> @else <x-dynamic-component :component="$step['icon']" class="h-5 w-5" /> @endif
+                                </div>
+
+                                {{-- CONTENT --}}
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3">
+                                        <div class="font-semibold text-slate-900 dark:text-slate-100"> {{ $step['title'] }} </div>
+                                        {{-- BADGE --}} @if($state === 'done') <span class="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"> selesai </span>
+                                        @elseif($state === 'current') <span class="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"> proses </span> @endif
+                                    </div>
+
+                                    <div class="mb-3 text-sm text-slate-500 dark:text-slate-400"> {{ $step['desc'] }} </div>
+
+                                    @php $stepDetail = $this->getStepDetail($step); $lines = explode("\n", $stepDetail); $message = trim($lines[0]); $details = array_slice($lines, 1); @endphp
+
+                                    @if(count($details) > 0)
+                                    {{-- Detail Card --}}
+                                    <div class="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400"> {{ $message }} </div>
+                                        <div class="mt-3 space-y-3 border-t border-slate-200 pt-3 dark:border-slate-700">
+                                            @foreach($details as $detail)
+                                            @if(trim($detail))
+                                            <div class="flex items-start gap-3 text-sm">
+                                                @if(str_contains($detail,'👤'))
+                                                <span class="flex-shrink-0 text-base">👤</span>
+                                                <div>
+                                                    <div class="text-xs font-medium text-slate-500 dark:text-slate-400"> Oleh </div>
+                                                    <div class="font-semibold text-slate-900 dark:text-slate-100"> {{ str_replace('👤 ', '', str_replace('👤 Pelapor: ', '', str_replace('👤 Oleh: ', '', trim($detail)))) }} </div>
+                                                </div>
+                                                @elseif(str_contains($detail,'⏰'))
+                                                <span class="flex-shrink-0 text-base">⏰</span>
+                                                <div>
+                                                    <div class="text-xs font-medium text-slate-500 dark:text-slate-400"> Tanggal </div>
+                                                    <div class="font-semibold text-slate-900 dark:text-slate-100"> {{ str_replace('⏰ Tanggal: ', '', str_replace('⏰ ', '', trim($detail))) }} </div>
+                                                </div>
+                                                @endif
+                                            </div>
+                                            @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- Important Notice --}}
+            @if($record->rejection_reason ?? false) <div class="mt-6 rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:bg-yellow-900/20">
+                <h3 class="text-sm font-semibold text-yellow-900 dark:text-yellow-300">📝 Alasan Pengembalian</h3>
+                <p class="mt-1 text-sm text-yellow-800 dark:text-yellow-400"> {{ $record->rejection_reason }} </p>
             </div>
             @endif
         </div>

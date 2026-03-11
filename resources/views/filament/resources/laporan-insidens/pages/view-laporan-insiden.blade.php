@@ -105,10 +105,12 @@
                     </div>
                 </div>
             </div>
-            {{-- Important Notice --}} @if($record->rejection_reason ?? false) <div class="mt-6 rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:bg-yellow-900/20">
+            {{-- Important Notice --}}
+            @if($record->rejection_reason ?? false) <div class="mt-6 rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:bg-yellow-900/20">
                 <h3 class="text-sm font-semibold text-yellow-900 dark:text-yellow-300">📝 Alasan Pengembalian</h3>
                 <p class="mt-1 text-sm text-yellow-800 dark:text-yellow-400"> {{ $record->rejection_reason }} </p>
-            </div> @endif
+            </div>
+            @endif
         </div>
     </div>
     {{-- Content Section --}}

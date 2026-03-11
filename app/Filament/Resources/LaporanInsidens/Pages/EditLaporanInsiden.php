@@ -5,6 +5,7 @@ namespace App\Filament\Resources\LaporanInsidens\Pages;
 use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use App\Models\LaporanInsiden;
 use App\Models\User;
+use App\Traits\HasWorkflowSteps;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Auth;
 
 class EditLaporanInsiden extends EditRecord
 {
+    use HasWorkflowSteps;
+
     protected static string $resource = LaporanInsidenResource::class;
 
     protected string $view = 'filament.resources.laporan-insidens.pages.edit-laporan-insiden';
