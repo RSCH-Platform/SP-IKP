@@ -39,12 +39,56 @@
                     <div class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $record->jenis_insiden ?? '-' }}</div>
                 </div>
             </div>
-            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+            <div x-data="{open:false}" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 {{-- Header --}}
-                <div class="border-b px-6 py-4 dark:border-gray-600">
+                <div class="flex justify-between border-b px-6 py-4 dark:border-gray-600">
                     <h3 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white"> <x-heroicon-o-clock class="h-5 w-5" /> Workflow Progress </h3>
+
+                    <button
+                        @click="open = !open"
+                        class="flex w-full items-center justify-between border-b px-6 py-4 text-left transition hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
+                        <x-heroicon-o-chevron-down
+                            class="h-5 w-5 text-gray-500 transition-transform duration-200"
+                            ::class="{ 'rotate-180': open }" />
+                    </button>
                 </div>
-                <div class="p-8">
+
+                {{-- COLLAPSED SUMMARY --}}
+                <div
+                    x-show="!open"
+                    x-transition.opacity
+                    class="px-6 py-4">
+                    @php
+                    $current = collect($this->getWorkflowSteps())
+                    ->first(fn($s) => $this->getStepStatus($s['key'], $record->status) === 'current');
+                    @endphp
+
+                    @if($current)
+                    <div class="flex items-center gap-4">
+
+                        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white">
+                            <x-dynamic-component :component="$current['icon']" class="h-4 w-4" />
+                        </div>
+
+                        <div>
+                            <div class="font-semibold text-slate-900 dark:text-slate-100">
+                                {{ $current['title'] }}
+                            </div>
+
+                            <div class="text-sm text-slate-500 dark:text-slate-400">
+                                {{ $current['desc'] }}
+                            </div>
+                        </div>
+
+                        <span class="ml-auto rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                            proses
+                        </span>
+
+                    </div>
+                    @endif
+                </div>
+                {{-- CONTENT --}}
+                <div x-show="open" x-transition class="p-8">
                     <div class="relative">
                         {{-- vertical line --}}
                         <div class="absolute left-5 top-0 h-full w-px bg-gray-200 dark:bg-gray-700"></div>

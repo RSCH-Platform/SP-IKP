@@ -437,7 +437,7 @@ class LaporanInsidenFormSchema
     /**
      * @param bool $withGrading Tampilkan field grading_risiko (admin) atau note info (publik)
      */
-    public static function sectionKategoriDampak(bool $withGrading = false): Section
+    public static function sectionKategoriDampak($withGrading = false): Section
     {
         $schema = [
             Grid::make(2)->schema([
@@ -534,7 +534,7 @@ class LaporanInsidenFormSchema
             Forms\Components\Textarea::make('tindakan_dilakukan')
                 ->label('Tindakan yang Telah Dilakukan Setelah Insiden')
                 ->required()
-                ->rows(6)
+                ->rows(16)
                 ->helperText('Jelaskan seluruh tindakan yang telah dilakukan setelah insiden terjadi.')
                 ->placeholder("Contoh:\n1. Segera memberikan pertolongan pertama\n2. Menghubungi dokter jaga\n3. Melaporkan kepada kepala ruangan")
                 ->columnSpanFull(),

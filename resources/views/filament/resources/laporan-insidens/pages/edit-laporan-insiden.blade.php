@@ -350,7 +350,7 @@
                     x-show="!open"
                     x-transition.opacity
                     class="px-6 py-4">
-                    @php
+                    @php    
                     $current = collect($this->getWorkflowSteps())
                     ->first(fn($s) => $this->getStepStatus($s['key'], $record->status) === 'current');
                     @endphp

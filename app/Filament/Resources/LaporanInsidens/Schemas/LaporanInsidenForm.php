@@ -21,8 +21,9 @@ class LaporanInsidenForm
                             LaporanInsidenFormSchema::sectionPelapor(),
                             LaporanInsidenFormSchema::sectionInsiden(),
                             LaporanInsidenFormSchema::sectionKronologi(),
-                            LaporanInsidenFormSchema::sectionKategoriDampak(),
+                            LaporanInsidenFormSchema::sectionKategoriDampak(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT),
                             LaporanInsidenFormSchema::sectionTindakan(),
+                            LaporanInsidenFormSchema::sectionCatatanTambahan()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
                         ]),
                     // Step::make('Grading Resiko & Catatan Tambahan') (Laporan Status: Dilaporkan)
                     Step::make('Grading Resiko & Catatan Tambahan')
@@ -33,10 +34,10 @@ class LaporanInsidenForm
                             LaporanInsidenFormSchema::sectionCatatanTambahan(),
                         ]),
 
-                    // Step::make('Review & Submit')
-                    //     ->hidden(fn() => !Auth::user()->can('Verifikasi:LaporanInsiden'))
-                    //     ->disabled(fn($record) => !($record->status !== LaporanInsiden::STATUS_DILAPORKAN))
-                    //     ->schema([]),
+                    Step::make('Pengumpulan Data')
+                        ->hidden(fn() => !Auth::user()->can('Investigasi:LaporanInsiden'))
+                        ->disabled(fn($record) => !($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
+                        ->schema([]),
                 ])
             )->columns(1);
     }

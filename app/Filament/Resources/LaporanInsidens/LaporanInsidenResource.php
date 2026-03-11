@@ -32,6 +32,13 @@ class LaporanInsidenResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return Auth::user() && Auth::user()->can('Verifikasi:LaporanInsiden');
+    }
+
+
     public static function form(Schema $schema): Schema
     {
         return LaporanInsidenForm::configure($schema);
