@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LaporanInsiden extends Model
@@ -57,6 +58,11 @@ class LaporanInsiden extends Model
         'rejected_by',
         'rejected_at',
         'rejection_reason',
+        // Investigation flow columns
+        'investigation_started_by',
+        'investigation_started_at',
+        'investigation_completed_by',
+        'investigation_completed_at',
     ];
 
     protected $casts = [
@@ -66,6 +72,8 @@ class LaporanInsiden extends Model
         'reported_at'     => 'datetime',
         'verified_at'     => 'datetime',
         'rejected_at'     => 'datetime',
+        'investigation_started_at' => 'datetime',
+        'investigation_completed_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -96,6 +104,21 @@ class LaporanInsiden extends Model
     public function rejecter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rejected_by');
+    }
+
+    public function investigationData(): HasMany
+    {
+        return $this->hasMany(InvestigationData::class);
+    }
+
+    public function investigationStarter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'investigation_started_by');
+    }
+
+    public function investigationCompleter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'investigation_completed_by');
     }
 
     // --- Workflow transition methods ---
@@ -143,7 +166,9 @@ class LaporanInsiden extends Model
     public function mulaiInvestigasi(int $userId): void
     {
         $this->update([
-            'status'      => self::STATUS_INVESTIGASI,
+            'status'                    => self::STATUS_INVESTIGASI,
+            'investigation_started_by'  => $userId,
+            'investigation_started_at'  => now(),
             // Ensure reported_by and reported_at are set if not already (defensive)
             'reported_by' => $this->reported_by ?? auth()->id(),
             'reported_at' => $this->reported_at ?? now(),
@@ -159,6 +184,27 @@ class LaporanInsiden extends Model
             'rejected_at'      => now(),
             'rejection_reason' => $reason,
         ]);
+    }
+
+    /** Tim mutu menyelesaikan investigasi */
+    public function selesaikanInvestigasi(int $userId): void
+    {
+        $this->update([
+            'investigation_completed_by' => $userId,
+            'investigation_completed_at' => now(),
+        ]);
+    }
+
+    /** Check if investigation has started */
+    public function hasInvestigationStarted(): bool
+    {
+        return !empty($this->investigation_started_at);
+    }
+
+    /** Check if investigation is completed */
+    public function isInvestigationCompleted(): bool
+    {
+        return !empty($this->investigation_completed_at);
     }
 
     protected static function boot()
