@@ -113,6 +113,11 @@ class LaporanInsiden extends Model
     /** Kepala unit memverifikasi (selesai grading & analisis), teruskan ke tim mutu */
     public function verifikasiLaporan(int $userId): void
     {
+
+        if ($this->grading_risiko === null) {
+            throw new \Exception('Laporan harus memiliki grading risiko untuk diverifikasi.');
+        }
+
         $this->update([
             'status'      => self::STATUS_DIVERIFIKASI,
             'verified_by' => $userId,

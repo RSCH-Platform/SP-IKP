@@ -21,10 +21,21 @@ class DraftReportsStatsWidget extends BaseWidget
     {
         $query = LaporanInsiden::query();
 
-        if (!auth()->user()?->can('viewAllData', LaporanInsiden::class)) {
-            $unitIds = auth()->user()->unitKerja()->pluck('id');
-            $query->whereIn('unit_kerja_id', $unitIds);
+        $user = auth()->user();
+
+        // if user only has submission permission (no view-any or view-all), restrict to own reports
+        // if ($user && ! $user->can('ViewAllData:LaporanInsiden')) {
+        //     }
+        if ($user->can('Submit:LaporanInsiden')) {
+            $query->where('user_id', $user->getKey());
+
+            return $query;
         }
+
+        // otherwise fall back to unit-based scope as before
+        $unitIds = $user->unitKerja()->pluck('id');
+        dd($unitIds);
+        $query->whereIn('unit_kerja_id', $unitIds);
 
         return $query;
     }

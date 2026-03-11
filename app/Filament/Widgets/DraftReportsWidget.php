@@ -7,6 +7,8 @@ use App\Models\LaporanInsiden;
 use App\Models\User;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -34,8 +36,17 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                 LaporanInsiden::STATUS_REVISI,
             ]);
 
-        $unitIds = auth()->user()->unitKerja()->pluck('id');
-        $query->whereIn('unit_kerja_id', $unitIds);
+        $user = auth()->user();
+
+        if ($user && $user->can('Submit:LaporanInsiden') && ! $user->can('ViewAllData:LaporanInsiden')) {
+            if ($user->can('Submit:LaporanInsiden')) {
+                // only own records when the user is purely a submitter
+                return $query->where('user_id', $user->getKey());
+            }
+
+            $unitIds = $user->unitKerja()->pluck('id');
+            $query->whereIn('unit_kerja_id', $unitIds);
+        }
 
         return $query;
     }
@@ -53,7 +64,6 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                 ->label('Nomor Laporan')
                 ->sortable()
                 ->searchable()
-                ->color('info')
                 ->weight('medium'),
 
             Tables\Columns\TextColumn::make('unitKerja.unit_name')
@@ -94,11 +104,20 @@ class DraftReportsWidget extends BaseWidget implements HasTable
     protected function getTableActions(): array
     {
         return [
-            /*
-                |--------------------------------------------------------------------------
-                | Workflow Pelapor
-                |--------------------------------------------------------------------------
-                */
+            // direct link to the edit page for the record
+            Action::make('edit')
+                ->label('Edit')
+                ->icon('heroicon-m-pencil')
+                ->url(fn($record) => LaporanInsidenResource::getUrl('edit', ['record' => $record->id]))
+                ->openUrlInNewTab(false)
+                ->visible(
+                    fn($record) =>
+                    auth()->user()?->can('Update:LaporanInsiden') &&
+                        in_array($record->status, [
+                            LaporanInsiden::STATUS_DRAFT,
+                            LaporanInsiden::STATUS_REVISI,
+                        ])
+                ),
 
             Action::make('submit_laporan')
                 ->label('Kirim Laporan')

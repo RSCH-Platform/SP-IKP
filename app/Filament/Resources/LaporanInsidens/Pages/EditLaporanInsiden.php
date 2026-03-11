@@ -18,7 +18,12 @@ class EditLaporanInsiden extends EditRecord
 {
     protected static string $resource = LaporanInsidenResource::class;
 
-    // protected string $view = 'filament.resources.laporan-insidens.pages.edit-laporan-insiden';
+    protected string $view = 'filament.resources.laporan-insidens.pages.edit-laporan-insiden';
+
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canEdit($this->getRecord()), 404);
+    }
 
     protected function getHeaderActions(): array
     {
@@ -144,41 +149,6 @@ class EditLaporanInsiden extends EditRecord
 
         // Tombol verifikasi laporan (untuk status dilaporkan)
         if ($this->record->status === LaporanInsiden::STATUS_DILAPORKAN && $user?->can('Verifikasi:LaporanInsiden')) {
-            $actions[] = Action::make('verifikasiLaporan')
-                ->label('Verifikasi & Kirim ke Tim Mutu')
-                ->icon('heroicon-o-check-circle')
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalHeading('Verifikasi Laporan?')
-                ->modalDescription('Setelah diverifikasi, laporan akan dikirim ke tim mutu untuk investigasi.')
-                ->action(function (array $data) {
-                    $this->save();
-
-                    $this->record->update([
-                        'grading_risiko' => $data['grading_risiko'],
-                        'catatan_tambahan' => $data['catatan_tambahan'] ?? $this->record->catatan_tambahan,
-                    ]);
-
-                    $this->record->verifikasiLaporan(auth()->id());
-
-                    $timMutu = User::role(['tim_mutu', 'admin'])->get();
-
-                    Notification::make()
-                        ->title('Laporan berhasil diverifikasi')
-                        ->success()
-                        ->send();
-
-                    if ($timMutu->isNotEmpty()) {
-                        Notification::make()
-                            ->title('Laporan Siap Investigasi')
-                            ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi dan siap untuk investigasi.")
-                            ->info()
-                            ->sendToDatabase($timMutu);
-                    }
-
-                    $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
-                });
-
             $actions[] = Action::make('kembalikanLaporan')
                 ->label('Kembalikan untuk Revisi')
                 ->icon('heroicon-o-arrow-uturn-left')
@@ -212,6 +182,57 @@ class EditLaporanInsiden extends EditRecord
                         ->title('Laporan dikembalikan untuk revisi')
                         ->success()
                         ->send();
+
+                    $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
+                });
+
+            $actions[] = Action::make('verifikasiLaporan')
+                ->label('Verifikasi & Kirim ke Tim Mutu')
+                ->icon('heroicon-o-check-circle')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Verifikasi Laporan?')
+                ->modalDescription('Setelah diverifikasi, laporan akan dikirim ke tim mutu untuk investigasi.')
+                ->action(function () {
+
+                    $this->save();
+
+                    $missing = [];
+
+                    if (!$this->record->grading_risiko) {
+                        $missing[] = 'grading risiko';
+                    }
+
+                    if (!$this->record->catatan_tambahan) {
+                        $missing[] = 'catatan tambahan';
+                    }
+
+                    if ($missing) {
+                        Notification::make()
+                            ->title('Data belum lengkap')
+                            ->body('Harap isi: ' . implode(' dan ', $missing) . ' sebelum memverifikasi laporan.')
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
+                    $this->record->verifikasiLaporan(auth()->id());
+
+                    $timMutu = User::role(['tim_mutu', 'admin'])->get();
+
+                    Notification::make()
+                        ->title('Laporan berhasil diverifikasi')
+                        ->success()
+                        ->send();
+
+                    if ($timMutu->isNotEmpty()) {
+                        Notification::make()
+                            ->title('Laporan Siap Investigasi')
+                            ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi dan siap untuk investigasi.")
+                            ->info()
+                            ->sendToDatabase($timMutu);
+                    }
 
                     $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
                 });

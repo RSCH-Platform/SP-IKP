@@ -42,7 +42,7 @@ class ListLaporanInsidens extends ListRecords
         }
 
         return match ($status) {
-            'draft', 'revisi' => $user->can('Submit:LaporanInsiden') || $user->can('Create:LaporanInsiden'),
+            'draft', 'revisi' => ($user->can('Submit:LaporanInsiden') || $user->can('Create:LaporanInsiden')) && !$user->can('Verifikasi:LaporanInsiden'),
             'dilaporkan' => $user->can('Verifikasi:LaporanInsiden') || $user->can('Kembalikan:LaporanInsiden') || $user->can('Submit:LaporanInsiden'),
             'revisi_unit' => $user->can('Verifikasi:LaporanInsiden'),
             'diverifikasi', 'investigasi' => $user->can('Investigasi:LaporanInsiden') || $user->can('KembalikanUnit:LaporanInsiden'),
@@ -68,6 +68,12 @@ class ListLaporanInsidens extends ListRecords
                 continue;
             }
 
+            if (auth()->user()?->can('ViewAny:LaporanInsiden')) {
+                $tabs['semua'] = Tab::make('Semua Laporan')
+                    ->badge(fn() => $this->baseQuery()->count())
+                    ->badgeColor('gray');
+            }
+
             $tabs[$status] = Tab::make($config['label'])
                 ->badge(fn() => $this->statusCount($status))
                 ->badgeColor($config['color'])
@@ -76,13 +82,6 @@ class ListLaporanInsidens extends ListRecords
                     $query->where('status', $status)
                 );
         }
-
-        if (auth()->user()?->can('ViewAny:LaporanInsiden')) {
-            $tabs['semua'] = Tab::make('Semua Laporan')
-                ->badge(fn() => $this->baseQuery()->count())
-                ->badgeColor('gray');
-        }
-
         return $tabs;
     }
 }

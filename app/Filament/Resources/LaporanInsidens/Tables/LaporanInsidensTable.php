@@ -247,12 +247,7 @@ class LaporanInsidensTable
                                 ->rows(3)
                                 ->default(fn($record) => $record->catatan_tambahan),
                         ])
-                        ->action(function ($record, array $data) {
-                            $record->update([
-                                'grading_risiko' => $data['grading_risiko'],
-                                'catatan_tambahan' => $data['catatan_tambahan'] ?? $record->catatan_tambahan,
-                            ]);
-
+                        ->action(function ($record) {
                             $record->verifikasiLaporan(auth()->id());
 
                             $timMutu = User::role(['tim_mutu', 'admin'])->get();
@@ -367,20 +362,28 @@ class LaporanInsidensTable
                         ->visible(function ($record) {
                             $user = auth()->user();
 
-                            if (! $user || ! $user->can('Update:LaporanInsiden')) {
+                            if (! $user?->can('Update:LaporanInsiden')) {
                                 return false;
                             }
 
-                            if (in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI], true)) {
+                            if (in_array($record->status, [
+                                LaporanInsiden::STATUS_DRAFT,
+                                LaporanInsiden::STATUS_REVISI,
+                            ], true)) {
                                 return $user->can('Submit:LaporanInsiden');
                             }
 
                             if ($record->status === LaporanInsiden::STATUS_DILAPORKAN) {
-                                return $user->can('Verifikasi:LaporanInsiden') || $user->can('Kembalikan:LaporanInsiden');
+                                return $user->can('Verifikasi:LaporanInsiden')
+                                    || $user->can('Kembalikan:LaporanInsiden');
                             }
 
                             if ($record->status === LaporanInsiden::STATUS_REVISI_UNIT) {
                                 return $user->can('Verifikasi:LaporanInsiden');
+                            }
+
+                            if ($record->status === LaporanInsiden::STATUS_INVESTIGASI) {
+                                return $user->can('Investigasi:LaporanInsiden');
                             }
 
                             return false;

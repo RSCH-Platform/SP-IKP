@@ -110,7 +110,16 @@ class LaporanInsidenFormSchema
             ->schema([
                 Grid::make(2)->schema([
                     Hidden::make('nama_pelapor')
-                        ->label(''),
+                        ->dehydrateStateUsing(function ($state, callable $get) {
+                            $user = \App\Models\User::find($get('user_id'));
+                            return $user?->name;
+                        }),
+
+                    Hidden::make('unit_kerja')
+                        ->dehydrateStateUsing(function ($state, callable $get) {
+                            $unit = \App\Models\UnitKerja::find($get('unit_kerja_id'));
+                            return $unit?->unit_name;
+                        }),
 
                     Forms\Components\Select::make('user_id')
                         ->label('Nama Lengkap Pelapor')
@@ -160,6 +169,8 @@ class LaporanInsidenFormSchema
                         ->dehydrated()
                         ->prefixIcon('heroicon-m-user')
                         ->placeholder('Pilih Pelapor'),
+
+
 
                     Forms\Components\Select::make('unit_kerja_id')
                         ->label('Unit Kerja / Departemen')
@@ -386,7 +397,7 @@ class LaporanInsidenFormSchema
                 Forms\Components\Textarea::make('kronologi')
                     ->label('Kronologi Lengkap Insiden')
                     ->required()
-                    ->rows(8)
+                    ->rows(14)
                     ->helperText('Jelaskan secara detail, runtut, dan kronologis bagaimana insiden terjadi dari awal hingga akhir.')
                     ->placeholder('Contoh: Pada pukul 10.00 WIB, pasien sedang berada di ruang rawat inap ketika...')
                     ->columnSpanFull(),

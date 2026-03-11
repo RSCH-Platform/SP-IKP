@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LaporanInsidens\Schemas;
 
+use App\Models\LaporanInsiden;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
@@ -15,6 +16,7 @@ class LaporanInsidenForm
             ->components(
                 Wizard::make([
                     Step::make('Review Laporan Insiden')
+                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT)
                         ->schema([
                             LaporanInsidenFormSchema::sectionPelapor(),
                             LaporanInsidenFormSchema::sectionInsiden(),
@@ -23,13 +25,15 @@ class LaporanInsidenForm
                             LaporanInsidenFormSchema::sectionTindakan(),
                         ]),
                     Step::make('Grading Resiko Laporan Insiden')
-                        // ->hidden(fn() => Auth::user()->can('ViewAllData:LaporanInsiden') || Auth::user()->can('Verifikasi:LaporanInsiden'))
-                        ->hidden()
+                        ->hidden(fn() => !Auth::user()->can('Verifikasi:LaporanInsiden'))
+                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DILAPORKAN)
                         ->schema([
                             LaporanInsidenFormSchema::sectionGradingResiko(),
                         ]),
 
                     Step::make('Review & Submit')
+                        ->hidden(fn() => !Auth::user()->can('Verifikasi:LaporanInsiden'))
+                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DIVERIFIKASI)
                         ->schema([
                             LaporanInsidenFormSchema::sectionCatatanTambahan(),
                         ]),

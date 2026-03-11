@@ -66,14 +66,23 @@ class LaporanInsidenResource extends Resource
         $user = Auth::user();
 
         if ($user->can('ViewAllData:LaporanInsiden')) {
-            return $query; 
-        }   
+            return $query;
+        }
+
+        // if the currently authenticated user only has submit-rights (no ability to view
+        // lists of reports) then limit the query to their own rows. this covers the case
+        // where a 'pelapor' can submit but shouldn't see other people's drafts.
         
-        // Jika user punya permission View dan ViewAny, filter hanya unit kerja user
+        if ($user->can('Submit:LaporanInsiden') && ! $user->can('ViewAllData:LaporanInsiden')) {
+            return $query->where('user_id', $user->getKey());
+        }
+
+        // existing unit‑based scoping when the user may view reports but not everything
         if ($user && $user->hasPermissionTo('View:LaporanInsiden') && $user->hasPermissionTo('ViewAny:LaporanInsiden')) {
             $unitKerjaIds = $user->unitKerja()->pluck('id');
             $query->whereIn('unit_kerja_id', $unitKerjaIds);
         }
+
         return $query;
     }
 }
