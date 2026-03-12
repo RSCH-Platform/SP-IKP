@@ -28,7 +28,7 @@ class LaporanInsidenForm
                             LaporanInsidenFormSchema::sectionInsiden(),
                             LaporanInsidenFormSchema::sectionPasien(),
                             LaporanInsidenFormSchema::sectionKronologi(),
-                            LaporanInsidenFormSchema::sectionKategoriDampak(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT),
+                            LaporanInsidenFormSchema::sectionKategoriDampak()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
                             LaporanInsidenFormSchema::sectionTindakan(),
                             LaporanInsidenFormSchema::sectionCatatanTambahan()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
                         ]),
@@ -42,7 +42,7 @@ class LaporanInsidenForm
                         ]),
 
                     Step::make('Pengumpulan Data')
-                        ->hidden(fn() => !Auth::user()->can('Investigasi:LaporanInsiden'))
+                        ->hidden(fn($record) => !Auth::user()->can('Investigasi:LaporanInsiden') || $record->status !== LaporanInsiden::STATUS_INVESTIGASI)
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
                         ->schema([
                             LaporanInsidenFormSchema::getFieldDataCollection(),

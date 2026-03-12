@@ -39,7 +39,7 @@ trait HasWorkflowSteps
             [
                 'key' => 'investigasi_start',
                 'title' => 'Mulai Investigasi',
-                'desc' => 'Investigasi dimulai oleh tim mutu',
+                'desc' => 'Investigasi dimulai oleh tim mutu & kepala unit',
                 'icon' => 'heroicon-o-play-circle',
                 'message' => 'Tim mutu mulai melakukan pengumpulan data investigasi.',
                 'by_key' => 'investigation_started_by',
@@ -48,7 +48,7 @@ trait HasWorkflowSteps
             [
                 'key' => 'investigasi_complete',
                 'title' => 'Investigasi Selesai',
-                'desc' => 'Investigasi selesai oleh tim mutu',
+                'desc' => 'Investigasi selesai oleh tim mutu & kepala unit',
                 'icon' => 'heroicon-o-check-circle',
                 'message' => 'Tim mutu telah menyelesaikan investigasi dan menentukan akar penyebab serta rekomendasi perbaikan.',
                 'by_key' => 'investigation_completed_by',
