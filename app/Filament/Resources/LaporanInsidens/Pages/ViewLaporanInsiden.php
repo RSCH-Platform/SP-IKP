@@ -8,6 +8,7 @@ use App\Models\LaporanInsiden;
 use App\Models\User;
 use App\Traits\HasWorkflowSteps;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -27,58 +28,103 @@ class ViewLaporanInsiden extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('submit_laporan')
-                ->label('Kirim Laporan')
-                ->icon('heroicon-o-paper-airplane')
-                ->color('warning')
-                ->visible(fn() => $this->canDo(
-                    'Submit:LaporanInsiden',
-                    [LaporanInsiden::STATUS_DRAFT,    LaporanInsiden::STATUS_REVISI,]
-                ) && $this->canEdit())
-                ->requiresConfirmation()
-                ->modalHeading('Kirim Laporan Insiden?')
-                ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi. Pastikan semua data sudah lengkap.')
-                ->action(fn() => $this->submitLaporan()),
+
+            ActionGroup::make([
+
+                Action::make('submit_laporan')
+                    ->label('Kirim ke Verifikasi')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('warning')
+                    ->visible(fn() => $this->canDo(
+                        'Submit:LaporanInsiden',
+                        [
+                            LaporanInsiden::STATUS_DRAFT,
+                            LaporanInsiden::STATUS_REVISI,
+                        ]
+                    ) && $this->canEdit())
+                    ->requiresConfirmation()
+                    ->modalHeading('Kirim Laporan Insiden')
+                    ->modalDescription('Laporan akan dikirim ke kepala unit untuk proses verifikasi. Pastikan seluruh data sudah lengkap.')
+                    ->modalSubmitActionLabel('Kirim Laporan')
+                    ->action(fn() => $this->submitLaporan()),
 
 
-            Action::make('verifikasi_laporan')
-                ->label('Verifikasi Laporan')
-                ->icon('heroicon-o-check-circle')
-                ->color('success')
-                ->visible(fn() => $this->canDo(
-                    'Verifikasi:LaporanInsiden',
-                    LaporanInsiden::STATUS_DILAPORKAN
-                ))
-                ->requiresConfirmation()
-                ->modalHeading('Verifikasi Laporan Insiden?')
-                ->modalDescription('Laporan akan diverifikasi dan diteruskan ke tim mutu.')
-                ->action(fn() => $this->verifikasiLaporan()),
+                Action::make('verifikasi_laporan')
+                    ->label('Verifikasi & Teruskan')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('success')
+                    ->visible(fn() => $this->canDo(
+                        'Verifikasi:LaporanInsiden',
+                        LaporanInsiden::STATUS_DILAPORKAN
+                    ))
+                    ->requiresConfirmation()
+                    ->modalHeading('Verifikasi Laporan')
+                    ->modalDescription('Laporan akan diverifikasi dan diteruskan ke tim mutu untuk investigasi.')
+                    ->modalSubmitActionLabel('Verifikasi')
+                    ->action(fn() => $this->verifikasiLaporan()),
 
 
-            Action::make('kembalikan_laporan')
-                ->label('Kembalikan ke Pelapor')
-                ->icon('heroicon-o-arrow-uturn-left')
-                ->color('danger')
-                ->visible(fn() => $this->canDo(
-                    'Kembalikan:LaporanInsiden',
-                    LaporanInsiden::STATUS_DILAPORKAN
-                ))
-                ->schema([
-                    Textarea::make('rejection_reason')
-                        ->label('Alasan Pengembalian')
-                        ->placeholder('Jelaskan apa yang perlu diperbaiki oleh pelapor...')
-                        ->required()
-                        ->minLength(10)
-                        ->rows(4),
-                ])
-                ->modalHeading('Kembalikan Laporan ke Pelapor')
-                ->modalSubmitActionLabel('Kembalikan')
-                ->action(fn(array $data) => $this->kembalikanLaporan($data)),
+                Action::make('kembalikan_laporan')
+                    ->label('Kembalikan ke Pelapor')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('danger')
+                    ->visible(fn() => $this->canDo(
+                        'Kembalikan:LaporanInsiden',
+                        LaporanInsiden::STATUS_DILAPORKAN
+                    ))
+                    ->schema([
+                        Textarea::make('rejection_reason')
+                            ->label('Alasan Pengembalian')
+                            ->placeholder('Tuliskan apa yang perlu diperbaiki oleh pelapor...')
+                            ->required()
+                            ->minLength(10)
+                            ->rows(4),
+                    ])
+                    ->modalHeading('Kembalikan Laporan')
+                    ->modalDescription('Laporan akan dikembalikan ke pelapor untuk diperbaiki.')
+                    ->modalSubmitActionLabel('Kembalikan')
+                    ->action(fn(array $data) => $this->kembalikanLaporan($data)),
+
+            ])
+                ->label('Aksi Cepat')
+                ->icon('heroicon-o-bolt')
+                ->color('primary')
+                ->button(),
+
+
+
 
             EditAction::make()
-                ->label('Edit Laporan')
-                ->icon('heroicon-o-pencil-square')
+                ->label(fn() => match ($this->record->status) {
+
+                    LaporanInsiden::STATUS_DRAFT => 'Lengkapi Laporan',
+
+                    LaporanInsiden::STATUS_REVISI => 'Perbaiki Laporan',
+
+                    LaporanInsiden::STATUS_DILAPORKAN => 'Lihat Laporan',
+
+                    LaporanInsiden::STATUS_DIVERIFIKASI => 'Tinjau Laporan',
+
+                    LaporanInsiden::STATUS_INVESTIGASI => 'Process Investigasi',
+
+                    default => 'Edit Laporan',
+                })
+                ->icon(fn() => match ($this->record->status) {
+
+                    LaporanInsiden::STATUS_DRAFT => 'heroicon-o-pencil',
+
+                    LaporanInsiden::STATUS_REVISI => 'heroicon-o-pencil-square',
+
+                    LaporanInsiden::STATUS_DILAPORKAN => 'heroicon-o-eye',
+
+                    LaporanInsiden::STATUS_DIVERIFIKASI => 'heroicon-o-document-text',
+
+                    LaporanInsiden::STATUS_INVESTIGASI => 'heroicon-o-folder-open',
+
+                    default => 'heroicon-o-pencil-square',
+                })
                 ->visible(fn() => $this->canEdit()),
+
         ];
     }
 

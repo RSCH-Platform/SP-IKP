@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
+use App\Models\TimelineEvent;
+use App\Models\TimelineEntry;
 
 class LaporanInsiden extends Model
 {
@@ -119,6 +123,22 @@ class LaporanInsiden extends Model
     public function investigationCompleter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'investigation_completed_by');
+    }
+
+    /**
+     * Events that belong to this incident report.
+     */
+    public function timelineEvents(): HasMany
+    {
+        return $this->hasMany(TimelineEvent::class);
+    }
+
+    /**
+     * Shortcut to all timeline entries through events.
+     */
+    public function timelineEntries(): HasManyThrough
+    {
+        return $this->hasManyThrough(TimelineEntry::class, TimelineEvent::class);
     }
 
     // --- Workflow transition methods ---

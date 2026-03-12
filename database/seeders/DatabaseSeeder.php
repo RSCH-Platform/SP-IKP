@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             UnitKerjaSeeder::class,
             UserSeeder::class,
             LaporanInsidenSeeder::class,
+            TimelineCategorySeeder::class,
         ]);
     }
 }

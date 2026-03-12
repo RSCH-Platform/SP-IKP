@@ -643,7 +643,6 @@ class LaporanInsidenFormSchema
                                         ->count()
                                 )
                                 ->schema([
-
                                     Repeater::make('interview_data')
                                         ->relationship(
                                             'investigationData',
@@ -674,7 +673,7 @@ class LaporanInsidenFormSchema
 
                                 ]),
 
-                    /*
+                            /*
                     |--------------------------------------------------------------------------
                     | TAB REVIEW DOKUMEN
                     |--------------------------------------------------------------------------
@@ -792,6 +791,49 @@ class LaporanInsidenFormSchema
 
                     ->persistTabInQueryString()
 
+            ])
+            ->collapsible();
+    }
+
+    public static function getFieldTabularTimeline(): Section
+    {
+        return Section::make('📊 Tabular Timeline')
+            ->description('Timeline kejadian dalam format kronologi investigasi')
+            ->schema([
+                Repeater::make('timelineEvents')
+                    ->relationship('timelineEvents')
+                    ->label('Timeline Kejadian')
+                    ->schema([
+                        DateTimePicker::make('event_datetime')
+                            ->label('Tanggal & Waktu Kejadian')
+                            ->required()
+                            ->seconds(false)
+                            ->native(false),
+
+                        Repeater::make('entries')
+                            ->relationship('entries')
+                            ->label('Entri Kategori')
+                            ->schema([
+                                Select::make('category_id')
+                                    ->label('Kategori')
+                                    ->relationship('category', 'name')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload(),
+
+                                Textarea::make('description')
+                                    ->label('Deskripsi')
+                                    ->rows(3)
+                                    ->required(),
+                            ])
+                            ->addActionLabel('Tambah Entri')
+                            ->reorderable()
+                            ->collapsible(),
+                    ])
+                    ->addActionLabel('Tambah Timeline Kejadian')
+                    ->reorderable()
+                    ->collapsible()
+                    ->itemLabel(fn(array $state) => $state['event_datetime'] ?? 'Timeline Event'),
             ])
             ->collapsible();
     }
