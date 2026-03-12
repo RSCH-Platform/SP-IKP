@@ -223,14 +223,15 @@ class EditLaporanInsiden extends EditRecord
         $actions = [];
         $user = Auth::user();
 
-        // Save button for draft/revisi/revisi_unit statuses
+        // Save button for draft/revisi/revisi_unit/investigasi statuses
         if (
             ($user?->can('Submit:LaporanInsiden') && in_array($this->record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI], true))
             || ($user?->can('Verifikasi:LaporanInsiden') && $this->record->status === LaporanInsiden::STATUS_REVISI_UNIT)
+            || ($user?->can('Investigasi:LaporanInsiden') && $this->record->status === LaporanInsiden::STATUS_INVESTIGASI)
         ) {
             $actions[] = Action::make('save')
                 ->label('Simpan Perubahan')
-                ->color('gray')
+                ->color('success')
                 ->icon('heroicon-o-check')
                 ->action('save');
         }

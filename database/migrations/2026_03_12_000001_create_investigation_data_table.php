@@ -34,6 +34,18 @@ return new class extends Migration
             // File path for uploaded documents or evidence photos
             $table->string('file_path')->nullable();
 
+            // Who performed this investigation data collection
+            $table->foreignId('investigated_by')
+                ->nullable()
+                ->constrained('users')
+                ->cascadeOnDelete();
+
+            // When the investigation was performed
+            $table->datetime('investigated_at')->nullable();
+
+            // Status of investigation data collection
+            $table->string('status')->default('draft'); // draft, completed
+
             // User who created this record
             $table->foreignId('created_by')
                 ->nullable()

@@ -28,6 +28,7 @@ class InvestigationData extends Model
     ];
 
     protected $casts = [
+        'investigated_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -41,7 +42,15 @@ class InvestigationData extends Model
     }
 
     /**
-     * Get the user who created this investigation data
+     * Get the user who investigated (performed the investigation)
+     */
+    public function investigator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'investigated_by');
+    }
+
+    /**
+     * Get the user who created this investigation data record
      */
     public function creator(): BelongsTo
     {

@@ -3,6 +3,12 @@
 namespace App\Filament\Resources\LaporanInsidens\Schemas;
 
 use App\Models\LaporanInsiden;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
@@ -20,6 +26,7 @@ class LaporanInsidenForm
                         ->schema([
                             LaporanInsidenFormSchema::sectionPelapor(),
                             LaporanInsidenFormSchema::sectionInsiden(),
+                            LaporanInsidenFormSchema::sectionPasien(),
                             LaporanInsidenFormSchema::sectionKronologi(),
                             LaporanInsidenFormSchema::sectionKategoriDampak(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT),
                             LaporanInsidenFormSchema::sectionTindakan(),
@@ -36,8 +43,10 @@ class LaporanInsidenForm
 
                     Step::make('Pengumpulan Data')
                         ->hidden(fn() => !Auth::user()->can('Investigasi:LaporanInsiden'))
-                        ->disabled(fn($record) => !($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
-                        ->schema([]),
+                        ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
+                        ->schema([
+                            LaporanInsidenFormSchema::getFieldDataCollection(),
+                        ]),
                 ])
             )->columns(1);
     }
