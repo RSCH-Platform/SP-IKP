@@ -209,6 +209,52 @@ class EditLaporanInsiden extends EditRecord
         }
     }
 
+    public function mulaiInvestigasi(): void
+    {
+        try {
+            $this->save();
+
+            $this->record->mulaiInvestigasi(Auth::id());
+
+            Notification::make()
+                ->title('Investigasi dimulai')
+                ->body('Tim mutu mulai pengumpulan data investigasi.')
+                ->success()
+                ->send();
+
+            $this->redirect(LaporanInsidenResource::getUrl('edit', ['record' => $this->record->id]));
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Gagal memulai investigasi')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function selesaikanInvestigasi(): void
+    {
+        try {
+            $this->save();
+
+            $this->record->selesaikanInvestigasi(Auth::id());
+
+            Notification::make()
+                ->title('Investigasi selesai')
+                ->body('Pengumpulan data investigasi telah diselesaikan.')
+                ->success()
+                ->send();
+
+            $this->redirect(LaporanInsidenResource::getUrl('view', ['record' => $this->record->id]));
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Gagal menyelesaikan investigasi')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -307,6 +353,30 @@ class EditLaporanInsiden extends EditRecord
                 ->action(function (array $data) {
                     $this->verifikasiUlang($data);
                 });
+        }
+
+        // Start investigation button for investigasi status (not yet started)
+        if ($this->record->status === LaporanInsiden::STATUS_INVESTIGASI && !$this->record->investigation_started_at && $user?->can('Investigasi:LaporanInsiden')) {
+            $actions[] = Action::make('mulaiInvestigasi')
+                ->label('Mulai Investigasi')
+                ->icon('heroicon-o-play-circle')
+                ->color('info')
+                ->requiresConfirmation()
+                ->modalHeading('Mulai Investigasi?')
+                ->modalDescription('Investigasi akan dimulai. Tim dapat mulai mengumpulkan data investigasi.')
+                ->action('mulaiInvestigasi');
+        }
+
+        // Complete investigation button for investigasi status (started but not completed)
+        if ($this->record->status === LaporanInsiden::STATUS_INVESTIGASI && $this->record->investigation_started_at && !$this->record->investigation_completed_at && $user?->can('Investigasi:LaporanInsiden')) {
+            $actions[] = Action::make('selesaikanInvestigasi')
+                ->label('Selesaikan Investigasi')
+                ->icon('heroicon-o-check-circle')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Selesaikan Investigasi?')
+                ->modalDescription('Pengumpulan data investigasi telah selesai. Laporan akan langsung masuk ke view page.')
+                ->action('selesaikanInvestigasi');
         }
 
         return $actions;

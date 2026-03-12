@@ -43,7 +43,7 @@ class LaporanInsidenForm
 
                     Step::make('Pengumpulan Data')
                         ->hidden(fn() => !Auth::user()->can('Investigasi:LaporanInsiden'))
-                        ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
+                        ->disabled(fn($record) => !($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
                         ->schema([
                             LaporanInsidenFormSchema::getFieldDataCollection(),
                         ]),

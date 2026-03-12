@@ -350,7 +350,7 @@
                     x-show="!open"
                     x-transition.opacity
                     class="px-6 py-4">
-                    @php    
+                    @php
                     $current = collect($this->getWorkflowSteps())
                     ->first(fn($s) => $this->getStepStatus($s['key'], $record->status) === 'current');
                     @endphp
@@ -365,17 +365,15 @@
                         <div>
                             <div class="font-semibold text-slate-900 dark:text-slate-100">
                                 {{ $current['title'] }}
+                                <span class="ml-auto rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                    proses
+                                </span>
                             </div>
 
                             <div class="text-sm text-slate-500 dark:text-slate-400">
                                 {{ $current['desc'] }}
                             </div>
                         </div>
-
-                        <span class="ml-auto rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                            proses
-                        </span>
-
                     </div>
                     @endif
                 </div>
