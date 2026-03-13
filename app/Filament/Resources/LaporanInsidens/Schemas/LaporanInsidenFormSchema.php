@@ -28,6 +28,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Wizard\Step;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -907,8 +908,8 @@ class LaporanInsidenFormSchema
                         Select::make('problem_type')
                             ->label('Jenis Masalah')
                             ->options([
-                                'CMP' => 'CMP',
-                                'SDP' => 'SDP',
+                                'CMP' => 'CMP (Clinical Management Problem)',
+                                'SDP' => 'SDP (Service Delivery Problem)',
                             ])
                             ->required(),
 
@@ -933,7 +934,12 @@ class LaporanInsidenFormSchema
                                     ->numeric()
                                     ->minValue(1)
                                     ->maxValue(5)
-                                    ->required(),
+                                    ->default(1)
+                                    ->required()
+                                    ->extraInputAttributes(['min' => 1, 'max' => 5])
+                                    ->prefix('🔹 WHY ')
+                                    ->disabled(fn(callable $get) => filled($get('../../id')))
+                                    ->helperText('Otomatis terisi berdasarkan urutan (1-5)'),
 
                                 Textarea::make('problem_statement')
                                     ->label('Masalah')
@@ -949,19 +955,21 @@ class LaporanInsidenFormSchema
                                     ->rows(2),
 
                             ])
-                            ->addActionLabel('Tambah WHY')
+                            ->addActionLabel('➕ Tambah WHY (Max 5)')
                             ->reorderable()
                             ->collapsible()
+                            ->maxItems(5)
+                            ->minItems(1)
                             ->itemLabel(function (array $state): ?string {
 
-                                $level = $state['why_level'] ?? null;
+                                $level = $state['why_level'] ?? 1;
                                 $problem = $state['problem_statement'] ?? null;
 
-                                if ($level && $problem) {
+                                if ($problem) {
                                     return "WHY {$level}: " . Str::limit($problem, 40);
                                 }
 
-                                return null;
+                                return "WHY {$level}";
                             }),
 
                         /*
@@ -1030,7 +1038,28 @@ class LaporanInsidenFormSchema
                                             ->orderBy('name')
                                             ->pluck('name', 'id');
                                     })
-                                    ->required(),
+                                    ->live()
+                                    ->afterStateUpdated(function (Set $set, Get $get) {
+                                        $subComponentId = $get('sub_component_id');
+
+                                        if (!$subComponentId) {
+                                            $set('description', null);
+                                            return;
+                                        }
+
+                                        // Auto-populate description dengan semua deskripsi dari database
+                                        $descriptions = ProblemContributorDescription::where('sub_component_id', $subComponentId)
+                                            ->orderBy('id')
+                                            ->pluck('description')
+                                            ->toArray();
+
+                                        if (!empty($descriptions)) {
+                                            $autoFilled = implode("\n", array_map(fn($desc) => "• {$desc}", $descriptions));
+                                            $set('description', $autoFilled);
+                                        } else {
+                                            $set('description', null);
+                                        }
+                                    }),
 
                                 Hidden::make('sub_component')
                                     ->dehydrateStateUsing(function ($state, callable $get) {
@@ -1040,7 +1069,7 @@ class LaporanInsidenFormSchema
 
                                 Textarea::make('description')
                                     ->label('Deskripsi')
-                                    ->rows(2)
+                                    ->rows(10)
                                     ->hint(function (Get $get) {
                                         $subComponentId = $get('sub_component_id');
 
@@ -1048,11 +1077,8 @@ class LaporanInsidenFormSchema
                                             return null;
                                         }
 
-                                        $descriptions = ProblemContributorDescription::where('sub_component_id', $subComponentId)
-                                            ->pluck('description')
-                                            ->first();
-
-                                        return $descriptions ? "💡 " . $descriptions : null;
+                                        $count = ProblemContributorDescription::where('sub_component_id', $subComponentId)->count();
+                                        return $count > 0 ? "💡 {$count} deskripsi tersedia (auto-filled)" : null;
                                     }),
                             ])
                             ->addActionLabel('Tambah Faktor')
