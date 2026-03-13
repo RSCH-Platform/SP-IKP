@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('problem_contributors', function (Blueprint $table) {
             $table->unsignedBigInteger('sub_component_id')->nullable()->after('problem_id')->index();
-            $table->foreign('sub_component_id')
+            $table->foreign('sub_component_id', 'fk_contrib_subcomp_id')
                 ->references('id')
                 ->on('problem_contributor_sub_components')
                 ->onDelete('set null');

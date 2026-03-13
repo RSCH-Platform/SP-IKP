@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('sub_component_id')->index();
             $table->text('description');
             $table->timestamps();
-            $table->foreign('sub_component_id')
+            $table->foreign('sub_component_id', 'fk_desc_subcomp_id')
                 ->references('id')
                 ->on('problem_contributor_sub_components')
                 ->onDelete('cascade');

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id')->index();
             $table->string('name');
             $table->timestamps();
-            $table->foreign('category_id')
+            $table->foreign('category_id', 'fk_comp_category_id')
                 ->references('id')
                 ->on('problem_contributor_categories')
                 ->onDelete('cascade');
