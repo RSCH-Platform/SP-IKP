@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             LaporanInsidenSeeder::class,
             TimelineCategorySeeder::class,
+            ProblemContributorSeeder::class,
         ]);
     }
 }

@@ -55,6 +55,13 @@ class LaporanInsidenForm
                         ->schema([
                             LaporanInsidenFormSchema::getFieldTabularTimeline(),
                         ]),
+
+                    Step::make('Analisa Masalah')
+                        ->hidden(fn($record) => !Auth::user()->can('Investigasi:LaporanInsiden') || $record->status !== LaporanInsiden::STATUS_INVESTIGASI)
+                        ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
+                        ->schema([
+                            LaporanInsidenFormSchema::getFieldProblemAnalysis(),
+                        ]),
                 ])
             )->columns(1);
     }

@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\LaporanInsidens\Schemas;
 
+use App\Models\TimelineCategory;
 use App\Models\UnitKerja;
 use App\Models\User;
+use App\Models\ProblemContributor;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
@@ -23,6 +26,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard\Step;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Form;
 
 class LaporanInsidenFormSchema
@@ -630,10 +634,10 @@ class LaporanInsidenFormSchema
                         return [
 
                             /*
-                    |--------------------------------------------------------------------------
-                    | TAB INTERVIEW
-                    |--------------------------------------------------------------------------
-                    */
+                            |--------------------------------------------------------------------------
+                            | TAB INTERVIEW
+                            |--------------------------------------------------------------------------
+                            */
 
                             Tab::make('Interview')
                                 ->icon('heroicon-m-microphone')
@@ -666,18 +670,27 @@ class LaporanInsidenFormSchema
 
 
                                         ])
-
                                         ->addActionLabel('Tambah Interview')
                                         ->reorderable()
                                         ->collapsible()
+                                        ->itemLabel(function (array $state): ?string {
+                                            $sumber = $state['sumber'] ?? null;
+                                            $hasil = $state['hasil'] ?? null;
+
+                                            if ($sumber && $hasil) {
+                                                return "Interview dengan {$sumber}";
+                                            }
+
+                                            return null;
+                                        })
 
                                 ]),
 
                             /*
-                    |--------------------------------------------------------------------------
-                    | TAB REVIEW DOKUMEN
-                    |--------------------------------------------------------------------------
-                    */
+                            |--------------------------------------------------------------------------
+                            | TAB REVIEW DOKUMEN
+                            |--------------------------------------------------------------------------
+                            */
 
                             Tab::make('Review Dokumen')
                                 ->icon('heroicon-m-document-text')
@@ -726,14 +739,24 @@ class LaporanInsidenFormSchema
                                         ->addActionLabel('Tambah Review Dokumen')
                                         ->reorderable()
                                         ->collapsible()
+                                        ->itemLabel(function (array $state): ?string {
+                                            $sumber = $state['sumber'] ?? null;
+                                            $hasil = $state['hasil'] ?? null;
+
+                                            if ($sumber && $hasil) {
+                                                return "Review Dokumen: {$sumber}";
+                                            }
+
+                                            return null;
+                                        })
 
                                 ]),
 
                             /*
-                    |--------------------------------------------------------------------------
-                    | TAB OBSERVASI
-                    |--------------------------------------------------------------------------
-                    */
+                            |--------------------------------------------------------------------------
+                            | TAB OBSERVASI
+                            |--------------------------------------------------------------------------
+                            */
 
                             Tab::make('Observasi')
                                 ->icon('heroicon-m-eye')
@@ -783,6 +806,16 @@ class LaporanInsidenFormSchema
                                         ->addActionLabel('Tambah Observasi')
                                         ->reorderable()
                                         ->collapsible()
+                                        ->itemLabel(function (array $state): ?string {
+                                            $lokasi = $state['lokasi'] ?? null;
+                                            $hasil = $state['hasil'] ?? null;
+
+                                            if ($lokasi && $hasil) {
+                                                return "Observasi di {$lokasi}";
+                                            }
+
+                                            return null;
+                                        })
 
                                 ]),
 
@@ -807,8 +840,7 @@ class LaporanInsidenFormSchema
                         DateTimePicker::make('event_datetime')
                             ->label('Tanggal & Waktu Kejadian')
                             ->required()
-                            ->seconds(false)
-                            ->native(false),
+                            ->seconds(false),
 
                         Repeater::make('entries')
                             ->relationship('entries')
@@ -816,7 +848,7 @@ class LaporanInsidenFormSchema
                             ->schema([
                                 Select::make('category_id')
                                     ->label('Kategori')
-                                    ->relationship('category', 'name')
+                                    ->relationship('category', 'name', fn($query) => $query->orderBy('id'))
                                     ->required()
                                     ->searchable()
                                     ->preload(),
@@ -828,12 +860,308 @@ class LaporanInsidenFormSchema
                             ])
                             ->addActionLabel('Tambah Entri')
                             ->reorderable()
-                            ->collapsible(),
+                            ->collapsible()
+                            ->itemLabel(function (array $state): ?string {
+                                $category_id = $state['category_id'] ?? null;
+                                $description = $state['description'] ?? null;
+
+                                $category = TimelineCategory::find($category_id)?->name ?? null;
+                                if ($category && $description) {
+                                    return "{$category}: " . Str::limit($description, 50);
+                                }
+
+                                return null;
+                            })
                     ])
                     ->addActionLabel('Tambah Timeline Kejadian')
                     ->reorderable()
                     ->collapsible()
-                    ->itemLabel(fn(array $state) => $state['event_datetime'] ?? 'Timeline Event'),
+                    ->itemLabel(function (array $state): ?string {
+                        $datetime = $state['event_datetime'] ?? null;
+
+                        if ($datetime) {
+                            return "Kejadian pada " . date('d F Y, H:i', strtotime($datetime));
+                        }
+
+                        return null;
+                    })
+            ])
+            ->collapsible();
+    }
+
+    public static function getFieldProblemAnalysis(): Section
+    {
+        return Section::make('🧠 Analisa Masalah (5 WHY)')
+            ->description('Analisis akar masalah berdasarkan metode 5 WHY')
+            ->schema([
+
+                Repeater::make('problems')
+                    ->relationship('problems')
+                    ->label('Masalah (CMP / SDP)')
+                    ->schema([
+
+                        Select::make('problem_type')
+                            ->label('Jenis Masalah')
+                            ->options([
+                                'CMP' => 'CMP',
+                                'SDP' => 'SDP',
+                            ])
+                            ->required(),
+
+                        Textarea::make('problem_description')
+                            ->label('Deskripsi Masalah')
+                            ->rows(3)
+                            ->required(),
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | 5 WHY ANALYSIS
+                        |--------------------------------------------------------------------------
+                        */
+
+                        Repeater::make('whys')
+                            ->relationship('whys')
+                            ->label('Analisa 5 WHY')
+                            ->schema([
+
+                                TextInput::make('why_level')
+                                    ->label('WHY ke')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->maxValue(5)
+                                    ->required(),
+
+                                Textarea::make('problem_statement')
+                                    ->label('Masalah')
+                                    ->rows(2)
+                                    ->required(),
+
+                                Textarea::make('immediate_cause')
+                                    ->label('Penyebab Langsung')
+                                    ->rows(2),
+
+                                Textarea::make('root_cause')
+                                    ->label('Akar Masalah')
+                                    ->rows(2),
+
+                            ])
+                            ->addActionLabel('Tambah WHY')
+                            ->reorderable()
+                            ->collapsible()
+                            ->itemLabel(function (array $state): ?string {
+
+                                $level = $state['why_level'] ?? null;
+                                $problem = $state['problem_statement'] ?? null;
+
+                                if ($level && $problem) {
+                                    return "WHY {$level}: " . Str::limit($problem, 40);
+                                }
+
+                                return null;
+                            }),
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | FAKTOR KONTRIBUTOR
+                        |--------------------------------------------------------------------------
+                        */
+
+                        Repeater::make('contributors')
+                            ->relationship('contributors')
+                            ->label('Faktor Kontributor')
+                            ->schema([
+
+                                Select::make('category')
+                                    ->label('Kategori')
+                                    ->options([
+                                        'staf' => 'A. Faktor Staf',
+                                        'pasien' => 'B. Faktor Pasien',
+                                        'eksternal' => 'C. Faktor Eksternal',
+                                        'fasyankes' => 'D. Faktor Fasyankes',
+                                        'lingkungan' => 'E. Faktor Lingkungan',
+                                    ])
+                                    ->required()
+                                    ->live()
+                                    ->afterStateUpdated(fn(callable $set) => $set('component', null)),
+
+                                Select::make('component')
+                                    ->label('Komponen')
+                                    ->searchable()
+                                    ->options(function (Get $get) {
+                                        $category = $get('category');
+
+                                        if (!$category) {
+                                            return [];
+                                        }
+
+                                        return \App\Models\ProblemContributor::where('category', $category)
+                                            ->distinct('component')
+                                            ->pluck('component', 'component')
+                                            ->sort()
+                                            ->all();
+                                    })
+                                    ->required()
+                                    ->live()
+                                    ->afterStateUpdated(fn(callable $set) => $set('sub_component', null)),
+
+                                Select::make('sub_component')
+                                    ->label('Sub Komponen')
+                                    ->searchable()
+                                    ->options(function (Get $get) {
+                                        $category = $get('category');
+                                        $component = $get('component');
+
+                                        if (!$category || !$component) {
+                                            return [];
+                                        }
+
+                                        return \App\Models\ProblemContributor::where('category', $category)
+                                            ->where('component', $component)
+                                            ->distinct('sub_component')
+                                            ->pluck('sub_component', 'sub_component')
+                                            ->sort()
+                                            ->all();
+                                    })
+                                    ->required(),
+
+                                Textarea::make('description')
+                                    ->label('Deskripsi')
+                                    ->rows(2)
+                                    ->hint(function (Get $get) {
+                                        $category = $get('category');
+                                        $component = $get('component');
+                                        $sub_component = $get('sub_component');
+
+                                        if (!$category || !$component || !$sub_component) {
+                                            return null;
+                                        }
+
+                                        $suggestion = \App\Models\ProblemContributor::where('category', $category)
+                                            ->where('component', $component)
+                                            ->where('sub_component', $sub_component)
+                                            ->value('description');
+
+                                        return $suggestion ? "💡 " . $suggestion : null;
+                                    }),
+                            ])
+                            ->addActionLabel('Tambah Faktor')
+                            ->reorderable()
+                            ->collapsible()
+                            ->itemLabel(function (array $state): ?string {
+
+                                $category = $state['category'] ?? null;
+                                $component = $state['component'] ?? null;
+                                $sub = $state['sub_component'] ?? null;
+
+                                if ($category && $component && $sub) {
+                                    return "{$category} > {$component} > {$sub}";
+                                }
+
+                                if ($category && $component) {
+                                    return "{$category} > {$component}";
+                                }
+
+                                return $category;
+                            }),
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | REKOMENDASI
+                        |--------------------------------------------------------------------------
+                        */
+
+                        Repeater::make('recommendations')
+                            ->relationship('recommendations')
+                            ->label('Rekomendasi')
+                            ->schema([
+
+                                Textarea::make('recommendation_text')
+                                    ->label('Rekomendasi')
+                                    ->rows(2)
+                                    ->required(),
+
+                                Select::make('priority')
+                                    ->label('Prioritas')
+                                    ->options([
+                                        'low' => 'Low',
+                                        'medium' => 'Medium',
+                                        'high' => 'High',
+                                    ]),
+                            ])
+                            ->addActionLabel('Tambah Rekomendasi')
+                            ->reorderable()
+                            ->collapsible()
+                            ->itemLabel(function (array $state): ?string {
+
+                                $text = $state['recommendation_text'] ?? null;
+
+                                if ($text) {
+                                    return Str::limit($text, 50);
+                                }
+
+                                return null;
+                            }),
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | TINDAKAN
+                        |--------------------------------------------------------------------------
+                        */
+
+                        Repeater::make('actions')
+                            ->relationship('actions')
+                            ->label('Tindakan')
+                            ->schema([
+
+                                Textarea::make('action_text')
+                                    ->label('Tindakan')
+                                    ->rows(2)
+                                    ->required(),
+
+                                TextInput::make('responsible_person')
+                                    ->label('Penanggung Jawab'),
+
+                                DatePicker::make('deadline')
+                                    ->label('Deadline'),
+
+                                Select::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        'pending' => 'Pending',
+                                        'ongoing' => 'Ongoing',
+                                        'completed' => 'Completed',
+                                    ])
+                                    ->default('pending'),
+                            ])
+                            ->addActionLabel('Tambah Tindakan')
+                            ->reorderable()
+                            ->collapsible()
+                            ->itemLabel(function (array $state): ?string {
+
+                                $action = $state['action_text'] ?? null;
+
+                                if ($action) {
+                                    return Str::limit($action, 50);
+                                }
+
+                                return null;
+                            }),
+
+                    ])
+                    ->addActionLabel('Tambah Masalah')
+                    ->reorderable()
+                    ->collapsible()
+                    ->itemLabel(function (array $state): ?string {
+
+                        $type = $state['problem_type'] ?? null;
+                        $desc = $state['problem_description'] ?? null;
+
+                        if ($type && $desc) {
+                            return "{$type}: " . Str::limit($desc, 50);
+                        }
+
+                        return $type;
+                    }),
             ])
             ->collapsible();
     }
