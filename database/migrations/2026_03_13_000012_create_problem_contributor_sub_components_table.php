@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('problem_contributor_sub_components', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('component_id')
-                ->constrained('problem_contributor_components')
-                ->onDelete('cascade')
-                ->index();
+            $table->unsignedBigInteger('component_id')->index();
             $table->string('name');
             $table->timestamps();
+            $table->foreign('component_id')
+                ->references('id')
+                ->on('problem_contributor_components')
+                ->onDelete('cascade');
         });
     }
 

@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('problem_contributors', function (Blueprint $table) {
-            $table->foreignId('sub_component_id')
-                ->nullable()
-                ->after('problem_id')
-                ->constrained('problem_contributor_sub_components')
+            $table->unsignedBigInteger('sub_component_id')->nullable()->after('problem_id')->index();
+            $table->foreign('sub_component_id')
+                ->references('id')
+                ->on('problem_contributor_sub_components')
                 ->onDelete('set null');
         });
     }
