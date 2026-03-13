@@ -6,6 +6,10 @@ use App\Models\TimelineCategory;
 use App\Models\UnitKerja;
 use App\Models\User;
 use App\Models\ProblemContributor;
+use App\Models\ProblemContributorCategory;
+use App\Models\ProblemContributorComponent;
+use App\Models\ProblemContributorSubComponent;
+use App\Models\ProblemContributorDescription;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -971,77 +975,84 @@ class LaporanInsidenFormSchema
                             ->label('Faktor Kontributor')
                             ->schema([
 
-                                Select::make('category')
+                                Select::make('category_id')
                                     ->label('Kategori')
-                                    ->options([
-                                        'staf' => 'A. Faktor Staf',
-                                        'pasien' => 'B. Faktor Pasien',
-                                        'eksternal' => 'C. Faktor Eksternal',
-                                        'fasyankes' => 'D. Faktor Fasyankes',
-                                        'lingkungan' => 'E. Faktor Lingkungan',
-                                    ])
+                                    ->searchable()
+                                    ->preload()
+                                    ->relationship('category', 'name', fn($query) => $query->orderBy('name'))
                                     ->required()
                                     ->live()
-                                    ->afterStateUpdated(fn(callable $set) => $set('component', null)),
+                                    ->afterStateUpdated(fn(callable $set) => $set('component_id', null)),
 
-                                Select::make('component')
+                                Hidden::make('category')
+                                    ->dehydrateStateUsing(function ($state, callable $get) {
+                                        $categoryId = $get('category_id');
+                                        return $categoryId ? ProblemContributorCategory::find($categoryId)?->code : null;
+                                    }),
+
+                                Select::make('component_id')
                                     ->label('Komponen')
                                     ->searchable()
+                                    ->preload()
                                     ->options(function (Get $get) {
-                                        $category = $get('category');
+                                        $categoryId = $get('category_id');
 
-                                        if (!$category) {
+                                        if (!$categoryId) {
                                             return [];
                                         }
 
-                                        return \App\Models\ProblemContributor::where('category', $category)
-                                            ->distinct('component')
-                                            ->pluck('component', 'component')
-                                            ->sort()
-                                            ->all();
+                                        return ProblemContributorComponent::where('category_id', $categoryId)
+                                            ->orderBy('name')
+                                            ->pluck('name', 'id');
                                     })
                                     ->required()
                                     ->live()
-                                    ->afterStateUpdated(fn(callable $set) => $set('sub_component', null)),
+                                    ->afterStateUpdated(fn(callable $set) => $set('sub_component_id', null)),
 
-                                Select::make('sub_component')
+                                Hidden::make('component')
+                                    ->dehydrateStateUsing(function ($state, callable $get) {
+                                        $componentId = $get('component_id');
+                                        return $componentId ? ProblemContributorComponent::find($componentId)?->name : null;
+                                    }),
+
+                                Select::make('sub_component_id')
                                     ->label('Sub Komponen')
                                     ->searchable()
+                                    ->preload()
                                     ->options(function (Get $get) {
-                                        $category = $get('category');
-                                        $component = $get('component');
+                                        $componentId = $get('component_id');
 
-                                        if (!$category || !$component) {
+                                        if (!$componentId) {
                                             return [];
                                         }
 
-                                        return \App\Models\ProblemContributor::where('category', $category)
-                                            ->where('component', $component)
-                                            ->distinct('sub_component')
-                                            ->pluck('sub_component', 'sub_component')
-                                            ->sort()
-                                            ->all();
+                                        return ProblemContributorSubComponent::where('component_id', $componentId)
+                                            ->orderBy('name')
+                                            ->pluck('name', 'id');
                                     })
                                     ->required(),
+
+                                Hidden::make('sub_component')
+                                    ->dehydrateStateUsing(function ($state, callable $get) {
+                                        $subComponentId = $get('sub_component_id');
+                                        return $subComponentId ? ProblemContributorSubComponent::find($subComponentId)?->name : null;
+                                    }),
 
                                 Textarea::make('description')
                                     ->label('Deskripsi')
                                     ->rows(2)
                                     ->hint(function (Get $get) {
-                                        $category = $get('category');
-                                        $component = $get('component');
-                                        $sub_component = $get('sub_component');
+                                        $subComponentId = $get('sub_component_id');
 
-                                        if (!$category || !$component || !$sub_component) {
+                                        if (!$subComponentId) {
                                             return null;
                                         }
 
-                                        $suggestion = \App\Models\ProblemContributor::where('category', $category)
-                                            ->where('component', $component)
-                                            ->where('sub_component', $sub_component)
-                                            ->value('description');
+                                        $descriptions = ProblemContributorDescription::where('sub_component_id', $subComponentId)
+                                            ->pluck('description')
+                                            ->first();
 
-                                        return $suggestion ? "💡 " . $suggestion : null;
+                                        return $descriptions ? "💡 " . $descriptions : null;
                                     }),
                             ])
                             ->addActionLabel('Tambah Faktor')
@@ -1049,9 +1060,13 @@ class LaporanInsidenFormSchema
                             ->collapsible()
                             ->itemLabel(function (array $state): ?string {
 
-                                $category = $state['category'] ?? null;
-                                $component = $state['component'] ?? null;
-                                $sub = $state['sub_component'] ?? null;
+                                $categoryId = $state['category_id'] ?? null;
+                                $componentId = $state['component_id'] ?? null;
+                                $subId = $state['sub_component_id'] ?? null;
+
+                                $category = $categoryId ? ProblemContributorCategory::find($categoryId)?->name : null;
+                                $component = $componentId ? ProblemContributorComponent::find($componentId)?->name : null;
+                                $sub = $subId ? ProblemContributorSubComponent::find($subId)?->name : null;
 
                                 if ($category && $component && $sub) {
                                     return "{$category} > {$component} > {$sub}";

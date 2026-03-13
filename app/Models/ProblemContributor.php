@@ -15,6 +15,12 @@ class ProblemContributor extends Model
     protected $fillable = [
         'problem_id',
         'sub_component_id',
+        'category_id',
+        'component_id',
+        'category',
+        'component',
+        'sub_component',
+        'description',
     ];
 
     public function problem(): BelongsTo
@@ -25,6 +31,16 @@ class ProblemContributor extends Model
     public function subComponent(): BelongsTo
     {
         return $this->belongsTo(ProblemContributorSubComponent::class, 'sub_component_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ProblemContributorCategory::class, 'category_id');
+    }
+
+    public function component(): BelongsTo
+    {
+        return $this->belongsTo(ProblemContributorComponent::class, 'component_id');
     }
 
     /**
