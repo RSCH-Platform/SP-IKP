@@ -141,6 +141,14 @@ class LaporanInsiden extends Model
         return $this->hasManyThrough(TimelineEntry::class, TimelineEvent::class);
     }
 
+    /**
+     * Root cause analysis problems for this incident.
+     */
+    public function problems(): HasMany
+    {
+        return $this->hasMany(IncidentProblem::class, 'incident_id');
+    }
+
     // --- Workflow transition methods ---
 
     /** Pelapor mengirim laporan ke kepala unit */
