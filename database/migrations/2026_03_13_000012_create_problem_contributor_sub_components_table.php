@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('problem_contributor_sub_components', function (Blueprint $table) {
             $table->id();
             $table->foreignId('component_id')
-                ->constrained('problem_contributor_components', 'id', 'problem_contributor_sub_components_component_id_foreign')
+                ->constrained('problem_contributor_components')
                 ->onDelete('cascade')
                 ->index();
             $table->string('name');

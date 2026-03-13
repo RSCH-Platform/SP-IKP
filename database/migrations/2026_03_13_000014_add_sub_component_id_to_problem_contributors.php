@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignId('sub_component_id')
                 ->nullable()
                 ->after('problem_id')
-                ->constrained('problem_contributor_sub_components', 'id', 'problem_contributors_sub_component_id_foreign')
+                ->constrained('problem_contributor_sub_components')
                 ->onDelete('set null');
         });
     }
