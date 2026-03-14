@@ -77,7 +77,7 @@ class SuperAdminAccessTest extends TestCase
         $this->assertTrue($user->can('ViewAny:LaporanInsiden'));
 
         // Filament default dashboard path
-        $response = $this->actingAs($user)->get('/admin');
+        $response = $this->actingAs($user)->get('/');
         $response->assertStatus(200);
     }
 
@@ -101,7 +101,7 @@ class SuperAdminAccessTest extends TestCase
                     "Role '{$role->name}' should have at least one permission."
                 );
 
-                $response = $this->actingAs($user)->get('/admin');
+                $response = $this->actingAs($user)->get('/');
                 $response->assertStatus(200);
             } catch (\Throwable $e) {
                 $failed[] = "{$role->name}: {$e->getMessage()}";
