@@ -6,7 +6,9 @@ use App\Models\User;
 use Database\Seeders\ShieldSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class SuperAdminAccessTest extends TestCase
@@ -65,6 +67,45 @@ class SuperAdminAccessTest extends TestCase
         // Filament default dashboard path
         $response = $this->actingAs($user)->get('/admin');
         $response->assertStatus(200);
+    }
+
+    public function test_all_roles_have_a_user_and_can_access_dashboard(): void
+    {
+        $failed = [];
+
+        foreach (Role::all() as $role) {
+            $nip = Str::of($role->name)->replace('_', '.')->append('.0000')->__toString();
+
+            $user = User::updateOrCreate(
+                ['nip' => $nip],
+                [
+                    'name' => "Test {$role->name}",
+                    'no_hp' => '081200000000',
+                    'password' => bcrypt('Rschjaya123'),
+                ]
+            );
+
+            $user->syncRoles([$role->name]);
+
+            try {
+                $this->assertTrue($user->hasRole($role->name));
+
+                $this->assertNotEmpty(
+                    $user->getAllPermissions(),
+                    "Role '{$role->name}' should have at least one permission."
+                );
+
+                $response = $this->actingAs($user)->get('/admin');
+                $response->assertStatus(200);
+            } catch (\Throwable $e) {
+                $failed[] = "{$role->name}: {$e->getMessage()}";
+            }
+        }
+
+        $this->assertEmpty(
+            $failed,
+            "Some roles failed access checks:\n" . implode("\n", $failed)
+        );
     }
 
     public function test_super_admin_gets_403_when_requesting_external_host_url(): void
