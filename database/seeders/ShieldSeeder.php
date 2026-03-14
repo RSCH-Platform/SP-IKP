@@ -103,14 +103,6 @@ class ShieldSeeder extends Seeder
             ]);
         }
 
-        // create widget permissions as well
-        foreach ($widgetPermissions as $permission) {
-            Permission::firstOrCreate([
-                'name' => $permission,
-                'guard_name' => $guard,
-            ]);
-        }
-
         /*
         |--------------------------------------------------------------------------
         | Roles
