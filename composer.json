@@ -53,9 +53,9 @@
             "rm -rf ./storage/debugbar/*.json",
             "@php artisan migrate:fresh",
             "@php artisan shield:generate --all --panel=admin",
+            "@php artisan db:seed --class=DatabaseSeeder",
             "@php artisan shield:super-admin --user=1",
-            "git clean -f && git reset --hard",
-            "@php artisan db:seed --class=DatabaseSeeder"
+            "git clean -f && git reset --hard"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
