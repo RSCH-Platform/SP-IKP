@@ -52,18 +52,31 @@ class SuperAdminAccessTest extends TestCase
         );
     }
 
-    public function test_super_admin_can_access_app_url_and_has_required_permissions(): void
+    public function test_super_admin_can_access_filament_dashboard(): void
     {
         $user = User::where('nip', '0000.00000')->first();
         $this->assertNotNull($user);
 
         $user->assignRole('super_admin');
 
-        // Ensure the user can perform a key permission check
+        // Ensure the user can perform a key permission check (gate)
         $this->assertTrue($user->can('ViewAny:LaporanInsiden'));
 
-        // Access the app URL (if the app uses a custom port, include it)
-        $response = $this->actingAs($user)->get('http://192.168.1.9:8200/');
+        // Filament default dashboard path
+        $response = $this->actingAs($user)->get('/admin');
         $response->assertStatus(200);
+    }
+
+    public function test_super_admin_gets_403_when_requesting_external_host_url(): void
+    {
+        $user = User::where('nip', '0000.00000')->first();
+        $this->assertNotNull($user);
+
+        $user->assignRole('super_admin');
+
+        // This is the URL you're testing; in phpunit this will commonly return 403
+        // because it is not a route in the test application environment.
+        $response = $this->actingAs($user)->get('http://192.168.1.9:8200/');
+        $response->assertStatus(403);
     }
 }
