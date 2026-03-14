@@ -72,7 +72,7 @@ class LaporanInsidenResource extends Resource
         $query = parent::getEloquentQuery();
         $user = Auth::user();
 
-        if ($user->can('ViewAllData:LaporanInsiden')) {
+        if ($user->can('ForceEdit:LaporanInsiden') || $user->can('ViewAllData:LaporanInsiden')) {
             return $query;
         }
 

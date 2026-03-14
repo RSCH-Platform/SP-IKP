@@ -25,6 +25,11 @@ class LaporanInsidenPolicy
 
     public function view(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
+        // Force edit users should always be able to view the record for editing
+        if ($authUser->can('ForceEdit:LaporanInsiden')) {
+            return true;
+        }
+
         // Jika punya permission ViewAllData, bisa lihat semua laporan
         if ($authUser->can('ViewAllData:LaporanInsiden')) {
             return true;
@@ -41,11 +46,17 @@ class LaporanInsidenPolicy
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:LaporanInsiden'); 
+        return $authUser->can('Create:LaporanInsiden');
     }
 
     public function update(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
+        // allow users with a force-edit permission to edit even when the normal
+        // update/submit workflow would block them
+        if ($authUser->can('ForceEdit:LaporanInsiden')) {
+            return true;
+        }
+
         return $authUser->can('Update:LaporanInsiden');
     }
 

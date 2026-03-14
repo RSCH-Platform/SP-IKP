@@ -25,14 +25,12 @@ class SuperAdminAccessTest extends TestCase
 
     public function test_user_with_nip_0000_exists_and_is_super_admin(): void
     {
-        $user = User::updateOrCreate(
-            ['nip' => '0000.00000'],
-            [
-                'name' => 'Super Admin',
-                'no_hp' => '081234567890',
-                'password' => bcrypt('Rschjaya123'),
-            ]
-        );
+        $user = User::firstOrNew(['nip' => '0000.00000']);
+        $user->name = 'Super Admin';
+        $user->email = 'superadmin@example.test';
+        $user->no_hp = '081234567890';
+        $user->password = bcrypt('Rschjaya123');
+        $user->save();
 
         $user->assignRole('super_admin');
 
@@ -51,6 +49,21 @@ class SuperAdminAccessTest extends TestCase
             $permissionNames->toArray(),
             $superAdmin->getAllPermissions()->pluck('name')->toArray(),
             'Super admin should have all permissions.'
+        );
+    }
+
+    public function test_force_edit_permission_is_created_and_assigned_to_admin(): void
+    {
+        $this->assertTrue(
+            Permission::where('name', 'ForceEdit:LaporanInsiden')->exists(),
+            'Expected ForceEdit:LaporanInsiden permission to exist.'
+        );
+
+        $adminRole = Role::where('name', 'admin')->first();
+        $this->assertNotNull($adminRole);
+        $this->assertTrue(
+            $adminRole->hasPermissionTo('ForceEdit:LaporanInsiden'),
+            'Admin role should have ForceEdit:LaporanInsiden permission.'
         );
     }
 
@@ -76,14 +89,12 @@ class SuperAdminAccessTest extends TestCase
         foreach (Role::all() as $role) {
             $nip = Str::of($role->name)->replace('_', '.')->append('.0000')->__toString();
 
-            $user = User::updateOrCreate(
-                ['nip' => $nip],
-                [
-                    'name' => "Test {$role->name}",
-                    'no_hp' => '081200000000',
-                    'password' => bcrypt('Rschjaya123'),
-                ]
-            );
+            $user = User::firstOrNew(['nip' => $nip]);
+            $user->name = "Test {$role->name}";
+            $user->email = "{$role->name}@example.test";
+            $user->no_hp = '081200000000';
+            $user->password = bcrypt('Rschjaya123');
+            $user->save();
 
             $user->syncRoles([$role->name]);
 

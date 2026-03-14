@@ -47,6 +47,7 @@ class ShieldSeeder extends Seeder
             'Kembalikan:LaporanInsiden',      // kepala_unit: kembalikan ke pelapor → revisi
             'Investigasi:LaporanInsiden',     // tim_mutu: mulai investigasi → investigasi
             'KembalikanUnit:LaporanInsiden',  // tim_mutu: kembalikan ke kepala_unit → revisi_unit
+            'ForceEdit:LaporanInsiden',       // custom: force edit (override workflow locking)
         ];
 
         /*
@@ -166,7 +167,8 @@ class ShieldSeeder extends Seeder
                 'Investigasi:LaporanInsiden',
                 'KembalikanUnit:LaporanInsiden',
                 'View:PelaporanInsiden',
-                'ViewAllData:LaporanInsiden'
+                'ViewAllData:LaporanInsiden',
+                'ForceEdit:LaporanInsiden',
             ]);
 
         $roleInstances['admin']->syncPermissions($adminPermissions);

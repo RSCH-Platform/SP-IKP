@@ -369,6 +369,11 @@ class LaporanInsidensTable
                         ->visible(function ($record) {
                             $user = auth()->user();
 
+                            // Force-edit permission bypasses workflow restrictions
+                            if ($user?->can('ForceEdit:LaporanInsiden')) {
+                                return true;
+                            }
+
                             if (! $user?->can('Update:LaporanInsiden')) {
                                 return false;
                             }
