@@ -22,10 +22,10 @@ class LaporanInsidenForm
             ->components(
                 Wizard::make([
                     Step::make('Review Laporan Insiden')
-                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT)
+                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT || Auth::user()->can('ForceEdit:LaporanInsiden'))
                         ->schema([
                             LaporanInsidenFormSchema::sectionPelapor(),
-                            LaporanInsidenFormSchema::sectionInsiden(),
+                            LaporanInsidenFormSchema::sectionInsiden(), 
                             LaporanInsidenFormSchema::sectionPasien(),
                             LaporanInsidenFormSchema::sectionKronologi(),
                             LaporanInsidenFormSchema::sectionKategoriDampak()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
@@ -34,7 +34,7 @@ class LaporanInsidenForm
                         ]),
                     // Step::make('Grading Resiko & Catatan Tambahan') (Laporan Status: Dilaporkan)
                     Step::make('Grading Resiko & Catatan Tambahan')
-                        ->hidden(fn($record) => !Auth::user()->can('Verifikasi:LaporanInsiden') || $record->status !== LaporanInsiden::STATUS_DILAPORKAN)
+                        ->hidden(fn($record) => !Auth::user()->can('Verifikasi:LaporanInsiden') && in_array($record->status, [LaporanInsiden::STATUS_DILAPORKAN, LaporanInsiden::STATUS_REVISI_UNIT]))
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_DILAPORKAN))
                         ->schema([
                             LaporanInsidenFormSchema::sectionGradingResiko(),

@@ -10,6 +10,7 @@ use App\Traits\HasWorkflowSteps;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -57,6 +58,24 @@ class ViewLaporanInsiden extends ViewRecord
                         'Verifikasi:LaporanInsiden',
                         LaporanInsiden::STATUS_DILAPORKAN
                     ))
+                    ->schema([
+                        Select::make('grading_risiko')
+                            ->label('Grading Risiko')
+                            ->required()
+                            ->options([
+                                'Biru' => 'Biru',
+                                'Hijau' => 'Hijau',
+                                'Kuning' => 'Kuning',
+                                'Merah' => 'Merah',
+                                'Hitam' => 'Hitam',
+                            ])
+                            ->native(false)
+                            ->default(fn() => $this->record->grading_risiko),
+                        Textarea::make('catatan_tambahan')
+                            ->label('Catatan Verifikasi')
+                            ->rows(3)
+                            ->default(fn() => $this->record->catatan_tambahan),
+                    ])
                     ->requiresConfirmation()
                     ->modalHeading('Verifikasi Laporan')
                     ->modalDescription('Laporan akan diverifikasi dan diteruskan ke tim mutu untuk investigasi.')
