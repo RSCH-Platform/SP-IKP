@@ -60,12 +60,6 @@ class ShieldSeeder extends Seeder
             'View:PelaporanInsiden',  // akses halaman form pelaporan insiden
         ];
 
-        // custom widget permissions
-        $widgetPermissions = [
-            'viewWidget:LaporanStatsWidget',
-            'viewWidget:DraftReportsWidget',
-        ];
-
         /*
         |--------------------------------------------------------------------------
         | Resources
@@ -187,8 +181,8 @@ class ShieldSeeder extends Seeder
             'View:PelaporanInsiden',
 
             // Widget permissions
-            'viewWidget:LaporanStatsWidget',
-            'viewWidget:DraftReportsWidget',
+            'View:LaporanStatsWidget',
+            'View:DraftReportsWidget',
         ]);
 
         // Tim mutu → investigasi & kembalikan ke kepala unit
@@ -220,8 +214,8 @@ class ShieldSeeder extends Seeder
             'View:PelaporanInsiden',
 
             // Widgets Permission 
-            'viewWidget:LaporanStatsWidget',
-            'viewWidget:DraftReportsWidget',
+            'View:LaporanStatsWidget',
+            'View:DraftReportsWidget',
         ]);
 
         /*
@@ -232,8 +226,8 @@ class ShieldSeeder extends Seeder
          */
         foreach ($roleInstances as $role) {
             if ($role->hasPermissionTo('ViewAny:LaporanInsiden') || $role->hasPermissionTo('ViewAllData:LaporanInsiden')) {
-                $role->givePermissionTo('viewWidget:LaporanStatsWidget');
-                $role->givePermissionTo('viewWidget:DraftReportsWidget');
+                $role->givePermissionTo('View:LaporanStatsWidget');
+                $role->givePermissionTo('View:DraftReportsWidget');
             }
         }
     }

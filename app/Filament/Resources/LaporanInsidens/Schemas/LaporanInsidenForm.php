@@ -13,11 +13,19 @@ use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class LaporanInsidenForm
 {
     public static function configure(Schema $schema): Schema
     {
+        dd([
+            'roles' => Role::with('permissions')->get()->map(fn(Role $role) => [
+                'name' => $role->name,
+                'permissions' => $role->permissions->pluck('name')->toArray(),
+            ]),
+        ]);
         return $schema
             ->components(
                 Wizard::make([
@@ -25,7 +33,7 @@ class LaporanInsidenForm
                         ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT || Auth::user()->can('ForceEdit:LaporanInsiden'))
                         ->schema([
                             LaporanInsidenFormSchema::sectionPelapor(),
-                            LaporanInsidenFormSchema::sectionInsiden(), 
+                            LaporanInsidenFormSchema::sectionInsiden(),
                             LaporanInsidenFormSchema::sectionPasien(),
                             LaporanInsidenFormSchema::sectionKronologi(),
                             LaporanInsidenFormSchema::sectionKategoriDampak()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
