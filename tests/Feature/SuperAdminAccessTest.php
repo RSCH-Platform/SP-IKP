@@ -128,7 +128,7 @@ class SuperAdminAccessTest extends TestCase
 
         // This is the URL you're testing; in phpunit this will commonly return 403
         // because it is not a route in the test application environment.
-        $response = $this->actingAs($user)->get('http://192.168.1.9:8200/');
+        $response = $this->actingAs($user)->get('http://127.0.0.1:8200/');
         $response->assertStatus(403);
     }
 }
