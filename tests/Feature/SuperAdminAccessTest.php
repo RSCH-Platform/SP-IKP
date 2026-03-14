@@ -27,7 +27,6 @@ class SuperAdminAccessTest extends TestCase
     {
         $user = User::firstOrNew(['nip' => '0000.00000']);
         $user->name = 'Super Admin';
-        $user->email = 'superadmin@example.test';
         $user->no_hp = '081234567890';
         $user->password = bcrypt('Rschjaya123');
         $user->save();
@@ -87,16 +86,12 @@ class SuperAdminAccessTest extends TestCase
         $failed = [];
 
         foreach (Role::all() as $role) {
-            $nip = Str::of($role->name)->replace('_', '.')->append('.0000')->__toString();
+            $user = User::role($role->name)->first();
 
-            $user = User::firstOrNew(['nip' => $nip]);
-            $user->name = "Test {$role->name}";
-            $user->email = "{$role->name}@example.test";
-            $user->no_hp = '081200000000';
-            $user->password = bcrypt('Rschjaya123');
-            $user->save();
-
-            $user->syncRoles([$role->name]);
+            if (!$user) {
+                $failed[] = "Role '{$role->name}' has no existing user.";
+                continue;
+            }
 
             try {
                 $this->assertTrue($user->hasRole($role->name));
