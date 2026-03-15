@@ -12,6 +12,7 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Schema;
@@ -59,17 +60,25 @@ class ViewLaporanInsiden extends ViewRecord
                         LaporanInsiden::STATUS_DILAPORKAN
                     ))
                     ->schema([
-                        Select::make('grading_risiko')
+                        ToggleButtons::make('grading_risiko')
                             ->label('Grading Risiko')
                             ->required()
                             ->options([
-                                'Biru' => 'Biru',
-                                'Hijau' => 'Hijau',
-                                'Kuning' => 'Kuning',
-                                'Merah' => 'Merah',
-                                'Hitam' => 'Hitam',
+                                'Biru'   => '🔵 Biru (Tidak signifikan)',
+                                'Hijau'  => '🟢 Hijau (Minor)',
+                                'Kuning' => '🟡 Kuning (Moderat)',
+                                'Merah'  => '🔴 Merah (Mayor)',
+                                'Hitam'  => '⚫ Hitam (Katastropik)',
                             ])
-                            ->native(false)
+                            ->colors([
+                                'Biru'   => 'info',
+                                'Hijau'  => 'success',
+                                'Kuning' => 'warning',
+                                'Merah'  => 'danger',
+                                'Hitam'  => 'gray',
+                            ])
+                            ->inline()
+                            ->helperText('Hanya diisi oleh Validator / Tim IKP')
                             ->default(fn() => $this->record->grading_risiko),
                         Textarea::make('catatan_tambahan')
                             ->label('Catatan Verifikasi')
@@ -104,6 +113,30 @@ class ViewLaporanInsiden extends ViewRecord
                     ->modalSubmitActionLabel('Kembalikan')
                     ->action(fn(array $data) => $this->kembalikanLaporan($data)),
 
+
+                Action::make('mulai_investigasi')
+                    ->label('Mulai Investigasi')
+                    ->icon('heroicon-o-magnifying-glass')
+                    ->color('info')
+                    ->visible(
+                        fn($record) =>
+                        auth()->user()?->can('Investigasi:LaporanInsiden') &&
+                            $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
+                    )
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        if (blank($record->grading_risiko)) {
+                            Notification::make()
+                                ->title('Belum bisa investigasi')
+                                ->body('Grading risiko wajib diisi saat verifikasi sebelum memulai investigasi.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        $record->mulaiInvestigasi(auth()->id());
+                    }),
             ])
                 ->label('Aksi Cepat')
                 ->icon('heroicon-o-bolt')

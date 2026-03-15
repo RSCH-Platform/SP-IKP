@@ -493,7 +493,7 @@ class LaporanInsidenFormSchema
                     ->prefixIcon('heroicon-m-heart')
                     ->helperText('Tingkat dampak yang dialami'),
 
-                Forms\Components\TextArea::make('deskripsi_kategori_insiden')
+                Textarea::make('deskripsi_kategori_insiden')
                     ->label('Deskripsi Insiden')
                     ->required()
                     ->rows(8)
@@ -505,11 +505,7 @@ class LaporanInsidenFormSchema
 
         if ($withGrading) {
             $schema[] = static::sectionGradingResiko();
-        } else {
-            $schema[] = TextEntry::make('info_grading')
-                ->state('ℹ️ Catatan: Grading risiko akan diisi oleh Tim IKP / Validator setelah laporan disubmit.')
-                ->columnSpanFull();
-        }
+        } 
 
         return Section::make('⚠️ BAGIAN E: KATEGORI DAN DAMPAK INSIDEN')
             ->description('Klasifikasi jenis dan tingkat dampak insiden yang terjadi')

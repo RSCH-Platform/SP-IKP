@@ -243,6 +243,8 @@ return [
         'Kembalikan:LaporanInsiden',
         'Investigasi:LaporanInsiden',
         'KembalikanUnit:LaporanInsiden',
+        'ForceEdit:LaporanInsiden',
+        'ViewAllData:LaporanInsiden',
     ],
 
     /*

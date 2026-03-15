@@ -20,29 +20,24 @@ class LaporanInsidenForm
 {
     public static function configure(Schema $schema): Schema
     {
-        dd([
-            'roles' => Role::with('permissions')->get()->map(fn(Role $role) => [
-                'name' => $role->name,
-                'permissions' => $role->permissions->pluck('name')->toArray(),
-            ]),
-        ]);
         return $schema
             ->components(
                 Wizard::make([
                     Step::make('Review Laporan Insiden')
-                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT || Auth::user()->can('ForceEdit:LaporanInsiden'))
+                        ->disabled(!Auth::user()->can('ForceEdit:LaporanInsiden'))
                         ->schema([
-                            LaporanInsidenFormSchema::sectionPelapor(),
+                            LaporanInsidenFormSchema::sectionPelapor()->disabled(fn ($record) => !Auth::user()->can('ForceEdit:LaporanInsiden') || Auth::id() !== $record->pelapor_id),
                             LaporanInsidenFormSchema::sectionInsiden(),
                             LaporanInsidenFormSchema::sectionPasien(),
                             LaporanInsidenFormSchema::sectionKronologi(),
-                            LaporanInsidenFormSchema::sectionKategoriDampak()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
+                            LaporanInsidenFormSchema::sectionKategoriDampak(true)->visible(fn($record) => !in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
+                            LaporanInsidenFormSchema::sectionKategoriDampak(false)->visible(fn($record) => in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
                             LaporanInsidenFormSchema::sectionTindakan(),
                             LaporanInsidenFormSchema::sectionCatatanTambahan()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
                         ]),
                     // Step::make('Grading Resiko & Catatan Tambahan') (Laporan Status: Dilaporkan)
                     Step::make('Grading Resiko & Catatan Tambahan')
-                        ->hidden(fn($record) => !Auth::user()->can('Verifikasi:LaporanInsiden') && in_array($record->status, [LaporanInsiden::STATUS_DILAPORKAN, LaporanInsiden::STATUS_REVISI_UNIT]))
+                        ->hidden(fn($record) => !in_array($record->status, [LaporanInsiden::STATUS_DILAPORKAN, LaporanInsiden::STATUS_REVISI_UNIT]))
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_DILAPORKAN))
                         ->schema([
                             LaporanInsidenFormSchema::sectionGradingResiko(),

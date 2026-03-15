@@ -12,6 +12,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
@@ -333,17 +334,25 @@ class EditLaporanInsiden extends EditRecord
                 ->requiresConfirmation()
                 ->modalHeading('Verifikasi Ulang Laporan?')
                 ->schema([
-                    Select::make('grading_risiko')
+                    ToggleButtons::make('grading_risiko')
                         ->label('Grading Risiko')
                         ->required()
                         ->options([
-                            'Biru' => 'Biru',
-                            'Hijau' => 'Hijau',
-                            'Kuning' => 'Kuning',
-                            'Merah' => 'Merah',
-                            'Hitam' => 'Hitam',
+                            'Biru'   => '🔵 Biru (Tidak signifikan)',
+                            'Hijau'  => '🟢 Hijau (Minor)',
+                            'Kuning' => '🟡 Kuning (Moderat)',
+                            'Merah'  => '🔴 Merah (Mayor)',
+                            'Hitam'  => '⚫ Hitam (Katastropik)',
                         ])
-                        ->native(false)
+                        ->colors([
+                            'Biru'   => 'info',
+                            'Hijau'  => 'success',
+                            'Kuning' => 'warning',
+                            'Merah'  => 'danger',
+                            'Hitam'  => 'gray',
+                        ])
+                        ->inline()
+                        ->helperText('Hanya diisi oleh Validator / Tim IKP')
                         ->default(fn() => $this->record->grading_risiko),
                     Textarea::make('catatan_tambahan')
                         ->label('Catatan Verifikasi')

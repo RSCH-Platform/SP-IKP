@@ -13,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -30,22 +31,35 @@ class DraftReportsWidget extends BaseWidget implements HasTable
 
     protected function scopedQuery(): Builder
     {
-        $query = LaporanInsiden::query()
-            ->whereIn('status', [
-                LaporanInsiden::STATUS_DRAFT,
-                LaporanInsiden::STATUS_REVISI,
-            ]);
-
+        $query = LaporanInsiden::query();
         $user = auth()->user();
 
-        if ($user && $user->can('Submit:LaporanInsiden') && ! $user->can('ViewAllData:LaporanInsiden')) {
-            if ($user->can('Submit:LaporanInsiden')) {
-                // only own records when the user is purely a submitter
-                return $query->where('user_id', $user->getKey());
-            }
+        if (! $user) {
+            return $query;
+        }
 
+        // submitter biasa
+        if (
+            $user->can('Submit:LaporanInsiden') &&
+            ! $user->can('ForceEdit:LaporanInsiden') &&
+            ! $user->can('ViewAllData:LaporanInsiden')
+        ) {
+            return $query
+                ->whereIn('status', [
+                    LaporanInsiden::STATUS_DRAFT,
+                    LaporanInsiden::STATUS_REVISI,
+                ])
+                ->where('user_id', $user->getKey());
+        }
+
+        // kepala unit
+        if (
+            $user->can('ForceEdit:LaporanInsiden') &&
+            ! $user->can('ViewAllData:LaporanInsiden')
+        ) {
             $unitIds = $user->unitKerja()->pluck('id');
-            $query->whereIn('unit_kerja_id', $unitIds);
+
+            return $query->whereIn('unit_kerja_id', $unitIds);
         }
 
         return $query;
@@ -154,6 +168,22 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                         ->warning()
                         ->sendToDatabase($kepalaUnits);
                 }),
+        ];
+    }
+
+    public function getTableFilters(): array
+    {
+        return [
+            SelectFilter::make('status')
+                ->label('Status')
+                ->options([
+                    'draft' => 'Draft',
+                    'dilaporkan' => 'Dilaporkan',
+                    'revisi_unit' => 'Revisi Unit',
+                    'revisi' => 'Perlu Revisi',
+                    'diverifikasi' => 'Diverifikasi',
+                    'investigasi' => 'Investigasi',
+                ]),
         ];
     }
 

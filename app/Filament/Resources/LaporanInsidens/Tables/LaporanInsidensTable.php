@@ -47,57 +47,33 @@ class LaporanInsidensTable
                     ->label('No. Laporan')
                     ->icon('heroicon-m-document-text')
                     ->weight('bold')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('tanggal_insiden')
                     ->label('Tanggal Insiden')
                     ->date('d M Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('jenis_insiden')
                     ->label('Jenis')
                     ->badge()
-                    ->searchable(),
-
-                TextColumn::make('kategori_insiden')
-                    ->label('Kategori')
                     ->searchable()
-                    ->limit(35),
-
-                TextColumn::make('lokasi_insiden')
-                    ->label('Lokasi')
-                    ->searchable()
-                    ->limit(35),
-
-                TextColumn::make('nama_pelapor')
-                    ->label('Pelapor')
-                    ->searchable(),
-
-                TextColumn::make('unit_kerja')
-                    ->label('Unit Kerja')
-                    ->formatStateUsing(fn($state, $record) => $state ?: ($record->unitKerja?->unit_name ?? '-'))
-                    ->searchable()
-                    ->toggleable(),
-
-                TextColumn::make('nomor_telepon')
-                    ->label('No. Telepon')
-                    ->copyable()
-                    ->copyMessage('Nomor telepon berhasil disalin!')
-                    ->copyMessageDuration(1500)
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                TextColumn::make('dampak_insiden')
-                    ->label('Dampak')
-                    ->badge()
-                    ->colors([
-                        'success' => 'Tidak ada cedera',
-                        'warning' => ['Cedera ringan', 'Cedera sedang'],
-                        'danger' => ['Cedera berat', 'Meninggal'],
-                    ]),
+                    ->toggleable()
+                    ->color(fn(string $state): string => match ($state) {
+                        'KPC (Kondisi Potensial Cedera)' => 'gray',
+                        'KNC (Kejadian Nyaris Cedera)' => 'warning',
+                        'KTC (Kejadian Tidak Cedera)' => 'info',
+                        'KTD (Kejadian Tidak Diharapkan)' => 'danger',
+                        'Sentinel' => 'danger',
+                        default => 'gray',
+                    }),
 
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
+                    ->toggleable()
                     ->color(fn(string $state): string => match ($state) {
                         'draft'         => 'gray',
                         'dilaporkan'    => 'warning',
@@ -116,6 +92,46 @@ class LaporanInsidensTable
                         'investigasi'   => 'Investigasi',
                         default         => $state,
                     }),
+
+                TextColumn::make('kategori_insiden')
+                    ->label('Kategori')
+                    ->searchable()
+                    ->limit(35)
+                    ->toggleable(),
+
+                TextColumn::make('lokasi_insiden')
+                    ->label('Lokasi')
+                    ->searchable()
+                    ->limit(35)
+                    ->toggleable(),
+
+                TextColumn::make('nama_pelapor')
+                    ->label('Pelapor')
+                    ->searchable()
+                    ->toggleable(),
+
+                TextColumn::make('unit_kerja')
+                    ->label('Unit Kerja')
+                    ->formatStateUsing(fn($state, $record) => $state ?: ($record->unitKerja?->unit_name ?? '-'))
+                    ->searchable()
+                    ->toggleable(),
+
+                TextColumn::make('nomor_telepon')
+                    ->label('No. Telepon')
+                    ->copyable()
+                    ->copyMessage('Nomor telepon berhasil disalin!')
+                    ->copyMessageDuration(1500)
+                    ->toggleable(),
+
+                TextColumn::make('dampak_insiden')
+                    ->label('Dampak')
+                    ->badge()
+                    ->toggleable()
+                    ->colors([
+                        'success' => 'Tidak ada cedera',
+                        'warning' => ['Cedera ringan', 'Cedera sedang'],
+                        'danger' => ['Cedera berat', 'Meninggal'],
+                    ]),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
