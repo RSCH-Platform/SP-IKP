@@ -70,29 +70,6 @@ class LaporanInsidensTable
                         default => 'gray',
                     }),
 
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->toggleable()
-                    ->color(fn(string $state): string => match ($state) {
-                        'draft'         => 'gray',
-                        'dilaporkan'    => 'warning',
-                        'revisi'        => 'danger',
-                        'diverifikasi'  => 'info',
-                        'revisi_unit'   => 'danger',
-                        'investigasi'   => 'success',
-                        default         => 'gray',
-                    })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'draft'         => 'Draft',
-                        'dilaporkan'    => 'Dilaporkan',
-                        'revisi'        => 'Perlu Revisi',
-                        'diverifikasi'  => 'Diverifikasi',
-                        'revisi_unit'   => 'Perlu Revisi (Unit)',
-                        'investigasi'   => 'Investigasi',
-                        default         => $state,
-                    }),
-
                 TextColumn::make('kategori_insiden')
                     ->label('Kategori')
                     ->searchable()
@@ -132,6 +109,30 @@ class LaporanInsidensTable
                         'warning' => ['Cedera ringan', 'Cedera sedang'],
                         'danger' => ['Cedera berat', 'Meninggal'],
                     ]),
+
+
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->toggleable()
+                    ->color(fn(string $state): string => match ($state) {
+                        'draft'         => 'gray',
+                        'dilaporkan'    => 'warning',
+                        'revisi'        => 'danger',
+                        'diverifikasi'  => 'info',
+                        'revisi_unit'   => 'danger',
+                        'investigasi'   => 'success',
+                        default         => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'draft'         => 'Draft',
+                        'dilaporkan'    => 'Dilaporkan',
+                        'revisi'        => 'Perlu Revisi',
+                        'diverifikasi'  => 'Diverifikasi',
+                        'revisi_unit'   => 'Perlu Revisi (Unit)',
+                        'investigasi'   => 'Investigasi',
+                        default         => $state,
+                    }),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
