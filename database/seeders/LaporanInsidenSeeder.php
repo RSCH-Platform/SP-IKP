@@ -85,6 +85,41 @@ class LaporanInsidenSeeder extends Seeder
                         'category_code' => 'kejadian',
                         'description' => $kronologi1,
                     ],
+                    [
+                        'category_code' => 'informasi',
+                        'description' => "Pasien jatuh saat mencoba turun dari tempat tidur tanpa bantuan, side rail sedang terbuka, dan keluarga tidak berada di kamar.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan1->tanggal_insiden->copy()->addHours(3),
+                'entries' => [
+                    [
+                        'category_code' => 'cmp',
+                        'description' => "Kurangnya checklist penutupan side rail setelah pemberian obat memperbesar risiko jatuh.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan1->tanggal_insiden->copy()->addDays(1)->setTime(9, 0),
+                'entries' => [
+                    [
+                        'category_code' => 'sdp',
+                        'description' => "Rencana SOP ditulis untuk memastikan side rail selalu terkunci ketika pasien tidak diawasi.",
+                    ],
+                    [
+                        'category_code' => 'good_practice',
+                        'description' => "Perawat di unit mengadakan 'brainstorming safety' untuk mengurangi risiko jatuh lanjutan.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan1->tanggal_insiden->copy()->addDays(3)->setTime(10, 0),
+                'entries' => [
+                    [
+                        'category_code' => 'informasi',
+                        'description' => "Follow-up dengan keluarga pasien untuk memastikan pemulihan dan kepatuhan terhadap instruksi pasca perawatan.",
+                    ],
                 ],
             ],
         ]);
@@ -135,6 +170,50 @@ class LaporanInsidenSeeder extends Seeder
                     [
                         'category_code' => 'kejadian',
                         'description' => $kronologi2,
+                    ],
+                    [
+                        'category_code' => 'informasi',
+                        'description' => "Kesalahan dosis Clopidogrel terdeteksi sebelum pemberian berkat double-check oleh perawat lain.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan2->tanggal_insiden->copy()->addHours(1),
+                'entries' => [
+                    [
+                        'category_code' => 'cmp',
+                        'description' => "Proses penyiapan obat tidak memiliki mekanisme verifikasi ganda, meningkatkan potensi kesalahan.",
+                    ],
+                    [
+                        'category_code' => 'good_practice',
+                        'description' => "Tim farmasi segera meninjau ulang prosedur penyiapan obat setelah insiden terdeteksi.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan2->tanggal_insiden->copy()->addHours(6),
+                'entries' => [
+                    [
+                        'category_code' => 'sdp',
+                        'description' => "Rekomendasi: Terapkan checklist 6 benar untuk setiap penyiapan obat kritis.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan2->tanggal_insiden->copy()->addDays(1)->setTime(10, 0),
+                'entries' => [
+                    [
+                        'category_code' => 'good_practice',
+                        'description' => "Penerapan sesi training 'double-check' menghasilkan peningkatan kepatuhan tim.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan2->tanggal_insiden->copy()->addDays(2)->setTime(9, 0),
+                'entries' => [
+                    [
+                        'category_code' => 'informasi',
+                        'description' => "Follow-up audit menunjukkan penurunan kesalahan penyiapan obat setelah implementasi checklist.",
                     ],
                 ],
             ],
@@ -187,6 +266,41 @@ class LaporanInsidenSeeder extends Seeder
                         'category_code' => 'kejadian',
                         'description' => $kronologi3,
                     ],
+                    [
+                        'category_code' => 'informasi',
+                        'description' => "Dokter mencurigai SSI dan langsung melakukan kultur serta pemeriksaan lab.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan3->tanggal_insiden->copy()->addDays(1),
+                'entries' => [
+                    [
+                        'category_code' => 'cmp',
+                        'description' => "Kurangnya kontrol aseptik pasca operasi mungkin menjadi penyebab utama infeksi.",
+                    ],
+                    [
+                        'category_code' => 'sdp',
+                        'description' => "Standarisasi perawatan luka perlu diperkuat dengan check list harian.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan3->tanggal_insiden->copy()->addDays(2),
+                'entries' => [
+                    [
+                        'category_code' => 'good_practice',
+                        'description' => "Pasien menjalani terapi antibiotik sesuai sensitivitas dan tim melakukan dokumentasi lengkap.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan3->tanggal_insiden->copy()->addDays(5),
+                'entries' => [
+                    [
+                        'category_code' => 'informasi',
+                        'description' => "Follow-up menunjukkan perbaikan luka, tetapi tim terus memantau hingga sembuh sepenuhnya.",
+                    ],
                 ],
             ],
         ]);
@@ -233,6 +347,28 @@ class LaporanInsidenSeeder extends Seeder
                         'category_code' => 'kejadian',
                         'description' => $kronologi4,
                     ],
+                    [
+                        'category_code' => 'informasi',
+                        'description' => "Hampir terjadi kesalahan identifikasi pasien; tindakan dihentikan dan identitas diverifikasi ulang.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan4->tanggal_insiden->copy()->addHours(4),
+                'entries' => [
+                    [
+                        'category_code' => 'cmp',
+                        'description' => "Tidak ada standar verifikasi ganda untuk nama mirip, sehingga rawan terjadi kesalahan.",
+                    ],
+                ],
+            ],
+            [
+                'event_datetime' => $laporan4->tanggal_insiden->copy()->addDays(1)->setTime(9, 0),
+                'entries' => [
+                    [
+                        'category_code' => 'good_practice',
+                        'description' => "Tim menyiapkan template identifikasi ganda untuk semua pasien dengan nama mirip.",
+                    ],
                 ],
             ],
         ]);
@@ -247,6 +383,7 @@ class LaporanInsidenSeeder extends Seeder
     private function createTimelineForReport(LaporanInsiden $laporan, array $events): void
     {
         $categoryMap = TimelineCategory::all()->keyBy('code');
+        $fallbackCategory = $categoryMap['informasi'] ?? $categoryMap->first();
 
         foreach ($events as $event) {
             $timelineEvent = $laporan->timelineEvents()->create([
@@ -259,16 +396,7 @@ class LaporanInsidenSeeder extends Seeder
 
                 if (! $categoryId && isset($entry['category_code'])) {
                     $category = $categoryMap[$entry['category_code']] ?? null;
-
-                    if (! $category) {
-                        $category = TimelineCategory::firstOrCreate(
-                            ['code' => $entry['category_code']],
-                            ['name' => ucfirst(str_replace('_', ' ', $entry['category_code'])), 'sort_order' => 999]
-                        );
-                        $categoryMap[$entry['category_code']] = $category;
-                    }
-
-                    $categoryId = $category->id;
+                    $categoryId = $category?->id ?? $fallbackCategory?->id;
                 }
 
                 if (! $categoryId) {
