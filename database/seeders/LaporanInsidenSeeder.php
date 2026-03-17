@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\LaporanInsiden;
+use App\Models\TimelineCategory;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -42,7 +43,9 @@ class LaporanInsidenSeeder extends Seeder
         // Laporan 1: KTD - Pasien Jatuh dari Tempat Tidur
         [$reporter, $unitKerja] = $pickReporter();
 
-        LaporanInsiden::create([
+        $kronologi1 = "Pada tanggal " . now()->subDays(3)->format('d F Y') . " pukul 14.30 WIB, pasien Ny. Aminah (67 tahun) sedang beristirahat di tempat tidur ruang Mawar bed 12 setelah selesai makan siang. Pasien dalam kondisi post-operasi katarak hari ke-2.\n\nPada saat perawat sedang melakukan visite ke pasien lain, pasien mencoba turun dari tempat tidur sendiri tanpa memanggil perawat karena ingin ke kamar mandi. Side rail/pengaman tempat tidur dalam posisi terbuka karena sebelumnya perawat sedang memberikan obat oral dan lupa menutup kembali.\n\nKetika pasien mencoba turun, kakinya terpeleset dan jatuh ke lantai dengan posisi miring ke kanan. Terdengar suara keras yang membuat keluarga pasien di bed sebelah berteriak memanggil perawat. Perawat segera datang dan menemukan pasien terjatuh di samping tempat tidur dengan mengeluh nyeri pada pinggul kanan.\n\nKeluarga pasien yang sedang keluar membeli makan tidak berada di ruangan saat kejadian terjadi.";
+
+        $laporan1 = LaporanInsiden::create([
             'user_id' => $reporter->id,
             'unit_kerja_id' => $unitKerja->id,
             'nama_pelapor' => $reporter->name,
@@ -61,7 +64,7 @@ class LaporanInsidenSeeder extends Seeder
             'jenis_kelamin' => 'Perempuan',
             'penanggung_biaya' => 'BPJS',
             'tanggal_masuk_rs' => now()->subDays(5),
-            'kronologi' => "Pada tanggal " . now()->subDays(3)->format('d F Y') . " pukul 14.30 WIB, pasien Ny. Aminah (67 tahun) sedang beristirahat di tempat tidur ruang Mawar bed 12 setelah selesai makan siang. Pasien dalam kondisi post-operasi katarak hari ke-2.\n\nPada saat perawat sedang melakukan visite ke pasien lain, pasien mencoba turun dari tempat tidur sendiri tanpa memanggil perawat karena ingin ke kamar mandi. Side rail/pengaman tempat tidur dalam posisi terbuka karena sebelumnya perawat sedang memberikan obat oral dan lupa menutup kembali.\n\nKetika pasien mencoba turun, kakinya terpeleset dan jatuh ke lantai dengan posisi miring ke kanan. Terdengar suara keras yang membuat keluarga pasien di bed sebelah berteriak memanggil perawat. Perawat segera datang dan menemukan pasien terjatuh di samping tempat tidur dengan mengeluh nyeri pada pinggul kanan.\n\nKeluarga pasien yang sedang keluar membeli makan tidak berada di ruangan saat kejadian terjadi.",
+            'kronologi' => '',
             'insiden_terjadi_pada' => 'Pasien',
             'kategori_insiden' => 'Pasien Jatuh',
             'deskripsi_kategori_insiden' => 'Pasien jatuh dari tempat tidur saat mencoba turun sendiri tanpa memanggil perawat. Side rail tempat tidur dalam kondisi terbuka karena perawat lupa menutup setelah pemberian obat. Pasien post-operasi katarak hari ke-2 dengan faktor risiko usia lanjut (67 tahun) dan penggunaan obat antihipertensi yang dapat menyebabkan pusing. Jatuh mengakibatkan fraktur collum femur dextra yang memerlukan tindakan operasi ORIF.',
@@ -74,10 +77,24 @@ class LaporanInsidenSeeder extends Seeder
             'catatan_tambahan' => 'Side rail tidak terpasang dengan benar. Pasien tidak menggunakan bel panggilan yang sudah tersedia. Perlu edukasi ulang kepada pasien dan keluarga tentang pencegahan jatuh.',
         ]);
 
+        $this->createTimelineForReport($laporan1, [
+            [
+                'event_datetime' => $laporan1->tanggal_insiden,
+                'entries' => [
+                    [
+                        'category_code' => 'kejadian',
+                        'description' => $kronologi1,
+                    ],
+                ],
+            ],
+        ]);
+
         // Laporan 2: KNC - Kesalahan Pemberian Obat yang Terdeteksi
         [$reporter, $unitKerja] = $pickReporter();
 
-        LaporanInsiden::create([
+        $kronologi2 = "Pada tanggal " . now()->subDays(1)->format('d F Y') . " pukul 08.15 WIB, pasien Tn. Rahmat (45 tahun) datang ke IGD dengan keluhan nyeri dada dan sesak napas. Setelah dilakukan pemeriksaan awal dan EKG, dokter jaga (dr. Lisa Permata, Sp.JP) memberikan instruksi verbal untuk pemberian:\n- Aspilet 1x160mg PO\n- ISDN 5mg SL\n- Clopidogrel 1x75mg PO\n\nPetugas farmasi menyiapkan obat dan menyerahkan kepada perawat. Saat perawat akan memberikan obat kepada pasien, perawat lain (Ns. Dewi) yang kebetulan lewat melihat obat yang akan diberikan dan menanyakan \"Ini untuk pasien mana?\"\n\nSetelah dicek kembali, ternyata obat yang disiapkan adalah:\n- Aspilet 1x160mg ✓ (benar)\n- ISDN 5mg SL ✓ (benar) \n- Clopidogrel 1x300mg PO ✗ (SALAH DOSIS - seharusnya 75mg)\n\nKesalahan dosis ini terdeteksi sebelum obat diberikan kepada pasien. Perawat segera mengkonfirmasi ulang ke dokter dan menukar obat dengan dosis yang benar (75mg) sebelum diberikan kepada pasien.";
+
+        $laporan2 = LaporanInsiden::create([
             'user_id' => $reporter->id,
             'unit_kerja_id' => $unitKerja->id,
             'nama_pelapor' => $reporter->name,
@@ -96,7 +113,7 @@ class LaporanInsidenSeeder extends Seeder
             'jenis_kelamin' => 'Laki-laki',
             'penanggung_biaya' => 'Asuransi Swasta',
             'tanggal_masuk_rs' => now()->subDays(1)->setTime(7, 30),
-            'kronologi' => "Pada tanggal " . now()->subDays(1)->format('d F Y') . " pukul 08.15 WIB, pasien Tn. Rahmat (45 tahun) datang ke IGD dengan keluhan nyeri dada dan sesak napas. Setelah dilakukan pemeriksaan awal dan EKG, dokter jaga (dr. Lisa Permata, Sp.JP) memberikan instruksi verbal untuk pemberian:\n- Aspilet 1x160mg PO\n- ISDN 5mg SL\n- Clopidogrel 1x75mg PO\n\nPetugas farmasi menyiapkan obat dan menyerahkan kepada perawat. Saat perawat akan memberikan obat kepada pasien, perawat lain (Ns. Dewi) yang kebetulan lewat melihat obat yang akan diberikan dan menanyakan \"Ini untuk pasien mana?\"\n\nSetelah dicek kembali, ternyata obat yang disiapkan adalah:\n- Aspilet 1x160mg ✓ (benar)\n- ISDN 5mg SL ✓ (benar) \n- Clopidogrel 1x300mg PO ✗ (SALAH DOSIS - seharusnya 75mg)\n\nKesalahan dosis ini terdeteksi sebelum obat diberikan kepada pasien. Perawat segera mengkonfirmasi ulang ke dokter dan menukar obat dengan dosis yang benar (75mg) sebelum diberikan kepada pasien.",
+            'kronologi' => '',
             'insiden_terjadi_pada' => 'Pasien',
             'kategori_insiden' => 'Medication / Cairan IV',
             'deskripsi_kategori_insiden' => 'Kesalahan dosis Clopidogrel yang disiapkan oleh farmasi. Farmasi menyiapkan Clopidogrel 300mg sedangkan yang diresepkan dokter adalah 75mg. Kesalahan terjadi karena kurangnya komunikasi antara dokter-farmasi-perawat dan tidak adanya double-check saat penyiapan obat. Beruntung kesalahan terdeteksi oleh perawat lain sebelum obat diberikan kepada pasien sehingga tidak menimbulkan cedera.',
@@ -111,10 +128,24 @@ class LaporanInsidenSeeder extends Seeder
             'catatan_tambahan' => 'Kejadian ini menunjukkan pentingnya double-check sebelum pemberian obat. Perlu perbaikan sistem komunikasi antara dokter-farmasi-perawat dan penerapan CPPT (Catatan Perkembangan Pasien Terintegrasi) secara konsisten.',
         ]);
 
+        $this->createTimelineForReport($laporan2, [
+            [
+                'event_datetime' => $laporan2->tanggal_insiden,
+                'entries' => [
+                    [
+                        'category_code' => 'kejadian',
+                        'description' => $kronologi2,
+                    ],
+                ],
+            ],
+        ]);
+
         // Laporan 3: KTD - Infeksi Nosokomial Luka Operasi
         [$reporter, $unitKerja] = $pickReporter();
 
-        LaporanInsiden::create([
+        $kronologi3 = "Pasien Ny. Sari (52 tahun) menjalani operasi appendektomi (pengangkatan usus buntu) pada tanggal " . now()->subDays(7)->format('d F Y') . " pukul 10.00 WIB di Kamar Operasi 2.\n\nOperasi berjalan lancar dengan durasi 1 jam 15 menit. Teknik aseptik dan antiseptik telah dilakukan sesuai SOP. Pasien dipindahkan ke ruang pemulihan dalam kondisi stabil.\n\nPada hari ke-3 post operasi (" . now()->subDays(4)->format('d F Y') . "), pasien mengeluh nyeri pada area luka operasi yang semakin meningkat. Perawat melaporkan kepada dokter bahwa:\n- Luka operasi tampak kemerahan di sekitar jahitan\n- Terdapat pembengkakan (edema) di area insisi\n- Keluar cairan serous dari luka\n- Suhu pasien meningkat menjadi 38.5°C\n- Pasien mengeluh nyeri skala 7/10\n\nDokter melakukan pemeriksaan dan mencurigai adanya infeksi luka operasi (Surgical Site Infection/SSI). Dilakukan kultur pus dan tes sensitivitas antibiotik.\n\nHasil kultur (hari ke-5 post-op) menunjukkan pertumbuhan bakteri Staphylococcus aureus yang resisten terhadap beberapa antibiotik.\n\nPasien didiagnosis dengan Infeksi Nosokomial - Surgical Site Infection (SSI) superfisial.";
+
+        $laporan3 = LaporanInsiden::create([
             'user_id' => $reporter->id,
             'unit_kerja_id' => $unitKerja->id,
             'nama_pelapor' => $reporter->name,
@@ -133,7 +164,7 @@ class LaporanInsidenSeeder extends Seeder
             'jenis_kelamin' => 'Perempuan',
             'penanggung_biaya' => 'BPJS',
             'tanggal_masuk_rs' => now()->subDays(10),
-            'kronologi' => "Pasien Ny. Sari (52 tahun) menjalani operasi appendektomi (pengangkatan usus buntu) pada tanggal " . now()->subDays(7)->format('d F Y') . " pukul 10.00 WIB di Kamar Operasi 2.\n\nOperasi berjalan lancar dengan durasi 1 jam 15 menit. Teknik aseptik dan antiseptik telah dilakukan sesuai SOP. Pasien dipindahkan ke ruang pemulihan dalam kondisi stabil.\n\nPada hari ke-3 post operasi (" . now()->subDays(4)->format('d F Y') . "), pasien mengeluh nyeri pada area luka operasi yang semakin meningkat. Perawat melaporkan kepada dokter bahwa:\n- Luka operasi tampak kemerahan di sekitar jahitan\n- Terdapat pembengkakan (edema) di area insisi\n- Keluar cairan serous dari luka\n- Suhu pasien meningkat menjadi 38.5°C\n- Pasien mengeluh nyeri skala 7/10\n\nDokter melakukan pemeriksaan dan mencurigai adanya infeksi luka operasi (Surgical Site Infection/SSI). Dilakukan kultur pus dan tes sensitivitas antibiotik.\n\nHasil kultur (hari ke-5 post-op) menunjukkan pertumbuhan bakteri Staphylococcus aureus yang resisten terhadap beberapa antibiotik.\n\nPasien didiagnosis dengan Infeksi Nosokomial - Surgical Site Infection (SSI) superfisial.",
+            'kronologi' => '',
             'insiden_terjadi_pada' => 'Pasien',
             'kategori_insiden' => 'Infeksi Terkait Pelayanan Kesehatan',
             'deskripsi_kategori_insiden' => 'Infeksi luka operasi (Surgical Site Infection/SSI) superfisial yang terjadi pada hari ke-3 pasca appendektomi. Hasil kultur menunjukkan pertumbuhan Staphylococcus aureus. Diduga terkait dengan kemungkinan kontaminasi saat prosedur operasi atau saat perawatan luka post-operasi. Mengakibatkan perpanjangan masa rawat inap dari 5 hari menjadi 12 hari dan kebutuhan terapi antibiotik tambahan.',
@@ -148,10 +179,24 @@ class LaporanInsidenSeeder extends Seeder
             'catatan_tambahan' => 'Perlu dilakukan audit menyeluruh terhadap prosedur sterilisasi di kamar operasi dan kepatuhan tim bedah terhadap SOP pencegahan infeksi. Surveillance SSI perlu ditingkatkan.',
         ]);
 
+        $this->createTimelineForReport($laporan3, [
+            [
+                'event_datetime' => $laporan3->tanggal_insiden,
+                'entries' => [
+                    [
+                        'category_code' => 'kejadian',
+                        'description' => $kronologi3,
+                    ],
+                ],
+            ],
+        ]);
+
         // Laporan 4: KTC - Kesalahan Identifikasi Pasien (Terdeteksi)
         [$reporter, $unitKerja] = $pickReporter();
 
-        LaporanInsiden::create([
+        $kronologi4 = "Pada tanggal " . now()->format('d F Y') . " pukul " . now()->subHours(6)->format('H:i') . " WIB, terdapat 2 pasien dengan nama yang mirip datang ke laboratorium untuk pengambilan sample darah:\n\n1. Tn. Bambang Sutrisno (58 tahun) - RM: 2024-009012\n   Pemeriksaan: Profil Lipid, GDS, HbA1c\n   \n2. Tn. Bambang Sutriono (56 tahun) - RM: 2024-009015  \n   Pemeriksaan: Fungsi Hati, Fungsi Ginjal\n\nKedua pasien dipanggil hampir bersamaan oleh 2 petugas laboratorium yang berbeda. Petugas A memanggil \"Bapak Bambang\" untuk Tn. Sutrisno, namun yang masuk adalah Tn. Sutriono.\n\nPetugas A sudah menyiapkan tabung sample dengan label nama \"Tn. Bambang Sutrisno - RM 2024-009012\" dan hampir melakukan pengambilan darah.\n\nNamun, sebelum jarum ditusukkan, petugas mengecek kembali identitas dengan bertanya:\n- \"Nama lengkap Bapak?\"\n- Pasien menjawab: \"Bambang Sutriono\"\n\nPetugas menyadari ini bukan pasien yang dimaksud, segera menghentikan tindakan dan meminta pasien untuk kembali ke ruang tunggu. Petugas kemudian memanggil ulang dengan menyebutkan nama lengkap dan nomor rekam medis.\n\nTn. Bambang Sutrisno yang benar kemudian masuk dan pengambilan darah dilakukan dengan identifikasi yang benar.";
+
+        $laporan4 = LaporanInsiden::create([
             'user_id' => $reporter->id,
             'unit_kerja_id' => $unitKerja->id,
             'nama_pelapor' => $reporter->name,
@@ -169,8 +214,7 @@ class LaporanInsidenSeeder extends Seeder
             'kelompok_umur' => '>30 tahun - 65 tahun',
             'jenis_kelamin' => 'Laki-laki',
             'penanggung_biaya' => 'Pribadi',
-            'tanggal_masuk_rs' => now()->subHours(7),
-            'kronologi' => "Pada tanggal " . now()->format('d F Y') . " pukul " . now()->subHours(6)->format('H:i') . " WIB, terdapat 2 pasien dengan nama yang mirip datang ke laboratorium untuk pengambilan sample darah:\n\n1. Tn. Bambang Sutrisno (58 tahun) - RM: 2024-009012\n   Pemeriksaan: Profil Lipid, GDS, HbA1c\n   \n2. Tn. Bambang Sutriono (56 tahun) - RM: 2024-009015  \n   Pemeriksaan: Fungsi Hati, Fungsi Ginjal\n\nKedua pasien dipanggil hampir bersamaan oleh 2 petugas laboratorium yang berbeda. Petugas A memanggil \"Bapak Bambang\" untuk Tn. Sutrisno, namun yang masuk adalah Tn. Sutriono.\n\nPetugas A sudah menyiapkan tabung sample dengan label nama \"Tn. Bambang Sutrisno - RM 2024-009012\" dan hampir melakukan pengambilan darah.\n\nNamun, sebelum jarum ditusukkan, petugas mengecek kembali identitas dengan bertanya:\n- \"Nama lengkap Bapak?\"\n- Pasien menjawab: \"Bambang Sutriono\"\n\nPetugas menyadari ini bukan pasien yang dimaksud, segera menghentikan tindakan dan meminta pasien untuk kembali ke ruang tunggu. Petugas kemudian memanggil ulang dengan menyebutkan nama lengkap dan nomor rekam medis.\n\nTn. Bambang Sutrisno yang benar kemudian masuk dan pengambilan darah dilakukan dengan identifikasi yang benar.",
+            'kronologi' => '',
             'insiden_terjadi_pada' => 'Pasien',
             'kategori_insiden' => 'Dokumentasi Klinis',
             'deskripsi_kategori_insiden' => 'Hampir terjadi kesalahan identifikasi pasien di laboratorium akibat kesamaan nama antara dua pasien yang datang bersamaan (Bambang Sutrisno vs Bambang Sutriono). Petugas laboratorium hanya memanggil nama depan "Bapak Bambang" tanpa menyebutkan nama lengkap atau nomor rekam medis, sehingga pasien yang salah masuk ke area pengambilan darah. Kesalahan berhasil dicegah karena petugas melakukan verifikasi nama lengkap sebelum tindakan.',
@@ -181,10 +225,62 @@ class LaporanInsidenSeeder extends Seeder
             'catatan_tambahan' => 'Insiden ini menunjukkan pentingnya prosedur identifikasi pasien yang ketat. Perlu diterapkan sistem pemanggilan pasien yang lebih aman, misalnya menggunakan nomor antrian atau menyebutkan nama lengkap + tanggal lahir. Pertimbangkan implementasi barcode scanning untuk identifikasi pasien.',
         ]);
 
+        $this->createTimelineForReport($laporan4, [
+            [
+                'event_datetime' => $laporan4->tanggal_insiden,
+                'entries' => [
+                    [
+                        'category_code' => 'kejadian',
+                        'description' => $kronologi4,
+                    ],
+                ],
+            ],
+        ]);
+
         $this->command->info('✅ Berhasil membuat 4 contoh data laporan insiden');
         $this->command->info('   - 1 laporan KTD (Pasien jatuh) - Status: dilaporkan - Grading: Kuning');
         $this->command->info('   - 1 laporan KNC (Kesalahan obat) - Status: investigasi - Grading: Hijau');
         $this->command->info('   - 1 laporan KTD (Infeksi nosokomial) - Status: diverifikasi - Belum grading');
         $this->command->info('   - 1 laporan KTC (Kesalahan identifikasi) - Status: draft - Belum grading');
+    }
+
+    private function createTimelineForReport(LaporanInsiden $laporan, array $events): void
+    {
+        $categoryMap = TimelineCategory::all()->keyBy('code');
+
+        foreach ($events as $event) {
+            $timelineEvent = $laporan->timelineEvents()->create([
+                'event_datetime' => $event['event_datetime'] ?? now(),
+                'created_by' => $laporan->user_id,
+            ]);
+
+            foreach ($event['entries'] as $entry) {
+                $categoryId = $entry['category_id'] ?? null;
+
+                if (! $categoryId && isset($entry['category_code'])) {
+                    $category = $categoryMap[$entry['category_code']] ?? null;
+
+                    if (! $category) {
+                        $category = TimelineCategory::firstOrCreate(
+                            ['code' => $entry['category_code']],
+                            ['name' => ucfirst(str_replace('_', ' ', $entry['category_code'])), 'sort_order' => 999]
+                        );
+                        $categoryMap[$entry['category_code']] = $category;
+                    }
+
+                    $categoryId = $category->id;
+                }
+
+                if (! $categoryId) {
+                    continue;
+                }
+
+                $timelineEvent->entries()->create([
+                    'category_id' => $categoryId,
+                    'description' => $entry['description'] ?? '',
+                    'created_by' => $laporan->user_id,
+                ]);
+            }
+        }
     }
 }

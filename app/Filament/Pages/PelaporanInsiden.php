@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\LaporanInsidens\Schemas\LaporanInsidenFormSchema;
 use App\Models\LaporanInsiden;
+use App\Models\TimelineCategory;
 use App\Models\User;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms;
@@ -62,7 +63,6 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
                 'penanggung_biaya'        => 'BPJS',
                 'tanggal_masuk_rs'        => now()->format('Y-m-d H:i'),
                 'insiden_terjadi_pada'    => 'Pasien',
-                'kronologi'               => '[DEV] Pada pukul 08.00 WIB pasien ditemukan terjatuh di kamar mandi ruang rawat inap. Petugas jaga segera memberikan pertolongan pertama dan menghubungi dokter jaga. Tidak ada luka serius yang ditemukan.',
                 'kategori_insiden'        => 'Pasien Jatuh',
                 'dampak_insiden'          => 'Tidak ada cedera',
                 'deskripsi_kategori_insiden' => '[DEV] Insiden pasien jatuh di kamar mandi disebabkan oleh lantai yang licin dan tidak adanya pegangan. Faktor risiko pasien meliputi usia lanjut dan penggunaan obat antihipertensi.',
@@ -91,7 +91,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
         $data['user_id'] = Auth::id();
         $data['status'] = 'draft';
 
-        LaporanInsiden::create($data);
+        $this->createLaporanWithTimeline($data);
 
         Notification::make()
             ->title('Draft berhasil disimpan')
@@ -108,7 +108,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
         $data['status']      = LaporanInsiden::STATUS_DILAPORKAN;
         $data['reported_at'] = now();
 
-        $laporan = LaporanInsiden::create($data);
+        $laporan = $this->createLaporanWithTimeline($data);
 
         // Notify kepala_unit users about the new report
         $kepalaUnits = User::role('kepala_unit')->get();
@@ -142,5 +142,45 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
                 ->color('primary')
                 ->action('submit'),
         ];
+    }
+
+    private function createLaporanWithTimeline(array $data): LaporanInsiden
+    {
+        $timelineEvents = $data['timelineEvents'] ?? [];
+        unset($data['timelineEvents']);
+
+        $laporan = LaporanInsiden::create($data);
+
+        if (! empty($timelineEvents)) {
+            $this->saveTimeline($laporan, $timelineEvents);
+        }
+
+        return $laporan;
+    }
+
+    private function saveTimeline(LaporanInsiden $laporan, array $timelineEvents): void
+    {
+        $categoryMap = TimelineCategory::all()->keyBy('code');
+
+        foreach ($timelineEvents as $event) {
+            $timelineEvent = $laporan->timelineEvents()->create([
+                'event_datetime' => $event['event_datetime'] ?? now(),
+                'created_by' => $laporan->user_id,
+            ]);
+
+            foreach ($event['entries'] as $entry) {
+                $categoryId = $entry['category_id'] ?? $categoryMap[$entry['category_code']]?->id;
+
+                if (! $categoryId) {
+                    continue;
+                }
+
+                $timelineEvent->entries()->create([
+                    'category_id' => $categoryId,
+                    'description' => $entry['description'] ?? '',
+                    'created_by' => $laporan->user_id,
+                ]);
+            }
+        }
     }
 }

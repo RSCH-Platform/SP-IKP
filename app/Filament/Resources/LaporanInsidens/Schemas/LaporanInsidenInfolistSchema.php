@@ -138,27 +138,44 @@ class LaporanInsidenInfolistSchema
     public static function sectionKronologi(): Section
     {
         return Section::make('📝 BAGIAN D: KRONOLOGI KEJADIAN')
-            ->description('Uraian kronologis bagaimana insiden terjadi')
+            ->description('Uraian kronologis insiden dalam format tabular timeline')
             ->icon('heroicon-o-document-text')
             ->schema([
-                Infolists\Components\TextEntry::make('kronologi')
-                    ->label('Kronologi Lengkap Insiden')
+                Infolists\Components\TextEntry::make('timelineEvents')
+                    ->label('Timeline')
                     ->columnSpanFull()
                     ->html()
-                    ->formatStateUsing(fn(?string $state): string => nl2br(e((string) $state))),
-
-                Infolists\Components\TextEntry::make('insiden_terjadi_pada')
-                    ->label('Insiden Terjadi Pada')
-                    ->badge()
-                    ->color('primary'),
-
-                Infolists\Components\TextEntry::make('insiden_terjadi_pada_lainnya')
-                    ->label('Keterangan Lainnya')
-                    ->visible(fn($record) => $record->insiden_terjadi_pada === 'Lainnya')
-                    ->placeholder('—'),
+                    ->formatStateUsing(fn($state, $record): string => static::formatTimeline($record)),
             ])
             ->collapsible()
             ->compact();
+    }
+
+    protected static function formatTimeline($record): string
+    {
+        $events = $record->relationLoaded('timelineEvents')
+            ? $record->timelineEvents
+            : $record->timelineEvents()->with('entries.category')->get();
+
+        if ($events->isEmpty()) {
+            return '<em>Tidak ada kronologi (timeline) yang tercatat.</em>';
+        }
+
+        $html = '';
+        foreach ($events->sortBy('event_datetime') as $event) {
+            $datetime = $event->event_datetime?->format('d F Y H:i') ?? '-';
+            $html .= "<div class=\"font-semibold\">{$datetime}</div>";
+
+            foreach ($event->entries as $entry) {
+                $category = $entry->category?->name ?? 'Kategori';
+                $description = e($entry->description);
+                $html .= "<div class=\"ml-4\">• <strong>{$category}</strong>: {$description}</div>";
+            }
+
+            $html .= '<br />';
+        }
+
+        return $html;
     }
 
     public static function sectionKategoriDampak(): Section

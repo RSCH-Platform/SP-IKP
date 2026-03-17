@@ -476,24 +476,10 @@ class LaporanInsidenFormSchema
             ->compact();
     }
 
-    // Bagian D: Kronologi Kejadian
+    // Bagian D: Kronologi Kejadian (Tabular Timeline)
     public static function sectionKronologi(): Section
     {
-        return Section::make('📝 BAGIAN D: KRONOLOGI KEJADIAN')
-            ->description('Uraikan secara detail dan kronologis bagaimana insiden terjadi')
-            ->icon('heroicon-o-document-text')
-            ->schema([
-                Forms\Components\Textarea::make('kronologi')
-                    ->label('Kronologi Lengkap Insiden')
-                    ->required()
-                    ->rows(14)
-                    ->helperText('Jelaskan secara detail, runtut, dan kronologis bagaimana insiden terjadi dari awal hingga akhir.')
-                    ->placeholder('Contoh: Pada pukul 10.00 WIB, pasien sedang berada di ruang rawat inap ketika...')
-                    ->columnSpanFull()
-            ])
-            ->collapsible()
-            ->persistCollapsed()
-            ->compact();
+        return static::getFieldTabularTimeline();
     }
 
     public static function sectionGradingResiko(): ToggleButtons

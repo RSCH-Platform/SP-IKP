@@ -33,7 +33,6 @@ class LaporanInsidensTable
             'tanggal_insiden' => 'Tanggal Insiden',
             'waktu_insiden' => 'Waktu Insiden',
             'lokasi_insiden' => 'Lokasi Insiden',
-            'kronologi' => 'Kronologi',
             'insiden_terjadi_pada' => 'Insiden Terjadi Pada',
             'kategori_insiden' => 'Kategori Insiden',
             'deskripsi_kategori_insiden' => 'Deskripsi Kategori Insiden',
@@ -200,6 +199,10 @@ class LaporanInsidensTable
                             ->filter(fn($label, $field) => blank(data_get($record, $field)))
                             ->values()
                             ->all();
+
+                        if ($record->timelineEvents()->count() === 0) {
+                            $missingFields[] = 'Kronologi (Timeline)';
+                        }
 
                         if (! empty($missingFields)) {
                             Notification::make()
