@@ -36,6 +36,56 @@ use Livewire\Form;
 
 class LaporanInsidenFormSchema
 {
+    private const JENIS_INSIDEN_OPTIONS = [
+        'KPC (Kondisi Potensial Cedera)' => 'KPC (Kondisi Potensial Cedera)',
+        'KNC (Kejadian Nyaris Cedera)' => 'KNC (Kejadian Nyaris Cedera)',
+        'KTD (Kejadian Tidak Diharapkan)' => 'KTD (Kejadian Tidak Diharapkan)',
+        'KTC (Kejadian Tidak Cedera)' => 'KTC (Kejadian Tidak Cedera)',
+        'Sentinel' => 'Sentinel',
+    ];
+
+    private const DAMPAK_INSIDEN_OPTIONS = [
+        'Tidak ada cedera' => '✅ Tidak ada cedera',
+        'Cedera ringan' => '🟡 Cedera ringan',
+        'Cedera sedang' => '🟠 Cedera sedang',
+        'Cedera berat' => '🔴 Cedera berat',
+        'Meninggal' => '⚫ Meninggal',
+    ];
+
+    private const KATEGORI_INSIDEN_OPTIONS = [
+        'Medication / Cairan IV' => 'Medication / Cairan IV',
+        'Prosedur Klinis' => 'Prosedur Klinis',
+        'Diagnostik' => 'Diagnostik',
+        'Infeksi Terkait Pelayanan Kesehatan' => 'Infeksi Terkait Pelayanan Kesehatan',
+        'Pasien Jatuh' => 'Pasien Jatuh',
+        'Identifikasi Pasien' => 'Identifikasi Pasien',
+        'Komunikasi' => 'Komunikasi',
+        'Dokumentasi Klinis' => 'Dokumentasi Klinis',
+        'Peralatan Medis' => 'Peralatan Medis',
+        'Transfusi Darah / Produk Darah' => 'Transfusi Darah / Produk Darah',
+        'Administrasi / Proses Pelayanan' => 'Administrasi / Proses Pelayanan',
+        'Lingkungan / Fasilitas' => 'Lingkungan / Fasilitas',
+        'Faktor Manusia' => 'Faktor Manusia',
+        'Lainnya' => 'Lainnya',
+    ];
+
+    private const STATUS_OPTIONS = [
+        'draft' => 'Draft',
+        'dilaporkan' => 'Dilaporkan',
+        'revisi' => 'Revisi',
+        'diverifikasi' => 'Diverifikasi',
+        'revisi_unit' => 'Revisi Unit',
+        'investigasi' => 'Investigasi',
+    ];
+
+    private static function makeSelect(string $name, string $label, array $options): Select
+    {
+        return Select::make($name)
+            ->label($label)
+            ->options($options)
+            ->native(false)
+            ->searchable();
+    }
 
     public static function steps(bool $withAdminFields = false): array
     {
@@ -62,12 +112,6 @@ class LaporanInsidenFormSchema
                 ->icon('heroicon-o-document-text')
                 ->schema([
                     static::sectionKronologi(),
-                ]),
-
-            Step::make('Kategori & Dampak')
-                ->icon('heroicon-o-shield-exclamation')
-                ->schema([
-                    static::sectionKategoriDampak($withAdminFields),
                 ]),
 
             Step::make('Tindakan')
@@ -106,7 +150,6 @@ class LaporanInsidenFormSchema
             static::sectionInsiden(),
             static::sectionPasien(),
             static::sectionKronologi(),
-            static::sectionKategoriDampak($withAdminFields),
             static::sectionTindakan($withAdminFields),
         ];
 
@@ -118,6 +161,7 @@ class LaporanInsidenFormSchema
         return $sections;
     }
 
+    // Section A: Data Pelapor
     public static function sectionPelapor(): Section
     {
         return Section::make('📋 BAGIAN A: DATA PELAPOR')
@@ -250,78 +294,10 @@ class LaporanInsidenFormSchema
             ->compact();
     }
 
-    protected static function getAuthenticatedUser(): ?User
-    {
-        $authUser = Auth::user();
-
-        return $authUser instanceof User ? $authUser : null;
-    }
-
-    protected static function shouldLockPelaporIdentityFields(): bool
-    {
-        $authUser = static::getAuthenticatedUser();
-
-        if (! $authUser instanceof User) {
-            return false;
-        }
-
-        return ! $authUser->can('ViewAllData:LaporanInsiden');
-    }
-
-    public static function sectionInsiden(): Section
-    {
-        return Section::make('📍 BAGIAN B: RINCIAN KEJADIAN INSIDEN')
-            ->description('Informasi lengkap tentang waktu dan tempat terjadinya insiden')
-            ->icon('heroicon-o-exclamation-triangle')
-            ->schema([
-                Grid::make(2)->schema([
-                    Forms\Components\Select::make('jenis_insiden')
-                        ->label('Jenis Insiden')
-                        ->required()
-                        ->options([
-                            'KPC (Kondisi Potensial Cedera)' => 'KPC (Kondisi Potensial Cedera)',
-                            'KNC (Kejadian Nyaris Cedera)'      => 'KNC (Kejadian Nyaris Cedera)',
-                            'KTD (Kejadian Tidak Diharapkan)'   => 'KTD (Kejadian Tidak Diharapkan)',
-                            'KTC (Kejadian Tidak Cedera)'       => 'KTC (Kejadian Tidak Cedera)',
-                            'Sentinel'                          => 'Sentinel',
-                        ])
-                        ->native(false)
-                        ->prefixIcon('heroicon-m-document-text')
-                        ->helperText('Pilih jenis insiden yang terjadi'),
-
-                    Forms\Components\TextInput::make('lokasi_insiden')
-                        ->label('Lokasi Kejadian')
-                        ->required()
-                        ->prefixIcon('heroicon-m-map-pin')
-                        ->placeholder('Contoh: Ruang IGD, Lantai 2 Bangsal A'),
-                ]),
-
-                Grid::make(2)->schema([
-                    Forms\Components\DatePicker::make('tanggal_insiden')
-                        ->label('Tanggal Insiden')
-                        ->required()
-                        ->native(false)
-                        ->maxDate(now())
-                        ->prefixIcon('heroicon-m-calendar-days')
-                        ->displayFormat('d F Y')
-                        ->helperText('Tanggal terjadinya insiden'),
-
-                    Forms\Components\TimePicker::make('waktu_insiden')
-                        ->label('Waktu Insiden')
-                        ->required()
-                        ->prefixIcon('heroicon-m-clock')
-                        ->seconds(false)
-                        ->helperText('Jam terjadinya insiden (format 24 jam)'),
-                ]),
-            ])
-            ->collapsible()
-            ->persistCollapsed()
-            ->compact();
-    }
-
+    // Section B: Data Pasien (jika terkait)
     public static function sectionPasien(): Section
     {
-        return Section::make('👤 BAGIAN C: DATA PASIEN (Jika Terkait)')
+        return Section::make('👤 BAGIAN B: DATA PASIEN (Jika Terkait)')
             ->description('Lengkapi informasi pasien jika insiden melibatkan pasien')
             ->icon('heroicon-o-identification')
             ->schema([
@@ -404,91 +380,48 @@ class LaporanInsidenFormSchema
             ->compact();
     }
 
-    public static function sectionKronologi(): Section
-    {
-        return Section::make('📝 BAGIAN D: KRONOLOGI KEJADIAN')
-            ->description('Uraikan secara detail dan kronologis bagaimana insiden terjadi')
-            ->icon('heroicon-o-document-text')
-            ->schema([
-                Forms\Components\Textarea::make('kronologi')
-                    ->label('Kronologi Lengkap Insiden')
-                    ->required()
-                    ->rows(14)
-                    ->helperText('Jelaskan secara detail, runtut, dan kronologis bagaimana insiden terjadi dari awal hingga akhir.')
-                    ->placeholder('Contoh: Pada pukul 10.00 WIB, pasien sedang berada di ruang rawat inap ketika...')
-                    ->columnSpanFull(),
-
-                Forms\Components\Radio::make('insiden_terjadi_pada')
-                    ->label('Insiden Terjadi Pada')
-                    ->required()
-                    ->options([
-                        'Pasien'    => 'Pasien',
-                        'Petugas'   => 'Petugas / Staf',
-                        'Pengunjung' => 'Pengunjung / Keluarga',
-                        'Lainnya'   => 'Lainnya',
-                    ])
-                    ->default('Pasien')
-                    ->inline()
-                    ->inlineLabel(false)
-                    ->descriptions([
-                        'Pasien'    => 'Insiden menimpa pasien yang sedang dirawat',
-                        'Petugas'   => 'Insiden menimpa petugas/staf rumah sakit',
-                        'Pengunjung' => 'Insiden menimpa pengunjung atau keluarga pasien',
-                        'Lainnya'   => 'Selain ketiga kategori di atas',
-                    ])
-                    ->live(),
-
-                Forms\Components\TextInput::make('insiden_terjadi_pada_lainnya')
-                    ->label('Sebutkan Lainnya')
-                    ->placeholder('Jelaskan kepada siapa insiden terjadi')
-                    ->prefixIcon('heroicon-m-pencil')
-                    ->visible(fn(Get $get) => $get('insiden_terjadi_pada') === 'Lainnya')
-                    ->required(fn(Get $get) => $get('insiden_terjadi_pada') === 'Lainnya'),
-            ])
-            ->collapsible()
-            ->persistCollapsed()
-            ->compact();
-    }
-
-    /**
-     * @param bool $withGrading Tampilkan field grading_risiko (admin) atau note info (publik)
-     */
-    public static function sectionKategoriDampak($withGrading = false): Section
+    // Section C: Rincian Kejadian Insiden
+    public static function sectionInsiden($withGrading = false): Section
     {
         $schema = [
             Grid::make(2)->schema([
-                Select::make('kategori_insiden')
-                    ->label('Kategori Insiden')
-                    ->options([
-                        'Medication / Cairan IV'              => 'Medication / Cairan IV',
-                        'Prosedur Klinis'                    => 'Prosedur Klinis',
-                        'Diagnostik'                         => 'Diagnostik',
-                        'Infeksi Terkait Pelayanan Kesehatan' => 'Infeksi Terkait Pelayanan Kesehatan',
-                        'Pasien Jatuh'                       => 'Pasien Jatuh',
-                        'Identifikasi Pasien'                => 'Identifikasi Pasien',
-                        'Komunikasi'                         => 'Komunikasi',
-                        'Dokumentasi Klinis'                 => 'Dokumentasi Klinis',
-                        'Peralatan Medis'                    => 'Peralatan Medis',
-                        'Transfusi Darah / Produk Darah'     => 'Transfusi Darah / Produk Darah',
-                        'Administrasi / Proses Pelayanan'    => 'Administrasi / Proses Pelayanan',
-                        'Lingkungan / Fasilitas'             => 'Lingkungan / Fasilitas',
-                        'Faktor Manusia'                     => 'Faktor Manusia',
-                        'Lainnya'                            => 'Lainnya',
-                    ])
-                    ->searchable()
-                    ->required(),
-
-                Forms\Components\Select::make('dampak_insiden')
-                    ->label('Dampak Insiden')
+                static::makeSelect('jenis_insiden', 'Jenis Insiden', self::JENIS_INSIDEN_OPTIONS)
                     ->required()
-                    ->options([
-                        'Tidak ada cedera' => '✅ Tidak ada cedera',
-                        'Cedera ringan'    => '🟡 Cedera ringan',
-                        'Cedera sedang'    => '🟠 Cedera sedang',
-                        'Cedera berat'     => '🔴 Cedera berat',
-                        'Meninggal'        => '⚫ Meninggal',
-                    ])
+                    ->prefixIcon('heroicon-m-document-text')
+                    ->helperText('Pilih jenis insiden yang terjadi'),
+
+                Forms\Components\TextInput::make('lokasi_insiden')
+                    ->label('Lokasi Kejadian')
+                    ->required()
+                    ->prefixIcon('heroicon-m-map-pin')
+                    ->placeholder('Contoh: Ruang IGD, Lantai 2 Bangsal A'),
+            ]),
+
+            Grid::make(2)->schema([
+                Forms\Components\DatePicker::make('tanggal_insiden')
+                    ->label('Tanggal Insiden')
+                    ->required()
                     ->native(false)
+                    ->maxDate(now())
+                    ->prefixIcon('heroicon-m-calendar-days')
+                    ->displayFormat('d F Y')
+                    ->helperText('Tanggal terjadinya insiden'),
+
+                Forms\Components\TimePicker::make('waktu_insiden')
+                    ->label('Waktu Insiden')
+                    ->required()
+                    ->prefixIcon('heroicon-m-clock')
+                    ->seconds(false)
+                    ->helperText('Jam terjadinya insiden (format 24 jam)'),
+            ]),
+
+            Grid::make(2)->schema([
+                static::makeSelect('kategori_insiden', 'Kategori Insiden', self::KATEGORI_INSIDEN_OPTIONS)
+                    ->required()
+                    ->searchable(),
+
+                static::makeSelect('dampak_insiden', 'Dampak Insiden', self::DAMPAK_INSIDEN_OPTIONS)
+                    ->required()
                     ->default('Tidak ada cedera')
                     ->prefixIcon('heroicon-m-heart')
                     ->helperText('Tingkat dampak yang dialami'),
@@ -501,16 +434,63 @@ class LaporanInsidenFormSchema
                     ->placeholder('Contoh: Insiden terkait medication terjadi karena kesalahan pemberian obat oleh petugas, dimana pasien menerima obat yang salah dosisnya. Faktor penyebabnya adalah kurangnya komunikasi antara petugas dan kurang teliti dalam membaca label obat.')
                     ->columnSpanFull(),
             ]),
+
+            Forms\Components\Radio::make('insiden_terjadi_pada')
+                ->label('Insiden Terjadi Pada')
+                ->required()
+                ->options([
+                    'Pasien'    => 'Pasien',
+                    'Petugas'   => 'Petugas / Staf',
+                    'Pengunjung' => 'Pengunjung / Keluarga',
+                    'Lainnya'   => 'Lainnya',
+                ])
+                ->default('Pasien')
+                ->inline()
+                ->inlineLabel(false)
+                ->descriptions([
+                    'Pasien'    => 'Insiden menimpa pasien yang sedang dirawat',
+                    'Petugas'   => 'Insiden menimpa petugas/staf rumah sakit',
+                    'Pengunjung' => 'Insiden menimpa pengunjung atau keluarga pasien',
+                    'Lainnya'   => 'Selain ketiga kategori di atas',
+                ])
+                ->live(),
+
+            Forms\Components\TextInput::make('insiden_terjadi_pada_lainnya')
+                ->label('Sebutkan Lainnya')
+                ->placeholder('Jelaskan kepada siapa insiden terjadi')
+                ->prefixIcon('heroicon-m-pencil')
+                ->visible(fn(Get $get) => $get('insiden_terjadi_pada') === 'Lainnya')
+                ->required(fn(Get $get) => $get('insiden_terjadi_pada') === 'Lainnya'),
         ];
 
         if ($withGrading) {
             $schema[] = static::sectionGradingResiko();
-        } 
+        }
 
-        return Section::make('⚠️ BAGIAN E: KATEGORI DAN DAMPAK INSIDEN')
-            ->description('Klasifikasi jenis dan tingkat dampak insiden yang terjadi')
-            ->icon('heroicon-o-shield-exclamation')
+        return Section::make('📍 BAGIAN C: RINCIAN KEJADIAN INSIDEN')
+            ->description('Informasi lengkap tentang waktu dan tempat terjadinya insiden')
+            ->icon('heroicon-o-exclamation-triangle')
             ->schema($schema)
+            ->collapsible()
+            ->persistCollapsed()
+            ->compact();
+    }
+
+    // Bagian D: Kronologi Kejadian
+    public static function sectionKronologi(): Section
+    {
+        return Section::make('📝 BAGIAN D: KRONOLOGI KEJADIAN')
+            ->description('Uraikan secara detail dan kronologis bagaimana insiden terjadi')
+            ->icon('heroicon-o-document-text')
+            ->schema([
+                Forms\Components\Textarea::make('kronologi')
+                    ->label('Kronologi Lengkap Insiden')
+                    ->required()
+                    ->rows(14)
+                    ->helperText('Jelaskan secara detail, runtut, dan kronologis bagaimana insiden terjadi dari awal hingga akhir.')
+                    ->placeholder('Contoh: Pada pukul 10.00 WIB, pasien sedang berada di ruang rawat inap ketika...')
+                    ->columnSpanFull()
+            ])
             ->collapsible()
             ->persistCollapsed()
             ->compact();
@@ -540,6 +520,7 @@ class LaporanInsidenFormSchema
             ->visibleOn('edit');
     }
 
+    // Bagian F: Tindakan yang Dilakukan & Analisis Penyebab (jika ada)
     public static function sectionTindakan(bool $withAnalysis = false): Section
     {
         $fields = [
@@ -570,6 +551,7 @@ class LaporanInsidenFormSchema
             ->compact();
     }
 
+    // Catatan Tambahan (Opsional)
     public static function sectionCatatanTambahan(): Section
     {
         return Section::make('📎 CATATAN TAMBAHAN')
@@ -594,19 +576,9 @@ class LaporanInsidenFormSchema
         return Section::make('📌 Status Laporan')
             ->icon('heroicon-o-check-circle')
             ->schema([
-                Forms\Components\Select::make('status')
-                    ->label('Status Laporan')
-                    ->options([
-                        'draft'        => 'Draft',
-                        'dilaporkan'   => 'Dilaporkan',
-                        'revisi'       => 'Revisi',
-                        'diverifikasi' => 'Diverifikasi',
-                        'revisi_unit'  => 'Revisi Unit',
-                        'investigasi'  => 'Investigasi',
-                    ])
+                static::makeSelect('status', 'Status Laporan', self::STATUS_OPTIONS)
                     ->default('draft')
-                    ->required()
-                    ->native(false),
+                    ->required(),
             ])
             ->visibleOn('edit');
     }
@@ -1201,5 +1173,23 @@ class LaporanInsidenFormSchema
                     }),
             ])
             ->collapsible();
+    }
+
+    protected static function getAuthenticatedUser(): ?User
+    {
+        $authUser = Auth::user();
+
+        return $authUser instanceof User ? $authUser : null;
+    }
+
+    protected static function shouldLockPelaporIdentityFields(): bool
+    {
+        $authUser = static::getAuthenticatedUser();
+
+        if (! $authUser instanceof User) {
+            return false;
+        }
+
+        return ! $authUser->can('ViewAllData:LaporanInsiden');
     }
 }
