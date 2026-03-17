@@ -15,6 +15,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -24,6 +25,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -805,36 +807,74 @@ class LaporanInsidenFormSchema
                             ->relationship('entries')
                             ->label('Entri Kategori')
                             ->schema([
-                                Select::make('category_id')
-                                    ->label('Kategori')
-                                    ->relationship('category', 'name', fn($query) => $query->orderBy('id'))
-                                    ->required()
-                                    ->searchable()
-                                    ->preload(),
+                                Hidden::make('category_id'),
+
+                                Hidden::make('category_name')
+                                    ->dehydrated(false),
 
                                 Textarea::make('description')
-                                    ->label('Deskripsi')
-                                    ->rows(3)
-                                    ->required(),
+                                    ->label(fn(Get $get) => $get('category_name'))
+                                    ->placeholder(fn(Get $get) => "Tuliskan " . strtolower($get('category_name')) . " di sini...")
+                                    ->helperText('Isi dengan jelas dan singkat.')
+                                    ->rows(6)
                             ])
-                            ->addActionLabel('Tambah Entri')
-                            ->reorderable()
-                            ->collapsible()
+                            ->default(function () {
+                                return \App\Models\TimelineCategory::orderBy('id')
+                                    ->get()
+                                    ->map(fn($category) => [
+                                        'category_id' => $category->id,
+                                        'category_name' => $category->name,
+                                        'description' => null,
+                                    ])
+                                    ->toArray();
+                            })
+                            ->afterStateHydrated(function ($state, Set $set, Repeater $component) {
+                                $categories = \App\Models\TimelineCategory::orderBy('id')->get();
+
+                                $existing = collect($state ?? []);
+
+                                $merged = $categories->map(function ($category) use ($existing) {
+                                    $found = $existing->firstWhere('category_id', $category->id);
+
+                                    return $found
+                                        ? array_merge($found, [
+                                            'category_name' => $category->name,
+                                        ])
+                                        : [
+                                            'category_id' => $category->id,
+                                            'category_name' => $category->name,
+                                            'description' => null,
+                                        ];
+                                });
+
+                                $set($component, $merged->toArray());
+                            })
                             ->itemLabel(function (array $state): ?string {
-                                $category_id = $state['category_id'] ?? null;
+                                $categoryId = $state['category_id'] ?? null;
                                 $description = $state['description'] ?? null;
 
-                                $category = TimelineCategory::find($category_id)?->name ?? null;
-                                if ($category && $description) {
-                                    return "{$category}: " . Str::limit($description, 50);
+                                if (!$categoryId) {
+                                    return null;
                                 }
 
-                                return null;
+                                $categoryName = \App\Models\TimelineCategory::find($categoryId)?->name;
+
+                                if ($categoryName && $description) {
+                                    return "{$categoryName}: " . Str::limit($description, 50);
+                                }
+
+                                return $categoryName;
                             })
+                            ->addable(false)
+                            ->deletable(false)
+                            ->reorderable(false)
+                            ->collapsible()
+                            ->collapsed()
                     ])
                     ->addActionLabel('Tambah Timeline Kejadian')
                     ->reorderable()
                     ->collapsible()
+                    ->collapsed()
                     ->itemLabel(function (array $state): ?string {
                         $datetime = $state['event_datetime'] ?? null;
 
