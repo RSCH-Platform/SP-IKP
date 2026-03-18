@@ -232,8 +232,6 @@ class LaporanInsidenFormSchema
                         ->prefixIcon('heroicon-m-user')
                         ->placeholder('Pilih Pelapor'),
 
-
-
                     Forms\Components\Select::make('unit_kerja_id')
                         ->label('Unit Kerja / Departemen')
                         ->relationship('unitKerja', 'unit_name')
@@ -293,92 +291,6 @@ class LaporanInsidenFormSchema
             ])
             ->collapsible()
             ->persistCollapsed()
-            ->compact();
-    }
-
-    // Section B: Data Pasien (jika terkait)
-    public static function sectionPasien(): Section
-    {
-        return Section::make('👤 BAGIAN B: DATA PASIEN (Jika Terkait)')
-            ->description('Lengkapi informasi pasien jika insiden melibatkan pasien')
-            ->icon('heroicon-o-identification')
-            ->schema([
-                Grid::make(3)->schema([
-                    Forms\Components\TextInput::make('nama_pasien')
-                        ->label('Nama Pasien')
-                        ->prefixIcon('heroicon-m-user')
-                        ->placeholder('Nama lengkap pasien'),
-
-                    Forms\Components\TextInput::make('nomor_rekam_medis')
-                        ->label('No. Rekam Medis')
-                        ->prefixIcon('heroicon-m-document-duplicate')
-                        ->placeholder('No. RM'),
-
-                    Forms\Components\TextInput::make('ruangan')
-                        ->label('Ruangan / Bangsal')
-                        ->prefixIcon('heroicon-m-home')
-                        ->placeholder('Contoh: Ruang Anggrek'),
-                ]),
-
-                Fieldset::make('Informasi Demografi')
-                    ->columnSpanFull()
-                    ->schema([
-                        Grid::make(2)
-                            ->columnSpanFull()
-                            ->schema([
-                                Forms\Components\TextInput::make('umur')
-                                    ->label('Umur')
-                                    ->numeric()
-                                    ->suffix('tahun')
-                                    ->minValue(0)
-                                    ->maxValue(150)
-                                    ->placeholder('0'),
-
-                                Forms\Components\Select::make('kelompok_umur')
-                                    ->label('Kelompok Umur')
-                                    ->options([
-                                        '0-1 bulan'           => '0-1 bulan',
-                                        '>1 bulan - 1 tahun'  => '>1 bulan - 1 tahun',
-                                        '>1 tahun - 5 tahun'  => '>1 tahun - 5 tahun',
-                                        '>5 tahun - 15 tahun' => '>5 tahun - 15 tahun',
-                                        '>15 tahun - 30 tahun' => '>15 tahun - 30 tahun',
-                                        '>30 tahun - 65 tahun' => '>30 tahun - 65 tahun',
-                                        '>65 tahun'           => '>65 tahun',
-                                    ])
-                                    ->native(false)
-                                    ->placeholder('Pilih kelompok'),
-
-                                Forms\Components\Select::make('jenis_kelamin')
-                                    ->label('Jenis Kelamin')
-                                    ->options([
-                                        'Laki-laki' => '👨 Laki-laki',
-                                        'Perempuan' => '👩 Perempuan',
-                                    ])
-                                    ->native(false)
-                                    ->placeholder('Pilih'),
-
-                                Forms\Components\Select::make('penanggung_biaya')
-                                    ->label('Penanggung Biaya')
-                                    ->options([
-                                        'Pribadi'        => 'Pribadi',
-                                        'BPJS'           => 'BPJS',
-                                        'Asuransi Swasta' => 'Asuransi Swasta',
-                                        'Lainnya'        => 'Lainnya',
-                                    ])
-                                    ->native(false)
-                                    ->placeholder('Pilih'),
-                            ]),
-                    ]),
-
-                Forms\Components\DateTimePicker::make('tanggal_masuk_rs')
-                    ->label('Tanggal & Waktu Masuk RS')
-                    ->native(false)
-                    ->maxDate(now())
-                    ->prefixIcon('heroicon-m-arrow-right-on-rectangle')
-                    ->displayFormat('d F Y, H:i')
-                    ->seconds(false),
-            ])
-            ->collapsible()
             ->compact();
     }
 
@@ -469,12 +381,169 @@ class LaporanInsidenFormSchema
             $schema[] = static::sectionGradingResiko();
         }
 
-        return Section::make('📍 BAGIAN C: RINCIAN KEJADIAN INSIDEN')
+        return Section::make('📍 BAGIAN B: RINCIAN KEJADIAN INSIDEN')
             ->description('Informasi lengkap tentang waktu dan tempat terjadinya insiden')
             ->icon('heroicon-o-exclamation-triangle')
             ->schema($schema)
             ->collapsible()
             ->persistCollapsed()
+            ->compact();
+    }
+
+    // Section B: Data Pasien (jika terkait)
+    public static function sectionPasien(): Section
+    {
+        return Section::make('👤 BAGIAN DATA PASIEN (Jika Terkait)')
+            ->description('Lengkapi informasi pasien jika insiden melibatkan pasien')
+            ->icon('heroicon-o-identification')
+            ->visible(fn(Get $get) => $get('insiden_terjadi_pada') === 'Pasien')
+            ->schema([
+                Grid::make(3)->schema([
+                    Forms\Components\TextInput::make('nama_pasien')
+                        ->label('Nama Pasien')
+                        ->prefixIcon('heroicon-m-user')
+                        ->placeholder('Nama lengkap pasien'),
+
+                    Forms\Components\TextInput::make('nomor_rekam_medis')
+                        ->label('No. Rekam Medis')
+                        ->prefixIcon('heroicon-m-document-duplicate')
+                        ->placeholder('No. RM'),
+
+                    Forms\Components\TextInput::make('ruangan')
+                        ->label('Ruangan / Bangsal')
+                        ->prefixIcon('heroicon-m-home')
+                        ->placeholder('Contoh: Ruang Anggrek'),
+                ]),
+
+                Fieldset::make('Informasi Demografi')
+                    ->columnSpanFull()
+                    ->schema([
+                        Grid::make(2)
+                            ->columnSpanFull()
+                            ->schema([
+                                Forms\Components\TextInput::make('umur')
+                                    ->label('Umur')
+                                    ->numeric()
+                                    ->suffix('tahun')
+                                    ->minValue(0)
+                                    ->maxValue(150)
+                                    ->placeholder('0'),
+
+                                Forms\Components\Select::make('kelompok_umur')
+                                    ->label('Kelompok Umur')
+                                    ->options([
+                                        '0-1 bulan'           => '0-1 bulan',
+                                        '>1 bulan - 1 tahun'  => '>1 bulan - 1 tahun',
+                                        '>1 tahun - 5 tahun'  => '>1 tahun - 5 tahun',
+                                        '>5 tahun - 15 tahun' => '>5 tahun - 15 tahun',
+                                        '>15 tahun - 30 tahun' => '>15 tahun - 30 tahun',
+                                        '>30 tahun - 65 tahun' => '>30 tahun - 65 tahun',
+                                        '>65 tahun'           => '>65 tahun',
+                                    ])
+                                    ->native(false)
+                                    ->placeholder('Pilih kelompok'),
+
+                                Forms\Components\Select::make('jenis_kelamin')
+                                    ->label('Jenis Kelamin')
+                                    ->options([
+                                        'Laki-laki' => '👨 Laki-laki',
+                                        'Perempuan' => '👩 Perempuan',
+                                    ])
+                                    ->native(false)
+                                    ->placeholder('Pilih'),
+
+                                Forms\Components\Select::make('penanggung_biaya')
+                                    ->label('Penanggung Biaya')
+                                    ->options([
+                                        'Pribadi'        => 'Pribadi',
+                                        'BPJS'           => 'BPJS',
+                                        'Asuransi Swasta' => 'Asuransi Swasta',
+                                        'Lainnya'        => 'Lainnya',
+                                    ])
+                                    ->native(false)
+                                    ->placeholder('Pilih'),
+                            ]),
+                    ]),
+
+                Forms\Components\DateTimePicker::make('tanggal_masuk_rs')
+                    ->label('Tanggal & Waktu Masuk RS')
+                    ->native(false)
+                    ->maxDate(now())
+                    ->prefixIcon('heroicon-m-arrow-right-on-rectangle')
+                    ->displayFormat('d F Y, H:i')
+                    ->seconds(false),
+
+                FieldSet::make('Detail Insiden Terkait Pasien')
+                    ->columnSpanFull()
+                    ->schema([
+                        Select::make('pelapor_insiden_pasien')
+                            ->label('Orang Pertama Yang Melaporkan Insiden')
+                            ->options([
+                                'dokter' => 'Dokter',
+                                'perawat' => 'Perawat',
+                                'petugas_lain' => 'Petugas lainnya pasien',
+                                'keluarga' => 'Keluarga / Pendamping pasien',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->native(false)
+                            ->placeholder('Pilih'),
+
+                        Forms\Components\TextInput::make('pelapor_insiden_pasien_lainnya')
+                            ->label('Sebutkan Lainnya')
+                            ->placeholder('Jelaskan siapa yang melaporkan insiden terkait pasien')
+                            ->prefixIcon('heroicon-m-pencil')
+                            ->visible(fn(Get $get) => $get('pelapor_insiden_pasien') === 'Lainnya')
+                            ->required(fn(Get $get) => $get('pelapor_insiden_pasien') === 'Lainnya'),
+
+                        Select::make('insiden_menyangkut_pasien')
+                            ->label('Insiden menyangkut pasien')
+                            ->options([
+                                'pasien_rawat_inap' => 'Pasien rawat inap',
+                                'pasien_rawat_jalan' => 'Pasien rawat jalan',
+                                'pasien_ugd' => 'Pasien UGD',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->native(false)
+                            ->placeholder('Pilih'),
+
+                        Forms\Components\TextInput::make('insiden_menyangkut_pasien_lainnya')
+                            ->label('Sebutkan Lainnya')
+                            ->placeholder('Jelaskan siapa yang melaporkan insiden terkait pasien')
+                            ->prefixIcon('heroicon-m-pencil')
+                            ->visible(fn(Get $get) => $get('insiden_menyangkut_pasien') === 'Lainnya')
+                            ->required(fn(Get $get) => $get('insiden_menyangkut_pasien') === 'Lainnya'),
+
+                        Select::make('spesialisasi_pasien')
+                            ->label('Insiden terjadi pada pasien : (sesuai kasus penyakit / spesialisasi) ')
+                            ->columnSpanFull()
+                            ->options([
+                                'penyakit_dalam' => 'Penyakit Dalam dan Subspesialisasinya',
+                                'anak' => 'Anak dan Subspesialisasinya',
+                                'bedah' => 'Bedah dan Subspesialisasinya',
+                                'obstetri_gynekologi' => 'Obstetri Gynekologi dan Subspesialisasinya',
+                                'tht' => 'THT dan Subspesialisasinya',
+                                'mata' => 'Mata dan Subspesialisasinya',
+                                'saraf' => 'Saraf dan Subspesialisasinya',
+                                'anastesi' => 'Anastesi dan Subspesialisasinya',
+                                'kulit_kelamin' => 'Kulit & Kelamin dan Subspesialisasinya',
+                                'jantung' => 'Jantung dan Subspesialisasinya',
+                                'paru' => 'Paru dan Subspesialisasinya',
+                                'jiwa' => 'Jiwa dan Subspesialisasinya',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->native(false)
+                            ->placeholder('Pilih'),
+
+                        Forms\Components\TextInput::make('spesialisasi_pasien_lainnya')
+                            ->label('Sebutkan Lainnya')
+                            ->placeholder('Jelaskan spesialisasi pasien sesuai kasus penyakitnya')
+                            ->prefixIcon('heroicon-m-pencil')
+                            ->visible(fn(Get $get) => $get('spesialisasi_pasien') === 'Lainnya')
+                            ->required(fn(Get $get) => $get('spesialisasi_pasien') === 'Lainnya'),
+                    ])
+
+            ])
+            ->collapsible()
             ->compact();
     }
 

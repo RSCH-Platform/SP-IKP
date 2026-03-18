@@ -27,9 +27,9 @@ class LaporanInsidenForm
                         ->disabled(!Auth::user()->can('ForceEdit:LaporanInsiden'))
                         ->schema([
                             LaporanInsidenFormSchema::sectionPelapor()->disabled(fn($record) => !Auth::user()->can('ForceEdit:LaporanInsiden') || Auth::id() !== $record->pelapor_id),
-                            LaporanInsidenFormSchema::sectionPasien(),
                             LaporanInsidenFormSchema::sectionInsiden(true)->visible(fn($record) => !in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
                             LaporanInsidenFormSchema::sectionInsiden(false)->visible(fn($record) => in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
+                            LaporanInsidenFormSchema::sectionPasien(),
                             LaporanInsidenFormSchema::sectionKronologi(),
                             LaporanInsidenFormSchema::sectionTindakan(),
                             LaporanInsidenFormSchema::sectionCatatanTambahan()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
