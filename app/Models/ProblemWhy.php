@@ -16,8 +16,6 @@ class ProblemWhy extends Model
         'problem_id',
         'why_level',
         'problem_statement',
-        'immediate_cause',
-        'root_cause',
     ];
 
     protected static function boot()
