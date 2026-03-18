@@ -836,6 +836,11 @@ class LaporanInsidenFormSchema
                                 $merged = $categories->map(function ($category) use ($existing) {
                                     $found = $existing->firstWhere('category_id', $category->id);
 
+                                    dd([
+                                        'category_id' => $category->id,
+                                        'category_name' => $category->name,
+                                        'description' => $found['description'] ?? null,
+                                    ]);
                                     return $found
                                         ? array_merge($found, [
                                             'category_name' => $category->name,
