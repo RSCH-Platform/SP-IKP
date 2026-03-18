@@ -85,6 +85,14 @@ class LaporanInsidenSeeder extends Seeder
                         'category_code' => 'kejadian',
                         'description' => $kronologi1,
                     ],
+                    [
+                        'category_code' => 'informasi',
+                        'description' => 'Pasien post-operasi katarak hari ke-2 dengan faktor risiko usia lanjut, menggunakan antihipertensi, dan tidak menggunakan bel panggilan saat mencoba turun sendiri.',
+                    ],
+                    [
+                        'category_code' => 'good_practice',
+                        'description' => 'Petugas segera menempatkan side rail pada posisi terkunci, menempelkan label "Risiko Jatuh Tinggi", dan mengingatkan keluarga untuk selalu memantau pasien.',
+                    ],
                 ],
             ],
         ]);
@@ -135,6 +143,18 @@ class LaporanInsidenSeeder extends Seeder
                     [
                         'category_code' => 'kejadian',
                         'description' => $kronologi2,
+                    ],
+                    [
+                        'category_code' => 'informasi',
+                        'description' => 'Kesalahan dosis terdeteksi sebelum obat diberikan. Proses penyerahan obat dari farmasi ke perawat tidak disertai checklist pemeriksaan 6 benar.',
+                    ],
+                    [
+                        'category_code' => 'cmp',
+                        'description' => 'Ditemukan kekurangan pada prosedur double-check pemberian obat di IGD; perlu menstandarisasi proses verifikasi obat sebelum diberikan kepada pasien.',
+                    ],
+                    [
+                        'category_code' => 'sdp',
+                        'description' => 'Usulkan penambahan kolom "verifikasi 6 benar" di sistem farmasi/rekam medis untuk mencatat pembacaan kode obat dan dosis sebelum diserahkan.',
                     ],
                 ],
             ],
@@ -187,6 +207,18 @@ class LaporanInsidenSeeder extends Seeder
                         'category_code' => 'kejadian',
                         'description' => $kronologi3,
                     ],
+                    [
+                        'category_code' => 'informasi',
+                        'description' => 'Hasil kultur menunjukkan Staphylococcus aureus resisten beberapa antibiotik; pasien menunjukkan tanda-tanda sistemik seperti demam dan leukositosis.',
+                    ],
+                    [
+                        'category_code' => 'good_practice',
+                        'description' => 'Tim melakukan perawatan luka steril, mengganti antibiotik sesuai sensitivitas, dan melakukan audit sterilisasi kamar operasi untuk mencegah kejadian serupa.',
+                    ],
+                    [
+                        'category_code' => 'cmp',
+                        'description' => 'Perlu penyempurnaan checklist sterilisasi dan dokumentasi prosedur aseptik di ruang operasi untuk mengurangi risiko SSI.',
+                    ],
                 ],
             ],
         ]);
@@ -232,6 +264,14 @@ class LaporanInsidenSeeder extends Seeder
                     [
                         'category_code' => 'kejadian',
                         'description' => $kronologi4,
+                    ],
+                    [
+                        'category_code' => 'good_practice',
+                        'description' => 'Petugas laboratorium menghentikan tindakan tepat sebelum terjadi kesalahan, kemudian menerapkan tata cara identifikasi pasien 2 faktor (nama lengkap + nomor rekam medis).',
+                    ],
+                    [
+                        'category_code' => 'informasi',
+                        'description' => 'Kedua pasien datang hampir bersamaan dengan nama yang mirip; identifikasi awal menggunakan nama depan saja tidak cukup dan perlu standar pemanggilan yang lebih jelas.',
                     ],
                 ],
             ],
