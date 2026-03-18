@@ -477,6 +477,7 @@ class LaporanInsidenFormSchema
                     ->columnSpanFull()
                     ->schema([
                         Select::make('pelapor_insiden_pasien')
+                            ->columnSpanFull()
                             ->label('Orang Pertama Yang Melaporkan Insiden')
                             ->options([
                                 'dokter' => 'Dokter',
@@ -485,6 +486,7 @@ class LaporanInsidenFormSchema
                                 'keluarga' => 'Keluarga / Pendamping pasien',
                                 'Lainnya' => 'Lainnya',
                             ])
+                            ->live()
                             ->native(false)
                             ->placeholder('Pilih'),
 
@@ -497,12 +499,14 @@ class LaporanInsidenFormSchema
 
                         Select::make('insiden_menyangkut_pasien')
                             ->label('Insiden menyangkut pasien')
+                            ->columnSpanFull()
                             ->options([
                                 'pasien_rawat_inap' => 'Pasien rawat inap',
                                 'pasien_rawat_jalan' => 'Pasien rawat jalan',
                                 'pasien_ugd' => 'Pasien UGD',
                                 'Lainnya' => 'Lainnya',
                             ])
+                            ->live()
                             ->native(false)
                             ->placeholder('Pilih'),
 
@@ -531,6 +535,7 @@ class LaporanInsidenFormSchema
                                 'jiwa' => 'Jiwa dan Subspesialisasinya',
                                 'Lainnya' => 'Lainnya',
                             ])
+                            ->live()
                             ->native(false)
                             ->placeholder('Pilih'),
 
