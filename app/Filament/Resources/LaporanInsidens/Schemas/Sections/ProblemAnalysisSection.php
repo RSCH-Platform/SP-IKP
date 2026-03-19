@@ -86,7 +86,7 @@ class ProblemAnalysisSection
                                     : ($level ? "WHY {$level}" : 'WHY');
 
                                 if (! empty($state['problem_statement'])) {
-                                    return $label . ': ' . \Str::limit($state['problem_statement'], 40);
+                                    return $label . ': ' . Str::limit($state['problem_statement'], 40);
                                 }
 
                                 return $label;
