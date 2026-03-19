@@ -45,21 +45,21 @@ class LaporanInsidenForm
 
                     // Step::make('Investigasi & Pengumpulan Data') (Laporan Status: Investigasi)
                     Step::make('Pengumpulan Data')
-                        ->hidden(fn($record) => !Auth::user()->can('Investigasi:LaporanInsiden') || $record->status !== LaporanInsiden::STATUS_INVESTIGASI)
+                        ->hidden(fn($record) => !Auth::user()->can('Investigasi:LaporanInsiden') || ($record->status !== LaporanInsiden::STATUS_INVESTIGASI && $record->investigation_started_by !== null))
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
                         ->schema([
                             LaporanInsidenFormSchema::getFieldDataCollection(),
                         ]),
 
                     Step::make('Tabular Timeline')
-                        ->hidden(fn($record) => !Auth::user()->can('Investigasi:LaporanInsiden') || $record->status !== LaporanInsiden::STATUS_INVESTIGASI)
+                        ->hidden(fn($record) => !Auth::user()->can('Investigasi:LaporanInsiden') || ($record->status !== LaporanInsiden::STATUS_INVESTIGASI && $record->investigation_started_by !== null))
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
                         ->schema([
                             LaporanInsidenFormSchema::getFieldTabularTimeline(),
                         ]),
 
                     Step::make('Analisa Masalah')
-                        ->hidden(fn($record) => !Auth::user()->can('Investigasi:LaporanInsiden') || $record->status !== LaporanInsiden::STATUS_INVESTIGASI)
+                        ->hidden(fn($record) => !Auth::user()->can('Investigasi:LaporanInsiden') || ($record->status !== LaporanInsiden::STATUS_INVESTIGASI && $record->investigation_started_by !== null))
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
                         ->schema([
                             LaporanInsidenFormSchema::getFieldProblemAnalysis(),

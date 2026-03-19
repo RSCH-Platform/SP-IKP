@@ -168,18 +168,26 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
                 'created_by' => $laporan->user_id,
             ]);
 
-            foreach ($event['entries'] as $entry) {
-                $categoryId = $entry['category_id'] ?? $categoryMap[$entry['category_code']]?->id;
+            $entries = collect($event['entries'] ?? [])
+                ->map(function (array $entry) use ($categoryMap) {
+                    $entry['category_id'] = $entry['category_id'] ?? $categoryMap[$entry['category_code']]?->id;
 
-                if (! $categoryId) {
-                    continue;
-                }
+                    return $entry;
+                })
+                // Keep only entries that have a valid category_id
+                ->filter(fn($entry) => ! empty($entry['category_id']))
+                // Normalize duplicates by keeping the last submitted value per category
+                ->unique('category_id')
+                ->values();
 
-                $timelineEvent->entries()->create([
-                    'category_id' => $categoryId,
-                    'description' => $entry['description'] ?? '',
-                    'created_by' => $laporan->user_id,
-                ]);
+            foreach ($entries as $entry) {
+                $timelineEvent->entries()->updateOrCreate(
+                    ['category_id' => $entry['category_id']],
+                    [
+                        'description' => $entry['description'] ?? '',
+                        'created_by' => $laporan->user_id,
+                    ]
+                );
             }
         }
     }

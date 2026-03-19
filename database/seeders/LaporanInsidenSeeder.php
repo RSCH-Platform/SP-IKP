@@ -355,11 +355,13 @@ class LaporanInsidenSeeder extends Seeder
                     continue;
                 }
 
-                $timelineEvent->entries()->create([
-                    'category_id' => $categoryId,
-                    'description' => $entry['description'] ?? '',
-                    'created_by' => $laporan->user_id,
-                ]);
+                $timelineEvent->entries()->updateOrCreate(
+                    ['category_id' => $categoryId],
+                    [
+                        'description' => $entry['description'] ?? '',
+                        'created_by' => $laporan->user_id,
+                    ]
+                );
             }
         }
     }

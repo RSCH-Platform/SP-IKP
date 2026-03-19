@@ -16,6 +16,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EditLaporanInsiden extends EditRecord
 {
@@ -227,7 +228,45 @@ class EditLaporanInsiden extends EditRecord
                 ->send();
 
             $this->redirect(LaporanInsidenResource::getUrl('edit', ['record' => $this->record->id]));
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Gagal memulai investigasi (validasi)', [
+                'record_id' => $this->record?->id,
+                'user_id' => Auth::id(),
+                'errors' => $e->errors(),
+                'message' => $e->getMessage(),
+            ]);
+
+            $errors = collect($e->errors())
+                ->flatten()
+                ->unique()
+                ->values()
+                ->all();
+
+            $message = collect($errors)
+                ->map(fn($error) => is_string($error) ? $error : json_encode($error))
+                ->implode(' | ');
+
+            // If timeline is missing, make the message more user-friendly.
+            $timelineErrorKeys = collect(array_keys($e->errors()))
+                ->filter(fn($key) => str_contains($key, 'timeline'))
+                ->all();
+
+            if (! empty($timelineErrorKeys) || str_contains($message, 'timeline')) {
+                $message = 'Silakan lengkapi Kronologi (Timeline) sebelum memulai investigasi.';
+            }
+
+            Notification::make()
+                ->title('Gagal memulai investigasi')
+                ->body($message)
+                ->danger()
+                ->send();
         } catch (\Exception $e) {
+            Log::error('Gagal memulai investigasi', [
+                'record_id' => $this->record?->id,
+                'user_id' => Auth::id(),
+                'exception' => $e,
+            ]);
+
             Notification::make()
                 ->title('Gagal memulai investigasi')
                 ->body($e->getMessage())

@@ -66,8 +66,6 @@ class ProblemAnalysisSection
                             ->addActionLabel('➕ Tambah WHY')
                             ->reorderable()
                             ->collapsible()
-                            ->minItems(1)
-                            ->maxItems(5)
                             ->itemLabel(function (array $state, callable $get): ?string {
                                 $allWhys = $get('whys') ?? [];
 
