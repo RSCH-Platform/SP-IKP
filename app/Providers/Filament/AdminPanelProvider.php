@@ -60,6 +60,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentAwinTheme::make(),
+                \Juniyasyos\FilamentMediaManager\FilamentMediaManagerPlugin::make(),
                 FilamentShieldPlugin::make()
                     ->navigationLabel('Manajemen Peran & Izin')
                     ->navigationIcon('heroicon-o-shield-check')
