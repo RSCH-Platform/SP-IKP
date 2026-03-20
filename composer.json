@@ -16,7 +16,8 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "resma/filament-awin-theme": "^1.1",
-        "stechstudio/filament-impersonate": "^5.1"
+        "stechstudio/filament-impersonate": "^5.1",
+        "juniyasyos/filament-media-manager": "dev-filament-v4 as 3.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -90,13 +91,23 @@
             "dont-discover": []
         }
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/juniyasyos/filament-media-manager",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "minimum-stability": "stable",

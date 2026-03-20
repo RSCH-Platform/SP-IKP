@@ -248,7 +248,7 @@ class ProblemAnalysisSection
                                         'ongoing' => 'Ongoing',
                                         'completed' => 'Completed',
                                     ])
-                                    ->default('pending'),
+                                    ->default('pending'), 
                             ])
                             ->addActionLabel('Tambah Tindakan')
                             ->reorderable()
