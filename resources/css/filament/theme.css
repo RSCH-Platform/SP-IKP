@@ -5,6 +5,7 @@
 @source '../../../resources/views/livewire/**/*';
 @source '../../../app/Livewire/**/*';
 @source '../../../vendor/guava/filament-modal-relation-managers/resources/**/*';
+@source '../../../packages/**/*.blade.php';
 
 /* Explicit safelist for workflow timeline component */
 @layer components {
