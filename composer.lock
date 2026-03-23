@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "75f5bcead411b4f8f0ee786a0f912175",
+    "content-hash": "ecce274bf83c8a3bf4ee0878c656d1d7",
     "packages": [
         {
             "name": "bezhansalleh/filament-plugin-essentials",
@@ -2407,11 +2407,17 @@
         },
         {
             "name": "juniyasyos/manage-unit-kerja",
-            "version": "dev-master",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/juniyasyos/manage-unit-kerja.git",
+                "reference": "461c98f415c2b29fc928e8e5106cf71f7de9c7f1"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/juniyasyos/manage-unit-kerja",
-                "reference": "1efbac4b1ac2ba81edb27cb7e9b2ceaa676f6430"
+                "type": "zip",
+                "url": "https://api.github.com/repos/juniyasyos/manage-unit-kerja/zipball/461c98f415c2b29fc928e8e5106cf71f7de9c7f1",
+                "reference": "461c98f415c2b29fc928e8e5106cf71f7de9c7f1",
+                "shasum": ""
             },
             "require": {
                 "bezhansalleh/filament-shield": "^4.1",
@@ -2437,6 +2443,7 @@
                     "Juniyasyos\\ManageUnitKerja\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2447,10 +2454,11 @@
                 }
             ],
             "description": "Plugin manage Unit Kerja untuk Filament (modul terpisah)",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/juniyasyos/manage-unit-kerja/issues",
+                "source": "https://github.com/juniyasyos/manage-unit-kerja/tree/v2.1.0"
+            },
+            "time": "2026-03-23T05:04:02+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",
