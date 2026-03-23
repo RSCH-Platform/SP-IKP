@@ -22,7 +22,6 @@ class UnitKerjasTable extends UnitKerjaResourceTable
         return $table
             ->columns(self::columns())
             ->filters(self::filters())
-            ->headerActions(self::headerActions())
             ->actions(self::actions())
             ->bulkActions(self::bulkActions());
     }

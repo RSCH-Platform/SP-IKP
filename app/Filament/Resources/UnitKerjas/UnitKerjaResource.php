@@ -48,7 +48,7 @@ class UnitKerjaResource extends ResourcesUnitKerjaResource
             : parent::getNavigationGroup();
     }
 
-    public static function form(Schema $schema): Schema
+    public static function schema(Schema $schema): Schema
     {
         return UnitKerjaForm::configure($schema);
     }

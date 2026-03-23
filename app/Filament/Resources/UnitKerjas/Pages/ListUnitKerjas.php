@@ -10,11 +10,4 @@ use Juniyasyos\ManageUnitKerja\Filament\Resources\UnitKerjaResource\Pages\ListUn
 class ListUnitKerjas extends ListUnitKerja
 {
     protected static string $resource = UnitKerjaResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            CreateAction::make(),
-        ];
-    }
 }
