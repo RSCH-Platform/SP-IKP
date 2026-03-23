@@ -10,8 +10,9 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Guava\FilamentModalRelationManagers\Actions\RelationManagerAction;
+use Juniyasyos\ManageUnitKerja\Filament\Resources\UnitKerjaResource\Pages\EditUnitKerja as PagesEditUnitKerja;
 
-class EditUnitKerja extends EditRecord
+class EditUnitKerja extends PagesEditUnitKerja
 {
     protected static string $resource = UnitKerjaResource::class;
 

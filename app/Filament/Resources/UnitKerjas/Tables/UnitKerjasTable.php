@@ -13,50 +13,17 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Guava\FilamentModalRelationManagers\Actions\RelationManagerAction;
+use Juniyasyos\ManageUnitKerja\Filament\Resources\UnitKerjaResource\Tables\UnitKerjaResourceTable;
 
-class UnitKerjasTable
+class UnitKerjasTable extends UnitKerjaResourceTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('unit_name')
-                    ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                TrashedFilter::make(),
-            ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                RelationManagerAction::make('users')
-                    ->label('Anggota')
-                    ->icon('heroicon-m-users')
-                    ->color('info')
-                    ->slideOver()
-                    ->relationManager(UsersRelationManager::class)
-                    ->modalWidth('5xl'),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
-            ]);
+            ->columns(self::columns())
+            ->filters(self::filters())
+            ->headerActions(self::headerActions())
+            ->actions(self::actions())
+            ->bulkActions(self::bulkActions());
     }
 }

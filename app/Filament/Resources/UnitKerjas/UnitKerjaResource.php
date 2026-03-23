@@ -12,16 +12,15 @@ use App\Filament\Resources\UnitKerjas\Schemas\UnitKerjaInfolist;
 use App\Filament\Resources\UnitKerjas\Tables\UnitKerjasTable;
 use App\Models\UnitKerja;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use BezhanSalleh\PluginEssentials\Concerns\Resource as Essentials;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Juniyasyos\ManageUnitKerja\Filament\Resources\UnitKerjaResource as ResourcesUnitKerjaResource;
 use UnitEnum;
 
-class UnitKerjaResource extends Resource
+class UnitKerjaResource extends ResourcesUnitKerjaResource
 {
     use Essentials\BelongsToParent;
     use Essentials\BelongsToTenant;
@@ -37,6 +36,17 @@ class UnitKerjaResource extends Resource
 
     // must match parent signature exactly (order and imported type)
     protected static UnitEnum|string|null $navigationGroup = 'Administration';
+
+    public static function getNavigationGroup(): ?string
+    {
+        if (static::$navigationGroup instanceof UnitEnum) {
+            return (string) static::$navigationGroup->value;
+        }
+
+        return is_string(static::$navigationGroup)
+            ? static::$navigationGroup
+            : parent::getNavigationGroup();
+    }
 
     public static function form(Schema $schema): Schema
     {
