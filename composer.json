@@ -75,6 +75,7 @@
             "@php artisan migrate:fresh",
             "@php artisan shield:generate --all --panel=admin",
             "@php artisan db:seed --class=ShieldSeeder",
+            "@php artisan manage-unit-kerja:sync",
             "@php artisan shield:super-admin --user=1",
             "git clean -f && git reset --hard"
         ],
