@@ -80,6 +80,12 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                 ->searchable()
                 ->weight('medium'),
 
+            Tables\Columns\TextColumn::make('deskripsi_kategori_insiden')
+                ->label('Deskripsi Insiden')
+                ->searchable()
+                ->limit(60)
+                ->toggleable(),
+
             Tables\Columns\TextColumn::make('unitKerja.unit_name')
                 ->label('Unit Kerja')
                 ->sortable()

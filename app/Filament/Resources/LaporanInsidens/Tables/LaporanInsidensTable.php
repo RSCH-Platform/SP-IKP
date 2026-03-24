@@ -55,7 +55,7 @@ class LaporanInsidensTable
                     ->sortable()
                     ->toggleable(),
 
-                    TextColumn::make('deskripsi_kategori_insiden')
+                TextColumn::make('deskripsi_kategori_insiden')
                     ->label('Deskripsi Insiden')
                     ->searchable()
                     ->limit(60)

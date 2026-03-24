@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\LaporanInsiden;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Juniyasyos\FilamentMediaManager\Models\Folder;
@@ -22,9 +23,12 @@ class LaporanInsidenObserver
             ?? optional($laporan->tanggal_insiden)->format('Y-m')
             ?? date('Y-m');
 
-        $reportSlug = $laporan->nomor_laporan
-            ? Str::slug($laporan->nomor_laporan, '-')
-            : "laporan-{$laporan->id}";
+        $reportTitle = $laporan->kronologi ?? $laporan->deskripsi_kategori_insiden ?? $laporan->nomor_laporan ?? 'laporan-tidak-tersedia';
+        $reportSlug = Str::slug(Str::limit($reportTitle, 40), '-');
+
+        if (empty($reportSlug)) {
+            $reportSlug = "laporan-{$laporan->id}";
+        }
 
         $rootFolder = Folder::firstOrCreate(
             [
@@ -35,8 +39,8 @@ class LaporanInsidenObserver
                 'description' => "Root folder unit kerja {$unitName}",
                 'is_public' => true,
                 'has_user_access' => true,
-                'user_id' => auth()->id(),
-                'user_type' => auth()->check() ? get_class(auth()->user()) : null,
+                'user_id' => Auth::id(),
+                'user_type' => Auth::check() ? get_class(Auth::user()) : null,
             ]
         );
 

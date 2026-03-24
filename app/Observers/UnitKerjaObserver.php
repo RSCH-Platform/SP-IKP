@@ -40,8 +40,8 @@ class UnitKerjaObserver
                 'description' => "Folder Laporan Insiden untuk unit kerja {$unitKerja->unit_name}",
                 'is_public' => true,
                 'has_user_access' => true,
-                'user_id' => auth()->id(),
-                'user_type' => auth()->check() ? get_class(auth()->user()) : null,
+                'user_id' => Auth::id(),
+                'user_type' => Auth::check() ? get_class(Auth::user()) : null,
             ]
         );
 
@@ -63,7 +63,7 @@ class UnitKerjaObserver
             'root_folder_id' => $rootFolder->id,
             'child_folder_id' => $childFolder->id,
             'disk_path' => $diskPath,
-            'disk_created' => $diskCreated,
+            'disk_createwd' => $diskCreated,
         ]);
 
         Notification::make()
