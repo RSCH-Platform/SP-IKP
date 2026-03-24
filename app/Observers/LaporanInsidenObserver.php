@@ -26,20 +26,43 @@ class LaporanInsidenObserver
             ? Str::slug($laporan->nomor_laporan, '-')
             : "laporan-{$laporan->id}";
 
-        $path = trim("{$unitSlug}/Laporan Insiden/{$month}/{$reportSlug}", '/');
-
-        $diskCreated = false;
-        if (! Storage::disk('public')->exists($path)) {
-            $diskCreated = Storage::disk('public')->makeDirectory($path);
-        }
-
-        $folder = Folder::firstOrCreate(
+        $rootFolder = Folder::firstOrCreate(
             [
-                'name' => $path,
-                'collection' => 'laporan_insiden',
+                'name' => $unitSlug,
+                'collection' => 'unit_kerja',
             ],
             [
-                'description' => "Folder laporan insiden untuk unit {$unitName} ({$laporan->nomor_laporan})",
+                'description' => "Root folder unit kerja {$unitName}",
+                'is_public' => true,
+                'has_user_access' => true,
+                'user_id' => auth()->id(),
+                'user_type' => auth()->check() ? get_class(auth()->user()) : null,
+            ]
+        );
+
+        $laporanFolder = Folder::firstOrCreate(
+            [
+                'name' => 'Laporan Insiden',
+                'collection' => 'laporan_insiden',
+                'parent_id' => $rootFolder->id,
+            ],
+            [
+                'description' => "Folder Laporan Insiden di unit {$unitName}",
+                'is_public' => true,
+                'has_user_access' => true,
+                'user_id' => auth()->id(),
+                'user_type' => auth()->check() ? get_class(auth()->user()) : null,
+            ]
+        );
+
+        $reportFolder = Folder::firstOrCreate(
+            [
+                'name' => $reportSlug,
+                'collection' => 'laporan_insiden',
+                'parent_id' => $laporanFolder->id,
+            ],
+            [
+                'description' => "Folder detail laporan {$laporan->nomor_laporan} ({$laporan->id})",
                 'is_public' => true,
                 'has_user_access' => true,
                 'user_id' => auth()->id(),
@@ -49,25 +72,34 @@ class LaporanInsidenObserver
             ]
         );
 
-        if (! $folder->wasRecentlyCreated) {
-            $folder->update([
+        if (! $reportFolder->wasRecentlyCreated) {
+            $reportFolder->update([
                 'model_type' => LaporanInsiden::class,
                 'model_id' => $laporan->id,
             ]);
         }
 
+        $diskPath = "{$unitSlug}/Laporan Insiden/{$month}/{$reportSlug}";
+        $diskCreated = false;
+        if (! Storage::disk('public')->exists($diskPath)) {
+            $diskCreated = Storage::disk('public')->makeDirectory($diskPath);
+        }
+
         Notification::make()
             ->title('Folder Laporan Insiden dibuat')
             ->success()
-            ->body("Folder '{$path}' berhasil ditambahkan ke database media manager.")
+            ->body("Folder laporan '{$laporan->nomor_laporan}' dibuat di media manager.")
             ->send();
 
         logger()->info('LaporanInsiden folder create', [
             'laporan_id' => $laporan->id,
-            'path' => $path,
+            'unit_id' => $laporan->unit_kerja_id,
+            'path' => $diskPath,
             'disk_created' => $diskCreated,
-            'folder_id' => $folder->id,
-            'folder_is_new' => $folder->wasRecentlyCreated,
+            'root_folder_id' => $rootFolder->id,
+            'laporan_folder_id' => $laporanFolder->id,
+            'report_folder_id' => $reportFolder->id,
+            'report_folder_was_new' => $reportFolder->wasRecentlyCreated,
         ]);
     }
 }
