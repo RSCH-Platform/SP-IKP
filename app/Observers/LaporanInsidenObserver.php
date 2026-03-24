@@ -23,10 +23,15 @@ class LaporanInsidenObserver
             ?? optional($laporan->tanggal_insiden)->format('Y-m')
             ?? date('Y-m');
 
-        $reportTitle = $laporan->kronologi ?? $laporan->deskripsi_kategori_insiden ?? $laporan->nomor_laporan ?? 'laporan-tidak-tersedia';
+        $reportTitle = $laporan->nomor_laporan . ' ' . Str::limit($laporan->deskripsi_insiden, 50);
         $reportSlug = Str::slug(Str::limit($reportTitle, 40), '-');
 
         if (empty($reportSlug)) {
+            dd([
+                'laporan_id' => $laporan->id,
+                'nomor_laporan' => $laporan->nomor_laporan,
+                'deskripsi_insiden' => $laporan->deskripsi_insiden,
+            ]);
             $reportSlug = "laporan-{$laporan->id}";
         }
 
