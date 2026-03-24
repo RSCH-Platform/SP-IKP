@@ -23,11 +23,10 @@ class LaporanInsidenObserver
             ?? optional($laporan->tanggal_insiden)->format('Y-m')
             ?? date('Y-m');
 
-        $reportTitle = $laporan->nomor_laporan . ' ' . Str::limit($laporan->deskripsi_kategori_insiden, 50);
-        $reportSlug = Str::slug(Str::limit($reportTitle, 40), '-');
+        $reportTitle = $laporan->nomor_laporan . ': ' . Str::limit($laporan->deskripsi_kategori_insiden, 100);
 
-        if (empty($reportSlug)) {
-            $reportSlug = "laporan-{$laporan->id}";
+        if (empty($reportTitle)) {
+            $reportTitle = "laporan-{$laporan->id}";
         }
 
         $rootFolder = Folder::firstOrCreate(
@@ -61,7 +60,7 @@ class LaporanInsidenObserver
 
         $reportFolder = Folder::firstOrCreate(
             [
-                'name' => $reportSlug,
+                'name' => $reportTitle,
                 'collection' => 'laporan_insiden',
                 'parent_id' => $laporanFolder->id,
             ],
@@ -83,7 +82,7 @@ class LaporanInsidenObserver
             ]);
         }
 
-        $diskPath = "{$unitSlug}/Laporan Insiden/{$month}/{$reportSlug}";
+        $diskPath = "{$unitSlug}/Laporan Insiden/{$month}/{$reportTitle}";
         $diskCreated = false;
         if (! Storage::disk('public')->exists($diskPath)) {
             $diskCreated = Storage::disk('public')->makeDirectory($diskPath);

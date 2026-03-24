@@ -13,13 +13,13 @@ class UnitKerjaObserver
 {
     public function created(UnitKerja $unitKerja): void
     {
-        $unitSlug = Str::slug($unitKerja->unit_name ?: 'unit-kerja-tidak-diketahui', '-');
+        $unitSlug = Str::slug($unitKerja->unit_name ?: 'unit-kerja-tidak-diketahui', '_');
 
         // Root folder unit kerja
         $rootFolder = Folder::firstOrCreate(
             [
-                'name' => $unitSlug,
-                'collection' => 'unit_kerja',
+                'name' => $unitKerja->unit_name,
+                'collection' => 'unit_kerja_'. $unitSlug,
             ],
             [
                 'description' => "Root folder unit kerja {$unitKerja->unit_name}",
