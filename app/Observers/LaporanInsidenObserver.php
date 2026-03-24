@@ -31,8 +31,8 @@ class LaporanInsidenObserver
 
         $rootFolder = Folder::firstOrCreate(
             [
-                'name' => $unitSlug,
-                'collection' => 'unit_kerja',
+                'name' => $unitName,
+                'collection' => 'unit_kerja_'. $unitSlug,
             ],
             [
                 'description' => "Root folder unit kerja {$unitName}",
@@ -46,7 +46,7 @@ class LaporanInsidenObserver
         $laporanFolder = Folder::firstOrCreate(
             [
                 'name' => 'Laporan Insiden',
-                'collection' => 'laporan_insiden',
+                'collection' => 'laporan_insiden'.  '_' . $unitSlug,
                 'parent_id' => $rootFolder->id,
             ],
             [
@@ -61,7 +61,7 @@ class LaporanInsidenObserver
         $reportFolder = Folder::firstOrCreate(
             [
                 'name' => $reportTitle,
-                'collection' => 'laporan_insiden',
+                'collection' => 'laporan_insiden'.  '_' . $unitSlug,
                 'parent_id' => $laporanFolder->id,
             ],
             [
