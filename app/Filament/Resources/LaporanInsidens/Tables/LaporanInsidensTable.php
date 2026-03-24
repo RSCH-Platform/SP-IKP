@@ -61,6 +61,13 @@ class LaporanInsidensTable
                     ->limit(60)
                     ->toggleable(),
 
+                TextColumn::make('unit_kerja')
+                    ->label('Unit Kerja')
+                    ->formatStateUsing(fn($state, $record) => $state ?: ($record->unitKerja?->unit_name ?? '-'))
+                    ->searchable()
+                    ->badge()
+                    ->toggleable(),
+
                 TextColumn::make('jenis_insiden')
                     ->label('Jenis')
                     ->badge()
@@ -89,12 +96,6 @@ class LaporanInsidensTable
 
                 TextColumn::make('nama_pelapor')
                     ->label('Pelapor')
-                    ->searchable()
-                    ->toggleable(),
-
-                TextColumn::make('unit_kerja')
-                    ->label('Unit Kerja')
-                    ->formatStateUsing(fn($state, $record) => $state ?: ($record->unitKerja?->unit_name ?? '-'))
                     ->searchable()
                     ->toggleable(),
 

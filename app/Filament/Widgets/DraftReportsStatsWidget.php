@@ -6,7 +6,10 @@ use App\Models\LaporanInsiden;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 
 class DraftReportsStatsWidget extends BaseWidget
 {
@@ -14,51 +17,98 @@ class DraftReportsStatsWidget extends BaseWidget
 
     protected static ?int $sort = 1;
 
-    /**
-     * Return a query builder scoped to the current user's permissions/units.
-     */
-    protected function scopedQuery(): \Illuminate\Database\Eloquent\Builder
+    protected function scopedQuery(): Builder
     {
         $query = LaporanInsiden::query();
+        $user = Auth::user();
 
-        $user = auth()->user();
+        if (! $user) {
+            return $query->whereRaw('1 = 0'); // no access
+        }
 
-        // if user only has submission permission (no view-any or view-all), restrict to own reports
-        // if ($user && ! $user->can('ViewAllData:LaporanInsiden')) {
-        //     }
-        if ($user->can('Submit:LaporanInsiden')) {
-            $query->where('user_id', $user->getKey());
-
+        if ($user->can('ViewAllData:LaporanInsiden')) {
             return $query;
         }
 
-        // otherwise fall back to unit-based scope as before
-        $unitIds = $user->unitKerja()->pluck('id');
-        dd($unitIds);
-        $query->whereIn('unit_kerja_id', $unitIds);
+        if ($user->can('ForceEdit:LaporanInsiden')) {
+            $unitIds = $user->unitKerja()->pluck('id');
 
-        return $query;
+            return $query->whereIn('unit_kerja_id', $unitIds);
+        }
+
+        if ($user->can('Submit:LaporanInsiden')) {
+            return $query->where('user_id', $user->getKey());
+        }
+
+        // fallback: no data
+        return $query->whereRaw('1 = 0');
     }
 
     protected function getStats(): array
     {
-        // count reports that are already submitted/processed (anything except draft)
-        $completedBase = $this->scopedQuery()->where('status', LaporanInsiden::STATUS_DRAFT);
-        $totalCompleted = $completedBase->count();
+        $user = Auth::user();
+        $baseQuery = $this->scopedQuery();
 
-        // count all reports
-        $totalTerlaporkan = $this->scopedQuery()->where('status', '!=', LaporanInsiden::STATUS_DRAFT)->count();
+        if (! $user) {
+            return [];
+        }
 
-        return [
-            Stat::make('Total Draft Laporan', $totalCompleted)
-                ->description('Semua laporan yang sedang dalam draft')
-                ->descriptionIcon('heroicon-m-check-circle')
+        $now = Carbon::now();
+        $pendingStatuses = [
+            LaporanInsiden::STATUS_DILAPORKAN,
+            LaporanInsiden::STATUS_REVISI,
+            LaporanInsiden::STATUS_REVISI_UNIT,
+        ];
+        $inProgressStatuses = [
+            LaporanInsiden::STATUS_DILAPORKAN,
+            LaporanInsiden::STATUS_REVISI,
+            LaporanInsiden::STATUS_REVISI_UNIT,
+            LaporanInsiden::STATUS_INVESTIGASI,
+        ];
+
+        $draftCount = (clone $baseQuery)->where('status', LaporanInsiden::STATUS_DRAFT)->count();
+        $reportedCount = (clone $baseQuery)->where('status', '!=', LaporanInsiden::STATUS_DRAFT)->count();
+        $pendingCount = (clone $baseQuery)->whereIn('status', $pendingStatuses)->count();
+        $verifiedCount = (clone $baseQuery)->where('status', LaporanInsiden::STATUS_DIVERIFIKASI)->count();
+        $investigationCount = (clone $baseQuery)->where('status', LaporanInsiden::STATUS_INVESTIGASI)->count();
+        $rejectedCount = (clone $baseQuery)->whereIn('status', [LaporanInsiden::STATUS_REVISI, LaporanInsiden::STATUS_REVISI_UNIT])->count();
+
+        $overdueCount = (clone $baseQuery)
+            ->whereIn('status', $pendingStatuses)
+            ->whereNotNull('reported_at')
+            ->where('reported_at', '<', $now->copy()->subDays(7))
+            ->count();
+
+        $avgResolutionDays = (clone $baseQuery)
+            ->whereNotNull('reported_at')
+            ->whereNotNull('investigation_completed_at')
+            ->where('investigation_completed_at', '>', 'reported_at')
+            ->selectRaw('AVG(TIMESTAMPDIFF(DAY, reported_at, investigation_completed_at)) AS avg_days')
+            ->value('avg_days');
+
+        $stats = [
+            Stat::make('Draft', $draftCount)
+                ->description('Saat ini masih dalam draft')
+                ->descriptionIcon('heroicon-m-pencil-square')
                 ->color('success'),
 
-            Stat::make('Total IKP yang dilaporkan', $totalTerlaporkan)
-                ->description('Jumlah keseluruhan laporan yang ada')
-                ->descriptionIcon('heroicon-m-document-text')
-                ->color('info'),
+            Stat::make('Dalam Proses', $pendingCount)
+                ->description('Menunggu verifikasi / revisi')
+                ->descriptionIcon('heroicon-m-clock')
+                ->color('warning'),
+
+            Stat::make('Selesai', $verifiedCount + $investigationCount)
+                ->description('Diverifikasi / Investigasi selesai')
+                ->descriptionIcon('heroicon-m-check-badge')
+                ->color('primary'),
+
+            Stat::make('Overdue > 7 hari', $overdueCount)
+                ->description('Pendekatan SLA, prioritaskan penyelesaian')
+                ->descriptionIcon('heroicon-m-flag')
+                ->color('danger'),
         ];
+
+        // Tetap tampilkan 4 metrik utama (semua role) agar lebih ringkas dan mudah dibaca.
+        return $stats;
     }
 }
