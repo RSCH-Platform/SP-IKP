@@ -12,6 +12,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
@@ -248,7 +249,17 @@ class ProblemAnalysisSection
                                         'ongoing' => 'Ongoing',
                                         'completed' => 'Completed',
                                     ])
-                                    ->default('pending'), 
+                                    ->default('pending'),
+
+                                SpatieMediaLibraryFileUpload::make('evidence_files')
+                                    ->label('Upload Bukti (Bisa lebih dari 1 file)')
+                                    ->collection('action_evidence')
+                                    ->disk('public')
+                                    ->multiple()
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'application/pdf'])
+                                    ->maxSize(5120)
+                                    ->previewable(true)
+                                    ->helperText('Klik atau drag & drop beberapa file sekaligus. Maks 5MB per file.')
                             ])
                             ->addActionLabel('Tambah Tindakan')
                             ->reorderable()
