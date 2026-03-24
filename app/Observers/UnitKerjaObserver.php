@@ -70,7 +70,7 @@ class UnitKerjaObserver
         Notification::make()
             ->title('Folder unit kerja dibuat')
             ->success()
-            ->body("Folder unit kerja '{$unitKerja->unit_name}' dibuat di media manager (path: {$path}).")
+            ->body("Folder unit kerja '{$unitKerja->unit_name}' dibuat di media manager")
             ->send();
     }
 }
