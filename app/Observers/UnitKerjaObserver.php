@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\UnitKerja;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Juniyasyos\FilamentMediaManager\Models\Folder;
@@ -71,14 +72,5 @@ class UnitKerjaObserver
             ->success()
             ->body("Folder unit kerja '{$unitKerja->unit_name}' dibuat di media manager (path: {$path}).")
             ->send();
-
-        logger()->info('UnitKerja Observer created folder', [
-            'unit_id' => $unitKerja->id,
-            'unit_name' => $unitKerja->unit_name,
-            'path' => $path,
-            'diskCreated' => $diskCreated,
-            'folder_id' => $folder->id,
-            'folder_created' => $folder->wasRecentlyCreated,
-        ]);
     }
 }
