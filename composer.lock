@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17ae9e6e16739f922ca37773c3fd5db0",
+    "content-hash": "a90ca84634237136bfedfeb6c3d5c81d",
     "packages": [
         {
             "name": "bezhansalleh/filament-plugin-essentials",
@@ -2394,17 +2394,11 @@
         },
         {
             "name": "juniyasyos/manage-unit-kerja",
-            "version": "v2.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/juniyasyos/manage-unit-kerja.git",
-                "reference": "461c98f415c2b29fc928e8e5106cf71f7de9c7f1"
-            },
+            "version": "dev-filament-v4",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/juniyasyos/manage-unit-kerja/zipball/461c98f415c2b29fc928e8e5106cf71f7de9c7f1",
-                "reference": "461c98f415c2b29fc928e8e5106cf71f7de9c7f1",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/juniyasyos/manage-unit-kerja",
+                "reference": "461c98f415c2b29fc928e8e5106cf71f7de9c7f1"
             },
             "require": {
                 "bezhansalleh/filament-shield": "^4.1",
@@ -2430,7 +2424,6 @@
                     "Juniyasyos\\ManageUnitKerja\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2441,11 +2434,9 @@
                 }
             ],
             "description": "Plugin manage Unit Kerja untuk Filament (modul terpisah)",
-            "support": {
-                "issues": "https://github.com/juniyasyos/manage-unit-kerja/issues",
-                "source": "https://github.com/juniyasyos/manage-unit-kerja/tree/v2.1.0"
-            },
-            "time": "2026-03-23T05:04:02+00:00"
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",
@@ -12729,7 +12720,7 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "beta",
+    "minimum-stability": "dev",
     "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
