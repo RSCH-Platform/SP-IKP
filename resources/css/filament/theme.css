@@ -35,17 +35,130 @@
    Edit di bawah ini untuk kustomisasi tampilan
    ============================================ */
 
-/* Ubah warna sidebar */
-.fi-sidebar {
-    background-color: #1e293b !important;
-}
-
 /* Ubah font */
 :root {
     --font-family-sans: 'Inter', sans-serif;
+    /* Responsive font size menggunakan clamp() */
+    /* Min 56% di mobile, Max 75% di desktop, scaling otomatis */
+    font-size: clamp(56%, 4vw, 75%);
 }
 
 /* Custom badge */
 .fi-badge {
     border-radius: 4px;
+}
+
+@import '../../../vendor/spykapps/theme-edinburgh/resources/css/edinburgh.css';
+
+/* Override fi-main-ctn width */
+.fi-main-ctn {
+    @apply w-full;
+}
+
+/* Reduce padding jika perlu lebih lebar */
+.fi-main {
+    @apply max-w-full px-2 md:px-4 lg:px-6;
+}
+
+/* Perbesar Icon di Sidebar */
+.fi-sidebar-item-btn>.fi-icon,
+.fi-sidebar-group-btn>.fi-icon,
+.fi-sidebar-database-notifications-btn>.fi-icon {
+    @apply w-6 h-6;
+}
+
+.fi-sidebar-nav {
+    padding: 1rem 0.3rem 0rem 0rem;
+}
+
+:root {
+    /* Radius (lebih modern, sedikit lebih besar) */
+    --theme-radius: 8px;
+    --theme-radius-sm: 6px;
+    --theme-radius-xs: 4px;
+
+    /* Transition */
+    --theme-transition: 140ms ease;
+    --theme-transition-slow: 240ms ease;
+
+    /* Shadow (lebih soft, tidak “dramatic”) */
+    --theme-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --theme-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --theme-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+    --theme-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+
+    /* Border */
+    --theme-border: rgba(0, 0, 0, 0.08);
+    --theme-border-mid: rgba(0, 0, 0, 0.12);
+    --theme-border-heavy: rgba(0, 0, 0, 0.18);
+
+    /* Surface */
+    --theme-surface: #f8fafc;
+    --theme-surface-dim: #f1f5f9;
+    --theme-surface-card: #ffffff;
+    --theme-surface-inset: #eef2f7;
+    --theme-surface-deep: #e2e8f0;
+
+    /* Primary (Corporate Blue) */
+    --theme-primary: #2563eb;
+    --theme-primary-hover: #1d4ed8;
+    --theme-primary-light: #60a5fa;
+    --theme-primary-dim: rgba(37, 99, 235, 0.08);
+    --theme-primary-ring: rgba(37, 99, 235, 0.25);
+
+    /* Text (Neutral Gray - readable banget) */
+    --theme-text: #0f172a;
+    --theme-text-dim: #334155;
+    --theme-text-muted: #64748b;
+    --theme-text-faint: #94a3b8;
+
+    /* Background */
+    --theme-body-bg: #f1f5f9;
+
+    /* Subtle grid / accent (opsional) */
+    --cb-color: rgba(37, 99, 235, 0.08);
+    --cb-size: 20px;
+    --cb-weight: 1px;
+    --cb-offset: 6px;
+}
+
+.dark {
+    /* Shadow (lebih ringan, ga terlalu dalam) */
+    --theme-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.25);
+    --theme-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+    --theme-shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.4);
+    --theme-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+
+    /* Border (lebih keliatan, biar ga “tenggelam”) */
+    --theme-border: rgba(255, 255, 255, 0.08);
+    --theme-border-mid: rgba(255, 255, 255, 0.12);
+    --theme-border-heavy: rgba(255, 255, 255, 0.18);
+
+    /* Surface (INI KUNCI — jangan terlalu hitam) */
+    --theme-surface: #1e293b;
+    /* slate-800 */
+    --theme-surface-dim: #172033;
+    --theme-surface-card: #1e293b;
+    --theme-surface-inset: #0f172a;
+    /* sedikit lebih gelap */
+    --theme-surface-deep: #0b1220;
+
+    /* Primary (tetap corporate, tapi lebih soft di dark) */
+    --theme-primary: #60a5fa;
+    --theme-primary-hover: #3b82f6;
+    --theme-primary-light: #93c5fd;
+    --theme-primary-dim: rgba(96, 165, 250, 0.12);
+    --theme-primary-ring: rgba(96, 165, 250, 0.3);
+
+    /* Text (dibikin nyaman, bukan putih murni) */
+    --theme-text: #e2e8f0;
+    --theme-text-dim: #cbd5f5;
+    --theme-text-muted: #94a3b8;
+    --theme-text-faint: #64748b;
+
+    /* Background utama (abu gelap, bukan hitam) */
+    --theme-body-bg: #0f172a;
+
+    /* Accent grid */
+    --cb-color: rgba(96, 165, 250, 0.08);
 }
