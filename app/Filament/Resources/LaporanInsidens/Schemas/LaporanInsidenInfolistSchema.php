@@ -25,7 +25,7 @@ class LaporanInsidenInfolistSchema
     public static function sectionPelapor(): Section
     {
         return Section::make('📋 BAGIAN A: DATA PELAPOR')
-            ->description('Identitas dan informasi kontak pelapor insiden')
+            ->description('Identitas dan informasi kontak pelapor insiden (Otomatis Terisi)')
             ->icon('heroicon-o-user-circle')
             ->schema([
                 Infolists\Components\TextEntry::make('nama_pelapor')

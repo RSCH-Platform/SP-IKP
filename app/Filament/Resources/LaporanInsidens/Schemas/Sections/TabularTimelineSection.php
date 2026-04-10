@@ -20,6 +20,8 @@ class TabularTimelineSection
                 Repeater::make('timelineEvents')
                     ->relationship('timelineEvents')
                     ->label('Timeline Kejadian')
+                    ->minItems(1)
+                    ->required()
                     ->schema([
                         DateTimePicker::make('event_datetime')
                             ->label('Tanggal & Waktu Kejadian')
@@ -29,6 +31,7 @@ class TabularTimelineSection
                         Repeater::make('entries')
                             ->relationship('entries')
                             ->label('Entri Kategori')
+                            ->minItems(1)
                             ->schema([
                                 Hidden::make('id'),
 

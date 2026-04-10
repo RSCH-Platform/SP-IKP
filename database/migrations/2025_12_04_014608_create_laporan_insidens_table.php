@@ -37,7 +37,6 @@ return new class extends Migration
             $table->string('nomor_rekam_medis')->nullable();
 
             // Kronologi Insiden
-            $table->text('kronologi');
             $table->enum('insiden_terjadi_pada', [
                 'Pasien',
                 'Petugas',

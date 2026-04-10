@@ -50,7 +50,6 @@ class LaporanInsiden extends Model
         'insiden_menyangkut_pasien_lainnya',
         'spesialisasi_pasien',
         'spesialisasi_pasien_lainnya',
-        'kronologi',
         'insiden_terjadi_pada',
         'insiden_terjadi_pada_lainnya',
         'dampak_insiden',
