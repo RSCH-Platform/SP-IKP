@@ -18,12 +18,50 @@ class LaporanInsidenViewController extends Controller
             'timelineEvents' => function ($query) {
                 $query->orderBy('event_datetime', 'asc');
             },
-            'timelineEvents.entries' => function ($query) {
-                $query->orderBy('category_id', 'asc');
-            },
+            'timelineEvents.entries.category',
             'unitKerja',
-            'reporter'
+            'reporter',
+            'verifier',
+            'rejecter'
         ]);
+
+        // Optimalkan timeline events - hapus field yang tidak perlu
+        if ($laporan->timelineEvents) {
+            foreach ($laporan->timelineEvents as $event) {
+                // Hanya pertahankan event_datetime dan entries
+                $event->makeHidden([
+                    'id',
+                    'laporan_insiden_id',
+                    'created_by',
+                    'created_at',
+                    'updated_at'
+                ]);
+
+                if ($event->entries) {
+                    foreach ($event->entries as $entry) {
+                        // Hapus field teknis dari entry
+                        $entry->makeHidden([
+                            'id',
+                            'timeline_event_id',
+                            'category_id',
+                            'created_by',
+                            'created_at',
+                            'updated_at'
+                        ]);
+
+                        // Optimalkan category - hanya name dan sort_order
+                        if ($entry->category) {
+                            $entry->category->makeHidden([
+                                'id',
+                                'code',
+                                'created_at',
+                                'updated_at'
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
 
         // Format data untuk view
         $data = [

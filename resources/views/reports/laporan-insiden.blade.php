@@ -23,8 +23,14 @@
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 font-sans leading-relaxed">
-    <div class="max-w-5xl mx-auto px-6 py-8">
+<body class="bg-slate-300 text-slate-800 font-sans leading-relaxed">
+    <div class="max-w-5xl mx-auto px-4 py-4 bg-white">
+        <!-- DEBUG SECTION -->
+        <div class="no-print mb-6 bg-red-50 border-2 border-red-400 rounded-lg p-4">
+            <p class="text-sm font-bold text-red-700 mb-3">🔴 DEBUG - Semua Data dari Controller:</p>
+            <pre class="text-xs bg-white p-3 rounded border border-red-200 overflow-x-auto text-slate-800"><code>{{ json_encode($laporan->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</code></pre>
+        </div>
+
         <!-- Header Component -->
         <x-pelaporan-insiden-header
             title="LAPORAN INSIDEN"
@@ -36,213 +42,182 @@
             ]" />
 
         <!-- Info Summary -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 bg-white rounded-lg shadow-sm ring-1 ring-slate-200/60 p-6">
-            <div>
-                <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">No. Laporan</p>
-                <p class="text-sm text-slate-800">{{ $laporan->nomor_laporan ?? '-' }}</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 bg-white border border-slate-300 p-1 items-center text-left">
+            <div class="border border-slate-200 p-2">
+                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">No. Laporan</p>
+                <p class="text-xs text-slate-800">{{ $laporan->nomor_laporan ?? '-' }}</p>
             </div>
-            <div>
-                <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Unit Kerja</p>
-                <p class="text-sm text-slate-800">{{ $laporan->unit_kerja ?? '-' }}</p>
+            <div class="border border-slate-200 p-2">
+                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Unit Kerja</p>
+                <p class="text-xs text-slate-800">{{ $laporan->unit_kerja ?? '-' }}</p>
             </div>
-            <div>
-                <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Status</p>
-                <span class="inline-block px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">{{ ucfirst($laporan->status ?? 'Draft') }}</span>
+            <div class="border border-slate-200 p-2">
+                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Status</p>
+                <span class="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">{{ ucfirst($laporan->status ?? 'Draft') }}</span>
             </div>
-            <div>
-                <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Tanggal Cetak</p>
-                <p class="text-sm text-slate-800">{{ now()->translatedFormat('d F Y') }}</p>
+            <div class="border border-slate-200 p-2">
+                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Tanggal Cetak</p>
+                <p class="text-xs text-slate-800">{{ now()->translatedFormat('d F Y') }}</p>
             </div>
         </div>
 
         <!-- SECTION A: DATA PASIEN -->
-        <div class="break-inside-avoid mb-8">
-            <h2 class="text-base font-semibold text-slate-800 pb-2 mb-4 border-b border-slate-200">Data Pasien</h2>
-            <div class="bg-white rounded-lg shadow-sm ring-1 ring-slate-200/60 p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Nama Pasien</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->nama_pasien ?? '-' }}</p>
+        <div class="break-inside-avoid mb-6">
+            <x-section-header title="BAGIAN A: Data Pasien" />
+            <div class="bg-white border border-slate-300 p-2 space-y-3">
+                <!-- Row 1: Nama Pasien & No Rekam Medis -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div class="border border-slate-200 p-2">
+                        <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">Nama Pasien</p>
+                        <p class="text-xs text-slate-800 font-medium">{{ $laporan->nama_pasien ?? '-' }}</p>
                     </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">No. Rekam Medis</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->nomor_rekam_medis ?? '-' }}</p>
+                    <div class="border border-slate-200 p-2">
+                        <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">No. Rekam Medis</p>
+                        <p class="text-xs text-slate-800 font-medium">{{ $laporan->nomor_rekam_medis ?? '-' }}</p>
                     </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Ruangan</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->ruangan ?? '-' }}</p>
+                </div>
+
+                <!-- Row 2: Ruangan -->
+                <div class="border border-slate-200 p-2">
+                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">Ruangan</p>
+                    <p class="text-xs text-slate-800">{{ $laporan->ruangan ?? '-' }}</p>
+                </div>
+
+                <!-- Row 3: Umur & Kelompok Umur -->
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <div class="border border-slate-200 p-2">
+                        <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">Umur</p>
+                        <p class="text-xs text-slate-800 font-medium">{{ $laporan->umur ?? '-' }} tahun</p>
                     </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Umur</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->umur ?? '-' }} tahun</p>
+                    <div class="col-span-2 border border-slate-200 p-2">
+                        <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Kelompok Umur</p>
+                        <div class="space-y-1">
+                            @php
+                            $ageGroups = [
+                            '0-1 bulan' => '0-1 bulan',
+                            '> 1 bulan - 1 tahun' => '> 1 bulan - 1 tahun',
+                            '> 1 tahun - 5 tahun' => '> 1 tahun - 5 tahun',
+                            '> 5 tahun - 15 tahun' => '> 5 tahun - 15 tahun',
+                            '> 15 tahun - 30 tahun' => '> 15 tahun - 30 tahun',
+                            '>30 tahun - 65 tahun' => '>30 tahun - 65 tahun',
+                            '> 65 tahun' => '> 65 tahun'
+                            ];
+                            $selectedAge = trim($laporan->kelompok_umur ?? '');
+                            @endphp
+                            <div class="grid grid-cols-2 gap-1">
+                                @foreach($ageGroups as $key => $label)
+                                <x-checkbox-display :checked="trim($key) === $selectedAge" :label="$label" disabled />
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Kelompok Umur</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->kelompok_umur ?? '-' }}</p>
+                </div>
+
+                <!-- Row 4: Jenis Kelamin -->
+                <div class="border border-slate-200 p-2">
+                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Jenis Kelamin</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        @php
+                        $selectedGender = trim($laporan->jenis_kelamin ?? '');
+                        @endphp
+                        <x-checkbox-display :checked="trim('Laki-laki') === $selectedGender" label="Laki-laki" disabled />
+                        <x-checkbox-display :checked="trim('Perempuan') === $selectedGender" label="Perempuan" disabled />
                     </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Jenis Kelamin</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->jenis_kelamin ?? '-' }}</p>
+                </div>
+
+                <!-- Row 5: Penanggung Biaya -->
+                <div class="border border-slate-200 p-2">
+                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Penanggung Biaya Pasien</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        @php
+                        $selectedPayment = trim($laporan->penanggung_biaya ?? '');
+                        @endphp
+                        <x-checkbox-display :checked="trim('Pribadi') === $selectedPayment" label="Pribadi" disabled />
+                        <x-checkbox-display :checked="trim('Asuransi Swasta') === $selectedPayment" label="Asuransi Swasta" disabled />
+                        <x-checkbox-display :checked="trim('BPJS') === $selectedPayment" label="BPJS" disabled />
+                        <x-checkbox-display :checked="trim('Lainnya') === $selectedPayment" label="Lainnya" disabled />
                     </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Penanggung Biaya</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->penanggung_biaya ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Tanggal Masuk RS</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->tanggal_masuk_rs?->translatedFormat('d F Y H:i') ?? '-' }}</p>
-                    </div>
+                </div>
+
+                <!-- Row 6: Tanggal Masuk RS -->
+                <div class="border border-slate-200 p-2">
+                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">Tanggal Masuk RS</p>
+                    <p class="text-xs text-slate-800">{{ $laporan->tanggal_masuk_rs?->translatedFormat('d F Y H:i') ?? '-' }}</p>
                 </div>
             </div>
         </div>
 
         <!-- SECTION B: RINCIAN KEJADIAN -->
-        <div class="break-inside-avoid mb-8">
-            <h2 class="text-base font-semibold text-slate-800 pb-2 mb-4 border-b border-slate-200">Rincian Kejadian</h2>
-            <div class="bg-white rounded-lg shadow-sm ring-1 ring-slate-200/60 p-6 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Tanggal Insiden</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->tanggal_insiden?->translatedFormat('d F Y') ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Waktu Insiden</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->waktu_insiden ?? '-' }}</p>
-                    </div>
+        <div class="break-inside-avoid mb-6">
+            <x-section-header title="BAGIAN B: Rincian Kejadian" />
+            <div class="bg-white border border-slate-300 p-2 space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <x-data-row label="Tanggal Insiden" :value="$laporan->tanggal_insiden?->translatedFormat('d F Y') ?? '-'" />
+                    <x-data-row label="Waktu Insiden" :value="$laporan->waktu_insiden ?? '-'" />
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Jenis Insiden</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->jenis_insiden ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Lokasi Insiden</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->lokasi_insiden ?? '-' }}</p>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <x-data-row label="Jenis Insiden" :value="$laporan->jenis_insiden ?? '-'" />
+                    <x-data-row label="Lokasi Insiden" :value="$laporan->lokasi_insiden ?? '-'" />
                 </div>
-                <div>
-                    <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Penjelasan Insiden</p>
-                    <div class="text-sm text-slate-800 whitespace-pre-wrap bg-slate-50 p-4 rounded">{{ $laporan->deskripsi_kategori_insiden ?? '-' }}</div>
+                <x-long-text-display label="Penjelasan Insiden" :text="$laporan->deskripsi_kategori_insiden ?? '-'" />
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <x-data-row label="Kategori Insiden" :value="$laporan->kategori_insiden ?? '-'" />
+                    <x-data-row label="Orang Pelapor" :value="$laporan->pelapor_insiden_pasien ?? '-'" />
+                    <x-data-row label="Insiden Menyangkut" :value="$laporan->insiden_menyangkut_pasien ?? '-'" />
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Kategori Insiden</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->kategori_insiden ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Orang Pelapor</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->pelapor_insiden_pasien ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Insiden Menyangkut</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->insiden_menyangkut_pasien ?? '-' }}</p>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <x-data-row label="Spesialisasi Pasien" :value="$laporan->spesialisasi_pasien ?? '-'" />
+                    <x-data-row label="Dampak Insiden" :value="$laporan->dampak_insiden ?? '-'" />
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Spesialisasi Pasien</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->spesialisasi_pasien ?? '-' }}</p>
+                <div class="border border-slate-200 p-2 col-span-full">
+                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Kejadian Sebelumnya</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        @php
+                        $kejadianSebelumnya = trim($laporan->kejadian_pernah_terjadi_sebelumnya ?? '');
+                        @endphp
+                        <x-checkbox-display :checked="$kejadianSebelumnya === 'Ya'" label="Ya" disabled />
+                        <x-checkbox-display :checked="$kejadianSebelumnya === 'Tidak'" label="Tidak" disabled />
                     </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Dampak Insiden</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->dampak_insiden ?? '-' }}</p>
-                    </div>
-                </div>
-                <div>
-                    <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Kejadian Sebelumnya</p>
-                    <p class="text-sm text-slate-800">{{ $laporan->kejadian_pernah_terjadi_sebelumnya ?? '-' }}</p>
                 </div>
             </div>
         </div>
 
         <!-- SECTION C: KRONOLOGI TIMELINE -->
-        <div class="break-inside-avoid mb-8">
-            <h2 class="text-base font-semibold text-slate-800 pb-2 mb-4 border-b border-slate-200">Kronologi Timeline</h2>
-            <div class="bg-white rounded-lg shadow-sm ring-1 ring-slate-200/60 p-6">
-                @if($laporan->timelineEvents && $laporan->timelineEvents->count() > 0)
-                <div class="space-y-6">
-                    @foreach($laporan->timelineEvents as $event)
-                    <div class="border-l-2 border-slate-300 pl-6">
-                        <p class="text-sm font-semibold text-slate-800 mb-3">
-                            {{ $event->event_datetime?->translatedFormat('d F Y H:i') ?? 'Waktu tidak tersedia' }}
-                        </p>
-                        @if($event->entries && $event->entries->count() > 0)
-                        <div class="space-y-4">
-                            @foreach($event->entries as $entry)
-                            <div>
-                                <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">
-                                    {{ $entry->category?->name ?? 'Kategori' }}
-                                </p>
-                                <p class="text-sm text-slate-800 whitespace-pre-wrap">{{ $entry->description ?? '-' }}</p>
-                            </div>
-                            @endforeach
-                        </div>
-                        @else
-                        <p class="text-sm text-slate-500">Tidak ada entri untuk timeline ini</p>
-                        @endif
-                    </div>
-                    @endforeach
-                </div>
-                @else
-                <p class="text-sm text-slate-500 py-6 text-center">Belum ada kronologi timeline yang tersedia</p>
-                @endif
+        <div class="break-inside-avoid mb-6">
+            <x-section-header title="BAGIAN C: Kronologi Timeline" />
+            <div class="bg-white border border-slate-300 p-2">
+                <x-timeline-events :events="$laporan->timelineEvents ?? collect()" />
             </div>
         </div>
 
         <!-- SECTION D: TINDAKAN YANG DILAKUKAN -->
-        <div class="break-inside-avoid mb-8">
-            <h2 class="text-base font-semibold text-slate-800 pb-2 mb-4 border-b border-slate-200">Tindakan yang Dilakukan</h2>
-            <div class="bg-white rounded-lg shadow-sm ring-1 ring-slate-200/60 p-6 space-y-6">
-                <div>
-                    <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Tindakan Segera Setelah Kejadian</p>
-                    <div class="text-sm text-slate-800 whitespace-pre-wrap bg-slate-50 p-4 rounded">{{ $laporan->tindakan_dilakukan ?? '-' }}</div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Tindakan Dilakukan Oleh</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->tindakan_dilakukan_oleh ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Unit Penyebab</p>
-                        <p class="text-sm text-slate-800">{{ $laporan->unit_kerja ?? '-' }}</p>
-                    </div>
+        <div class="break-inside-avoid mb-6">
+            <x-section-header title="BAGIAN D: Tindakan Setelah Kejadian" />
+            <div class="bg-white border border-slate-300 p-2 space-y-3">
+                <x-long-text-display label="Tindakan yang Dilakukan Segera Setelah Kejadian" :text="$laporan->tindakan_dilakukan ?? '-'" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <x-data-row label="Tindakan Dilakukan Oleh" :value="$laporan->tindakan_dilakukan_oleh ?? '-'" />
+                    <x-data-row label="Unit Penyebab" :value="$laporan->unit_kerja ?? '-'" />
                 </div>
             </div>
         </div>
 
         <!-- SECTION E: GRADING RISIKO -->
-        <div class="break-inside-avoid mb-8">
-            <h2 class="text-base font-semibold text-slate-800 pb-2 mb-4 border-b border-slate-200">Grading Risiko</h2>
-            <div class="bg-white rounded-lg shadow-sm ring-1 ring-slate-200/60 p-6">
-                <div class="mb-6">
-                    @php
-                    $gradingStyle = match($laporan->grading_risiko) {
-                    'BIRU' => 'bg-blue-50 text-blue-700',
-                    'HIJAU' => 'bg-green-50 text-green-700',
-                    'KUNING' => 'bg-amber-50 text-amber-700',
-                    'MERAH' => 'bg-red-50 text-red-700',
-                    default => 'bg-blue-50 text-blue-700'
-                    };
-                    @endphp
-                    <div class="flex items-center justify-center">
-                        <span class="inline-block px-4 py-2 {{ $gradingStyle }} rounded text-sm font-medium">
-                            {{ $laporan->grading_risiko ?? 'BIRU' }}
-                        </span>
-                    </div>
-                </div>
-                <div>
-                    <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Justifikasi Grading</p>
-                    <div class="text-sm text-slate-800 whitespace-pre-wrap bg-slate-50 p-4 rounded">{{ $laporan->catatan_tambahan ?? 'Tidak ada justifikasi' }}</div>
-                </div>
+        <div class="break-inside-avoid mb-6">
+            <x-section-header title="BAGIAN E: Grading Risiko" />
+            <div class="bg-white border border-slate-300 p-2">
+                <x-grading-display :grade="$laporan->grading_risiko ?? 'BIRU'" :justification="$laporan->catatan_tambahan ?? 'Tidak ada justifikasi'" />
             </div>
         </div>
 
         <!-- Footer Report Component -->
         <x-footer-report
-            :createdByName="$laporan->nama_pelapor ?? $laporan->reporter?->name ?? '-'"
-            :createdByNip="$laporan->nip_pelapor ?? '-'"
-            :createdByPosition="$laporan->posisi_pelapor ?? 'Perawat'"
-            :unitId="$laporan->unit_id"
+            :createdByName="$laporan->reporter?->name ?? $laporan->nama_pelapor ?? '-'"
+            :createdByNip="$laporan->reporter?->nip ?? '-'"
+            :createdByPosition="'Pelapor'"
+            :verifiedByName="$laporan->verifier?->name ?? '-'"
+            :verifiedByNip="$laporan->verifier?->nip ?? '-'"
+            :unitName="$laporan->unit_kerja?->unit_name ?? $laporan->unit_kerja ?? '-'"
             :reportDate="$laporan->tanggal_lapor?->translatedFormat('d F Y')"
             :notes="[
                 'Dokumen ini bersifat RAHASIA dan tidak boleh difotocopy',
@@ -252,11 +227,11 @@
             ]" />
 
         <!-- Print Controls -->
-        <div class="no-print flex gap-3 mb-8">
-            <button onclick="window.history.back()" class="px-4 py-2 rounded border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50">
+        <div class="no-print grid grid-cols-2 gap-2 mb-4 items-center">
+            <button onclick="window.history.back()" class="px-4 py-2 rounded border border-slate-300 text-slate-700 text-xs font-medium hover:bg-slate-50">
                 Kembali
             </button>
-            <button onclick="window.print()" class="flex-1 px-4 py-2 rounded bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
+            <button onclick="window.print()" class="px-4 py-2 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700">
                 Cetak
             </button>
         </div>
