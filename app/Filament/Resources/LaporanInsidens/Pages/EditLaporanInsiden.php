@@ -431,28 +431,28 @@ class EditLaporanInsiden extends EditRecord
         }
 
         // View button to redirect to view page
-        $actions[] = Action::make('viewLaporan')
-            ->label('Lihat Laporan')
-            ->icon('heroicon-o-eye')
-            ->color('info')
-            ->url(fn() => route('laporan-insiden.show', $this->record->id))
-            ->openUrlInNewTab();
+        // $actions[] = Action::make('viewLaporan')
+        //     ->label('Lihat Laporan')
+        //     ->icon('heroicon-o-eye')
+        //     ->color('info')
+        //     ->url(fn() => route('laporan-insiden.show', $this->record->id))
+        //     ->openUrlInNewTab();
 
-        // Preview laporan insiden button
-        $actions[] = Action::make('previewLaporanInsiden')
-            ->label('Preview Laporan')
-            ->icon('heroicon-o-document-magnifying-glass')
-            ->color('info')
-            ->url(fn() => LaporanInsidenResource::getUrl('preview', ['record' => $this->record->id]))
-            ->openUrlInNewTab();
+        // // Preview laporan insiden button
+        // $actions[] = Action::make('previewLaporanInsiden')
+        //     ->label('Preview Laporan')
+        //     ->icon('heroicon-o-document-magnifying-glass')
+        //     ->color('info')
+        //     ->url(fn() => LaporanInsidenResource::getUrl('preview', ['record' => $this->record->id]))
+        //     ->openUrlInNewTab();
 
-        // Preview investigasi laporan insiden button
-        $actions[] = Action::make('previewInvestigasi')
-            ->label('Preview Investigasi')
-            ->icon('heroicon-o-document-magnifying-glass')
-            ->color('warning')
-            ->url(fn() => LaporanInsidenResource::getUrl('preview-investigasi', ['record' => $this->record->id]))
-            ->openUrlInNewTab();
+        // // Preview investigasi laporan insiden button
+        // $actions[] = Action::make('previewInvestigasi')
+        //     ->label('Preview Investigasi')
+        //     ->icon('heroicon-o-document-magnifying-glass')
+        //     ->color('warning')
+        //     ->url(fn() => LaporanInsidenResource::getUrl('preview-investigasi', ['record' => $this->record->id]))
+        //     ->openUrlInNewTab();
 
         return $actions;
     }
@@ -477,5 +477,44 @@ class EditLaporanInsiden extends EditRecord
         }
 
         return array_filter($categories, fn($cat) => !empty($cat['items']));
+    }
+
+    /**
+     * Prepare timeline events data for the component
+     */
+    public function getTimelineEventsForComponent()
+    {
+        // Load timeline events with relations if not already loaded
+        $events = $this->record->timelineEvents;
+        if (!$events->first()?->relationLoaded('entries')) {
+            $events = $this->record->load('timelineEvents.entries.category')->timelineEvents;
+        }
+        return $this->prepareTimelineData($events);
+    }
+
+    /**
+     * Helper method to prepare timeline data
+     */
+    private function prepareTimelineData($events)
+    {
+        // Group events by date
+        $eventsByDate = $events->groupBy(function ($event) {
+            return $event->event_datetime?->format('Y-m-d');
+        })->sortKeys();
+
+        // Extract unique categories per date
+        $dateCategories = [];
+        foreach ($eventsByDate as $date => $dateEvents) {
+            $dateCategories[$date] = $dateEvents->flatMap(fn($event) => $event->entries ?? [])
+                ->pluck('category')
+                ->unique('id')
+                ->sortBy('sort_order')
+                ->values();
+        }
+
+        return [
+            'eventsByDate' => $eventsByDate,
+            'dateCategories' => $dateCategories
+        ];
     }
 }

@@ -34,6 +34,40 @@ class PreviewLaporanInsiden extends Page
         ]);
     }
 
+    /**
+     * Prepare timeline events data for the component
+     */
+    public function getTimelineEventsForComponent()
+    {
+        return $this->prepareTimelineData($this->record->timelineEvents);
+    }
+
+    /**
+     * Helper method to prepare timeline data
+     */
+    private function prepareTimelineData($events)
+    {
+        // Group events by date
+        $eventsByDate = $events->groupBy(function ($event) {
+            return $event->event_datetime?->format('Y-m-d');
+        })->sortKeys();
+
+        // Extract unique categories per date
+        $dateCategories = [];
+        foreach ($eventsByDate as $date => $dateEvents) {
+            $dateCategories[$date] = $dateEvents->flatMap(fn($event) => $event->entries ?? [])
+                ->pluck('category')
+                ->unique('id')
+                ->sortBy('sort_order')
+                ->values();
+        }
+
+        return [
+            'eventsByDate' => $eventsByDate,
+            'dateCategories' => $dateCategories
+        ];
+    }
+
     public static function canAccess(array $parameters = []): bool
     {
         return true;

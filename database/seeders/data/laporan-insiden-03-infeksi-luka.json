@@ -1,0 +1,47 @@
+[
+    {
+        "nama_pasien": "Ny. Sari Wulandari",
+        "nomor_rekam_medis": "RM-2024-007890",
+        "jenis_insiden": "KTD (Kejadian Tidak Diharapkan)",
+        "kategori_insiden": "Infeksi Terkait Pelayanan Kesehatan",
+        "lokasi_insiden": "Kamar Operasi 2",
+        "ruangan": "Ruang Melati",
+        "umur": 52,
+        "kelompok_umur": ">30 tahun - 65 tahun",
+        "jenis_kelamin": "Perempuan",
+        "penanggung_biaya": "BPJS",
+        "penyakit_utama": "Appendicitis",
+        "spesialisasi_pasien": "bedah",
+        "pelapor_insiden_pasien": "keluarga",
+        "insiden_terjadi_pada": "Pasien",
+        "waktu_insiden": "10:00:00",
+        "dampak_insiden": "Cedera sedang",
+        "grading_risiko": "Kuning",
+        "status": "diverifikasi",
+        "deskripsi_kategori_insiden": "Infeksi luka operasi (Surgical Site Infection/SSI) superfisial yang terjadi pada hari ke-3 pasca appendektomi. Hasil kultur menunjukkan pertumbuhan Staphylococcus aureus. Diduga terkait dengan kemungkinan kontaminasi saat prosedur operasi atau saat perawatan luka post-operasi. Mengakibatkan perpanjangan masa rawat inap dari 5 hari menjadi 12 hari dan kebutuhan terapi antibiotik tambahan.",
+        "tindakan_dilakukan": "1. Melakukan pemeriksaan fisik menyeluruh pada area luka operasi\n2. Mengambil sampel kultur pus untuk pemeriksaan mikrobiologi\n3. Melakukan pemeriksaan penunjang (darah lengkap, LED, CRP)\n4. Mengganti antibiotik profilaksis menjadi antibiotik empiris broad-spectrum\n5. Melakukan perawatan luka dengan teknik steril\n6. Memberikan analgesik untuk mengurangi nyeri\n7. Memberikan antipiretik untuk demam\n8. Melakukan observasi ketat tanda vital dan kondisi luka\n9. Mengganti antibiotik sesuai tes sensitivitas\n10. Memberikan edukasi kepada pasien dan keluarga\n11. Memperpanjang masa rawat inap\n12. Melakukan investigasi terhadap kemungkinan sumber infeksi\n13. Melaporkan kejadian ke Tim PPI dan Tim IKP",
+        "tindakan_dilakukan_oleh": "Dokter",
+        "catatan_tambahan": "Perlu dilakukan audit menyeluruh terhadap prosedur sterilisasi di kamar operasi dan kepatuhan tim bedah terhadap SOP pencegahan infeksi. Surveillance SSI perlu ditingkatkan.",
+        "kejadian_pernah_terjadi_sebelumnya": "Ya",
+        "kejadian_pernah_terjadi_sebelumnya_deskripsi": "Sebelumnya pernah terjadi SSI di kamar operasi ke-2, sehingga saat ini dilakukan audit sterilisasi lebih ketat.",
+        "days_ago": 7,
+        "timeline_entries": [
+            {
+                "category_code": "kejadian",
+                "description": "Pasien Ny. Sari (52 tahun) menjalani operasi appendektomi pada tanggal 5 April 2026 pukul 10.00 WIB di Kamar Operasi 2. Operasi berjalan lancar dengan durasi 1 jam 15 menit. Pada hari ke-3 post operasi, pasien mengeluh nyeri pada area luka operasi yang semakin meningkat dengan luka tampak kemerahan, terdapat pembengkakan, dan keluar cairan serous. Suhu pasien meningkat menjadi 38.5°C. Hasil kultur menunjukkan pertumbuhan bakteri Staphylococcus aureus."
+            },
+            {
+                "category_code": "informasi",
+                "description": "Hasil kultur menunjukkan Staphylococcus aureus resisten beberapa antibiotik; pasien menunjukkan tanda-tanda sistemik seperti demam dan leukositosis."
+            },
+            {
+                "category_code": "good_practice",
+                "description": "Tim melakukan perawatan luka steril, mengganti antibiotik sesuai sensitivitas, dan melakukan audit sterilisasi kamar operasi untuk mencegah kejadian serupa."
+            },
+            {
+                "category_code": "cmp",
+                "description": "Perlu penyempurnaan checklist sterilisasi dan dokumentasi prosedur aseptik di ruang operasi untuk mengurangi risiko SSI."
+            }
+        ]
+    }
+]

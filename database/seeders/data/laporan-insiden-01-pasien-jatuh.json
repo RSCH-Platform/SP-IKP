@@ -1,0 +1,42 @@
+[
+    {
+        "nama_pasien": "Ibu Aminah binti Sulaiman",
+        "nomor_rekam_medis": "RM-2024-001234",
+        "jenis_insiden": "KTD (Kejadian Tidak Diharapkan)",
+        "kategori_insiden": "Pasien Jatuh",
+        "lokasi_insiden": "Ruang Mawar, Bed 12",
+        "ruangan": "Ruang Mawar",
+        "umur": 67,
+        "kelompok_umur": ">65 tahun",
+        "jenis_kelamin": "Perempuan",
+        "penanggung_biaya": "BPJS",
+        "penyakit_utama": "Post-operasi katarak",
+        "spesialisasi_pasien": "bedah",
+        "pelapor_insiden_pasien": "perawat",
+        "insiden_terjadi_pada": "Pasien",
+        "waktu_insiden": "14:30:00",
+        "dampak_insiden": "Cedera sedang",
+        "grading_risiko": "Kuning",
+        "status": "dilaporkan",
+        "deskripsi_kategori_insiden": "Pasien jatuh dari tempat tidur saat mencoba turun sendiri tanpa memanggil perawat. Side rail tempat tidur dalam kondisi terbuka karena perawat lupa menutup setelah pemberian obat. Pasien post-operasi katarak hari ke-2 dengan faktor risiko usia lanjut (67 tahun) dan penggunaan obat antihipertensi yang dapat menyebabkan pusing. Jatuh mengakibatkan fraktur collum femur dextra yang memerlukan tindakan operasi ORIF.",
+        "tindakan_dilakukan": "1. Segera membantu pasien dengan hati-hati, memastikan pasien tidak dipindahkan secara tiba-tiba untuk menghindari cedera lebih lanjut\n2. Melakukan pemeriksaan kesadaran dan tanda vital\n3. Melakukan pemeriksaan fisik area yang mengeluh nyeri (pinggul kanan)\n4. Segera menghubungi dokter jaga (dr. Ahmad Fauzi, Sp.B) untuk melaporkan kejadian\n5. Memindahkan pasien ke tempat tidur dengan bantuan 3 orang perawat\n6. Memberikan kompres dingin pada area yang bengkak\n7. Memberikan analgesik sesuai advice dokter\n8. Melakukan observasi ketat tanda vital\n9. Dokter melakukan pemeriksaan dan foto rontgen\n10. Hasil rontgen menunjukkan fraktur collum femur dextra\n11. Menjelaskan kejadian kepada keluarga pasien\n12. Mendokumentasikan seluruh kejadian\n13. Memasang side rail pada posisi terkunci\n14. Melaporkan kejadian kepada Kepala Ruangan dan Tim IKP",
+        "tindakan_dilakukan_oleh": "Perawat",
+        "catatan_tambahan": "Side rail tidak terpasang dengan benar. Pasien tidak menggunakan bel panggilan yang sudah tersedia. Perlu edukasi ulang kepada pasien dan keluarga tentang pencegahan jatuh.",
+        "kejadian_pernah_terjadi_sebelumnya": "Tidak",
+        "days_ago": 3,
+        "timeline_entries": [
+            {
+                "category_code": "kejadian",
+                "description": "Pada tanggal 9 April 2026 pukul 14.30 WIB, pasien Ny. Aminah (67 tahun) sedang beristirahat di tempat tidur ruang Mawar bed 12 setelah selesai makan siang. Pasien dalam kondisi post-operasi katarak hari ke-2. Saat perawat sedang melakukan visite ke pasien lain, pasien mencoba turun dari tempat tidur sendiri tanpa memanggil perawat karena ingin ke kamar mandi. Side rail/pengaman tempat tidur dalam posisi terbuka karena sebelumnya perawat sedang memberikan obat oral dan lupa menutup kembali. Ketika pasien mencoba turun, kakinya terpeleset dan jatuh ke lantai dengan posisi miring ke kanan."
+            },
+            {
+                "category_code": "informasi",
+                "description": "Pasien post-operasi katarak hari ke-2 dengan faktor risiko usia lanjut, menggunakan antihipertensi, dan tidak menggunakan bel panggilan saat mencoba turun sendiri."
+            },
+            {
+                "category_code": "good_practice",
+                "description": "Petugas segera menempatkan side rail pada posisi terkunci, menempelkan label 'Risiko Jatuh Tinggi', dan mengingatkan keluarga untuk selalu memantau pasien."
+            }
+        ]
+    }
+]

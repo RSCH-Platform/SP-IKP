@@ -1,0 +1,48 @@
+[
+    {
+        "nama_pasien": "Tn. Rahmat Hidayat",
+        "nomor_rekam_medis": "RM-2024-005678",
+        "jenis_insiden": "KNC (Kejadian Nyaris Cedera)",
+        "kategori_insiden": "Medication / Cairan IV",
+        "lokasi_insiden": "IGD Ruang Tindakan",
+        "ruangan": "IGD",
+        "umur": 45,
+        "kelompok_umur": ">30 tahun - 65 tahun",
+        "jenis_kelamin": "Laki-laki",
+        "penanggung_biaya": "Asuransi Swasta",
+        "penyakit_utama": "Nyeri dada dan sesak napas",
+        "spesialisasi_pasien": "penyakit_dalam",
+        "pelapor_insiden_pasien": "petugas_lain",
+        "pelapor_insiden_pasien_lainnya": "Petugas laboratorium yang sedang audit",
+        "insiden_terjadi_pada": "Pasien",
+        "waktu_insiden": "08:15:00",
+        "dampak_insiden": "Tidak ada cedera",
+        "grading_risiko": "Hijau",
+        "status": "investigasi",
+        "deskripsi_kategori_insiden": "Kesalahan dosis Clopidogrel yang disiapkan oleh farmasi. Farmasi menyiapkan Clopidogrel 300mg sedangkan yang diresepkan dokter adalah 75mg. Kesalahan terjadi karena kurangnya komunikasi antara dokter-farmasi-perawat dan tidak adanya double-check saat penyiapan obat. Beruntung kesalahan terdeteksi oleh perawat lain sebelum obat diberikan kepada pasien sehingga tidak menimbulkan cedera.",
+        "tindakan_dilakukan": "1. Segera menghentikan pemberian obat\n2. Melakukan double-check terhadap instruksi dokter\n3. Mengkonfirmasi ulang dosis Clopidogrel kepada dokter\n4. Mengembalikan Clopidogrel 300mg ke farmasi\n5. Melakukan verifikasi ulang dengan prinsip 6 benar\n6. Memberikan obat yang benar kepada pasien\n7. Pasien tidak mengalami adverse event\n8. Melakukan klarifikasi dengan petugas farmasi\n9. Mendokumentasikan kejadian\n10. Melaporkan kepada Kepala IGD dan Tim Farmasi\n11. Memberikan apresiasi kepada Ns. Dewi",
+        "tindakan_dilakukan_oleh": "Perawat",
+        "catatan_tambahan": "Kejadian ini menunjukkan pentingnya double-check sebelum pemberian obat. Perlu perbaikan sistem komunikasi antara dokter-farmasi-perawat dan penerapan CPPT secara konsisten.",
+        "kejadian_pernah_terjadi_sebelumnya": "Ya",
+        "kejadian_pernah_terjadi_sebelumnya_deskripsi": "Sebelumnya pernah terjadi kesalahan pemberian obat di IGD karena tidak adanya double-check. Tim farmasi memutuskan untuk menambah checklist 6 benar dalam proses pengambilan obat.",
+        "days_ago": 1,
+        "timeline_entries": [
+            {
+                "category_code": "kejadian",
+                "description": "Pada tanggal 11 April 2026 pukul 08.15 WIB, pasien Tn. Rahmat (45 tahun) datang ke IGD dengan keluhan nyeri dada dan sesak napas. Setelah dilakukan pemeriksaan awal dan EKG, dokter jaga memberikan instruksi untuk pemberian Aspilet 1x160mg PO, ISDN 5mg SL, Clopidogrel 1x75mg PO. Farmasi menyiapkan obat namun Clopidogrel yang disiapkan 300mg bukan 75mg. Saat perawat akan memberikan obat, perawat lain melihat dan bertanya tentang obat tersebut. Kesalahan terdeteksi sebelum diberikan kepada pasien."
+            },
+            {
+                "category_code": "informasi",
+                "description": "Kesalahan dosis terdeteksi sebelum obat diberikan. Proses penyerahan obat dari farmasi ke perawat tidak disertai checklist pemeriksaan 6 benar."
+            },
+            {
+                "category_code": "cmp",
+                "description": "Ditemukan kekurangan pada prosedur double-check pemberian obat di IGD; perlu menstandarisasi proses verifikasi obat sebelum diberikan kepada pasien."
+            },
+            {
+                "category_code": "sdp",
+                "description": "Usulkan penambahan kolom 'verifikasi 6 benar' di sistem farmasi/rekam medis untuk mencatat pembacaan kode obat dan dosis sebelum diserahkan."
+            }
+        ]
+    }
+]

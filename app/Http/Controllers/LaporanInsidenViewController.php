@@ -71,6 +71,7 @@ class LaporanInsidenViewController extends Controller
         $data = [
             'laporan' => $laporan,
             'periodLabel' => $laporan->tanggal_lapor?->translatedFormat('d F Y') ?? 'N/A',
+            'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
         ];
 
         return view('reports.laporan-insiden', $data);
@@ -170,6 +171,39 @@ class LaporanInsidenViewController extends Controller
                     ]),
                 ],
             ]),
+        ];
+    }
+
+    /**
+     * Helper method to prepare timeline data
+     */
+    private function prepareTimelineData($events)
+    {
+        if (!$events || $events->isEmpty()) {
+            return [
+                'eventsByDate' => collect(),
+                'dateCategories' => []
+            ];
+        }
+
+        // Group events by date
+        $eventsByDate = $events->groupBy(function ($event) {
+            return $event->event_datetime?->format('Y-m-d');
+        })->sortKeys();
+
+        // Extract unique categories per date
+        $dateCategories = [];
+        foreach ($eventsByDate as $date => $dateEvents) {
+            $dateCategories[$date] = $dateEvents->flatMap(fn($event) => $event->entries ?? [])
+                ->pluck('category')
+                ->unique('id')
+                ->sortBy('sort_order')
+                ->values();
+        }
+
+        return [
+            'eventsByDate' => $eventsByDate,
+            'dateCategories' => $dateCategories
         ];
     }
 }

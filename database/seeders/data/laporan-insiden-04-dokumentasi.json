@@ -1,0 +1,43 @@
+[
+    {
+        "nama_pasien": "Tn. Bambang Sutrisno",
+        "nomor_rekam_medis": "RM-2024-009012",
+        "jenis_insiden": "KTC (Kejadian Tidak Cedera)",
+        "kategori_insiden": "Dokumentasi Klinis",
+        "lokasi_insiden": "Ruang Pengambilan Sample Darah - Laboratorium",
+        "ruangan": "Poliklinik Penyakit Dalam",
+        "umur": 58,
+        "kelompok_umur": ">30 tahun - 65 tahun",
+        "jenis_kelamin": "Laki-laki",
+        "penanggung_biaya": "Pribadi",
+        "penyakit_utama": "Check-up kesehatan",
+        "spesialisasi_pasien": "laboratorium",
+        "pelapor_insiden_pasien": "petugas_lain",
+        "pelapor_insiden_pasien_lainnya": "Petugas laboratorium",
+        "insiden_terjadi_pada": "Pasien",
+        "waktu_insiden": "10:00:00",
+        "dampak_insiden": "Tidak ada cedera",
+        "grading_risiko": null,
+        "status": "draft",
+        "deskripsi_kategori_insiden": "Hampir terjadi kesalahan identifikasi pasien di laboratorium akibat kesamaan nama antara dua pasien yang datang bersamaan (Bambang Sutrisno vs Bambang Sutriono). Petugas laboratorium hanya memanggil nama depan tanpa menyebutkan nama lengkap atau nomor rekam medis, sehingga pasien yang salah masuk ke area pengambilan darah. Kesalahan berhasil dicegah karena petugas melakukan verifikasi nama lengkap sebelum tindakan.",
+        "tindakan_dilakukan": "1. Segera menghentikan tindakan pengambilan darah\n2. Meminta pasien yang salah untuk kembali ke ruang tunggu\n3. Melakukan identifikasi ulang dengan menerapkan 2 identitas\n4. Memanggil pasien yang benar dengan menyebutkan nama lengkap\n5. Melakukan verifikasi identitas sebelum pengambilan darah\n6. Melakukan pengambilan sample darah dengan benar\n7. Memastikan label pada tabung sample sudah benar\n8. Memanggil pasien berikutnya dengan metode identifikasi yang lebih jelas\n9. Melaporkan kejadian kepada Koordinator Laboratorium\n10. Mengingatkan seluruh petugas lab tentang pentingnya identifikasi yang benar\n11. Membuat catatan peringatan di papan informasi\n12. Mendokumentasikan kejadian sebagai pembelajaran",
+        "tindakan_dilakukan_oleh": "Perawat",
+        "catatan_tambahan": "Insiden ini menunjukkan pentingnya prosedur identifikasi pasien yang ketat. Perlu diterapkan sistem pemanggilan pasien yang lebih aman, misalnya menggunakan nomor antrian atau menyebutkan nama lengkap + tanggal lahir. Pertimbangkan implementasi barcode scanning untuk identifikasi pasien.",
+        "kejadian_pernah_terjadi_sebelumnya": "Tidak",
+        "days_ago": 0,
+        "timeline_entries": [
+            {
+                "category_code": "kejadian",
+                "description": "Terdapat 2 pasien dengan nama yang mirip datang ke laboratorium untuk pengambilan sample darah: Tn. Bambang Sutrisno (58 tahun) dan Tn. Bambang Sutriono (56 tahun). Petugas A memanggil 'Bapak Bambang' untuk Tn. Sutrisno, namun yang masuk adalah Tn. Sutriono. Petugas sudah menyiapkan tabung sample dengan label nama yang salah dan hampir melakukan pengambilan darah. Namun, sebelum jarum ditusukkan, petugas mengecek kembali identitas dengan bertanya nama lengkap dan menyadari ini bukan pasien yang dimaksud."
+            },
+            {
+                "category_code": "good_practice",
+                "description": "Petugas laboratorium menghentikan tindakan tepat sebelum terjadi kesalahan, kemudian menerapkan tata cara identifikasi pasien 2 faktor (nama lengkap + nomor rekam medis)."
+            },
+            {
+                "category_code": "informasi",
+                "description": "Kedua pasien datang hampir bersamaan dengan nama yang mirip; identifikasi awal menggunakan nama depan saja tidak cukup dan perlu standar pemanggilan yang lebih jelas."
+            }
+        ]
+    }
+]

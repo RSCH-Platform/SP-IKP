@@ -192,7 +192,10 @@ $laporan = $this->record;
     <div class="break-inside-avoid mb-6">
         <x-section-header title="BAGIAN D: Kronologi Timeline" />
         <div class="bg-white border border-slate-300 p-2">
-            <x-timeline-events :events="$laporan->timelineEvents ?? collect()" />
+            @php
+            $timelineData = $this->getTimelineEventsForComponent();
+            @endphp
+            <x-timeline-events :eventsByDate="$timelineData['eventsByDate']" :dateCategories="$timelineData['dateCategories']" />
         </div>
     </div>
 

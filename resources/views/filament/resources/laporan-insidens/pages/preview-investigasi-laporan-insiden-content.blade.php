@@ -3,7 +3,83 @@ $laporan = $record;
 $investigationDataGrouped = isset($investigationDataGrouped) ? $investigationDataGrouped : $this->getGroupedInvestigationData();
 @endphp
 
-<div class="max-w-5xl mx-auto px-4 py-4 bg-white">
+<style>
+    @media print {
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: white;
+            font-size: 10pt;
+        }
+
+        .a4-landscape-container {
+            width: 100%;
+            padding: 10mm;
+            box-sizing: border-box;
+        }
+
+        .break-inside-avoid {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+    }
+
+    .a4-landscape-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 1rem;
+        font-size: 14px;
+    }
+
+    /* Optimize for landscape: reduce vertical space, optimize horizontal */
+    .a4-landscape-container .grid {
+        column-gap: 0.75rem;
+        row-gap: 0.5rem;
+    }
+
+    .a4-landscape-container .space-y-3>*+* {
+        margin-top: 0.5rem;
+    }
+
+    .a4-landscape-container .space-y-4>*+* {
+        margin-top: 0.75rem;
+    }
+
+    .a4-landscape-container .mb-6 {
+        margin-bottom: 0.75rem;
+    }
+
+    .a4-landscape-container .px-4 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .a4-landscape-container .py-4 {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    .a4-landscape-container .text-xs {
+        font-size: 0.7rem;
+    }
+
+    .a4-landscape-container .p-2 {
+        padding: 0.5rem;
+    }
+</style>
+
+<div class="a4-landscape-container">
     <!-- Header Component -->
     <x-pelaporan-insiden-header
         title="INVESTIGASI LAPORAN INSIDEN"
@@ -118,7 +194,10 @@ $investigationDataGrouped = isset($investigationDataGrouped) ? $investigationDat
         <x-section-header title="BAGIAN C: Kronologi Timeline" />
         <div class="bg-white border border-slate-300 p-2">
             @if($laporan->timelineEvents && $laporan->timelineEvents->count() > 0)
-            <x-timeline-events :events="$laporan->timelineEvents" />
+            @php
+            $timelineData = $this->getTimelineEventsForComponent();
+            @endphp
+            <x-timeline-events :eventsByDate="$timelineData['eventsByDate']" :dateCategories="$timelineData['dateCategories']" />
             @else
             <div class="bg-yellow-50 border border-yellow-200 rounded p-4">
                 <p class="text-xs text-yellow-800">Belum ada timeline untuk laporan ini.</p>
@@ -141,4 +220,5 @@ $investigationDataGrouped = isset($investigationDataGrouped) ? $investigationDat
                 'Semua temuan harus diverifikasi dan didokumentasikan dengan baik',
                 'Laporan investigasi menjadi dasar untuk penentuan rekomendasi tindak lanjut'
             ]" />
+</div>
 </div>

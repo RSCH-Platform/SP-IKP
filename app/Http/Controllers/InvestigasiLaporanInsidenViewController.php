@@ -33,6 +33,7 @@ class InvestigasiLaporanInsidenViewController extends Controller
         $data = [
             'laporan' => $laporan,
             'investigationDataGrouped' => $this->groupInvestigationData($laporan->investigationData),
+            'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
         ];
 
         return view('reports.investigasi-laporan-insiden', $data);
@@ -57,5 +58,38 @@ class InvestigasiLaporanInsidenViewController extends Controller
         }
 
         return $grouped;
+    }
+
+    /**
+     * Helper method to prepare timeline data
+     */
+    private function prepareTimelineData($events)
+    {
+        if (!$events || $events->isEmpty()) {
+            return [
+                'eventsByDate' => collect(),
+                'dateCategories' => []
+            ];
+        }
+
+        // Group events by date
+        $eventsByDate = $events->groupBy(function ($event) {
+            return $event->event_datetime?->format('Y-m-d');
+        })->sortKeys();
+
+        // Extract unique categories per date
+        $dateCategories = [];
+        foreach ($eventsByDate as $date => $dateEvents) {
+            $dateCategories[$date] = $dateEvents->flatMap(fn($event) => $event->entries ?? [])
+                ->pluck('category')
+                ->unique('id')
+                ->sortBy('sort_order')
+                ->values();
+        }
+
+        return [
+            'eventsByDate' => $eventsByDate,
+            'dateCategories' => $dateCategories
+        ];
     }
 }

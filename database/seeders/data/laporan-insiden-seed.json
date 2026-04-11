@@ -1,0 +1,174 @@
+[
+    {
+        "nama_pasien": "Ibu Aminah binti Sulaiman",
+        "nomor_rekam_medis": "RM-2024-001234",
+        "jenis_insiden": "KTD (Kejadian Tidak Diharapkan)",
+        "kategori_insiden": "Pasien Jatuh",
+        "lokasi_insiden": "Ruang Mawar, Bed 12",
+        "ruangan": "Ruang Mawar",
+        "umur": 67,
+        "kelompok_umur": ">65 tahun",
+        "jenis_kelamin": "Perempuan",
+        "penanggung_biaya": "BPJS",
+        "penyakit_utama": "Post-operasi katarak",
+        "spesialisasi_pasien": "bedah",
+        "pelapor_insiden_pasien": "perawat",
+        "insiden_terjadi_pada": "Pasien",
+        "waktu_insiden": "14:30:00",
+        "dampak_insiden": "Cedera sedang",
+        "grading_risiko": "Kuning",
+        "status": "dilaporkan",
+        "deskripsi_kategori_insiden": "Pasien jatuh dari tempat tidur saat mencoba turun sendiri tanpa memanggil perawat. Side rail tempat tidur dalam kondisi terbuka karena perawat lupa menutup setelah pemberian obat. Pasien post-operasi katarak hari ke-2 dengan faktor risiko usia lanjut (67 tahun) dan penggunaan obat antihipertensi yang dapat menyebabkan pusing. Jatuh mengakibatkan fraktur collum femur dextra yang memerlukan tindakan operasi ORIF.",
+        "tindakan_dilakukan": "1. Segera membantu pasien dengan hati-hati, memastikan pasien tidak dipindahkan secara tiba-tiba untuk menghindari cedera lebih lanjut\n2. Melakukan pemeriksaan kesadaran dan tanda vital\n3. Melakukan pemeriksaan fisik area yang mengeluh nyeri (pinggul kanan)\n4. Segera menghubungi dokter jaga (dr. Ahmad Fauzi, Sp.B) untuk melaporkan kejadian\n5. Memindahkan pasien ke tempat tidur dengan bantuan 3 orang perawat\n6. Memberikan kompres dingin pada area yang bengkak\n7. Memberikan analgesik sesuai advice dokter\n8. Melakukan observasi ketat tanda vital\n9. Dokter melakukan pemeriksaan dan foto rontgen\n10. Hasil rontgen menunjukkan fraktur collum femur dextra\n11. Menjelaskan kejadian kepada keluarga pasien\n12. Mendokumentasikan seluruh kejadian\n13. Memasang side rail pada posisi terkunci\n14. Melaporkan kejadian kepada Kepala Ruangan dan Tim IKP",
+        "tindakan_dilakukan_oleh": "Perawat",
+        "catatan_tambahan": "Side rail tidak terpasang dengan benar. Pasien tidak menggunakan bel panggilan yang sudah tersedia. Perlu edukasi ulang kepada pasien dan keluarga tentang pencegahan jatuh.",
+        "kejadian_pernah_terjadi_sebelumnya": "Tidak",
+        "days_ago": 3,
+        "timeline_entries": [
+            {
+                "category_code": "kejadian",
+                "description": "Pada tanggal 9 April 2026 pukul 14.30 WIB, pasien Ny. Aminah (67 tahun) sedang beristirahat di tempat tidur ruang Mawar bed 12 setelah selesai makan siang. Pasien dalam kondisi post-operasi katarak hari ke-2. Saat perawat sedang melakukan visite ke pasien lain, pasien mencoba turun dari tempat tidur sendiri tanpa memanggil perawat karena ingin ke kamar mandi. Side rail/pengaman tempat tidur dalam posisi terbuka karena sebelumnya perawat sedang memberikan obat oral dan lupa menutup kembali. Ketika pasien mencoba turun, kakinya terpeleset dan jatuh ke lantai dengan posisi miring ke kanan."
+            },
+            {
+                "category_code": "informasi",
+                "description": "Pasien post-operasi katarak hari ke-2 dengan faktor risiko usia lanjut, menggunakan antihipertensi, dan tidak menggunakan bel panggilan saat mencoba turun sendiri."
+            },
+            {
+                "category_code": "good_practice",
+                "description": "Petugas segera menempatkan side rail pada posisi terkunci, menempelkan label 'Risiko Jatuh Tinggi', dan mengingatkan keluarga untuk selalu memantau pasien."
+            }
+        ]
+    },
+    {
+        "nama_pasien": "Tn. Rahmat Hidayat",
+        "nomor_rekam_medis": "RM-2024-005678",
+        "jenis_insiden": "KNC (Kejadian Nyaris Cedera)",
+        "kategori_insiden": "Medication / Cairan IV",
+        "lokasi_insiden": "IGD Ruang Tindakan",
+        "ruangan": "IGD",
+        "umur": 45,
+        "kelompok_umur": ">30 tahun - 65 tahun",
+        "jenis_kelamin": "Laki-laki",
+        "penanggung_biaya": "Asuransi Swasta",
+        "penyakit_utama": "Nyeri dada dan sesak napas",
+        "spesialisasi_pasien": "penyakit_dalam",
+        "pelapor_insiden_pasien": "petugas_lain",
+        "pelapor_insiden_pasien_lainnya": "Petugas laboratorium yang sedang audit",
+        "insiden_terjadi_pada": "Pasien",
+        "waktu_insiden": "08:15:00",
+        "dampak_insiden": "Tidak ada cedera",
+        "grading_risiko": "Hijau",
+        "status": "investigasi",
+        "deskripsi_kategori_insiden": "Kesalahan dosis Clopidogrel yang disiapkan oleh farmasi. Farmasi menyiapkan Clopidogrel 300mg sedangkan yang diresepkan dokter adalah 75mg. Kesalahan terjadi karena kurangnya komunikasi antara dokter-farmasi-perawat dan tidak adanya double-check saat penyiapan obat. Beruntung kesalahan terdeteksi oleh perawat lain sebelum obat diberikan kepada pasien sehingga tidak menimbulkan cedera.",
+        "tindakan_dilakukan": "1. Segera menghentikan pemberian obat\n2. Melakukan double-check terhadap instruksi dokter\n3. Mengkonfirmasi ulang dosis Clopidogrel kepada dokter\n4. Mengembalikan Clopidogrel 300mg ke farmasi\n5. Melakukan verifikasi ulang dengan prinsip 6 benar\n6. Memberikan obat yang benar kepada pasien\n7. Pasien tidak mengalami adverse event\n8. Melakukan klarifikasi dengan petugas farmasi\n9. Mendokumentasikan kejadian\n10. Melaporkan kepada Kepala IGD dan Tim Farmasi\n11. Memberikan apresiasi kepada Ns. Dewi",
+        "tindakan_dilakukan_oleh": "Perawat",
+        "catatan_tambahan": "Kejadian ini menunjukkan pentingnya double-check sebelum pemberian obat. Perlu perbaikan sistem komunikasi antara dokter-farmasi-perawat dan penerapan CPPT secara konsisten.",
+        "kejadian_pernah_terjadi_sebelumnya": "Ya",
+        "kejadian_pernah_terjadi_sebelumnya_deskripsi": "Sebelumnya pernah terjadi kesalahan pemberian obat di IGD karena tidak adanya double-check. Tim farmasi memutuskan untuk menambah checklist 6 benar dalam proses pengambilan obat.",
+        "days_ago": 1,
+        "timeline_entries": [
+            {
+                "category_code": "kejadian",
+                "description": "Pada tanggal 11 April 2026 pukul 08.15 WIB, pasien Tn. Rahmat (45 tahun) datang ke IGD dengan keluhan nyeri dada dan sesak napas. Setelah dilakukan pemeriksaan awal dan EKG, dokter jaga memberikan instruksi untuk pemberian Aspilet 1x160mg PO, ISDN 5mg SL, Clopidogrel 1x75mg PO. Farmasi menyiapkan obat namun Clopidogrel yang disiapkan 300mg bukan 75mg. Saat perawat akan memberikan obat, perawat lain melihat dan bertanya tentang obat tersebut. Kesalahan terdeteksi sebelum diberikan kepada pasien."
+            },
+            {
+                "category_code": "informasi",
+                "description": "Kesalahan dosis terdeteksi sebelum obat diberikan. Proses penyerahan obat dari farmasi ke perawat tidak disertai checklist pemeriksaan 6 benar."
+            },
+            {
+                "category_code": "cmp",
+                "description": "Ditemukan kekurangan pada prosedur double-check pemberian obat di IGD; perlu menstandarisasi proses verifikasi obat sebelum diberikan kepada pasien."
+            },
+            {
+                "category_code": "sdp",
+                "description": "Usulkan penambahan kolom 'verifikasi 6 benar' di sistem farmasi/rekam medis untuk mencatat pembacaan kode obat dan dosis sebelum diserahkan."
+            }
+        ]
+    },
+    {
+        "nama_pasien": "Ny. Sari Wulandari",
+        "nomor_rekam_medis": "RM-2024-007890",
+        "jenis_insiden": "KTD (Kejadian Tidak Diharapkan)",
+        "kategori_insiden": "Infeksi Terkait Pelayanan Kesehatan",
+        "lokasi_insiden": "Kamar Operasi 2",
+        "ruangan": "Ruang Melati",
+        "umur": 52,
+        "kelompok_umur": ">30 tahun - 65 tahun",
+        "jenis_kelamin": "Perempuan",
+        "penanggung_biaya": "BPJS",
+        "penyakit_utama": "Appendicitis",
+        "spesialisasi_pasien": "bedah",
+        "pelapor_insiden_pasien": "keluarga",
+        "insiden_terjadi_pada": "Pasien",
+        "waktu_insiden": "10:00:00",
+        "dampak_insiden": "Cedera sedang",
+        "grading_risiko": "Kuning",
+        "status": "diverifikasi",
+        "deskripsi_kategori_insiden": "Infeksi luka operasi (Surgical Site Infection/SSI) superfisial yang terjadi pada hari ke-3 pasca appendektomi. Hasil kultur menunjukkan pertumbuhan Staphylococcus aureus. Diduga terkait dengan kemungkinan kontaminasi saat prosedur operasi atau saat perawatan luka post-operasi. Mengakibatkan perpanjangan masa rawat inap dari 5 hari menjadi 12 hari dan kebutuhan terapi antibiotik tambahan.",
+        "tindakan_dilakukan": "1. Melakukan pemeriksaan fisik menyeluruh pada area luka operasi\n2. Mengambil sampel kultur pus untuk pemeriksaan mikrobiologi\n3. Melakukan pemeriksaan penunjang (darah lengkap, LED, CRP)\n4. Mengganti antibiotik profilaksis menjadi antibiotik empiris broad-spectrum\n5. Melakukan perawatan luka dengan teknik steril\n6. Memberikan analgesik untuk mengurangi nyeri\n7. Memberikan antipiretik untuk demam\n8. Melakukan observasi ketat tanda vital dan kondisi luka\n9. Mengganti antibiotik sesuai tes sensitivitas\n10. Memberikan edukasi kepada pasien dan keluarga\n11. Memperpanjang masa rawat inap\n12. Melakukan investigasi terhadap kemungkinan sumber infeksi\n13. Melaporkan kejadian ke Tim PPI dan Tim IKP",
+        "tindakan_dilakukan_oleh": "Dokter",
+        "catatan_tambahan": "Perlu dilakukan audit menyeluruh terhadap prosedur sterilisasi di kamar operasi dan kepatuhan tim bedah terhadap SOP pencegahan infeksi. Surveillance SSI perlu ditingkatkan.",
+        "kejadian_pernah_terjadi_sebelumnya": "Ya",
+        "kejadian_pernah_terjadi_sebelumnya_deskripsi": "Sebelumnya pernah terjadi SSI di kamar operasi ke-2, sehingga saat ini dilakukan audit sterilisasi lebih ketat.",
+        "days_ago": 7,
+        "timeline_entries": [
+            {
+                "category_code": "kejadian",
+                "description": "Pasien Ny. Sari (52 tahun) menjalani operasi appendektomi pada tanggal 5 April 2026 pukul 10.00 WIB di Kamar Operasi 2. Operasi berjalan lancar dengan durasi 1 jam 15 menit. Pada hari ke-3 post operasi, pasien mengeluh nyeri pada area luka operasi yang semakin meningkat dengan luka tampak kemerahan, terdapat pembengkakan, dan keluar cairan serous. Suhu pasien meningkat menjadi 38.5°C. Hasil kultur menunjukkan pertumbuhan bakteri Staphylococcus aureus."
+            },
+            {
+                "category_code": "informasi",
+                "description": "Hasil kultur menunjukkan Staphylococcus aureus resisten beberapa antibiotik; pasien menunjukkan tanda-tanda sistemik seperti demam dan leukositosis."
+            },
+            {
+                "category_code": "good_practice",
+                "description": "Tim melakukan perawatan luka steril, mengganti antibiotik sesuai sensitivitas, dan melakukan audit sterilisasi kamar operasi untuk mencegah kejadian serupa."
+            },
+            {
+                "category_code": "cmp",
+                "description": "Perlu penyempurnaan checklist sterilisasi dan dokumentasi prosedur aseptik di ruang operasi untuk mengurangi risiko SSI."
+            }
+        ]
+    },
+    {
+        "nama_pasien": "Tn. Bambang Sutrisno",
+        "nomor_rekam_medis": "RM-2024-009012",
+        "jenis_insiden": "KTC (Kejadian Tidak Cedera)",
+        "kategori_insiden": "Dokumentasi Klinis",
+        "lokasi_insiden": "Ruang Pengambilan Sample Darah - Laboratorium",
+        "ruangan": "Poliklinik Penyakit Dalam",
+        "umur": 58,
+        "kelompok_umur": ">30 tahun - 65 tahun",
+        "jenis_kelamin": "Laki-laki",
+        "penanggung_biaya": "Pribadi",
+        "penyakit_utama": "Check-up kesehatan",
+        "spesialisasi_pasien": "laboratorium",
+        "pelapor_insiden_pasien": "petugas_lain",
+        "pelapor_insiden_pasien_lainnya": "Petugas laboratorium",
+        "insiden_terjadi_pada": "Pasien",
+        "waktu_insiden": "10:00:00",
+        "dampak_insiden": "Tidak ada cedera",
+        "grading_risiko": null,
+        "status": "draft",
+        "deskripsi_kategori_insiden": "Hampir terjadi kesalahan identifikasi pasien di laboratorium akibat kesamaan nama antara dua pasien yang datang bersamaan (Bambang Sutrisno vs Bambang Sutriono). Petugas laboratorium hanya memanggil nama depan tanpa menyebutkan nama lengkap atau nomor rekam medis, sehingga pasien yang salah masuk ke area pengambilan darah. Kesalahan berhasil dicegah karena petugas melakukan verifikasi nama lengkap sebelum tindakan.",
+        "tindakan_dilakukan": "1. Segera menghentikan tindakan pengambilan darah\n2. Meminta pasien yang salah untuk kembali ke ruang tunggu\n3. Melakukan identifikasi ulang dengan menerapkan 2 identitas\n4. Memanggil pasien yang benar dengan menyebutkan nama lengkap\n5. Melakukan verifikasi identitas sebelum pengambilan darah\n6. Melakukan pengambilan sample darah dengan benar\n7. Memastikan label pada tabung sample sudah benar\n8. Memanggil pasien berikutnya dengan metode identifikasi yang lebih jelas\n9. Melaporkan kejadian kepada Koordinator Laboratorium\n10. Mengingatkan seluruh petugas lab tentang pentingnya identifikasi yang benar\n11. Membuat catatan peringatan di papan informasi\n12. Mendokumentasikan kejadian sebagai pembelajaran",
+        "tindakan_dilakukan_oleh": "Perawat",
+        "catatan_tambahan": "Insiden ini menunjukkan pentingnya prosedur identifikasi pasien yang ketat. Perlu diterapkan sistem pemanggilan pasien yang lebih aman, misalnya menggunakan nomor antrian atau menyebutkan nama lengkap + tanggal lahir. Pertimbangkan implementasi barcode scanning untuk identifikasi pasien.",
+        "kejadian_pernah_terjadi_sebelumnya": "Tidak",
+        "days_ago": 0,
+        "timeline_entries": [
+            {
+                "category_code": "kejadian",
+                "description": "Terdapat 2 pasien dengan nama yang mirip datang ke laboratorium untuk pengambilan sample darah: Tn. Bambang Sutrisno (58 tahun) dan Tn. Bambang Sutriono (56 tahun). Petugas A memanggil 'Bapak Bambang' untuk Tn. Sutrisno, namun yang masuk adalah Tn. Sutriono. Petugas sudah menyiapkan tabung sample dengan label nama yang salah dan hampir melakukan pengambilan darah. Namun, sebelum jarum ditusukkan, petugas mengecek kembali identitas dengan bertanya nama lengkap dan menyadari ini bukan pasien yang dimaksud."
+            },
+            {
+                "category_code": "good_practice",
+                "description": "Petugas laboratorium menghentikan tindakan tepat sebelum terjadi kesalahan, kemudian menerapkan tata cara identifikasi pasien 2 faktor (nama lengkap + nomor rekam medis)."
+            },
+            {
+                "category_code": "informasi",
+                "description": "Kedua pasien datang hampir bersamaan dengan nama yang mirip; identifikasi awal menggunakan nama depan saja tidak cukup dan perlu standar pemanggilan yang lebih jelas."
+            }
+        ]
+    }
+]

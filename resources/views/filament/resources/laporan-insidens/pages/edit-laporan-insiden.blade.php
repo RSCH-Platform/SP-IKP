@@ -1,5 +1,262 @@
 <x-filament-panels::page x-data="{ activeTab: 'form' }">
     <style>
+        .ikp-header {
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            background-color: white;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .ikp-header {
+            background-color: rgb(31 41 55);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .ikp-header-content {
+            padding: 1.5rem;
+        }
+
+        .ikp-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 1rem;
+        }
+
+        .dark .ikp-header-top {
+            border-color: rgb(55 65 81);
+        }
+
+        .ikp-logo-circle {
+            width: 4rem;
+            height: 4rem;
+            background: linear-gradient(to bottom right, #3b82f6, #06b6d4);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ikp-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .dark .ikp-title {
+            color: white;
+        }
+
+        .ikp-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .dark .ikp-subtitle {
+            color: #9ca3af;
+        }
+
+        .ikp-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .dark .ikp-badge {
+            background-color: rgba(30, 64, 175, 0.2);
+            color: #93c5fd;
+            border-color: rgba(93, 191, 253, 0.3);
+        }
+
+        .ikp-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-draft {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .dark .status-draft {
+            background-color: rgba(75, 85, 99, 0.2);
+            color: #d1d5db;
+        }
+
+        .status-dilaporkan {
+            background-color: #fef08a;
+            color: #92400e;
+        }
+
+        .dark .status-dilaporkan {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-revisi {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .dark .status-revisi {
+            background-color: rgba(220, 38, 38, 0.2);
+            color: #fca5a5;
+        }
+
+        .status-diverifikasi {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .dark .status-diverifikasi {
+            background-color: rgba(30, 64, 175, 0.2);
+            color: #93c5fd;
+        }
+
+        .status-revisi-unit {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .dark .status-revisi-unit {
+            background-color: rgba(220, 38, 38, 0.2);
+            color: #fca5a5;
+        }
+
+        .status-investigasi {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .dark .status-investigasi {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .ikp-notice {
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }
+
+        .dark .ikp-notice {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+
+        .ikp-notice-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        .dark .ikp-notice-title {
+            color: #fbbf24;
+        }
+
+        .ikp-notice-text {
+            font-size: 0.875rem;
+            color: #b45309;
+        }
+
+        .dark .ikp-notice-text {
+            color: #fcd34d;
+        }
+
+        .ikp-form-wrapper {
+            border-radius: 0.5rem;
+            background-color: white;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .dark .ikp-form-wrapper {
+            background-color: rgb(31 41 55);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .ikp-form-footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .dark .ikp-form-footer {
+            border-color: rgb(55 65 81);
+        }
+
+        .ikp-footer-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .dark .ikp-footer-text {
+            color: #9ca3af;
+        }
+
+        .ikp-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .ikp-info-item {
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .dark .ikp-info-item {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left-color: #60a5fa;
+        }
+
+        .ikp-info-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .dark .ikp-info-label {
+            color: #9ca3af;
+        }
+
+        .ikp-info-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+            margin-top: 0.25rem;
+        }
+
+        .dark .ikp-info-value {
+            color: white;
+        }
+
+        /* Tab Styles */
         .ikp-tabs {
             display: flex;
             gap: 0.5rem;
@@ -99,6 +356,197 @@
             border-color: rgb(55 65 81);
         }
     </style>
+
+    {{-- Header Section --}}
+    <div class="ikp-header">
+        <div class="ikp-header-content">
+            {{-- Hospital Info Header --}}
+            <div class="ikp-header-top">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div>
+                        <div class="ikp-logo-circle">
+                            <svg style="width: 2.5rem; height: 2.5rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="ikp-title">Edit Laporan Insiden</h2>
+                        <p class="ikp-subtitle">Sistem Pelaporan Insiden Keselamatan Pasien (IKP)</p>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="ikp-status-badge status-{{ str_replace('_', '-', $record->status ?? 'draft') }}">
+                        <svg style="width: 1rem; height: 1rem;" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <span>
+                            @switch($record->status ?? 'draft')
+                            @case('draft')
+                            Draft
+                            @break
+                            @case('dilaporkan')
+                            Dilaporkan
+                            @break
+                            @case('revisi')
+                            Perlu Revisi
+                            @break
+                            @case('diverifikasi')
+                            Diverifikasi
+                            @break
+                            @case('revisi_unit')
+                            Revisi Unit
+                            @break
+                            @case('investigasi')
+                            Investigasi
+                            @break
+                            @default
+                            Draft
+                            @endswitch
+                        </span>
+                    </div>
+                    <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
+                        Dibuat: {{ $record->created_at?->format('d F Y H:i') ?? 'N/A' }}
+                    </p>
+                </div>
+            </div>
+
+            {{-- Laporan Info Grid --}}
+            <div class="ikp-info-grid">
+                <div class="ikp-info-item">
+                    <div class="ikp-info-label">Nomor Laporan</div>
+                    <div class="ikp-info-value">{{ $record->nomor_laporan ?? '-' }}</div>
+                </div>
+                <div class="ikp-info-item">
+                    <div class="ikp-info-label">Pelapor</div>
+                    <div class="ikp-info-value">{{ $record->nama_pelapor ?? '-' }}</div>
+                </div>
+                <div class="ikp-info-item">
+                    <div class="ikp-info-label">Tanggal Insiden</div>
+                    <div class="ikp-info-value">{{ $record->tanggal_insiden?->format('d F Y') ?? '-' }}</div>
+                </div>
+                <div class="ikp-info-item">
+                    <div class="ikp-info-label">Jenis Insiden</div>
+                    <div class="ikp-info-value">{{ $record->jenis_insiden ?? '-' }}</div>
+                </div>
+            </div>
+
+            <div x-data="{open:false}" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+                {{-- Header --}}
+                <div class="flex justify-between border-b px-6 py-4 dark:border-gray-600">
+                    <h3 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white"> <x-heroicon-o-clock class="h-5 w-5" /> Workflow Progress </h3>
+
+                    <button
+                        @click="open = !open"
+                        class="flex w-full items-center justify-between border-b px-6 py-4 text-left transition hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
+                        <x-heroicon-o-chevron-down
+                            class="h-5 w-5 text-gray-500 transition-transform duration-200"
+                            ::class="{ 'rotate-180': open }" />
+                    </button>
+                </div>
+
+                {{-- COLLAPSED SUMMARY --}}
+                <div
+                    x-show="!open"
+                    x-transition.opacity
+                    class="px-6 py-4">
+                    @php
+                    $current = collect($this->getWorkflowSteps())
+                    ->first(fn($s) => $this->getStepStatus($s['key'], $record->status) === 'current');
+                    @endphp
+
+                    @if($current)
+                    <div class="flex items-center gap-4">
+
+                        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white">
+                            <x-dynamic-component :component="$current['icon']" class="h-4 w-4" />
+                        </div>
+
+                        <div>
+                            <div class="font-semibold text-slate-900 dark:text-slate-100">
+                                {{ $current['title'] }}
+                                <span class="ml-auto rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                    proses
+                                </span>
+                            </div>
+
+                            <div class="text-sm text-slate-500 dark:text-slate-400">
+                                {{ $current['desc'] }}
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                {{-- CONTENT --}}
+                <div x-show="open" x-transition class="p-8">
+                    <div class="relative">
+                        {{-- vertical line --}}
+                        <div class="absolute left-5 top-0 h-full w-px bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="space-y-10">
+                            @foreach($this->getWorkflowSteps() as $step)
+                            @php $state = $this->getStepStatus($step['key'], $record->status); @endphp
+                            <div x-data="{open:false}" class="relative flex items-start gap-6">
+                                {{-- ICON --}}
+                                <div class="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white dark:border-slate-900 shadow-sm @if($state === 'done') bg-emerald-500 text-white @elseif($state === 'current') bg-blue-600 text-white @else bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300 @endif">
+                                    @if($state === 'done') <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg> @else <x-dynamic-component :component="$step['icon']" class="h-5 w-5" /> @endif
+                                </div>
+
+                                {{-- CONTENT --}}
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3">
+                                        <div class="font-semibold text-slate-900 dark:text-slate-100"> {{ $step['title'] }} </div>
+                                        {{-- BADGE --}} @if($state === 'done') <span class="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"> selesai </span>
+                                        @elseif($state === 'current') <span class="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"> proses </span> @endif
+                                    </div>
+
+                                    <div class="mb-3 text-sm text-slate-500 dark:text-slate-400"> {{ $step['desc'] }} </div>
+
+                                    @php $stepDetail = $this->getStepDetail($step); $lines = explode("\n", $stepDetail); $message = trim($lines[0]); $details = array_slice($lines, 1); @endphp
+
+                                    @if(count($details) > 0)
+                                    {{-- Detail Card --}}
+                                    <div class="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400"> {{ $message }} </div>
+                                        <div class="mt-3 space-y-3 border-t border-slate-200 pt-3 dark:border-slate-700">
+                                            @foreach($details as $detail)
+                                            @if(trim($detail))
+                                            <div class="flex items-start gap-3 text-sm">
+                                                @if(str_contains($detail,'👤'))
+                                                <span class="flex-shrink-0 text-base">👤</span>
+                                                <div>
+                                                    <div class="text-xs font-medium text-slate-500 dark:text-slate-400"> Oleh </div>
+                                                    <div class="font-semibold text-slate-900 dark:text-slate-100"> {{ str_replace('👤 ', '', str_replace('👤 Pelapor: ', '', str_replace('👤 Oleh: ', '', trim($detail)))) }} </div>
+                                                </div>
+                                                @elseif(str_contains($detail,'⏰'))
+                                                <span class="flex-shrink-0 text-base">⏰</span>
+                                                <div>
+                                                    <div class="text-xs font-medium text-slate-500 dark:text-slate-400"> Tanggal </div>
+                                                    <div class="font-semibold text-slate-900 dark:text-slate-100"> {{ str_replace('⏰ Tanggal: ', '', str_replace('⏰ ', '', trim($detail))) }} </div>
+                                                </div>
+                                                @endif
+                                            </div>
+                                            @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- Important Notice --}}
+            @if($record->rejection_reason ?? false) <div class="mt-6 rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:bg-yellow-900/20">
+                <h3 class="text-sm font-semibold text-yellow-900 dark:text-yellow-300">📝 Alasan Pengembalian</h3>
+                <p class="mt-1 text-sm text-yellow-800 dark:text-yellow-400"> {{ $record->rejection_reason }} </p>
+            </div>
+            @endif
+        </div>
+    </div>
 
     {{-- Tab Navigation --}}
     <div class="ikp-tabs">

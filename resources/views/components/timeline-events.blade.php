@@ -1,38 +1,79 @@
-@props(['events'])
+@props(['eventsByDate', 'dateCategories' => null])
 
-<div class="space-y-4">
-    @forelse($events as $event)
-    <div class="border-l-4 border-slate-400 pl-4 py-2">
-        <!-- Timeline Header dengan datetime -->
-        <div class="mb-3 pb-2 border-b border-slate-200">
-            <p class="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                {{ $event->event_datetime?->translatedFormat('d F Y') ?? 'Tanggal tidak tersedia' }}
-            </p>
-            <p class="text-xs text-slate-700 font-medium">
-                {{ $event->event_datetime?->translatedFormat('H:i') ?? '' }} WIB
+<div class="space-y-6">
+    @forelse($eventsByDate as $date => $dateEvents)
+    <!-- Date Header Section -->
+    <div>
+        <div class="bg-slate-100 px-4 py-3 border-t-4 border-b-4 border-slate-400 mb-4">
+            <p class="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                TANGGAL: {{ \Carbon\Carbon::createFromFormat('Y-m-d', $date)?->translatedFormat('l, d F Y') ?? 'Tanggal tidak tersedia' }}
             </p>
         </div>
 
-        <!-- Timeline Entries -->
-        @if($event->entries && $event->entries->count() > 0)
-        <div class="space-y-2">
-            @foreach($event->entries as $entry)
-            <div class="border-l-2 border-slate-300 pl-3 py-1">
-                <!-- Category -->
-                <p class="text-xs font-bold text-slate-800 uppercase tracking-wide mb-1">
-                    {{ $entry->category?->name ?? 'Kategori' }}
-                </p>
-                <!-- Description -->
-                <p class="text-xs text-slate-800 leading-relaxed whitespace-pre-wrap">{{ $entry->description ?? '-' }}</p>
-            </div>
-            @endforeach
+        <!-- Timeline Table -->
+        @if($dateEvents->flatMap(fn($event) => $event->entries ?? [])->count() > 0)
+        @php
+        $categories = $dateCategories[$date] ?? $dateEvents->flatMap(fn($event) => $event->entries ?? [])
+        ->pluck('category')
+        ->unique('id')
+        ->sortBy('sort_order');
+        @endphp
+        <div class="overflow-x-auto border border-slate-300 rounded-lg">
+            <table class="w-full text-xs">
+                <!-- Table Header -->
+                <thead>
+                    <tr class="bg-slate-200 border-b-2 border-slate-400">
+                        <th class="px-4 py-3 text-left font-bold text-slate-800 uppercase tracking-wide border-r border-slate-300 w-20">WAKTU</th>
+                        @foreach($categories as $category)
+                        <th class="px-4 py-3 text-left font-bold text-slate-800 uppercase tracking-wide border-r border-slate-300 w-40">
+                            {{ $category?->name ?? 'Kategori' }}
+                        </th>
+                        @endforeach
+                    </tr>
+                </thead>
+
+                <!-- Table Body -->
+                <tbody>
+                    @foreach($dateEvents as $event)
+                    @forelse($event->entries ?? [] as $entry)
+                    <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                        <!-- Waktu -->
+                        <td class="px-4 py-3 text-slate-700 font-medium border-r border-slate-200 whitespace-nowrap">
+                            {{ $event->event_datetime?->translatedFormat('H:i') ?? '-' }}
+                        </td>
+
+                        <!-- Category Data -->
+                        @foreach($categories as $category)
+                        <td class="px-4 py-3 text-slate-700 border-r border-slate-200">
+                            @if($entry->category_id === $category->id)
+                            <div class="space-y-2">
+                                <p class="text-xs leading-relaxed">{{ $entry->description ?? '-' }}</p>
+                            </div>
+                            @else
+                            <span class="text-slate-300">-</span>
+                            @endif
+                        </td>
+                        @endforeach
+                    </tr>
+                    @empty
+                    <tr class="border-b border-slate-200">
+                        <td colspan="{{ 2 + $categories->count() }}" class="px-4 py-3 text-center text-slate-500 italic">
+                            Tidak ada entri
+                        </td>
+                    </tr>
+                    @endforelse
+                    @endforeach
+                </tbody>
+            </table>
         </div>
         @else
-        <p class="text-xs text-slate-500 italic">Tidak ada entri untuk timeline ini</p>
+        <div class="text-center py-6 bg-slate-50 rounded-lg border border-slate-200">
+            <p class="text-xs text-slate-500 italic">Tidak ada entri untuk tanggal ini</p>
+        </div>
         @endif
     </div>
     @empty
-    <div class="text-center py-4">
+    <div class="text-center py-8">
         <p class="text-xs text-slate-500 italic">Belum ada kronologi timeline yang tersedia</p>
     </div>
     @endforelse
