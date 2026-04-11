@@ -14,6 +14,8 @@
         "spesialisasi_pasien": "laboratorium",
         "pelapor_insiden_pasien": "petugas_lain",
         "pelapor_insiden_pasien_lainnya": "Petugas laboratorium",
+        "insiden_menyangkut_pasien": "Pasien",
+        "insiden_menyangkut_pasien_lainnya": null,
         "insiden_terjadi_pada": "Pasien",
         "waktu_insiden": "10:00:00",
         "dampak_insiden": "Tidak ada cedera",
