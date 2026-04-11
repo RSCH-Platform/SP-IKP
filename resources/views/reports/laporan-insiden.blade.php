@@ -209,12 +209,20 @@
         </div>
 
         <!-- SECTION E: GRADING RISIKO -->
+        @if(in_array($laporan->status, ['dilaporkan', 'revisi_unit']))
         <div class="break-inside-avoid mb-6">
             <x-section-header title="BAGIAN E: Grading Risiko" />
             <div class="bg-white border border-slate-300 p-2">
-                <x-grading-display :grade="$laporan->grading_risiko ?? 'BIRU'" :justification="$laporan->catatan_tambahan ?? 'Tidak ada justifikasi'" />
+                @if($laporan->status === 'dilaporkan')
+                <!-- Editable version for dilaporkan status -->
+                <x-grading-display :grade="$laporan->grading_risiko ?? 'BIRU'" :justification="$laporan->catatan_tambahan ?? 'Tidak ada justifikasi'" :editable="true" />
+                @else
+                <!-- Read-only version for revisi_unit status -->
+                <x-grading-display :grade="$laporan->grading_risiko ?? 'BIRU'" :justification="$laporan->catatan_tambahan ?? 'Tidak ada justifikasi'" :disabled="true" />
+                @endif
             </div>
         </div>
+        @endif
 
         <!-- Footer Report Component -->
         <x-footer-report
