@@ -7,11 +7,11 @@
 ])
 
 <div class="report-header border-b-2 border-gray-800 pb-4 mb-8">
-    <div class="flex items-start justify-between gap-6 mb-3">
+    <div class="flex items-center justify-between gap-4 mb-3">
         <!-- Logo Kiri -->
-        <div class="w-32 h-32 flex-shrink-0">
+        <div style="width: 100px; height: 100px; flex-shrink: 0;">
             <img src="{{ asset('images/assets/logo-rs.webp') }}"
-                alt="Logo RS Citra Husada Jember" class="w-full h-full object-contain">
+                alt="Logo RS Citra Husada Jember" style="width: 100%; height: 100%; object-fit: contain;">
         </div>
 
         <!-- Text Content -->
@@ -23,7 +23,7 @@
         </div>
 
         <!-- Logo Kanan -->
-        <div class="w-14 h-14 md:w-16 md:h-16 mr-5 mt-4">
+        <div style="width: 100px; height: 100px; flex-shrink: 0;">
             <x-logo-report />
         </div>
     </div>

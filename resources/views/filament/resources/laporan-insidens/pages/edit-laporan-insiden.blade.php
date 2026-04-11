@@ -1,183 +1,74 @@
-<x-filament-panels::page>
+<x-filament-panels::page x-data="{ activeTab: 'form' }">
     <style>
-        .ikp-header {
-            margin-bottom: 1.5rem;
-            border-radius: 0.5rem;
-            background-color: white;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .dark .ikp-header {
-            background-color: rgb(31 41 55);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .ikp-header-content {
-            padding: 1.5rem;
-        }
-
-        .ikp-header-top {
+        .ikp-tabs {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 1rem;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
         }
 
-        .dark .ikp-header-top {
+        .dark .ikp-tabs {
             border-color: rgb(55 65 81);
         }
 
-        .ikp-logo-circle {
-            width: 4rem;
-            height: 4rem;
-            background: linear-gradient(to bottom right, #3b82f6, #06b6d4);
-            border-radius: 9999px;
+        .ikp-tab-button {
+            padding: 0.75rem 1.5rem;
+            border-bottom: 3px solid transparent;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .ikp-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #111827;
-        }
-
-        .dark .ikp-title {
-            color: white;
-        }
-
-        .ikp-subtitle {
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-top: 0.25rem;
-        }
-
-        .dark .ikp-subtitle {
+        .dark .ikp-tab-button {
             color: #9ca3af;
         }
 
-        .ikp-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background-color: #eff6ff;
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
+        .ikp-tab-button:hover {
+            color: #111827;
+            background-color: #f9fafb;
         }
 
-        .dark .ikp-badge {
-            background-color: rgba(30, 64, 175, 0.2);
-            color: #93c5fd;
-            border-color: rgba(93, 191, 253, 0.3);
+        .dark .ikp-tab-button:hover {
+            color: white;
+            background-color: rgba(59, 130, 246, 0.1);
         }
 
-        .ikp-status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
+        .ikp-tab-button.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
         }
 
-        .status-draft {
-            background-color: #f3f4f6;
-            color: #4b5563;
+        .dark .ikp-tab-button.active {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
         }
 
-        .dark .status-draft {
-            background-color: rgba(75, 85, 99, 0.2);
-            color: #d1d5db;
+        .ikp-tab-content {
+            display: none;
         }
 
-        .status-dilaporkan {
-            background-color: #fef08a;
-            color: #92400e;
+        .ikp-tab-content.active {
+            display: block;
         }
 
-        .dark .status-dilaporkan {
-            background-color: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-        }
-
-        .status-revisi {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .dark .status-revisi {
-            background-color: rgba(220, 38, 38, 0.2);
-            color: #fca5a5;
-        }
-
-        .status-diverifikasi {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .dark .status-diverifikasi {
-            background-color: rgba(30, 64, 175, 0.2);
-            color: #93c5fd;
-        }
-
-        .status-revisi-unit {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .dark .status-revisi-unit {
-            background-color: rgba(220, 38, 38, 0.2);
-            color: #fca5a5;
-        }
-
-        .status-investigasi {
-            background-color: #dcfce7;
-            color: #15803d;
-        }
-
-        .dark .status-investigasi {
-            background-color: rgba(34, 197, 94, 0.2);
-            color: #86efac;
-        }
-
-        .ikp-notice {
-            background-color: #fffbeb;
-            border-left: 4px solid #f59e0b;
+        .preview-container {
+            background-color: #f9fafb;
             padding: 1rem;
-            border-radius: 0.375rem;
-            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
         }
 
-        .dark .ikp-notice {
-            background-color: rgba(245, 158, 11, 0.1);
-        }
-
-        .ikp-notice-title {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #92400e;
-            margin-bottom: 0.5rem;
-        }
-
-        .dark .ikp-notice-title {
-            color: #fbbf24;
-        }
-
-        .ikp-notice-text {
-            font-size: 0.875rem;
-            color: #b45309;
-        }
-
-        .dark .ikp-notice-text {
-            color: #fcd34d;
+        .dark .preview-container {
+            background-color: rgb(31 41 55);
         }
 
         .ikp-form-wrapper {
@@ -197,265 +88,82 @@
             margin-top: 2rem;
             padding-top: 1.5rem;
             border-top: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .dark .ikp-form-footer {
             border-color: rgb(55 65 81);
         }
-
-        .ikp-footer-text {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-
-        .dark .ikp-footer-text {
-            color: #9ca3af;
-        }
-
-        .ikp-info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .ikp-info-item {
-            background-color: #f9fafb;
-            padding: 1rem;
-            border-radius: 0.375rem;
-            border-left: 3px solid #3b82f6;
-        }
-
-        .dark .ikp-info-item {
-            background-color: rgba(59, 130, 246, 0.1);
-            border-left-color: #60a5fa;
-        }
-
-        .ikp-info-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .dark .ikp-info-label {
-            color: #9ca3af;
-        }
-
-        .ikp-info-value {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #111827;
-            margin-top: 0.25rem;
-        }
-
-        .dark .ikp-info-value {
-            color: white;
-        }
     </style>
 
-    {{-- Header Section --}}
-    <div class="ikp-header">
-        <div class="ikp-header-content">
-            {{-- Hospital Info Header --}}
-            <div class="ikp-header-top">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div>
-                        <div class="ikp-logo-circle">
-                            <svg style="width: 2.5rem; height: 2.5rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 class="ikp-title">Edit Laporan Insiden</h2>
-                        <p class="ikp-subtitle">Sistem Pelaporan Insiden Keselamatan Pasien (IKP)</p>
-                    </div>
-                </div>
-                <div style="text-align: right;">
-                    <div class="ikp-status-badge status-{{ str_replace('_', '-', $record->status ?? 'draft') }}">
-                        <svg style="width: 1rem; height: 1rem;" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
-                        <span>
-                            @switch($record->status ?? 'draft')
-                            @case('draft')
-                            Draft
-                            @break
-                            @case('dilaporkan')
-                            Dilaporkan
-                            @break
-                            @case('revisi')
-                            Perlu Revisi
-                            @break
-                            @case('diverifikasi')
-                            Diverifikasi
-                            @break
-                            @case('revisi_unit')
-                            Revisi Unit
-                            @break
-                            @case('investigasi')
-                            Investigasi
-                            @break
-                            @default
-                            Draft
-                            @endswitch
-                        </span>
-                    </div>
-                    <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
-                        Dibuat: {{ $record->created_at?->format('d F Y H:i') ?? 'N/A' }}
-                    </p>
-                </div>
-            </div>
-
-            {{-- Laporan Info Grid --}}
-            <div class="ikp-info-grid">
-                <div class="ikp-info-item">
-                    <div class="ikp-info-label">Nomor Laporan</div>
-                    <div class="ikp-info-value">{{ $record->nomor_laporan ?? '-' }}</div>
-                </div>
-                <div class="ikp-info-item">
-                    <div class="ikp-info-label">Pelapor</div>
-                    <div class="ikp-info-value">{{ $record->nama_pelapor ?? '-' }}</div>
-                </div>
-                <div class="ikp-info-item">
-                    <div class="ikp-info-label">Tanggal Insiden</div>
-                    <div class="ikp-info-value">{{ $record->tanggal_insiden?->format('d F Y') ?? '-' }}</div>
-                </div>
-                <div class="ikp-info-item">
-                    <div class="ikp-info-label">Jenis Insiden</div>
-                    <div class="ikp-info-value">{{ $record->jenis_insiden ?? '-' }}</div>
-                </div>
-            </div>
-
-            <div x-data="{open:false}" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-                {{-- Header --}}
-                <div class="flex justify-between border-b px-6 py-4 dark:border-gray-600">
-                    <h3 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white"> <x-heroicon-o-clock class="h-5 w-5" /> Workflow Progress </h3>
-
-                    <button
-                        @click="open = !open"
-                        class="flex w-full items-center justify-between border-b px-6 py-4 text-left transition hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
-                        <x-heroicon-o-chevron-down
-                            class="h-5 w-5 text-gray-500 transition-transform duration-200"
-                            ::class="{ 'rotate-180': open }" />
-                    </button>
-                </div>
-
-                {{-- COLLAPSED SUMMARY --}}
-                <div
-                    x-show="!open"
-                    x-transition.opacity
-                    class="px-6 py-4">
-                    @php
-                    $current = collect($this->getWorkflowSteps())
-                    ->first(fn($s) => $this->getStepStatus($s['key'], $record->status) === 'current');
-                    @endphp
-
-                    @if($current)
-                    <div class="flex items-center gap-4">
-
-                        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white">
-                            <x-dynamic-component :component="$current['icon']" class="h-4 w-4" />
-                        </div>
-
-                        <div>
-                            <div class="font-semibold text-slate-900 dark:text-slate-100">
-                                {{ $current['title'] }}
-                                <span class="ml-auto rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                                    proses
-                                </span>
-                            </div>
-
-                            <div class="text-sm text-slate-500 dark:text-slate-400">
-                                {{ $current['desc'] }}
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-                {{-- CONTENT --}}
-                <div x-show="open" x-transition class="p-8">
-                    <div class="relative">
-                        {{-- vertical line --}}
-                        <div class="absolute left-5 top-0 h-full w-px bg-gray-200 dark:bg-gray-700"></div>
-                        <div class="space-y-10">
-                            @foreach($this->getWorkflowSteps() as $step)
-                            @php $state = $this->getStepStatus($step['key'], $record->status); @endphp
-                            <div x-data="{open:false}" class="relative flex items-start gap-6">
-                                {{-- ICON --}}
-                                <div class="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white dark:border-slate-900 shadow-sm @if($state === 'done') bg-emerald-500 text-white @elseif($state === 'current') bg-blue-600 text-white @else bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300 @endif">
-                                    @if($state === 'done') <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                    </svg> @else <x-dynamic-component :component="$step['icon']" class="h-5 w-5" /> @endif
-                                </div>
-
-                                {{-- CONTENT --}}
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-3">
-                                        <div class="font-semibold text-slate-900 dark:text-slate-100"> {{ $step['title'] }} </div>
-                                        {{-- BADGE --}} @if($state === 'done') <span class="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"> selesai </span>
-                                        @elseif($state === 'current') <span class="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"> proses </span> @endif
-                                    </div>
-
-                                    <div class="mb-3 text-sm text-slate-500 dark:text-slate-400"> {{ $step['desc'] }} </div>
-
-                                    @php $stepDetail = $this->getStepDetail($step); $lines = explode("\n", $stepDetail); $message = trim($lines[0]); $details = array_slice($lines, 1); @endphp
-
-                                    @if(count($details) > 0)
-                                    {{-- Detail Card --}}
-                                    <div class="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-                                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400"> {{ $message }} </div>
-                                        <div class="mt-3 space-y-3 border-t border-slate-200 pt-3 dark:border-slate-700">
-                                            @foreach($details as $detail)
-                                            @if(trim($detail))
-                                            <div class="flex items-start gap-3 text-sm">
-                                                @if(str_contains($detail,'👤'))
-                                                <span class="flex-shrink-0 text-base">👤</span>
-                                                <div>
-                                                    <div class="text-xs font-medium text-slate-500 dark:text-slate-400"> Oleh </div>
-                                                    <div class="font-semibold text-slate-900 dark:text-slate-100"> {{ str_replace('👤 ', '', str_replace('👤 Pelapor: ', '', str_replace('👤 Oleh: ', '', trim($detail)))) }} </div>
-                                                </div>
-                                                @elseif(str_contains($detail,'⏰'))
-                                                <span class="flex-shrink-0 text-base">⏰</span>
-                                                <div>
-                                                    <div class="text-xs font-medium text-slate-500 dark:text-slate-400"> Tanggal </div>
-                                                    <div class="font-semibold text-slate-900 dark:text-slate-100"> {{ str_replace('⏰ Tanggal: ', '', str_replace('⏰ ', '', trim($detail))) }} </div>
-                                                </div>
-                                                @endif
-                                            </div>
-                                            @endif
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {{-- Important Notice --}}
-            @if($record->rejection_reason ?? false) <div class="mt-6 rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:bg-yellow-900/20">
-                <h3 class="text-sm font-semibold text-yellow-900 dark:text-yellow-300">📝 Alasan Pengembalian</h3>
-                <p class="mt-1 text-sm text-yellow-800 dark:text-yellow-400"> {{ $record->rejection_reason }} </p>
-            </div>
-            @endif
-        </div>
+    {{-- Tab Navigation --}}
+    <div class="ikp-tabs">
+        <button
+            class="ikp-tab-button"
+            :class="{ 'active': activeTab === 'form' }"
+            @click="activeTab = 'form'">
+            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Form Edit
+        </button>
+        <button
+            class="ikp-tab-button"
+            :class="{ 'active': activeTab === 'preview' }"
+            @click="activeTab = 'preview'">
+            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Preview Laporan
+        </button>
+        @if($record->investigation_started_at)
+        <button
+            class="ikp-tab-button"
+            :class="{ 'active': activeTab === 'investigasi' }"
+            @click="activeTab = 'investigasi'">
+            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Preview Investigasi
+        </button>
+        @else
+        <button
+            class="ikp-tab-button"
+            disabled
+            style="opacity: 0.5; cursor: not-allowed;"
+            title="Investigasi belum dimulai">
+            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Preview Investigasi
+        </button>
+        @endif
     </div>
 
-    {{-- Form Section --}}
-    <div class="ikp-form-wrapper">
-        {{ $this->form }}
+    {{-- Tab Contents --}}
+    {{-- Tab 1: Form Edit --}}
+    <div class="ikp-tab-content" :class="{ 'active': activeTab === 'form' }">
+        <div class="ikp-form-wrapper">
+            @if($record->investigation_started_at && $record->investigationStarter)
+            <div style="background-color: #ecfdf5; border: 1px solid #86efac; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
+                <p style="font-size: 0.875rem; color: #166534; margin: 0;">
+                    <svg style="width: 1rem; height: 1rem; display: inline-block; margin-right: 0.5rem; vertical-align: middle;" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    <strong>Investigasi dimulai oleh:</strong> {{ $record->investigationStarter->name ?? '-' }} pada {{ $record->investigation_started_at->translatedFormat('d F Y H:i') ?? '-' }}
+                </p>
+            </div>
+            @endif
+            {{ $this->form }}
 
-        <div class="ikp-form-footer">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div class="ikp-form-footer">
                 <div style="font-size: 0.875rem; color: #6b7280;">
-                    <p style="display: flex; align-items: center;">
+                    <p style="display: flex; align-items: center; margin: 0;">
                         <svg style="width: 1rem; height: 1rem; margin-right: 0.5rem;" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                         </svg>
@@ -471,11 +179,21 @@
         </div>
     </div>
 
-    {{-- Footer Info --}}
-    <div class="ikp-footer-text">
-        <p>Sistem Pelaporan IKP - Informasi dalam laporan ini bersifat rahasia dan hanya untuk keperluan internal</p>
-        <p style="margin-top: 0.25rem;">Terakhir diperbarui: {{ $record->updated_at?->format('d F Y H:i') ?? 'N/A' }}</p>
+    {{-- Tab 2: Preview Laporan --}}
+    <div class="ikp-tab-content" :class="{ 'active': activeTab === 'preview' }">
+        <div class="preview-container">
+            @include('filament.resources.laporan-insidens.pages.preview-laporan-insiden-content')
+        </div>
     </div>
+
+    {{-- Tab 3: Preview Investigasi --}}
+    @if($record->investigation_started_at)
+    <div class="ikp-tab-content" :class="{ 'active': activeTab === 'investigasi' }">
+        <div class="preview-container">
+            @include('filament.resources.laporan-insidens.pages.preview-investigasi-laporan-insiden-content')
+        </div>
+    </div>
+    @endif
 
     <x-filament-actions::modals />
 </x-filament-panels::page>

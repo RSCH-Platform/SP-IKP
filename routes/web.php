@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TimelineEntryController;
 use App\Http\Controllers\LaporanInsidenViewController;
+use App\Http\Controllers\InvestigasiLaporanInsidenViewController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -14,6 +15,10 @@ Route::middleware(['auth'])->group(function () {
     // Laporan Insiden Routes
     Route::get('/laporan-insiden/{laporan}', [LaporanInsidenViewController::class, 'show'])
         ->name('laporan-insiden.show');
-    Route::get('/laporan-insiden-dummy', [LaporanInsidenViewController::class, 'dummy'])
-        ->name('laporan-insiden.dummy');
+    // Route::get('/laporan-insiden-dummy', [LaporanInsidenViewController::class, 'dummy'])
+    //     ->name('laporan-insiden.dummy');
+
+    // Investigasi Laporan Insiden Routes
+    Route::get('/investigasi-laporan-insiden/{laporan}', [InvestigasiLaporanInsidenViewController::class, 'show'])
+        ->name('investigasi-laporan-insiden.show');
 });

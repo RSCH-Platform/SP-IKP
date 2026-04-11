@@ -438,6 +438,44 @@ class EditLaporanInsiden extends EditRecord
             ->url(fn() => route('laporan-insiden.show', $this->record->id))
             ->openUrlInNewTab();
 
+        // Preview laporan insiden button
+        $actions[] = Action::make('previewLaporanInsiden')
+            ->label('Preview Laporan')
+            ->icon('heroicon-o-document-magnifying-glass')
+            ->color('info')
+            ->url(fn() => LaporanInsidenResource::getUrl('preview', ['record' => $this->record->id]))
+            ->openUrlInNewTab();
+
+        // Preview investigasi laporan insiden button
+        $actions[] = Action::make('previewInvestigasi')
+            ->label('Preview Investigasi')
+            ->icon('heroicon-o-document-magnifying-glass')
+            ->color('warning')
+            ->url(fn() => LaporanInsidenResource::getUrl('preview-investigasi', ['record' => $this->record->id]))
+            ->openUrlInNewTab();
+
         return $actions;
+    }
+
+    public function getGroupedInvestigationData(): array
+    {
+        $categories = [
+            'interview' => ['label' => '👤 Interview', 'items' => []],
+            'review_dokumen' => ['label' => '📄 Review Dokumen', 'items' => []],
+            'observasi' => ['label' => '👁️ Observasi', 'items' => []],
+        ];
+
+        $investigationData = $this->record->investigationData()
+            ->with(['creator'])
+            ->get();
+
+        foreach ($investigationData as $item) {
+            $kategori = trim($item->kategori ?? 'interview');
+            if (isset($categories[$kategori])) {
+                $categories[$kategori]['items'][] = $item;
+            }
+        }
+
+        return array_filter($categories, fn($cat) => !empty($cat['items']));
     }
 }

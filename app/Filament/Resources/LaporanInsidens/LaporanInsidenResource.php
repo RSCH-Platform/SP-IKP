@@ -6,6 +6,8 @@ use App\Filament\Resources\LaporanInsidens\Pages\CreateLaporanInsiden;
 use App\Filament\Resources\LaporanInsidens\Pages\EditLaporanInsiden;
 use App\Filament\Resources\LaporanInsidens\Pages\ListLaporanInsidens;
 use App\Filament\Resources\LaporanInsidens\Pages\ViewLaporanInsiden;
+use App\Filament\Resources\LaporanInsidens\Pages\PreviewLaporanInsiden;
+use App\Filament\Resources\LaporanInsidens\Pages\PreviewInvestigasiLaporanInsiden;
 use App\Filament\Resources\LaporanInsidens\Schemas\LaporanInsidenForm;
 use App\Filament\Resources\LaporanInsidens\Tables\LaporanInsidensTable;
 use App\Models\LaporanInsiden;
@@ -56,6 +58,8 @@ class LaporanInsidenResource extends Resource
             'create' => CreateLaporanInsiden::route('/create'),
             'view' => ViewLaporanInsiden::route('/{record}'),
             'edit' => EditLaporanInsiden::route('/{record}/edit'),
+            'preview' => PreviewLaporanInsiden::route('/{record}/preview'),
+            'preview-investigasi' => PreviewInvestigasiLaporanInsiden::route('/{record}/preview-investigasi'),
         ];
     }
 
