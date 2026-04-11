@@ -430,6 +430,14 @@ class EditLaporanInsiden extends EditRecord
                 ->action('selesaikanInvestigasi');
         }
 
+        // View button to redirect to view page
+        $actions[] = Action::make('viewLaporan')
+            ->label('Lihat Laporan')
+            ->icon('heroicon-o-eye')
+            ->color('info')
+            ->url(fn() => route('laporan-insiden.show', $this->record->id))
+            ->openUrlInNewTab();
+
         return $actions;
     }
 }
