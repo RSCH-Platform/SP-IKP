@@ -6,6 +6,7 @@ use App\Filament\Resources\LaporanInsidens\Schemas\Sections\CatatanTambahanSecti
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\DataCollectionSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\GradingResikoSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\InsidenSection;
+use App\Filament\Resources\LaporanInsidens\Schemas\Sections\KonfirmasiTandaTanganSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\PasienSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\PelaporSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\ProblemAnalysisSection;
@@ -50,6 +51,12 @@ class LaporanInsidenFormSchema
                 ->icon('heroicon-o-hand-raised')
                 ->schema([
                     static::sectionTindakan($withAdminFields),
+                ]),
+
+            Step::make('Konfirmasi & Tanda Tangan')
+                ->icon('heroicon-o-shield-check')
+                ->schema([
+                    static::sectionKonfirmasiTandaTangan(),
                 ]),
         ];
 
@@ -121,6 +128,11 @@ class LaporanInsidenFormSchema
     public static function sectionCatatanTambahan(): Section
     {
         return CatatanTambahanSection::make();
+    }
+
+    public static function sectionKonfirmasiTandaTangan(): Section
+    {
+        return KonfirmasiTandaTanganSection::make();
     }
 
     public static function sectionGradingResiko()

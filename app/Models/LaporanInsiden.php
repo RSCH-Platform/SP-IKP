@@ -85,8 +85,10 @@ class LaporanInsiden extends Model
         'reported_at'     => 'datetime',
         'verified_at'     => 'datetime',
         'rejected_at'     => 'datetime',
+        'confirmed_at'    => 'datetime',
         'investigation_started_at' => 'datetime',
         'investigation_completed_at' => 'datetime',
+        'signature_metadata' => 'json',
     ];
 
     public function user(): BelongsTo
@@ -117,6 +119,11 @@ class LaporanInsiden extends Model
     public function rejecter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rejected_by');
+    }
+
+    public function signer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'signed_by');
     }
 
     public function investigationData(): HasMany
@@ -341,5 +348,88 @@ class LaporanInsiden extends Model
         $sequence = $lastReport ? intval(substr($lastReport->nomor_laporan, -4)) + 1 : 1;
 
         return sprintf('IKP/%s/%s/%04d', $year, $month, $sequence);
+    }
+
+    // --- Signature & Confirmation methods ---
+
+    /**
+     * Sign the report with HMAC-SHA256 signature
+     *
+     * @param int $userId
+     * @param array $additionalData Optional additional metadata
+     * @return bool Success status
+     */
+    public function signReport(int $userId, array $additionalData = []): bool
+    {
+        \App\Services\SignatureService::class;
+
+        $signature = \App\Services\SignatureService::generateSignature($this, $additionalData);
+        $dataHash = \App\Services\SignatureService::generateDataHash($this->attributesToArray());
+        $metadata = \App\Services\SignatureService::createMetadata();
+
+        return $this->update([
+            'confirmation_signature' => $signature,
+            'confirmation_data_hash' => $dataHash,
+            'confirmed_at' => now(),
+            'signed_by' => $userId,
+            'signature_metadata' => $metadata,
+        ]);
+    }
+
+    /**
+     * Verify the report signature integrity
+     *
+     * @param array $additionalData Optional data that was included in signature
+     * @return bool True if signature is valid
+     */
+    public function verifySignature(array $additionalData = []): bool
+    {
+        if (empty($this->confirmation_signature)) {
+            return false;
+        }
+
+        return \App\Services\SignatureService::verifySignature(
+            $this,
+            $this->confirmation_signature,
+            $additionalData
+        );
+    }
+
+    /**
+     * Check if report has been digitally signed
+     *
+     * @return bool
+     */
+    public function isSigned(): bool
+    {
+        return !empty($this->confirmation_signature) && $this->confirmed_at !== null;
+    }
+
+    /**
+     * Get human-readable signature verification status
+     *
+     * @return array
+     */
+    public function getSignatureStatus(): array
+    {
+        if (!$this->isSigned()) {
+            return [
+                'is_signed' => false,
+                'message' => 'Laporan belum ditandatangani',
+            ];
+        }
+
+        $isValid = $this->verifySignature();
+
+        return [
+            'is_signed' => true,
+            'is_valid' => $isValid,
+            'signed_by' => $this->signer?->name ?? 'Unknown',
+            'signed_at' => $this->confirmed_at?->format('d F Y H:i') ?? 'N/A',
+            'signature' => substr($this->confirmation_signature, 0, 16) . '...',
+            'message' => $isValid
+                ? 'Laporan sah dan belum mengalami perubahan'
+                : 'PERINGATAN: Laporan mungkin telah diubah setelah penandatanganan',
+        ];
     }
 }

@@ -104,18 +104,58 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
     public function submit(): void
     {
         $data = $this->form->getState();
+
+        // Validate confirmation checkboxes
+        if (empty($data['confirm_data_accurate']) || empty($data['confirm_responsibility'])) {
+            Notification::make()
+                ->title('Konfirmasi Diperlukan')
+                ->body('Silakan centang kedua pernyataan konfirmasi sebelum menandatangani laporan.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
         $data['user_id']     = Auth::id();
         $data['status']      = LaporanInsiden::STATUS_DILAPORKAN;
         $data['reported_at'] = now();
+        $data['reported_by'] = Auth::id();
 
         $laporan = $this->createLaporanWithTimeline($data);
+
+        // Generate digital signature
+        try {
+            $laporan->signReport(Auth::id(), [
+                'confirm_data_accurate' => $data['confirm_data_accurate'],
+                'confirm_responsibility' => $data['confirm_responsibility'],
+            ]);
+
+            Notification::make()
+                ->title('✓ Laporan Berhasil Dikirim dengan Tanda Tangan Digital')
+                ->body('Laporan Anda telah ditandatangani secara digital dan dikirim untuk diverifikasi oleh kepala unit.')
+                ->success()
+                ->send();
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Kesalahan Saat Penandatanganan')
+                ->body('Terjadi kesalahan: ' . $e->getMessage())
+                ->danger()
+                ->send();
+
+            return;
+        }
 
         // Notify kepala_unit users about the new report
         $kepalaUnits = User::role('kepala_unit')->get();
         if ($kepalaUnits->isNotEmpty()) {
+            $signaturePreview = $laporan->confirmation_signature
+                ? substr($laporan->confirmation_signature, 0, 16) . '...'
+                : 'N/A';
+            $unitName = $laporan->unitKerja ? $laporan->unitKerja->unit_name : 'Unit Tidak Ditemukan';
+
             Notification::make()
-                ->title('Laporan Insiden Baru')
-                ->body("Ada laporan insiden baru dari {$laporan->nama_pelapor} yang perlu diverifikasi.")
+                ->title('📢 Laporan Insiden Baru - Perlu Verifikasi')
+                ->body("Laporan insiden baru dari {$laporan->nama_pelapor} (Unit: {$unitName}) telah dikirim dengan tanda tangan digital. Signature: {$signaturePreview}")
                 ->warning()
                 ->sendToDatabase($kepalaUnits);
         }
