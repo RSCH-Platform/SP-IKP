@@ -71,6 +71,13 @@
     padding: 1rem 0.3rem 0rem 0rem;
 }
 
+.fi-ta-cell .fi-ta-col .fi-ta-text-item,
+.fi-ta-cell .fi-ta-col .fi-ta-icon,
+.fi-ta-cell .fi-ta-col .fi-ta-color {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+}
+
 :root {
     /* Radius (lebih modern, sedikit lebih besar) */
     --theme-radius: 8px;

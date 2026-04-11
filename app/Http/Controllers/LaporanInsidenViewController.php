@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LaporanInsiden;
 use App\Models\UnitKerja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class LaporanInsidenViewController extends Controller
 {
@@ -13,6 +14,9 @@ class LaporanInsidenViewController extends Controller
      */
     public function show(LaporanInsiden $laporan)
     {
+        // Cek autorisasi - hanya pembuat, kepala unit, atau super admin yang bisa melihat
+        Gate::authorize('view', $laporan);
+
         // Load relasi yang diperlukan
         $laporan->load([
             'timelineEvents' => function ($query) {

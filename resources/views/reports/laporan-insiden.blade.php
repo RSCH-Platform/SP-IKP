@@ -26,10 +26,10 @@
 <body class="bg-slate-300 text-slate-800 font-sans leading-relaxed">
     <div class="max-w-5xl mx-auto px-4 py-4 bg-white">
         <!-- DEBUG SECTION -->
-        <div class="no-print mb-6 bg-red-50 border-2 border-red-400 rounded-lg p-4">
+        <!-- <div class="no-print mb-6 bg-red-50 border-2 border-red-400 rounded-lg p-4">
             <p class="text-sm font-bold text-red-700 mb-3">🔴 DEBUG - Semua Data dari Controller:</p>
             <pre class="text-xs bg-white p-3 rounded border border-red-200 overflow-x-auto text-slate-800"><code>{{ json_encode($laporan->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</code></pre>
-        </div>
+        </div> -->
 
         <!-- Header Component -->
         <x-pelaporan-insiden-header
@@ -142,7 +142,13 @@
                 <!-- Row 6: Tanggal Masuk RS -->
                 <div class="border border-slate-200 p-2">
                     <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">Tanggal Masuk RS</p>
-                    <p class="text-xs text-slate-800">{{ $laporan->tanggal_masuk_rs?->translatedFormat('d F Y H:i') ?? '-' }}</p>
+                    <p class="text-xs text-slate-800">
+                        @if($laporan->tanggal_masuk_rs)
+                        Pada tanggal {{ $laporan->tanggal_masuk_rs->translatedFormat('d F Y') }} di jam {{ $laporan->tanggal_masuk_rs->translatedFormat('H:i') }} WIB
+                        @else
+                        -
+                        @endif
+                    </p>
                 </div>
             </div>
         </div>
@@ -182,23 +188,23 @@
             </div>
         </div>
 
-        <!-- SECTION C: KRONOLOGI TIMELINE -->
+        <!-- SECTION C: TINDAKAN YANG DILAKUKAN -->
         <div class="break-inside-avoid mb-6">
-            <x-section-header title="BAGIAN C: Kronologi Timeline" />
-            <div class="bg-white border border-slate-300 p-2">
-                <x-timeline-events :events="$laporan->timelineEvents ?? collect()" />
-            </div>
-        </div>
-
-        <!-- SECTION D: TINDAKAN YANG DILAKUKAN -->
-        <div class="break-inside-avoid mb-6">
-            <x-section-header title="BAGIAN D: Tindakan Setelah Kejadian" />
+            <x-section-header title="BAGIAN C: Tindakan Setelah Kejadian" />
             <div class="bg-white border border-slate-300 p-2 space-y-3">
                 <x-long-text-display label="Tindakan yang Dilakukan Segera Setelah Kejadian" :text="$laporan->tindakan_dilakukan ?? '-'" />
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <x-data-row label="Tindakan Dilakukan Oleh" :value="$laporan->tindakan_dilakukan_oleh ?? '-'" />
                     <x-data-row label="Unit Penyebab" :value="$laporan->unit_kerja ?? '-'" />
                 </div>
+            </div>
+        </div>
+
+        <!-- SECTION D: KRONOLOGI TIMELINE -->
+        <div class="break-inside-avoid mb-6">
+            <x-section-header title="BAGIAN D: Kronologi Timeline" />
+            <div class="bg-white border border-slate-300 p-2">
+                <x-timeline-events :events="$laporan->timelineEvents ?? collect()" />
             </div>
         </div>
 
@@ -215,10 +221,9 @@
             :createdByName="$laporan->reporter?->name ?? $laporan->nama_pelapor ?? '-'"
             :createdByNip="$laporan->reporter?->nip ?? '-'"
             :createdByPosition="'Pelapor'"
-            :verifiedByName="$laporan->verifier?->name ?? '-'"
-            :verifiedByNip="$laporan->verifier?->nip ?? '-'"
-            :unitName="$laporan->unit_kerja?->unit_name ?? $laporan->unit_kerja ?? '-'"
+            :unitId="$laporan->unit_kerja_id"
             :reportDate="$laporan->tanggal_lapor?->translatedFormat('d F Y')"
+            :receivedDate="$laporan->verified_at?->translatedFormat('d F Y')"
             :notes="[
                 'Dokumen ini bersifat RAHASIA dan tidak boleh difotocopy',
                 'Laporan harus diserahkan maksimal 2 x 24 jam setelah kejadian',

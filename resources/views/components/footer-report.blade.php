@@ -36,66 +36,49 @@ $receivedByPosition = $receivedByPosition ?? 'Kepala Unit';
 @endphp
 
 <div class="break-inside-avoid">
-    <h2 class="text-base font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-8">
-        Tanda Tangan dan Persetujuan
-    </h2>
+    <x-section-header title="BAGIAN F: Tanda Tangan dan Persetujuan" />
 
-    <div class="grid md:grid-cols-2 gap-16 text-sm text-slate-800">
-
-        <!-- Pembuat -->
-        <div>
-            <p class="text-xs uppercase tracking-wide text-slate-500 mb-6">
-                Pembuat Laporan
-            </p>
-
-            <div class="space-y-1">
-                <p class="font-medium text-slate-900">{{ $createdByName }}</p>
-                <p class="text-slate-500">NIP. {{ $createdByNip }}</p>
-                <p class="text-slate-500">{{ $createdByPosition }}</p>
+    <div class="bg-white border border-slate-300 p-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+            <!-- Pembuat Laporan -->
+            <div class="border border-slate-200 p-2">
+                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Pembuat Laporan</p>
+                <div class="space-y-0.5 mb-4">
+                    <p class="text-xs font-medium text-slate-800">{{ $createdByName }}</p>
+                    <p class="text-xs text-slate-600">NIP: {{ $createdByNip }}</p>
+                </div>
+                <div class="mt-6 pt-2 border-t border-slate-300">
+                    <p class="text-xs text-slate-600 mt-1">
+                        {{ $reportDate ?? now()->translatedFormat('d F Y') }}
+                    </p>
+                </div>
             </div>
 
-            <div class="mt-12">
-                <div class="border-t border-slate-400 w-44"></div>
-                <p class="text-xs text-slate-500 mt-2">Tanda Tangan</p>
+            <!-- Penerima Laporan -->
+            <div class="border border-slate-200 p-2">
+                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Penerima Laporan</p>
+                <div class="space-y-0.5 mb-4">
+                    <p class="text-xs font-medium text-slate-800">{{ $receivedByName }}</p>
+                    <p class="text-xs text-slate-600">NIP: {{ $receivedByNip }}</p>
+                </div>
+                <div class="mt-6 pt-2 border-t border-slate-300">
+                    <p class="text-xs text-slate-600 mt-1">
+                        {{ $receivedDate ?? '.........................' }}
+                    </p>
+                </div>
             </div>
-
-            <p class="text-xs text-slate-500 mt-4">
-                {{ $reportDate ?? now()->translatedFormat('d F Y') }}
-            </p>
         </div>
 
-        <!-- Penerima -->
-        <div>
-            <p class="text-xs uppercase tracking-wide text-slate-500 mb-6">
-                Penerima Laporan
-            </p>
-
-            <div class="space-y-1">
-                <p class="font-medium text-slate-900">{{ $receivedByName }}</p>
-                <p class="text-slate-500">NIP. {{ $receivedByNip }}</p>
-                <p class="text-slate-500">{{ $receivedByPosition }}</p>
-            </div>
-
-            <div class="mt-12">
-                <div class="border-t border-slate-400 w-44"></div>
-                <p class="text-xs text-slate-500 mt-2">Tanda Tangan</p>
-            </div>
-
-            <p class="text-xs text-slate-500 mt-4">
-                {{ $receivedDate ?? '.........................' }}
-            </p>
+        <!-- Notes -->
+        @if(count($notes) > 0)
+        <div class="border border-slate-200 p-2 mt-2">
+            <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Catatan Penting</p>
+            <ul class="list-disc pl-4 space-y-0.5">
+                @foreach($notes as $note)
+                <li class="text-xs text-slate-700">{{ $note }}</li>
+                @endforeach
+            </ul>
         </div>
+        @endif
     </div>
-
-    <!-- Notes -->
-    @if(count($notes) > 0)
-    <div class="mt-10 text-xs text-slate-500">
-        <p class="font-medium text-slate-600 mb-2">Catatan:</p>
-        <ul class="list-disc pl-5 space-y-1">
-            @foreach($notes as $note)
-            <li>{{ $note }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
 </div>

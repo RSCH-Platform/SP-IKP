@@ -30,6 +30,24 @@ class LaporanInsidenPolicy
             return true;
         }
 
+        // Super Admin dapat melihat semua laporan
+        if ($authUser->hasRole('super_admin')) {
+            return true;
+        }
+
+        // Pembuat laporan (reporter) dapat melihat laporannya sendiri
+        if ($laporanInsiden->reported_by === $authUser->id) {
+            return true;
+        }
+
+        // Kepala Unit dapat melihat laporan dari unit mereka
+        if ($authUser->hasRole('kepala_unit')) {
+            $userUnitIds = $authUser->unitKerja()->pluck('id');
+            if ($userUnitIds->contains($laporanInsiden->unit_kerja_id)) {
+                return true;
+            }
+        }
+
         // Jika punya permission ViewAllData, bisa lihat semua laporan
         if ($authUser->can('ViewAllData:LaporanInsiden')) {
             return true;
