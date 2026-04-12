@@ -16,23 +16,23 @@ class LaporanInsidenSeeder extends Seeder
     public function run(): void
     {
         $reporters = User::query()
-            ->whereHas('unitKerja')
+            ->whereHas('unitKerjas')
             ->whereDoesntHave('roles', function ($query) {
                 $query->whereIn('name', ['admin', 'super_admin']);
             })
-            ->with('unitKerja:id,unit_name')
+            ->with('unitKerjas:id,unit_name')
             ->get();
 
         if ($reporters->isEmpty()) {
-            $this->command->error('Tidak ada user non-admin yang memiliki unit kerja. Jalankan seeder User dan UnitKerja terlebih dahulu.');
+            $this->command->error('Tidak ada user non-admin yang memiliki unit kerja. Jalankan seeder User dan unitKerjas terlebih dahulu.');
             return;
         }
 
         $pickReporter = function () use ($reporters) {
             $reporter = $reporters->random();
-            $unitKerja = $reporter->unitKerja->random();
+            $unitKerjas = $reporter->unitKerjas->random();
 
-            return [$reporter, $unitKerja];
+            return [$reporter, $unitKerjas];
         };
 
         // Check if sample data already exists to prevent duplicates
@@ -56,7 +56,7 @@ class LaporanInsidenSeeder extends Seeder
 
         // Process each laporan dari JSON
         foreach ($seedData as $data) {
-            [$reporter, $unitKerja] = $pickReporter();
+            [$reporter, $unitKerjas] = $pickReporter();
 
             // Hitung tanggal insiden
             $tanggalInsiden = now()->subDays($data['days_ago'] ?? 0);
@@ -66,9 +66,9 @@ class LaporanInsidenSeeder extends Seeder
             // Create laporan insiden
             $laporan = LaporanInsiden::create([
                 'user_id' => $reporter->id,
-                'unit_kerja_id' => $unitKerja->id,
+                'unit_kerja_id' => $unitKerjas->id,
                 'nama_pelapor' => $reporter->name,
-                'unit_kerja' => $unitKerja->unit_name,
+                'unit_kerja' => $unitKerjas->unit_name,
                 'nomor_telepon' => $reporter->no_hp ?? '080000000000',
                 'tanggal_lapor' => $tanggalLapor,
                 'jenis_insiden' => $data['jenis_insiden'],
