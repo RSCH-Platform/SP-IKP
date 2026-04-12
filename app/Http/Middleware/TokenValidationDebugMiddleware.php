@@ -68,7 +68,7 @@ class TokenValidationDebugMiddleware
 
     private function debugTokenValidation(string $token, string $requestId): void
     {
-        $iamSecret = config('iam.secret');
+        $iamSecret = config('iam.jwt_secret');
         $iamLeeway = config('iam.jwt_leeway', 60);
 
         try {
