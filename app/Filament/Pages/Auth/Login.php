@@ -22,13 +22,8 @@ class Login extends BaseLogin
     {
         parent::mount();
 
-        if (app()->isLocal()) {
-            $this->form->fill([
-                'identifier' => '0000.00000',
-                'password' => 'Rschjaya123',
-                'remember' => true,
-            ]);
-        }
+        // Don't auto-fill credentials to prevent accidental re-login after logout
+        // Users still see demo credentials in placeholder text
     }
 
     public function authenticate(): ?LoginResponse

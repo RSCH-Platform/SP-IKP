@@ -71,6 +71,11 @@ class TokenValidationDebugMiddleware
         $iamSecret = config('iam.jwt_secret');
         $iamLeeway = config('iam.jwt_leeway', 60);
 
+        // FIX: Decode base64: prefix jika ada (Laravel APP_KEY format)
+        if (strpos($iamSecret, 'base64:') === 0) {
+            $iamSecret = base64_decode(substr($iamSecret, 7));
+        }
+
         try {
             // Decode token header to see what algorithm is used
             $parts = explode('.', $token);

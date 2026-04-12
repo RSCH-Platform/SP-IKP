@@ -27,6 +27,6 @@ class ConditionalAuthenticate
         }
 
         // Default behavior - redirect to Filament login
-        return redirect(route('filament.auth.login'));
+        return redirect(route('filament.ikp-application.auth.login'));
     }
 }

@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if (config('iam.enabled', false) || env('USE_SSO', false)) {
                 return route('iam.sso.login');
             }
-            return '/admin';
+            return route('filament.ikp-application.auth.login');
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {

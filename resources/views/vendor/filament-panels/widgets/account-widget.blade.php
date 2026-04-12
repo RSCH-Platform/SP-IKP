@@ -1,5 +1,6 @@
 @php
     $user = filament()->auth()->user();
+    $ssoEnabled = config('iam.enabled', false) || env('USE_SSO', false);
 @endphp
 
 <x-filament-widgets::widget class="fi-account-widget">
@@ -20,8 +21,9 @@
             </p>
         </div>
 
+        <!-- Logout via POST form (works for both SSO and local mode) -->
         <form
-            action="{{ filament()->getLogoutUrl() }}"
+            action="{{ route('filament.ikp-application.auth.logout') }}"
             method="post"
             class="fi-account-widget-logout-form"
         >

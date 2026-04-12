@@ -3,18 +3,23 @@
 use App\Http\Controllers\TimelineEntryController;
 use App\Http\Controllers\LaporanInsidenViewController;
 use App\Http\Controllers\InvestigasiLaporanInsidenViewController;
+use App\Http\Controllers\Auth\LogoutController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
-// Root redirect - ke admin atau SSO login tergantung config
+// Root redirect - redirect to ikp-application path
 Route::get('/', function () {
-    $ssoEnabled = config('iam.enabled', false) || env('USE_SSO', false);
-
-    if ($ssoEnabled) {
-        return redirect(config('iam.login_route', '/sso/login'));
-    }
-
-    return redirect('/admin');
+    return redirect('/ikp-application');
 });
+
+// Logout route - handles both SSO and local logout
+// This route is used to ensure proper global IAM logout chain
+// Posted to by account widget and Filament logout action
+Route::post('/logout', LogoutController::class)->name('logout');
+
+// Also handle Filament's default logout route and delegate to our LogoutController
+// Filament auto-generates this route, but we intercept it to use our custom logout logic
+Route::post('/ikp-application/logout', LogoutController::class)->name('filament.ikp-application.auth.logout');
 
 // Handle IAM callback - support both /callback dan /sso/callback paths
 Route::name('iam.sso.callback.alternate')->group(function () {
