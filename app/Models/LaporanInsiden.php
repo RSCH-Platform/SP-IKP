@@ -99,7 +99,7 @@ class LaporanInsiden extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function unitKerja(): BelongsTo
+    public function unitKerjas(): BelongsTo
     {
         return $this->belongsTo(UnitKerja::class);
     }

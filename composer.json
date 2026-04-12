@@ -14,6 +14,7 @@
         "filament/filament": "^4.0",
         "guava/filament-modal-relation-managers": "^2.0",
         "juniyasyos/filament-media-manager": "v1.4.1",
+        "juniyasyos/laravel-iam-client": "v1.6.7",
         "juniyasyos/manage-unit-kerja": "v2.1.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
@@ -76,6 +77,10 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve --port=8200\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
         ],
+        "iam": [
+            "Composer\\Config::disableProcessTimeout",
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve --port=8200\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" --names=server,queue,logs --kill-others"
+        ],
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
@@ -113,6 +118,11 @@
             "pestphp/pest-plugin": true,
             "php-http/discovery": true,
             "wikimedia/composer-merge-plugin": true
+        },
+        "audit": {
+            "ignore": [
+                "PKSA-y2cr-5h3j-g3ys"
+            ]
         }
     },
     "minimum-stability": "beta",

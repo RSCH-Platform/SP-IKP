@@ -3,8 +3,8 @@
 namespace App\Providers\Filament;
 
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
+use App\Http\Middleware\ConditionalAuthenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
@@ -88,7 +88,7 @@ class AdminPanelProvider extends PanelProvider
                     ->registerNavigation(true),
             ])
             ->authMiddleware([
-                Authenticate::class,
+                ConditionalAuthenticate::class,
             ]);
 
         if (!$ssoEnabled) {

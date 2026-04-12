@@ -90,7 +90,7 @@ class LaporanInsidenResource extends Resource
 
         // existing unit‑based scoping when the user may view reports but not everything
         if ($user && $user->hasPermissionTo('View:LaporanInsiden') && $user->hasPermissionTo('ViewAny:LaporanInsiden')) {
-            $unitKerjaIds = $user->unitKerja()->pluck('id');
+            $unitKerjaIds = $user->unitKerjas()->pluck('id');
             $query->whereIn('unit_kerja_id', $unitKerjaIds);
         }
 

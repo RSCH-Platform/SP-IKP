@@ -42,7 +42,7 @@ class LaporanInsidenPolicy
 
         // Kepala Unit dapat melihat laporan dari unit mereka
         if ($authUser->hasRole('kepala_unit')) {
-            $userUnitIds = $authUser->unitKerja()->pluck('id');
+            $userUnitIds = $authUser->unitKerjas()->pluck('id');
             if ($userUnitIds->contains($laporanInsiden->unit_kerja_id)) {
                 return true;
             }
@@ -55,7 +55,7 @@ class LaporanInsidenPolicy
 
         // Jika punya View permission tapi tidak ViewAllData, hanya bisa lihat laporan dari unit kerja user
         if ($authUser->can('View:LaporanInsiden')) {
-            $userUnitIds = $authUser->unitKerja()->pluck('id');
+            $userUnitIds = $authUser->unitKerjas()->pluck('id');
             return $userUnitIds->contains($laporanInsiden->unit_kerja_id);
         }
 

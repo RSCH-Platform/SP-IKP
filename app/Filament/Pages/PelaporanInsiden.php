@@ -40,7 +40,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
 
         $defaults = [
             'user_id'        => $authUser?->id,
-            'unit_kerja_id'  => $authUser?->unitKerja()->first()?->id,
+            'unit_kerja_id'  => $authUser?->unitKerjas()->first()?->id,
             'nama_pelapor'   => $authUser?->name,
             'unit_kerja'     => $authUser?->unitKerja->first()->unit_name ?? 'Unit Kerja Tidak Ditemukan',
             'tanggal_lapor'  => now()->format('Y-m-d'),

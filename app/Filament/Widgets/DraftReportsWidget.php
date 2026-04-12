@@ -57,7 +57,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
             $user->can('ForceEdit:LaporanInsiden') &&
             ! $user->can('ViewAllData:LaporanInsiden')
         ) {
-            $unitIds = $user->unitKerja()->pluck('id');
+            $unitIds = $user->unitKerjas()->pluck('id');
 
             return $query->whereIn('unit_kerja_id', $unitIds);
         }

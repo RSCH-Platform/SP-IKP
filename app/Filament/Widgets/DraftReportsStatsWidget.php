@@ -31,7 +31,7 @@ class DraftReportsStatsWidget extends BaseWidget
         }
 
         if ($user->can('ForceEdit:LaporanInsiden')) {
-            $unitIds = $user->unitKerja()->pluck('id');
+            $unitIds = $user->unitKerjas()->pluck('id');
 
             return $query->whereIn('unit_kerja_id', $unitIds);
         }

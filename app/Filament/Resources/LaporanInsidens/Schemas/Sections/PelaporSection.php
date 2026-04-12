@@ -67,7 +67,7 @@ class PelaporSection
                             }
 
                             $set('user_id', $authUser->getKey());
-                            $set('unit_kerja_id', $authUser->unitKerja()->first()?->id);
+                            $set('unit_kerja_id', $authUser->unitKerjas()->first()?->id);
                         })
                         ->afterStateUpdated(function ($state, callable $set): void {
                             $selectedUser = User::with('unitKerja')->find($state);
@@ -77,7 +77,7 @@ class PelaporSection
                                 return;
                             }
 
-                            $set('unit_kerja_id', $selectedUser->unitKerja()->first()?->id);
+                            $set('unit_kerja_id', $selectedUser->unitKerjas()->first()?->id);
                         })
                         ->disabled(fn(): bool => static::shouldLockPelaporIdentityFields())
                         ->dehydrated()
@@ -95,7 +95,7 @@ class PelaporSection
                         ->helperText('Unit kerja pelapor')
                         ->placeholder('Pilih unit kerja')
                         ->default(function (): ?int {
-                            return static::getAuthenticatedUser()?->unitKerja()->first()?->id;
+                            return static::getAuthenticatedUser()?->unitKerjas()->first()?->id;
                         })
                         ->options(function (): array {
                             $authUser = static::getAuthenticatedUser();
@@ -105,7 +105,7 @@ class PelaporSection
                             }
 
                             if (static::shouldLockPelaporIdentityFields()) {
-                                return $authUser->unitKerja()
+                                return $authUser->unitKerjas()
                                     ->pluck('unit_name', 'unit_kerja.id')
                                     ->all();
                             }
@@ -117,7 +117,7 @@ class PelaporSection
                                 return;
                             }
 
-                            $set('unit_kerja_id', static::getAuthenticatedUser()?->unitKerja()->first()?->id);
+                            $set('unit_kerja_id', static::getAuthenticatedUser()?->unitKerjas()->first()?->id);
                         })
                         ->disabled(fn(): bool => static::shouldLockPelaporIdentityFields())
                         ->dehydrated(),
