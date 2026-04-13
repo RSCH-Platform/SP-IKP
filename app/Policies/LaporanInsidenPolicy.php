@@ -31,7 +31,7 @@ class LaporanInsidenPolicy
         }
 
         // Super Admin dapat melihat semua laporan
-        if ($authUser->hasRole('super_admin')) {
+        if ($authUser->hasRole('super_admin_ikp')) {
             return true;
         }
 
@@ -41,7 +41,7 @@ class LaporanInsidenPolicy
         }
 
         // Kepala Unit dapat melihat laporan dari unit mereka
-        if ($authUser->hasRole('kepala_unit')) {
+        if ($authUser->hasRole('kepala_unit_ikp')) {
             $userUnitIds = $authUser->unitKerjas()->pluck('id');
             if ($userUnitIds->contains($laporanInsiden->unit_kerja_id)) {
                 return true;

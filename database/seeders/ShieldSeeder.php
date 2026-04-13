@@ -123,12 +123,12 @@ class ShieldSeeder extends Seeder
         */
 
         $roles = [
-            'super_admin',
-            'admin',
-            'tim_mutu',
-            'kepala_unit',
-            'pelapor',
-            'manajemen',
+            'super_admin_ikp',
+            'admin_ikp',
+            'tim_mutu_ikp',
+            'kepala_unit_ikp',
+            'pelapor_ikp',
+            'manajemen_ikp',
         ];
 
         $roleInstances = [];
@@ -149,7 +149,7 @@ class ShieldSeeder extends Seeder
         $allPermissions = Permission::all();
 
         // Super Admin → semua permission
-        $roleInstances['super_admin']->syncPermissions($allPermissions);
+        $roleInstances['super_admin_ikp']->syncPermissions($allPermissions);
 
         // Admin → semua laporan + manajemen role + semua workflow
         $adminPermissions = collect($actions)
@@ -170,10 +170,10 @@ class ShieldSeeder extends Seeder
                 'ForceEdit:LaporanInsiden',
             ]);
 
-        $roleInstances['admin']->syncPermissions($adminPermissions);
+        $roleInstances['admin_ikp']->syncPermissions($adminPermissions);
 
         // Kepala unit → verifikasi & kembalikan ke pelapor
-        $roleInstances['kepala_unit']->syncPermissions([
+        $roleInstances['kepala_unit_ikp']->syncPermissions([
             'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
             'Update:LaporanInsiden',
@@ -188,7 +188,7 @@ class ShieldSeeder extends Seeder
         ]);
 
         // Tim mutu → investigasi & kembalikan ke kepala unit
-        $roleInstances['tim_mutu']->syncPermissions([
+        $roleInstances['tim_mutu_ikp']->syncPermissions([
             'ViewAllData:LaporanInsiden',
             'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
@@ -200,14 +200,14 @@ class ShieldSeeder extends Seeder
         ]);
 
         // Manajemen → hanya lihat
-        $roleInstances['manajemen']->syncPermissions([
+        $roleInstances['manajemen_ikp']->syncPermissions([
             'ViewAllData:LaporanInsiden',
             'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
         ]);
 
         // Pelapor → submit & lihat
-        $roleInstances['pelapor']->syncPermissions([
+        $roleInstances['pelapor_ikp']->syncPermissions([
             'View:LaporanInsiden',
             'ViewAny:LaporanInsiden',
             'Create:LaporanInsiden',

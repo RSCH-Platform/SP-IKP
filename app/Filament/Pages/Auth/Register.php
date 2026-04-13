@@ -46,7 +46,7 @@ class Register extends BaseRegister
             'password' => Hash::make($data['password']),
         ]);
 
-        $user->assignRole('pelapor');
+        $user->assignRole('pelapor_ikp');
 
         return $user;
     }

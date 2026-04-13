@@ -18,7 +18,7 @@ $headOfUnit = \App\Models\User::whereHas('unitKerja', function ($query) use ($un
 $query->where('unit_kerja_id', $unitId);
 })
 ->whereHas('roles', function ($q) {
-$q->where('name', 'kepala_unit');
+$q->where('name', 'kepala_unit_ikp');
 })
 ->first();
 

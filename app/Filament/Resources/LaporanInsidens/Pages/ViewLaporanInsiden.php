@@ -232,7 +232,7 @@ class ViewLaporanInsiden extends ViewRecord
     {
         $this->record->submitLaporan();
 
-        $kepalaUnits = User::role('kepala_unit')->get();
+        $kepalaUnits = User::role('kepala_unit_ikp')->get();
 
         if ($kepalaUnits->isNotEmpty()) {
             Notification::make()
@@ -256,7 +256,7 @@ class ViewLaporanInsiden extends ViewRecord
     {
         $this->record->verifikasiLaporan(auth()->id());
 
-        $notifyUsers = User::role(['tim_mutu', 'admin'])->get();
+        $notifyUsers = User::role(['tim_mutu_ikp', 'admin_ikp'])->get();
 
         if ($notifyUsers->isNotEmpty()) {
             Notification::make()
