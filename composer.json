@@ -15,7 +15,7 @@
         "guava/filament-modal-relation-managers": "^2.0",
         "juniyasyos/filament-media-manager": "v1.4.1",
         "juniyasyos/laravel-iam-client": "v1.6.7",
-        "juniyasyos/manage-unit-kerja": "v2.1.1",
+        "juniyasyos/manage-unit-kerja": "v2.1.2",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "league/flysystem-aws-s3-v3": "*",
