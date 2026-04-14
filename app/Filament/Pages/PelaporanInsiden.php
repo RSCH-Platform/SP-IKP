@@ -42,7 +42,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
             'user_id'        => $authUser?->id,
             'unit_kerja_id'  => $authUser?->unitKerjas()->first()?->id,
             'nama_pelapor'   => $authUser?->name,
-            'unit_kerja'     => $authUser?->unitKerja->first()->unit_name ?? 'Unit Kerja Tidak Ditemukan',
+            'unit_kerja'     => $authUser?->unitKerjas->first()->unit_name ?? 'Unit Kerja Tidak Ditemukan',
             'tanggal_lapor'  => now()->format('Y-m-d'),
             'tanggal_insiden' => now()->format('Y-m-d'),
             'status'         => 'draft',

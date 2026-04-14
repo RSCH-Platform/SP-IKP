@@ -159,7 +159,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                     $record->submitLaporan();
 
                     $kepalaUnits = User::role('kepala_unit_ikp')
-                        ->whereHas('unitKerja', fn(Builder $query) => $query->where('unit_kerja.id', $record->unit_kerja_id))
+                        ->whereHas('unitKerjas', fn(Builder $query) => $query->where('unit_kerja.id', $record->unit_kerja_id))
                         ->get();
 
                     Notification::make()

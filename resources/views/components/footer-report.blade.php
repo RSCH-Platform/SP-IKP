@@ -14,7 +14,7 @@
 @php
 // Auto-query kepala unit jika tidak disediakan manual
 if (!$receivedByName && $unitId) {
-$headOfUnit = \App\Models\User::whereHas('unitKerja', function ($query) use ($unitId) {
+$headOfUnit = \App\Models\User::whereHas('unitKerjas', function ($query) use ($unitId) {
 $query->where('unit_kerja_id', $unitId);
 })
 ->whereHas('roles', function ($q) {

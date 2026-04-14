@@ -70,7 +70,7 @@ class PelaporSection
                             $set('unit_kerja_id', $authUser->unitKerjas()->first()?->id);
                         })
                         ->afterStateUpdated(function ($state, callable $set): void {
-                            $selectedUser = User::with('unitKerja')->find($state);
+                            $selectedUser = User::with('unitKerjas')->find($state);
 
                             if (! $selectedUser instanceof User) {
                                 $set('unit_kerja_id', null);
@@ -86,7 +86,7 @@ class PelaporSection
 
                     Forms\Components\Select::make('unit_kerja_id')
                         ->label('Unit Kerja / Departemen')
-                        ->relationship('unitKerja', 'unit_name')
+                        ->relationship('unitKerjas', 'unit_name')
                         ->searchable()
                         ->preload()
                         ->native(false)

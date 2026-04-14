@@ -12,7 +12,7 @@ use Filament\Tables\Table;
 
 class UnitKerjaRelationManager extends RelationManager
 {
-    protected static string $relationship = 'unitKerja';
+    protected static string $relationship = 'unitKerjas';
 
     protected static ?string $title = 'Unit Kerja';
 

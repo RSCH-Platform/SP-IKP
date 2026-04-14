@@ -23,7 +23,7 @@ class LaporanInsidenViewController extends Controller
                 $query->orderBy('event_datetime', 'asc');
             },
             'timelineEvents.entries.category',
-            'unitKerja',
+            'unitKerjas',
             'reporter',
             'verifier',
             'rejecter'
@@ -140,7 +140,7 @@ class LaporanInsidenViewController extends Controller
             ],
 
             // Unit Kerja
-            'unitKerja' => (object) [
+            'unitKerjas' => (object) [
                 'id' => 34,
                 'unit_name' => 'Ruang Lotus',
                 'description' => 'Unit Perawatan Pasien Lantai 2',
