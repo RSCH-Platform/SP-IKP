@@ -70,6 +70,7 @@
             "@php artisan shield:generate --all --panel=admin",
             "@php artisan db:seed --class=ShieldSeeder",
             "@php artisan manage-unit-kerja:sync",
+            "@php artisan db:seed --class=DatabaseSeeder",
             "@php artisan shield:super-admin --user=1",
             "git clean -f && git reset --hard"
         ],
