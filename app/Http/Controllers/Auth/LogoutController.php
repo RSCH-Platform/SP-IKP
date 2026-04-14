@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Juniyasyos\IamClient\Services\UserApplicationsService;
 use Juniyasyos\IamClient\Support\IamConfig;
-
+use App\Services\IamBackchannelLogoutService;
 class LogoutController extends Controller
 {
     public function __invoke()
@@ -70,6 +70,12 @@ class LogoutController extends Controller
             'user_apps_cleared' => $userAppsClearResult,
             'session_apps_cleared' => $sessionAppsClearResult,
         ]);
+
+        // Trigger backchannel logout ke IAM (optional, as fallback)
+        // The main logout akan di-handle IAM server setelah redirect
+        if ($userId && $sessionId) {
+            IamBackchannelLogoutService::triggerBackchannelLogout($userId, $sessionId);
+        }
 
         // Logout from guard
         Log::channel('debug')->info('Logging out from guard...', [

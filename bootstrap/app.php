@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Token validation debugging - logs token structure and validation results
         $middleware->web(\App\Http\Middleware\TokenValidationDebugMiddleware::class);
 
+        // Handle session expiration with SSO backchannel logout
+        // Detects when session expired and triggers IAM backchannel logout
+        $middleware->web(\App\Http\Middleware\HandleSessionExpiration::class);
+
         // IAM/SSO token verification middleware - check token validity on every web request
         $middleware->web(\Juniyasyos\IamClient\Http\Middleware\VerifyIamToken::class);
 
