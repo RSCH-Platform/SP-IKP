@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\LaporanInsiden;
+use App\Services\DashboardChartService;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,9 @@ class LaporanInsidenObserver
 {
     public function created(LaporanInsiden $laporan): void
     {
+        // Clear dashboard chart cache on new incident
+        DashboardChartService::clearCache();
+
         $unitName = $laporan->unitKerja?->unit_name
             ?? $laporan->unit_kerja
             ?? 'unit-kerja-tidak-diketahui';
@@ -104,5 +108,32 @@ class LaporanInsidenObserver
             'report_folder_id' => $reportFolder->id,
             'report_folder_was_new' => $reportFolder->wasRecentlyCreated,
         ]);
+
+        // Clear chart caches when a new report is created
+        DashboardChartService::clearCache();
+    }
+
+    public function updated(LaporanInsiden $laporan): void
+    {
+        // Clear chart caches when a report status or data changes
+        DashboardChartService::clearCache();
+    }
+
+    public function deleted(LaporanInsiden $laporan): void
+    {
+        // Clear chart caches when a report is deleted
+        DashboardChartService::clearCache();
+    }
+
+    public function restored(LaporanInsiden $laporan): void
+    {
+        // Clear chart caches when a report is restored
+        DashboardChartService::clearCache();
+    }
+
+    public function forceDeleted(LaporanInsiden $laporan): void
+    {
+        // Clear chart caches when a report is force deleted
+        DashboardChartService::clearCache();
     }
 }

@@ -432,17 +432,21 @@
             </div>
 
             <div x-data="{open:false}" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-                {{-- Header --}}
-                <div class="flex justify-between border-b px-6 py-4 dark:border-gray-600">
-                    <h3 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white"> <x-heroicon-o-clock class="h-5 w-5" /> Workflow Progress </h3>
+               {{-- Header --}}
+                <div 
+                    @click="open = !open"
+                    class="flex items-center justify-between px-6 py-4 border-b cursor-pointer
+                        dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                >
+                    <h3 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+                        <x-heroicon-o-clock class="h-5 w-5" />
+                        Workflow Progress
+                    </h3>
 
-                    <button
-                        @click="open = !open"
-                        class="flex w-full items-center justify-between border-b px-6 py-4 text-left transition hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
-                        <x-heroicon-o-chevron-down
-                            class="h-5 w-5 text-gray-500 transition-transform duration-200"
-                            ::class="{ 'rotate-180': open }" />
-                    </button>
+                    <x-heroicon-o-chevron-down
+                        class="h-5 w-5 text-gray-500 transition-transform duration-200"
+                        ::class="{ 'rotate-180': open }"
+                    />
                 </div>
 
                 {{-- COLLAPSED SUMMARY --}}
