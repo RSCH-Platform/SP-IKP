@@ -11,6 +11,7 @@ use App\Filament\Resources\LaporanInsidens\Schemas\Sections\PelaporSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\ProblemAnalysisSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\StatusSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\TabularTimelineSection;
+use App\Filament\Resources\LaporanInsidens\Schemas\Sections\TimelineGridSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\TindakanSection;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -146,5 +147,10 @@ class LaporanInsidenFormSchema
     public static function getFieldProblemAnalysis(): Section
     {
         return ProblemAnalysisSection::make();
+    }
+
+    public static function getFieldTimelineGrid(): Section
+    {
+        return TimelineGridSection::make();
     }
 }

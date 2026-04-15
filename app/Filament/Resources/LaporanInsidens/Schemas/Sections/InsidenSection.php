@@ -70,24 +70,26 @@ class InsidenSection
                     ->columnSpanFull(),
             ]),
 
-            Radio::make('insiden_terjadi_pada')
+            TextInput::make('insiden_terjadi_pada')
                 ->label('Insiden Terjadi Pada')
                 ->required()
-                ->options([
-                    'Pasien'    => 'Pasien',
-                    'Petugas'   => 'Petugas / Staf',
-                    'Pengunjung' => 'Pengunjung / Keluarga',
-                    'Lainnya'   => 'Lainnya',
-                ])
+                ->visible(false)
+                // ->options([
+                //     'Pasien'    => 'Pasien',
+                //     'Petugas'   => 'Petugas / Staf',
+                //     'Pengunjung' => 'Pengunjung / Keluarga',
+                //     'Lainnya'   => 'Lainnya',
+                // ])
                 ->default('Pasien')
-                ->inline()
-                ->inlineLabel(false)
-                ->descriptions([
-                    'Pasien'    => 'Insiden menimpa pasien yang sedang dirawat',
-                    'Petugas'   => 'Insiden menimpa petugas/staf rumah sakit',
-                    'Pengunjung' => 'Insiden menimpa pengunjung atau keluarga pasien',
-                    'Lainnya'   => 'Selain ketiga kategori di atas',
-                ])
+                ->dehydrated()
+                // ->inline()
+                // ->inlineLabel(false)
+                // ->descriptions([
+                //     'Pasien'    => 'Insiden menimpa pasien yang sedang dirawat',
+                //     'Petugas'   => 'Insiden menimpa petugas/staf rumah sakit',
+                //     'Pengunjung' => 'Insiden menimpa pengunjung atau keluarga pasien',
+                //     'Lainnya'   => 'Selain ketiga kategori di atas',
+                // ])
                 ->live(),
 
             TextInput::make('insiden_terjadi_pada_lainnya')

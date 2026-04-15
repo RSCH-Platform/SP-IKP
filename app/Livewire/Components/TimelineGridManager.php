@@ -1,0 +1,254 @@
+<?php
+
+namespace App\Livewire\Components;
+
+use App\Models\LaporanInsiden;
+use App\Models\TimelineCategory;
+use App\Models\TimelineEvent;
+use App\Models\TimelineEntry;
+use Livewire\Component;
+
+class TimelineGridManager extends Component
+{
+    public $recordId;
+    public $timelineEvents = [];
+    public $categories = [];
+    
+    public $showModal = false;
+    public $modalMode = 'edit'; // 'edit' or 'add-event'
+    
+    // Modal fields
+    public $editingEventId = null;
+    public $editingCategoryId = null;
+    public $editingDescription = '';
+    public $editingEventDateTime = '';
+    
+    public function mount($recordId = null)
+    {
+        $this->recordId = $recordId ?? request()->route('record');
+        $this->loadTimelineData();
+        $this->loadCategories();
+    }
+
+    public function loadTimelineData()
+    {
+        if (!$this->recordId) {
+            return;
+        }
+
+        $record = LaporanInsiden::with('timelineEvents.entries.category')
+            ->find($this->recordId);
+
+        if ($record) {
+            $this->timelineEvents = $record->timelineEvents()
+                ->with('entries.category')
+                ->orderBy('event_datetime', 'asc')
+                ->get()
+                ->map(function ($event) {
+                    return [
+                        'id' => $event->id,
+                        'event_datetime' => $event->event_datetime?->format('Y-m-d H:i:s'),
+                        'entries' => $event->entries->map(function ($entry) {
+                            return [
+                                'id' => $entry->id,
+                                'category_id' => $entry->category_id,
+                                'category_name' => $entry->category?->name,
+                                'description' => $entry->description,
+                            ];
+                        })->toArray(),
+                    ];
+                })->toArray();
+        }
+    }
+
+    public function loadCategories()
+    {
+        $this->categories = TimelineCategory::orderBy('sort_order')
+            ->get()
+            ->map(fn($cat) => [
+                'id' => $cat->id,
+                'code' => $cat->code,
+                'name' => $cat->name,
+                'sort_order' => $cat->sort_order,
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Open modal to add new event
+     * 
+     * Note: DateTime Format Handling
+     * - editingEventDateTime is stored in datetime-local format: YYYY-MM-DDTHH:mm (with T separator)
+     * - This format is required by HTML datetime-local input for proper display and binding
+     * - When saving, addTimelineEvent() converts T to space for MySQL: YYYY-MM-DD HH:mm
+     */
+    public function openAddEventModal($date = null)
+    {
+        $this->modalMode = 'add-event';
+        // Format for datetime-local input: YYYY-MM-DDTHH:mm
+        if ($date) {
+            $dateTime = \Carbon\Carbon::parse($date);
+            $this->editingEventDateTime = $dateTime->format('Y-m-d\TH:i');
+        } else {
+            $this->editingEventDateTime = now()->format('Y-m-d\TH:i');
+        }
+        $this->showModal = true;
+    }
+
+    /**
+     * Create new timeline event
+     */
+    public function addTimelineEvent()
+    {
+        // Transform datetime format from datetime-local (2026-04-14T08:43) to Y-m-d H:i format
+        $dateTime = str_replace('T', ' ', $this->editingEventDateTime);
+        
+        $this->validate([
+            'editingEventDateTime' => 'required',
+        ], [
+            'editingEventDateTime.required' => 'Tanggal dan waktu harus diisi',
+        ]);
+
+        try {
+            // Create timeline event
+            $event = TimelineEvent::create([
+                'laporan_insiden_id' => $this->recordId,
+                'event_datetime' => $dateTime,
+                'created_by' => auth()->id(),
+            ]);
+
+            // Create entries for all categories (empty)
+            foreach ($this->categories as $category) {
+                TimelineEntry::create([
+                    'timeline_event_id' => $event->id,
+                    'category_id' => $category['id'],
+                    'description' => '',
+                    'created_by' => auth()->id(),
+                ]);
+            }
+
+            $this->showModal = false;
+            $this->resetModal();
+            $this->loadTimelineData();
+            
+            $this->dispatch('notify', message: 'Event timeline berhasil ditambahkan');
+        } catch (\Exception $e) {
+            \Log::error('TimelineGridManager: Error adding event', [
+                'error' => $e->getMessage(),
+                'dateTime' => $dateTime,
+            ]);
+            $this->dispatch('notify-error', message: 'Gagal menambah event: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Open modal to edit entry
+     */
+    public function openEditModal($eventId, $categoryId)
+    {
+        $event = $this->timelineEvents[array_search($eventId, array_column($this->timelineEvents, 'id'))] ?? null;
+        
+        if (!$event) {
+            return;
+        }
+
+        $entry = collect($event['entries'])->firstWhere('category_id', $categoryId);
+
+        $this->editingEventId = $eventId;
+        $this->editingCategoryId = $categoryId;
+        $this->editingDescription = $entry['description'] ?? '';
+        $this->editingEventDateTime = $event['event_datetime'] ?? '';
+        $this->modalMode = 'edit';
+        $this->showModal = true;
+    }
+
+    /**
+     * Save edited entry
+     */
+    public function saveEntry()
+    {
+        try {
+            $entry = TimelineEntry::where('timeline_event_id', $this->editingEventId)
+                ->where('category_id', $this->editingCategoryId)
+                ->firstOrFail();
+
+            $entry->update([
+                'description' => $this->editingDescription,
+                'created_by' => auth()->id(),
+            ]);
+
+            $this->showModal = false;
+            $this->resetModal();
+            $this->loadTimelineData();
+            
+            $this->dispatch('notify', message: 'Entry berhasil disimpan');
+        } catch (\Exception $e) {
+            $this->dispatch('notify-error', message: 'Gagal menyimpan entry: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete timeline entry
+     */
+    public function deleteEntry($eventId, $categoryId)
+    {
+        try {
+            TimelineEntry::where('timeline_event_id', $eventId)
+                ->where('category_id', $categoryId)
+                ->delete();
+
+            $this->loadTimelineData();
+            $this->dispatch('notify', message: 'Entry berhasil dihapus');
+        } catch (\Exception $e) {
+            $this->dispatch('notify-error', message: 'Gagal menghapus entry: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete entire timeline event
+     */
+    public function deleteEvent($eventId)
+    {
+        try {
+            TimelineEvent::findOrFail($eventId)->delete();
+            $this->loadTimelineData();
+            $this->dispatch('notify', message: 'Event berhasil dihapus');
+        } catch (\Exception $e) {
+            $this->dispatch('notify-error', message: 'Gagal menghapus event: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Close modal and reset fields
+     */
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->resetModal();
+    }
+
+    private function resetModal()
+    {
+        $this->editingEventId = null;
+        $this->editingCategoryId = null;
+        $this->editingDescription = '';
+        $this->editingEventDateTime = '';
+    }
+
+    public function eventsByDate()
+    {
+        return collect($this->timelineEvents)->groupBy(function ($event) {
+            return substr($event['event_datetime'] ?? '2000-01-01', 0, 10);
+        })->map(function ($events) {
+            return $events->sortBy('event_datetime');
+        })->sortKeys();
+    }
+
+    public function render()
+    {
+        return view('livewire.timeline-grid-manager', [
+            'eventsByDate' => $this->eventsByDate(),
+            'categories' => $this->categories,
+        ]);
+    }
+}

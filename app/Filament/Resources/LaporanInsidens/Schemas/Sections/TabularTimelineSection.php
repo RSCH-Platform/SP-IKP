@@ -10,6 +10,17 @@ use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Illuminate\Support\Str;
 
+/**
+ * OLD DESIGN: Nested Repeater Format
+ * 
+ * This is the original/legacy timeline section using nested repeaters.
+ * It has been preserved for backward compatibility.
+ * 
+ * ⚠️ For new forms, prefer using TimelineGridSection which provides
+ * a better UX with grouped dates, time-as-rows, and categories-as-columns.
+ * 
+ * Both sections are now displayed side-by-side in the form for comparison.
+ */
 class TabularTimelineSection
 {
     public static function make(): Section
