@@ -20,6 +20,14 @@ class InsidenSection
     {
         $schema = [
             Grid::make(2)->schema([
+                Textarea::make('deskripsi_kategori_insiden')
+                    ->label('Insiden')
+                    ->required()
+                    ->rows(8)
+                    ->helperText('Jelaskan secara rinci kategori insiden yang dipilih, termasuk faktor penyebab dan kondisi yang berkontribusi.')
+                    ->placeholder('Contoh: Insiden terkait medication terjadi karena kesalahan pemberian obat oleh petugas, dimana pasien menerima obat yang salah dosisnya. Faktor penyebabnya adalah kurangnya komunikasi antara petugas dan kurang teliti dalam membaca label obat.')
+                    ->columnSpanFull(),
+
                 LaporanInsidenFormOptions::makeSelect('jenis_insiden', 'Jenis Insiden', LaporanInsidenFormOptions::JENIS_INSIDEN_OPTIONS)
                     ->required()
                     ->prefixIcon('heroicon-m-document-text')
@@ -60,14 +68,6 @@ class InsidenSection
                     ->default('Tidak ada cedera')
                     ->prefixIcon('heroicon-m-heart')
                     ->helperText('Tingkat dampak yang dialami'),
-
-                Textarea::make('deskripsi_kategori_insiden')
-                    ->label('Deskripsi Insiden')
-                    ->required()
-                    ->rows(8)
-                    ->helperText('Jelaskan secara rinci kategori insiden yang dipilih, termasuk faktor penyebab dan kondisi yang berkontribusi.')
-                    ->placeholder('Contoh: Insiden terkait medication terjadi karena kesalahan pemberian obat oleh petugas, dimana pasien menerima obat yang salah dosisnya. Faktor penyebabnya adalah kurangnya komunikasi antara petugas dan kurang teliti dalam membaca label obat.')
-                    ->columnSpanFull(),
             ]),
 
             TextInput::make('insiden_terjadi_pada')

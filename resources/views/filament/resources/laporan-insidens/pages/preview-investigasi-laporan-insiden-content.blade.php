@@ -3,6 +3,7 @@ $laporan = $record;
 $investigationDataGrouped = isset($investigationDataGrouped) ? $investigationDataGrouped : $this->getGroupedInvestigationData();
 @endphp
 
+
 <style>
     @media print {
         @page {
@@ -205,6 +206,294 @@ $investigationDataGrouped = isset($investigationDataGrouped) ? $investigationDat
             @endif
         </div>
     </div>
+
+    <!-- SECTION D: FLOWCHART ANALISA 5 WHY -->
+    <div class="mb-6">
+        <x-section-header title="BAGIAN D: Flowchart Analisa 5 WHY" />
+        <div class="bg-white border border-slate-300 p-3 space-y-6">
+
+            @if($laporan->problems && $laporan->problems->count() > 0)
+
+            <!-- LEVEL 1 + 2 (FIXED FLOW STRUCTURE) -->
+            <div class="flex flex-col items-center mb-12">
+
+                <!-- LEVEL 1: INSIDEN -->
+                <div class="px-6 py-3 rounded-lg bg-slate-800 text-white text-sm font-semibold text-center shadow">
+                    INSIDEN
+                    <div class="text-xs text-slate-300 mt-1">
+                        {{ $laporan->deskripsi_kategori_insiden ?? 'Insiden' }}
+                    </div>
+                </div>
+
+                <!-- VERTICAL LINE -->
+                <div class="w-px h-8 bg-slate-300"></div>
+
+                <!-- HORIZONTAL BRANCH LINE -->
+                <div class="relative w-full max-w-5xl">
+                    <div class="absolute top-0 left-0 right-0 h-px bg-slate-300"></div>
+
+                    <!-- PROBLEMS -->
+                    <div class="flex justify-between">
+
+                        @foreach($laporan->problems as $idx => $problem)
+
+                        <div class="flex flex-col items-center w-full">
+
+                            <!-- VERTICAL LINE TO NODE -->
+                            <div class="w-px h-6 bg-slate-300"></div>
+
+                            <!-- NODE: PROBLEM -->
+                            <div class="w-56 p-4 rounded-lg border border-slate-300 bg-white shadow-sm text-center">
+
+                                <!-- TYPE BADGE (MINIMAL) -->
+                                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                                    {{ $problem->problem_type }}
+                                </span>
+
+                                <!-- TITLE -->
+                                <p class="text-xs font-semibold text-slate-800 mt-2">
+                                    Masalah {{ $idx + 1 }}
+                                </p>
+
+                                <!-- DESC -->
+                                <p class="text-xs text-slate-600 mt-1 leading-snug">
+                                    {{ Str::limit($problem->problem_description, 70) }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        @endforeach
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- LEVEL 3+: Individual 5 WHY Sub-Flowcharts per Problem -->
+            <div class="space-y-8">
+                @foreach($laporan->problems as $problemIdx => $problem)
+
+                <div class="break-inside-avoid">
+
+                    <!-- Problem Title Box -->
+                    <div class="bg-white border border-slate-300 p-4 mb-4 rounded shadow-sm">
+                        <p class="text-xs font-semibold text-slate-900 uppercase">Masalah #{{ $problemIdx + 1 }}: {{ $problem->problem_type }}</p>
+                        <p class="text-sm text-slate-700 mt-2">{{ $problem->problem_description }}</p>
+                    </div>
+
+                    <!-- Penyebab Langsung -->
+                    @if($problem->whys->count() > 0)
+                    <div class="mb-4 p-4 bg-white border-l-4 border-l-slate-400 border border-slate-200 rounded">
+                        <p class="text-xs font-semibold text-slate-800 uppercase mb-3 border-b border-slate-200 pb-2">Penyebab Langsung</p>
+                        <div class="space-y-3">
+                            @foreach($problem->whys->sortBy('why_level') as $why)
+                            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                                <p class="text-xs font-semibold text-slate-700">Level {{ $why->why_level }}</p>
+                                <p class="text-sm text-slate-700 mt-1">{{ $why->problem_statement }}</p>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Arrow Down -->
+                    <div class="flex justify-center mb-3">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="2" d="M12 5v10m0 0l-3-3m3 3l3-3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    @endif
+
+                    <!-- Akar Masalah -->
+                    <div class="mb-4 p-4 bg-white border-l-4 border-l-yellow-400 border border-slate-200 rounded">
+                        <p class="text-xs font-semibold text-slate-800 uppercase mb-3 border-b border-slate-200 pb-2">Akar Masalah (Root Cause)</p>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                            <p class="text-sm text-slate-800">
+                                @if($problem->whys->count() > 0)
+                                {{ $problem->whys->sortBy('why_level')->last()?->problem_statement ?? '-' }}
+                                @else
+                                -
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Arrow Down -->
+                    <div class="flex justify-center mb-3">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="2" d="M12 5v10m0 0l-3-3m3 3l3-3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+
+                    <!-- Faktor Kontributor -->
+                    @if($problem->contributors->count() > 0)
+                    <div class="mb-4 p-4 bg-white border-l-4 border-l-purple-500 border border-slate-200 rounded">
+                        <p class="text-xs font-semibold text-slate-800 uppercase mb-3 border-b border-slate-200 pb-2">Faktor Kontributor</p>
+                        @php
+                        $contributorsByCategory = $problem->contributors->groupBy(function($contrib) {
+                        return $contrib->category?->id ?? 'uncategorized';
+                        });
+                        @endphp
+                        <div class="space-y-3">
+                            @foreach($contributorsByCategory as $categoryId => $contribs)
+                            @php
+                            $categoryName = $contribs->first()?->category?->name ?? 'Tidak Dikategorikan';
+                            @endphp
+                            <div class="border-l-4 border-slate-300 pl-3">
+                                <p class="text-xs font-semibold text-slate-800 uppercase mb-2">{{ $categoryName }}</p>
+                                <div class="space-y-2 ml-1">
+                                    @foreach($contribs as $contrib)
+                                    <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs">
+                                        <p class="font-semibold text-slate-800">
+                                            {{ $contrib->category?->name ?? '-' }}
+                                            @if($contrib->component)
+                                            > {{ $contrib->component->name }}
+                                            @endif
+                                            @if($contrib->subComponent)
+                                            > {{ $contrib->subComponent->name }}
+                                            @endif
+                                        </p>
+                                        @if($contrib->description)
+                                        <p class="text-slate-700 opacity-75 mt-1">{{ $contrib->description }}</p>
+                                        @endif
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Arrow Down -->
+                    <div class="flex justify-center mb-4">
+                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="2" d="M12 5v10m0 0l-3-3m3 3l3-3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    @endif
+
+                    <!-- Rekomendasi & Tindakan -->
+                    @if($problem->recommendations->count() > 0 || $problem->actions->count() > 0)
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Rekomendasi -->
+                        @if($problem->recommendations->count() > 0)
+                        <div class="p-4 bg-white border-l-4 border-l-green-500 border border-slate-200 rounded">
+                            <p class="text-xs font-semibold text-slate-800 uppercase mb-3 border-b border-slate-200 pb-2">Rekomendasi</p>
+                            <div class="space-y-3">
+                                @foreach($problem->recommendations as $rec)
+                                @php
+                                $priority = $rec->priority ?? 'medium';
+                                $priorityLabels = [
+                                'low' => 'Rendah',
+                                'medium' => 'Sedang',
+                                'high' => 'Tinggi',
+                                'critical' => 'Kritis',
+                                ];
+                                @endphp
+                                <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                                    <div class="flex items-start justify-between gap-2 mb-2">
+                                        <p class="text-sm text-slate-800 flex-1">{{ $rec->recommendation_text }}</p>
+                                        <span class="text-[11px] font-semibold text-slate-700 px-2 py-1 rounded bg-slate-100 whitespace-nowrap">{{ $priorityLabels[$priority] ?? 'Sedang' }}</span>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Tindakan -->
+                        @if($problem->actions->count() > 0)
+                        <div class="p-4 bg-white border-l-4 border-l-orange-500 border border-slate-200 rounded">
+                            <p class="text-xs font-semibold text-slate-800 uppercase mb-3 border-b border-slate-200 pb-2">Tindakan</p>
+                            <div class="space-y-3">
+                                @foreach($problem->actions as $action)
+                                @php
+                                $status = $action->status ?? 'pending';
+                                $statusLabels = [
+                                'pending' => 'Pending',
+                                'in-progress' => 'Proses',
+                                'completed' => 'Selesai',
+                                ];
+                                $statusStyles = [
+                                'pending' => 'bg-slate-100 text-slate-700',
+                                'in-progress' => 'bg-slate-100 text-slate-700',
+                                'completed' => 'bg-slate-100 text-slate-700',
+                                ];
+                                $evidence = $action->getMedia('action_evidence');
+                                @endphp
+                                <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs">
+                                    <div class="flex items-start justify-between gap-2 mb-2">
+                                        <p class="text-sm text-slate-800 flex-1">{{ $action->action_text }}</p>
+                                        <span class="{{ $statusStyles[$status] ?? 'bg-slate-100 text-slate-700' }} px-2 py-1 rounded whitespace-nowrap text-[11px] font-semibold">{{ $statusLabels[$status] ?? 'Pending' }}</span>
+                                    </div>
+
+                                    @if($action->responsible_person || $action->deadline)
+                                    <div class="text-slate-700 mb-2 space-y-1 text-[11px] bg-white bg-opacity-70 p-2 rounded border border-slate-200">
+                                        @if($action->responsible_person)
+                                        <p><span class="font-semibold">PIC:</span> {{ $action->responsible_person }}</p>
+                                        @endif
+                                        @if($action->deadline)
+                                        <p><span class="font-semibold">Deadline:</span> {{ $action->deadline->format('d/m/Y') }}</p>
+                                        @endif
+                                    </div>
+                                    @endif
+
+                                    @if($evidence->count() > 0)
+                                    <div class="bg-slate-50 p-2 rounded border border-slate-200 mt-2 text-[11px] text-slate-700">
+                                        <p class="font-semibold mb-2">Bukti/Dokumen ({{ $evidence->count() }})</p>
+                                        <div class="space-y-2">
+                                            @foreach($evidence as $media)
+                                            @php
+                                            $fileName = $media->name;
+                                            $fileSize = round($media->size / 1024, 2) . ' KB';
+                                            $isImage = in_array($media->mime_type, ['image/jpeg', 'image/png', 'image/gif']);
+                                            @endphp
+                                            <div class="text-slate-700">
+                                                @if($isImage)
+                                                <div class="mb-1 p-1 bg-white rounded border border-slate-200 inline-block">
+                                                    <img src="{{ $media->getUrl() }}" alt="{{ $fileName }}" class="max-w-[180px] max-h-[280px] rounded border border-slate-300">
+                                                </div>
+                                                <p>
+                                                    @if($media->name)
+                                                    {{ Str::limit($media->name, 40) }}
+                                                    @endif
+                                                    <span class="text-slate-500">({{ $fileSize }})</span>
+                                                </p>
+                                                @else
+                                                <div class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200">
+                                                    <span class="text-slate-600">📄</span>
+                                                    <p class="text-slate-700 flex-1">{{ Str::limit($media->name, 40) }}</p>
+                                                    <span class="text-slate-500 text-[11px]">{{ $fileSize }}</span>
+                                                </div>
+                                                @endif
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+
+                </div>
+
+                @endforeach
+            </div>
+
+            @else
+            <div class="bg-yellow-50 border border-yellow-200 rounded p-4">
+                <p class="text-xs text-yellow-800">Belum ada masalah/problem yang diidentifikasi untuk laporan ini.</p>
+            </div>
+            @endif
+
+        </div>
+    </div>
+
 
     <!-- Footer Report Component -->
     <x-footer-report

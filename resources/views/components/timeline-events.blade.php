@@ -19,7 +19,7 @@
         ->sortBy('sort_order');
         @endphp
         <div class="overflow-x-auto border border-slate-300 rounded-lg">
-            <table class="w-full text-xs">
+            <table class="min-w-max text-xs">
                 <!-- Table Header -->
                 <thead>
                     <tr class="bg-slate-200 border-b-2 border-slate-400">
@@ -34,20 +34,34 @@
 
                 <!-- Table Body -->
                 <tbody>
-                    @foreach($dateEvents as $event)
-                    @forelse($event->entries ?? [] as $entry)
+                    @php
+                    $timeGroups = $dateEvents->groupBy(fn($event) => \Carbon\Carbon::parse($event->event_datetime)->format('H:i'));
+                    @endphp
+
+                    @foreach($timeGroups as $time => $eventsAtSameTime)
+                    @php
+                    $mergedEntries = collect($eventsAtSameTime)
+                    ->flatMap(fn($event) => $event->entries ?? [])
+                    ->groupBy('category_id');
+                    @endphp
                     <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
                         <!-- Waktu -->
                         <td class="px-4 py-3 text-slate-700 font-medium border-r border-slate-200 whitespace-nowrap">
-                            {{ $event->event_datetime?->translatedFormat('H:i') ?? '-' }}
+                            {{ $time }}
                         </td>
 
                         <!-- Category Data -->
                         @foreach($categories as $category)
+                        @php
+                        $entries = $mergedEntries[$category->id] ?? collect();
+                        $descriptions = collect($entries)->pluck('description')->filter()->all();
+                        @endphp
                         <td class="px-4 py-3 text-slate-700 border-r border-slate-200">
-                            @if($entry->category_id === $category->id)
+                            @if(count($descriptions) > 0)
                             <div class="space-y-2">
-                                <p class="text-xs leading-relaxed">{{ $entry->description ?? '-' }}</p>
+                                @foreach($descriptions as $description)
+                                <p class="text-xs leading-relaxed">{{ $description }}</p>
+                                @endforeach
                             </div>
                             @else
                             <span class="text-slate-300">-</span>
@@ -55,13 +69,6 @@
                         </td>
                         @endforeach
                     </tr>
-                    @empty
-                    <tr class="border-b border-slate-200">
-                        <td colspan="{{ 2 + $categories->count() }}" class="px-4 py-3 text-center text-slate-500 italic">
-                            Tidak ada entri
-                        </td>
-                    </tr>
-                    @endforelse
                     @endforeach
                 </tbody>
             </table>
