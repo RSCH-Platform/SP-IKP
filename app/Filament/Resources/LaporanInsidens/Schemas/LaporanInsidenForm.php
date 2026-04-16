@@ -56,21 +56,21 @@ class LaporanInsidenForm
                     //         LaporanInsidenFormSchema::getFieldDataCollection(),
                     //     ]),
 
-                    Step::make('Tabular Timeline')
-                        ->hidden(
-                            fn($record) =>
-                            ! (Auth::user()->can('Investigasi:LaporanInsiden') &&
-                                $record->status === LaporanInsiden::STATUS_INVESTIGASI &&
-                                $record->investigation_started_by !== null)
-                        )
-                        ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
-                        ->schema([
-                            // NEW IMPROVED GRID DESIGN
-                            LaporanInsidenFormSchema::getFieldTimelineGrid(),
+                    // Step::make('Tabular Timeline')
+                    //     ->hidden(
+                    //         fn($record) =>
+                    //         ! (Auth::user()->can('Investigasi:LaporanInsiden') &&
+                    //             $record->status === LaporanInsiden::STATUS_INVESTIGASI &&
+                    //             $record->investigation_started_by !== null)
+                    //     )
+                    //     ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
+                    //     ->schema([
+                    //         // NEW IMPROVED GRID DESIGN
+                    //         LaporanInsidenFormSchema::getFieldTimelineGrid(),
                             
-                            // // OLD DESIGN (preserved for reference/comparison)
-                            // LaporanInsidenFormSchema::getFieldTabularTimeline(),
-                        ]),
+                    //         // // OLD DESIGN (preserved for reference/comparison)
+                    //         // LaporanInsidenFormSchema::getFieldTabularTimeline(),
+                    //     ]),
 
                     Step::make('Analisa Masalah')
                         ->hidden(
@@ -81,6 +81,7 @@ class LaporanInsidenForm
                         )
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
                         ->schema([
+                            LaporanInsidenFormSchema::getFieldProblemAnalysisOptimize(),
                             LaporanInsidenFormSchema::getFieldProblemAnalysis(),
                         ]),
                 ])

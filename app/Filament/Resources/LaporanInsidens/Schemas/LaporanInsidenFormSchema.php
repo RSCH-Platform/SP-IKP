@@ -8,6 +8,7 @@ use App\Filament\Resources\LaporanInsidens\Schemas\Sections\GradingResikoSection
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\InsidenSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\PasienSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\PelaporSection;
+use App\Filament\Resources\LaporanInsidens\Schemas\Sections\ProblemAnalysisSectionOptimize;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\ProblemAnalysisSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\StatusSection;
 use App\Filament\Resources\LaporanInsidens\Schemas\Sections\TabularTimelineSection;
@@ -144,6 +145,10 @@ class LaporanInsidenFormSchema
         return TabularTimelineSection::make();
     }
 
+    public static function getFieldProblemAnalysisOptimize(): Section
+    {
+        return ProblemAnalysisSectionOptimize::make();
+    }
     public static function getFieldProblemAnalysis(): Section
     {
         return ProblemAnalysisSection::make();
