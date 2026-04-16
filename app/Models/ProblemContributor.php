@@ -14,12 +14,9 @@ class ProblemContributor extends Model
 
     protected $fillable = [
         'problem_id',
-        'sub_component_id',
         'category_id',
         'component_id',
-        'category',
-        'component',
-        'sub_component',
+        'sub_component_id',
         'description',
     ];
 

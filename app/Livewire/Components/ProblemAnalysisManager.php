@@ -11,6 +11,8 @@ use App\Models\ProblemContributorSubComponent;
 use App\Models\ProblemContributorDescription;
 use App\Models\ProblemRecommendation;
 use App\Models\ProblemWhy;
+use App\Models\TimelineCategory;
+use App\Models\TimelineEntry;
 use Carbon\Carbon;
 use Livewire\Component;
 
@@ -21,28 +23,34 @@ class ProblemAnalysisManager extends Component
     public $contributor_categories = [];
     public $contributor_components = [];
     public $contributor_sub_components = [];
-    
+
     // Modal and form state
     public $activeTab = 'whys'; // whys, contributors, recommendations, actions
     public $editingProblemId = null;
     public $showModal = false; // Keep for backward compatibility, but not used
     public $modalMode = 'view'; // view, add, edit
-    
+
     // Form fields
     public $whyFormData = [];
     public $contributorFormData = [];
     public $recommendationFormData = [];
     public $actionFormData = [];
     public $uploadedFiles = []; // Track temporary uploaded files
-    
+
     // For editing
     public $editingItemId = null;
     public $editingItemType = null;
-    
+
     public function mount($recordId = null)
     {
         $this->recordId = $recordId ?? request()->route('record');
         $this->loadProblems();
+
+        // Initialize problems from TimelineEntry (CMP/SDP) if no problems exist yet
+        if (empty($this->problems)) {
+            $this->initializeProblemsFromTimeline();
+        }
+
         $this->loadCategories();
     }
 
@@ -72,16 +80,16 @@ class ProblemAnalysisManager extends Component
                         'why_level' => $w->why_level,
                         'problem_statement' => $w->problem_statement,
                     ])->values()->toArray(),
-                    'contributors' => $problem->contributors->map(fn($c) => [
-                        'id' => $c->id,
-                        'category_id' => $c->category_id,
-                        'category_name' => $c->category?->name,
-                        'component_id' => $c->component_id,
-                        'component_name' => $c->component?->name,
-                        'sub_component_id' => $c->sub_component_id,
-                        'sub_component_name' => $c->subComponent?->name,
-                        'description' => $c->description,
-                    ])->toArray(),
+                    'contributors' => $problem->contributors->map(function ($c) {
+                        return [
+                            'id' => $c->id,
+                            'category_id' => $c->category_id,
+                            'component_id' => $c->component_id,
+                            'sub_component_id' => $c->sub_component_id,
+                            'description' => $c->description,
+                            'object' => $c, // Store raw object untuk akses relasi
+                        ];
+                    })->toArray(),
                     'recommendations' => $problem->recommendations->map(fn($r) => [
                         'id' => $r->id,
                         'recommendation_text' => $r->recommendation_text,
@@ -105,6 +113,98 @@ class ProblemAnalysisManager extends Component
         }
     }
 
+    /**
+     * Get category name dari ProblemContributor object
+     */
+    public function getContributorCategoryName($contributor)
+    {
+        if (is_array($contributor) && isset($contributor['object'])) {
+            $obj = $contributor['object'];
+            return $obj->category ? $obj->category->name : '(Belum diisi)';
+        }
+        return '(Belum diisi)';
+    }
+
+    /**
+     * Get component name dari ProblemContributor object
+     */
+    public function getContributorComponentName($contributor)
+    {
+        if (is_array($contributor) && isset($contributor['object'])) {
+            $obj = $contributor['object'];
+            return $obj->component ? $obj->component->name : '(Belum diisi)';
+        }
+        return '(Belum diisi)';
+    }
+
+    /**
+     * Get sub component name dari ProblemContributor object
+     */
+    public function getContributorSubComponentName($contributor)
+    {
+        if (is_array($contributor) && isset($contributor['object'])) {
+            $obj = $contributor['object'];
+            return $obj->subComponent ? $obj->subComponent->name : '(Belum diisi)';
+        }
+        return '(Belum diisi)';
+    }
+
+    public function initializeProblemsFromTimeline()
+    {
+        if (!$this->recordId) {
+            return;
+        }
+
+        // Get CMP and SDP timeline categories
+        $categoryIds = TimelineCategory::whereIn('code', ['cmp', 'sdp'])
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($categoryIds)) {
+            return;
+        }
+
+        // Get timeline entries for this specific laporan (through timeline_events)
+        $timelineEntries = TimelineEntry::whereHas('event', function ($query) {
+            $query->where('laporan_insiden_id', $this->recordId);
+        })
+            ->whereIn('category_id', $categoryIds)
+            ->with('category')
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn(TimelineEntry $entry) => strtoupper($entry->category?->code ?? ''))
+            ->map(fn($group) => $group->first());
+
+        if (empty($timelineEntries)) {
+            return;
+        }
+
+        // Create problems from timeline entries
+        try {
+            $incident = \App\Models\LaporanInsiden::find($this->recordId);
+            if (!$incident) {
+                return;
+            }
+
+            foreach ($timelineEntries as $entry) {
+                IncidentProblem::create([
+                    'incident_id' => $this->recordId,
+                    'problem_type' => strtoupper($entry->category?->code ?? 'UNKNOWN'),
+                    'problem_description' => $entry->description ?? '',
+                ]);
+            }
+
+            // Reload problems after creating them
+            $this->loadProblems();
+        } catch (\Exception $e) {
+            // Silently fail - this is optional initialization
+            \Log::warning('ProblemAnalysisManager: Error initializing problems from timeline', [
+                'error' => $e->getMessage(),
+                'recordId' => $this->recordId,
+            ]);
+        }
+    }
+
     public function loadCategories()
     {
         $this->contributor_categories = ProblemContributorCategory::with(['components.subComponents'])
@@ -118,7 +218,7 @@ class ProblemAnalysisManager extends Component
         $this->contributorFormData['category_id'] = $categoryId;
         $this->contributorFormData['component_id'] = null;
         $this->contributorFormData['sub_component_id'] = null;
-        
+
         if ($categoryId) {
             $this->contributor_components = ProblemContributorComponent::where('category_id', $categoryId)
                 ->orderBy('name')
@@ -127,7 +227,7 @@ class ProblemAnalysisManager extends Component
         } else {
             $this->contributor_components = [];
         }
-        
+
         $this->contributor_sub_components = [];
     }
 
@@ -135,7 +235,7 @@ class ProblemAnalysisManager extends Component
     {
         $this->contributorFormData['component_id'] = $componentId;
         $this->contributorFormData['sub_component_id'] = null;
-        
+
         if ($componentId) {
             $this->contributor_sub_components = ProblemContributorSubComponent::where('component_id', $componentId)
                 ->orderBy('name')
@@ -149,13 +249,13 @@ class ProblemAnalysisManager extends Component
     public function onSubComponentChange($subComponentId)
     {
         $this->contributorFormData['sub_component_id'] = $subComponentId;
-        
+
         if ($subComponentId) {
             $descriptions = ProblemContributorDescription::where('sub_component_id', $subComponentId)
                 ->orderBy('id')
                 ->pluck('description')
                 ->toArray();
-            
+
             if (!empty($descriptions)) {
                 $autoFilled = implode("\n", array_map(fn($desc) => "• {$desc}", $descriptions));
                 $this->contributorFormData['description'] = $autoFilled;
@@ -203,7 +303,10 @@ class ProblemAnalysisManager extends Component
         }
         $this->editingItemId = null;
         $this->editingItemType = 'why';
-        $this->whyFormData = ['problem_statement' => ''];
+        $this->whyFormData = [
+            'id' => null,
+            'problem_statement' => '',
+        ];
     }
 
     public function saveWhy()
@@ -218,7 +321,7 @@ class ProblemAnalysisManager extends Component
                     'problem_statement' => $this->whyFormData['problem_statement'],
                 ]);
             }
-            
+
             $this->loadProblems();
             $this->resetForms();
             $this->dispatch('notify', message: 'WHY berhasil disimpan');
@@ -244,7 +347,10 @@ class ProblemAnalysisManager extends Component
         $this->editingItemId = $whyId;
         $this->editingItemType = 'why';
         $this->editingProblemId = $why->problem_id;
-        $this->whyFormData = ['problem_statement' => $why->problem_statement];
+        $this->whyFormData = [
+            'id' => $whyId,
+            'problem_statement' => $why->problem_statement,
+        ];
     }
 
     private function resetForms()
@@ -271,7 +377,7 @@ class ProblemAnalysisManager extends Component
         $this->editingItemId = null;
         $this->editingItemType = 'contributor';
         $this->contributorFormData = [
-            'category_id' => null, 
+            'category_id' => null,
             'component_id' => null,
             'sub_component_id' => null,
             'description' => ''
@@ -289,28 +395,18 @@ class ProblemAnalysisManager extends Component
                 'contributorFormData' => $this->contributorFormData,
             ]);
 
-            // Validation
-            if (empty($this->contributorFormData['category_id'])) {
-                \Log::warning('ProblemAnalysisManager: Category ID is empty');
-                $this->dispatch('notify-error', message: '❌ Kategori faktor harus diisi');
-                return;
-            }
-            if (empty($this->contributorFormData['component_id'])) {
-                \Log::warning('ProblemAnalysisManager: Component ID is empty');
-                $this->dispatch('notify-error', message: '❌ Komponen harus diisi');
-                return;
-            }
-            if (empty($this->contributorFormData['description'])) {
-                \Log::warning('ProblemAnalysisManager: Description is empty');
-                $this->dispatch('notify-error', message: '❌ Deskripsi faktor harus diisi');
+            // Validation - only category_id is required
+            if (empty($this->editingProblemId)) {
+                \Log::error('ProblemAnalysisManager: editingProblemId is empty!');
+                $this->dispatch('notify-error', message: '❌ Problem ID tidak ditemukan');
                 return;
             }
 
             $data = [
-                'category_id' => $this->contributorFormData['category_id'],
-                'component_id' => $this->contributorFormData['component_id'],
+                'category_id' => $this->contributorFormData['category_id'] ?? null,
+                'component_id' => $this->contributorFormData['component_id'] ?? null,
                 'sub_component_id' => $this->contributorFormData['sub_component_id'] ?? null,
-                'description' => $this->contributorFormData['description'],
+                'description' => $this->contributorFormData['description'] ?? null,
             ];
 
             \Log::info('ProblemAnalysisManager: About to save contributor', [
@@ -323,21 +419,13 @@ class ProblemAnalysisManager extends Component
                 $contributor = ProblemContributor::findOrFail($this->editingItemId);
                 $contributor->update($data);
                 $message = '✅ Faktor berhasil diperbarui';
-                \Log::info('ProblemAnalysisManager: Contributor updated', ['id' => $this->editingItemId]);
             } else {
                 // Create new contributor
-                if (empty($this->editingProblemId)) {
-                    \Log::error('ProblemAnalysisManager: editingProblemId is empty!');
-                    $this->dispatch('notify-error', message: '❌ Problem ID tidak ditemukan');
-                    return;
-                }
-                
                 $data['problem_id'] = $this->editingProblemId;
                 $created = ProblemContributor::create($data);
                 $message = '✅ Faktor berhasil ditambahkan';
-                \Log::info('ProblemAnalysisManager: Contributor created', ['id' => $created->id]);
             }
-            
+
             $this->loadProblems();
             $this->resetForms();
             $this->dispatch('notify', message: $message);
@@ -345,7 +433,6 @@ class ProblemAnalysisManager extends Component
             \Log::error('ProblemAnalysisManager: Error saving contributor', [
                 'error' => $e->getMessage(),
                 'data' => $this->contributorFormData,
-                'trace' => $e->getTraceAsString(),
             ]);
             $this->dispatch('notify-error', message: '❌ Error: ' . $e->getMessage());
         }
@@ -364,7 +451,7 @@ class ProblemAnalysisManager extends Component
                 'sub_component_id' => $contributor->sub_component_id,
                 'description' => $contributor->description,
             ];
-            
+
             // Load components for the selected category
             if ($contributor->category_id) {
                 $this->contributor_components = ProblemContributorComponent::where('category_id', $contributor->category_id)
@@ -372,7 +459,7 @@ class ProblemAnalysisManager extends Component
                     ->get()
                     ->toArray();
             }
-            
+
             // Load sub_components for the selected component
             if ($contributor->component_id) {
                 $this->contributor_sub_components = ProblemContributorSubComponent::where('component_id', $contributor->component_id)
@@ -431,7 +518,7 @@ class ProblemAnalysisManager extends Component
                 ProblemRecommendation::create($data);
                 $message = 'Rekomendasi berhasil ditambahkan';
             }
-            
+
             $this->loadProblems();
             $this->resetForms();
             $this->dispatch('notify', message: $message);
@@ -482,7 +569,7 @@ class ProblemAnalysisManager extends Component
             'status' => 'pending'
         ];
         $this->uploadedFiles = []; // Reset uploaded files
-        
+
         \Log::info('ProblemAnalysisManager: addAction called', [
             'problemId' => $problemId,
             'editingProblemId' => $this->editingProblemId
@@ -536,7 +623,7 @@ class ProblemAnalysisManager extends Component
                 $message = '✅ Tindakan berhasil ditambahkan';
                 \Log::info('ProblemAnalysisManager: Action created', ['id' => $action->id]);
             }
-            
+
             // Handle file uploads if any
             if (!empty($this->uploadedFiles)) {
                 foreach ($this->uploadedFiles as $file) {
@@ -544,7 +631,7 @@ class ProblemAnalysisManager extends Component
                         $action->addMedia($file['path'])
                             ->preservingOriginal()
                             ->toMediaCollection('action_evidence');
-                        
+
                         \Log::info('ProblemAnalysisManager: File uploaded to action', [
                             'actionId' => $action->id,
                             'fileName' => $file['name'],
@@ -558,7 +645,7 @@ class ProblemAnalysisManager extends Component
                 }
                 $this->uploadedFiles = [];
             }
-            
+
             $this->loadProblems();
             $this->resetForms();
             $this->dispatch('notify', message: $message);
@@ -575,7 +662,7 @@ class ProblemAnalysisManager extends Component
     {
         try {
             $action = ProblemAction::findOrFail($actionId);
-            
+
             $this->editingItemId = $actionId;
             $this->editingItemType = 'action';
             $this->editingProblemId = $action->problem_id;
@@ -586,12 +673,12 @@ class ProblemAnalysisManager extends Component
                 'status' => $action->status,
             ];
             $this->uploadedFiles = []; // Reset for edit
-            
+
             \Log::info('ProblemAnalysisManager: Loaded action for edit', [
                 'id' => $actionId,
                 'problemId' => $action->problem_id,
             ]);
-            
+
             $this->dispatch('notify', message: '✅ Form edit tindakan berhasil dimuat');
         } catch (\Exception $e) {
             \Log::error('ProblemAnalysisManager: Error loading action', [
@@ -606,13 +693,13 @@ class ProblemAnalysisManager extends Component
     {
         try {
             $action = ProblemAction::findOrFail($actionId);
-            
+
             // Delete associated media files
             $action->clearMediaCollection('action_evidence');
-            
+
             ProblemAction::destroy($actionId);
             $this->loadProblems();
-            
+
             \Log::info('ProblemAnalysisManager: Action deleted (with files)', ['id' => $actionId]);
             $this->dispatch('notify', message: '✅ Tindakan berhasil dihapus');
         } catch (\Exception $e) {
@@ -660,7 +747,7 @@ class ProblemAnalysisManager extends Component
 
                 // Store in temporary location
                 $path = $file->store('temp/action-evidence', 'local');
-                
+
                 $this->uploadedFiles[] = [
                     'path' => storage_path('app/' . $path),
                     'name' => $file->getClientOriginalName(),
@@ -689,19 +776,19 @@ class ProblemAnalysisManager extends Component
         try {
             if (isset($this->uploadedFiles[$index])) {
                 $file = $this->uploadedFiles[$index];
-                
+
                 // Delete from temporary storage
                 if (file_exists($file['path'])) {
                     unlink($file['path']);
                 }
-                
+
                 unset($this->uploadedFiles[$index]);
                 $this->uploadedFiles = array_values($this->uploadedFiles); // Reindex array
-                
+
                 \Log::info('ProblemAnalysisManager: Uploaded file removed', [
                     'fileName' => $file['name'],
                 ]);
-                
+
                 $this->dispatch('notify', message: '✅ File dihapus dari antrian upload');
             }
         } catch (\Exception $e) {
@@ -717,7 +804,7 @@ class ProblemAnalysisManager extends Component
         try {
             $action = ProblemAction::findOrFail($actionId);
             $media = $action->media()->find($mediaId);
-            
+
             if ($media) {
                 $media->delete();
                 \Log::info('ProblemAnalysisManager: File deleted from action', [

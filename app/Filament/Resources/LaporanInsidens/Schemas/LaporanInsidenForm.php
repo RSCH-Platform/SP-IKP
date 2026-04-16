@@ -82,7 +82,6 @@ class LaporanInsidenForm
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
                         ->schema([
                             LaporanInsidenFormSchema::getFieldProblemAnalysisOptimize(),
-                            LaporanInsidenFormSchema::getFieldProblemAnalysis(),
                         ]),
                 ])
             )->columns(1);
