@@ -41,18 +41,32 @@
             </div>
             <div x-data="{open:false}" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 {{-- Header --}}
-                <div class="flex justify-between border-b px-6 py-4 dark:border-gray-600">
-                    <h3 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white"> <x-heroicon-o-clock class="h-5 w-5" /> Workflow Progress </h3>
+                <div
+                    @click="open = !open"
+                    class="group flex items-center justify-between px-6 py-4 border-b
+           border-gray-200 dark:border-slate-700
+           cursor-pointer
+           hover:bg-gray-50 dark:hover:bg-slate-700
+           transition">
 
-                    <button
-                        @click="open = !open"
-                        class="flex w-full items-center justify-between border-b px-6 py-4 text-left transition hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
-                        <x-heroicon-o-chevron-down
-                            class="h-5 w-5 text-gray-500 transition-transform duration-200"
-                            ::class="{ 'rotate-180': open }" />
-                    </button>
+                    {{-- Left: Title --}}
+                    <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        <x-heroicon-o-clock class="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                        Workflow Progress
+                    </h3>
+
+                    {{-- Right: Chevron --}}
+                    <div class="w-7 h-7 flex items-center justify-center rounded-md
+                bg-gray-100 dark:bg-slate-700
+                group-hover:bg-gray-200 dark:group-hover:bg-slate-600
+                transition">
+
+                        <x-heroicon-o-chevron-right
+                            class="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-300"
+                            ::class="{ 'rotate-90': open }" />
+                    </div>
+
                 </div>
-
                 {{-- COLLAPSED SUMMARY --}}
                 <div
                     x-show="!open"

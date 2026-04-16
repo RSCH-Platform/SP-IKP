@@ -25,6 +25,7 @@ class ProblemAnalysisManager extends Component
 
     public $recordId;
     public $problems = [];
+    public $expandedProblemId = null;
 
     // Modal and form state
     public $activeTab = 'whys'; // whys, contributors, recommendations, actions
@@ -35,6 +36,14 @@ class ProblemAnalysisManager extends Component
     // For editing
     public $editingItemId = null;
     public $editingItemType = null;
+
+    /**
+     * Toggle problem accordion expansion
+     */
+    public function toggleProblem($problemId)
+    {
+        $this->expandedProblemId = $this->expandedProblemId === $problemId ? null : $problemId;
+    }
 
     public function mount($recordId = null)
     {
@@ -105,6 +114,14 @@ class ProblemAnalysisManager extends Component
                     ])->toArray(),
                 ];
             })->toArray();
+
+            if (empty($this->selectedProblemId) && count($this->problems) > 0) {
+                $this->selectedProblemId = $this->problems[0]['id'];
+            }
+
+            if (!empty($this->selectedProblemId) && !collect($this->problems)->contains('id', $this->selectedProblemId)) {
+                $this->selectedProblemId = $this->problems[0]['id'] ?? null;
+            }
         }
     }
 

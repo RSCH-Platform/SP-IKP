@@ -10,26 +10,62 @@
         </span>
     </div>
 
-    {{-- Problems List --}}
-    <div class="space-y-6">
+    {{-- Problems List (Accordion) --}}
+    <div class="space-y-2">
         @forelse($problems ?? [] as $problem)
 
-        <div class="border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800">
+        <div class="border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 overflow-hidden transition-all duration-300 hover:shadow-lg">
 
-            {{-- Header (sudah kamu handle sendiri) --}}
-            @include('livewire.problem-analysis-manager.header', ['problem' => $problem])
+            {{-- Accordion Header --}}
+            <div
+                wire:click="toggleProblem({{ $problem['id'] }})"
+                class="group cursor-pointer flex items-start gap-2
+           hover:bg-gray-50 dark:hover:bg-slate-700
+           transition-all duration-200">
 
-            {{-- Content --}}
-            <div class="px-6 py-4 space-y-8 bg-white dark:bg-slate-800">
+                {{-- Chevron --}}
+                <div class="flex-shrink-0 flex items-center justify-center pt-5 pl-2">
+                    <div class="w-7 h-7 flex items-center justify-center rounded-md
+                    bg-gray-100 dark:bg-slate-700
+                    group-hover:bg-gray-200 dark:group-hover:bg-slate-600
+                    transition">
 
-                @include('livewire.problem-analysis-manager.why-section', ['problem' => $problem])
+                        <svg
+                            class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-in-out"
+                            style="transform: rotate({{ $expandedProblemId === $problem['id'] ? '90deg' : '0deg' }});"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
 
-                @include('livewire.problem-analysis-manager.contributors-section', ['problem' => $problem])
+                            {{-- Chevron Right --}}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5l7 7-7 7" />
+                        </svg>
 
-                @include('livewire.problem-analysis-manager.recommendations-section', ['problem' => $problem])
+                    </div>
+                </div>
 
-                @include('livewire.problem-analysis-manager.actions-section', ['problem' => $problem])
+                {{-- Content --}}
+                <div class="flex-1">
+                    @include('livewire.problem-analysis-manager.header', ['problem' => $problem])
+                </div>
 
+            </div>
+
+            {{-- Accordion Content with Smooth Animation --}}
+            <div class="overflow-hidden transition-all duration-500 ease-out"
+                style="max-height: {{ $expandedProblemId === $problem['id'] ? '2000px' : '0px' }}; opacity: {{ $expandedProblemId === $problem['id'] ? '1' : '0' }};">
+                <div class="px-6 py-4 space-y-8 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2 duration-300">
+
+                    @include('livewire.problem-analysis-manager.why-section', ['problem' => $problem])
+
+                    @include('livewire.problem-analysis-manager.contributors-section', ['problem' => $problem])
+
+                    @include('livewire.problem-analysis-manager.recommendations-section', ['problem' => $problem])
+
+                    @include('livewire.problem-analysis-manager.actions-section', ['problem' => $problem])
+
+                </div>
             </div>
         </div>
 
