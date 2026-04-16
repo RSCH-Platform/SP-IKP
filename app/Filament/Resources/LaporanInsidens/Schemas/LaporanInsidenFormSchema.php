@@ -112,7 +112,7 @@ class LaporanInsidenFormSchema
 
     public static function sectionKronologi(): Section
     {
-        return TabularTimelineSection::make();
+        return TimelineGridSection::make();
     }
 
     public static function sectionTindakan(bool $withAnalysis = false): Section

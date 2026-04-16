@@ -7,71 +7,153 @@ use App\Models\TimelineCategory;
 use App\Models\TimelineEvent;
 use App\Models\TimelineEntry;
 use Livewire\Component;
+use Illuminate\Support\Facades\Log;
 
 class TimelineGridManager extends Component
 {
     public $recordId;
     public $timelineEvents = [];
     public $categories = [];
-    
+
     public $showModal = false;
     public $modalMode = 'edit'; // 'edit' or 'add-event'
-    
+
     // Modal fields
     public $editingEventId = null;
     public $editingCategoryId = null;
     public $editingDescription = '';
     public $editingEventDateTime = '';
-    
+
     public function mount($recordId = null)
     {
         $this->recordId = $recordId ?? request()->route('record');
+        Log::info('TimelineGridManager MOUNT', [
+            'recordId' => $this->recordId,
+            'timestamp' => now(),
+        ]);
         $this->loadTimelineData();
         $this->loadCategories();
+    }
+
+    /**
+     * Hydrate lifecycle hook
+     * Runs every time component is rendered/updated
+     * Ensures data stays fresh when step visibility changes or on re-render
+     * 
+     * IMPORTANT: This ALWAYS reloads data to fix issue where data disappears
+     * when changing wizard steps. This is more aggressive than checking if empty.
+     */
+    public function hydrate()
+    {
+        // Sync recordId from route in case URL changed
+        if (!$this->recordId && ($recordId = request()->route('record'))) {
+            $this->recordId = $recordId;
+        }
+
+        Log::debug('TimelineGridManager HYDRATE', [
+            'recordId' => $this->recordId,
+            'eventCount' => count($this->timelineEvents),
+            'categoryCount' => count($this->categories),
+            'timestamp' => now(),
+        ]);
+
+        // ALWAYS reload timeline data when rendering
+        // Don't check if empty - just always reload to ensure fresh state
+        // This fixes data disappearing when wizard steps change
+        if ($this->recordId) {
+            $this->loadTimelineData();
+        }
+
+        // Ensure categories are always available
+        if (empty($this->categories)) {
+            $this->loadCategories();
+        }
     }
 
     public function loadTimelineData()
     {
         if (!$this->recordId) {
+            Log::warning('TimelineGridManager.loadTimelineData: No recordId provided');
             return;
         }
 
-        $record = LaporanInsiden::with('timelineEvents.entries.category')
-            ->find($this->recordId);
+        try {
+            Log::debug('TimelineGridManager.loadTimelineData: START', ['recordId' => $this->recordId]);
 
-        if ($record) {
-            $this->timelineEvents = $record->timelineEvents()
-                ->with('entries.category')
-                ->orderBy('event_datetime', 'asc')
-                ->get()
-                ->map(function ($event) {
-                    return [
-                        'id' => $event->id,
-                        'event_datetime' => $event->event_datetime?->format('Y-m-d H:i:s'),
-                        'entries' => $event->entries->map(function ($entry) {
-                            return [
-                                'id' => $entry->id,
-                                'category_id' => $entry->category_id,
-                                'category_name' => $entry->category?->name,
-                                'description' => $entry->description,
-                            ];
-                        })->toArray(),
-                    ];
-                })->toArray();
+            // Load record with all related timeline data in one query
+            $record = LaporanInsiden::with([
+                'timelineEvents' => function ($query) {
+                    $query->with(['entries.category'])
+                        ->orderBy('event_datetime', 'asc');
+                }
+            ])->find($this->recordId);
+
+            if ($record && $record->timelineEvents) {
+                Log::debug('TimelineGridManager.loadTimelineData: Record found', [
+                    'eventCount' => $record->timelineEvents->count(),
+                ]);
+
+                $this->timelineEvents = $record->timelineEvents
+                    ->map(function ($event) {
+                        return [
+                            'id' => $event->id,
+                            'event_datetime' => $event->event_datetime?->format('Y-m-d H:i:s'),
+                            'entries' => $event->entries->map(function ($entry) {
+                                return [
+                                    'id' => $entry->id,
+                                    'category_id' => $entry->category_id,
+                                    'category_name' => $entry->category?->name,
+                                    'description' => $entry->description,
+                                ];
+                            })->toArray(),
+                        ];
+                    })
+                    ->toArray();
+
+                Log::info('TimelineGridManager.loadTimelineData: SUCCESS', [
+                    'eventCount' => count($this->timelineEvents),
+                    'timestamp' => now(),
+                ]);
+            } else {
+                // No events found, ensure empty array
+                Log::info('TimelineGridManager.loadTimelineData: No events found for recordId', [
+                    'recordId' => $this->recordId,
+                    'timestamp' => now(),
+                ]);
+                $this->timelineEvents = [];
+            }
+        } catch (\Exception $e) {
+            Log::error('TimelineGridManager: Error loading timeline data', [
+                'recordId' => $this->recordId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            $this->timelineEvents = [];
         }
     }
 
     public function loadCategories()
     {
-        $this->categories = TimelineCategory::orderBy('sort_order')
-            ->get()
-            ->map(fn($cat) => [
-                'id' => $cat->id,
-                'code' => $cat->code,
-                'name' => $cat->name,
-                'sort_order' => $cat->sort_order,
-            ])
-            ->toArray();
+        try {
+            $this->categories = TimelineCategory::orderBy('sort_order')
+                ->get()
+                ->map(fn($cat) => [
+                    'id' => $cat->id,
+                    'code' => $cat->code,
+                    'name' => $cat->name,
+                    'sort_order' => $cat->sort_order,
+                ])
+                ->toArray();
+
+            Log::debug('TimelineGridManager.loadCategories: SUCCESS', [
+                'categoryCount' => count($this->categories),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('TimelineGridManager.loadCategories: Error', [
+                'error' => $e->getMessage(),
+            ]);
+            $this->categories = [];
+        }
     }
 
     /**
@@ -102,7 +184,7 @@ class TimelineGridManager extends Component
     {
         // Transform datetime format from datetime-local (2026-04-14T08:43) to Y-m-d H:i format
         $dateTime = str_replace('T', ' ', $this->editingEventDateTime);
-        
+
         $this->validate([
             'editingEventDateTime' => 'required',
         ], [
@@ -130,10 +212,10 @@ class TimelineGridManager extends Component
             $this->showModal = false;
             $this->resetModal();
             $this->loadTimelineData();
-            
+
             $this->dispatch('notify', message: 'Event timeline berhasil ditambahkan');
         } catch (\Exception $e) {
-            \Log::error('TimelineGridManager: Error adding event', [
+            Log::error('TimelineGridManager: Error adding event', [
                 'error' => $e->getMessage(),
                 'dateTime' => $dateTime,
             ]);
@@ -147,7 +229,7 @@ class TimelineGridManager extends Component
     public function openEditModal($eventId, $categoryId)
     {
         $event = $this->timelineEvents[array_search($eventId, array_column($this->timelineEvents, 'id'))] ?? null;
-        
+
         if (!$event) {
             return;
         }
@@ -180,7 +262,7 @@ class TimelineGridManager extends Component
             $this->showModal = false;
             $this->resetModal();
             $this->loadTimelineData();
-            
+
             $this->dispatch('notify', message: 'Entry berhasil disimpan');
         } catch (\Exception $e) {
             $this->dispatch('notify-error', message: 'Gagal menyimpan entry: ' . $e->getMessage());

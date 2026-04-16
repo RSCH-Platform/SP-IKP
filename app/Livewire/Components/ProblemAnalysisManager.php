@@ -48,6 +48,10 @@ class ProblemAnalysisManager extends Component
     public function mount($recordId = null)
     {
         $this->recordId = $recordId ?? request()->route('record');
+        Log::info('ProblemAnalysisManager MOUNT', [
+            'recordId' => $this->recordId,
+            'timestamp' => now(),
+        ]);
         $this->loadProblems();
 
         // Initialize problems from TimelineEntry (CMP/SDP) if no problems exist yet
@@ -58,22 +62,65 @@ class ProblemAnalysisManager extends Component
         $this->loadCategories();
     }
 
+    /**
+     * Hydrate lifecycle hook
+     * Runs every time component is rendered/updated
+     * 
+     * This ensures data stays fresh when wizard steps change.
+     * Similar fix applied to TimelineGridManager for consistency.
+     */
+    public function hydrate()
+    {
+        // Sync recordId if not set
+        if (!$this->recordId && ($recordId = request()->route('record'))) {
+            $this->recordId = $recordId;
+        }
+
+        Log::debug('ProblemAnalysisManager HYDRATE', [
+            'recordId' => $this->recordId,
+            'problemCount' => count($this->problems),
+            'expandedId' => $this->expandedProblemId,
+            'timestamp' => now(),
+        ]);
+
+        // Reload problems to ensure fresh state when step visibility changes
+        if ($this->recordId && empty($this->problems)) {
+            $this->loadProblems();
+
+            // Initialize if still empty
+            if (empty($this->problems)) {
+                $this->initializeProblemsFromTimeline();
+            }
+        }
+
+        // Ensure categories available
+        if (empty($this->categories)) {
+            $this->loadCategories();
+        }
+    }
+
     public function loadProblems()
     {
         if (!$this->recordId) {
+            $this->problems = [];
             return;
         }
 
-        $incident = \App\Models\LaporanInsiden::with([
-            'problems.whys',
-            'problems.contributors.category',
-            'problems.contributors.component',
-            'problems.contributors.subComponent',
-            'problems.recommendations',
-            'problems.actions'
-        ])->find($this->recordId);
+        try {
+            $incident = \App\Models\LaporanInsiden::with([
+                'problems.whys',
+                'problems.contributors.category',
+                'problems.contributors.component',
+                'problems.contributors.subComponent',
+                'problems.recommendations',
+                'problems.actions'
+            ])->find($this->recordId);
 
-        if ($incident) {
+            if (!$incident || $incident->problems->isEmpty()) {
+                $this->problems = [];
+                return;
+            }
+
             $this->problems = $incident->problems->map(function ($problem) {
                 return [
                     'id' => $problem->id,
@@ -115,13 +162,21 @@ class ProblemAnalysisManager extends Component
                 ];
             })->toArray();
 
-            if (empty($this->selectedProblemId) && count($this->problems) > 0) {
-                $this->selectedProblemId = $this->problems[0]['id'];
+            // Auto-set first problem as expanded if none selected
+            if (empty($this->expandedProblemId) && count($this->problems) > 0) {
+                $this->expandedProblemId = $this->problems[0]['id'];
             }
 
-            if (!empty($this->selectedProblemId) && !collect($this->problems)->contains('id', $this->selectedProblemId)) {
-                $this->selectedProblemId = $this->problems[0]['id'] ?? null;
+            // Validate selected problem still exists
+            if (!empty($this->expandedProblemId) && !collect($this->problems)->contains('id', $this->expandedProblemId)) {
+                $this->expandedProblemId = $this->problems[0]['id'] ?? null;
             }
+        } catch (\Exception $e) {
+            Log::error('ProblemAnalysisManager: Error loading problems', [
+                'recordId' => $this->recordId,
+                'error' => $e->getMessage(),
+            ]);
+            $this->problems = [];
         }
     }
 

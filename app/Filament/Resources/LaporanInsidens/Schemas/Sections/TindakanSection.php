@@ -70,7 +70,7 @@ class TindakanSection
                 ->columnSpanFull();
         }
 
-        return Section::make('🩹 BAGIAN F: TINDAKAN YANG DILAKUKAN')
+        return Section::make('🩹 BAGIAN D: TINDAKAN YANG DILAKUKAN')
             ->description('Tindakan yang telah dilakukan setelah terjadinya insiden')
             ->icon('heroicon-o-hand-raised')
             ->schema($fields)
