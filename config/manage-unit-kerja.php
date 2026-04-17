@@ -20,7 +20,7 @@ return [
 
     'center_application' => env('MANAGE_UNIT_KERJA_CENTER_APPLICATION', false),
 
-    'app_center_url' => env('IAM_HOST', 'http://192.168.1.9:8100'),               
+    'app_center_url' => env('http://web:8100'),               
 
     'sync' => [
         'active' => env('MANAGE_UNIT_KERJA_SYNC_ACTIVE', true),
