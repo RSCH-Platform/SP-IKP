@@ -137,10 +137,10 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
                 ->color('gray')
                 ->action('simpanDraft'),
 
-            \Filament\Actions\Action::make('submit')
-                ->label('Submit Laporan')
-                ->color('primary')
-                ->action('submit'),
+            // \Filament\Actions\Action::make('submit')
+            //     ->label('Submit Laporan')
+            //     ->color('primary')
+            //     ->action('submit'),
         ];
     }
 
