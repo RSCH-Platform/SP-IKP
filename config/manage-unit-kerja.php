@@ -28,4 +28,3 @@ return [
 
     'navigation_sort' => 0,
 ];
-k
