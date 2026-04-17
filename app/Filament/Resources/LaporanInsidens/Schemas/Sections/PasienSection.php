@@ -94,6 +94,7 @@ class PasienSection
                     Forms\Components\Select::make('pelapor_insiden_pasien')
                         ->columnSpanFull()
                         ->label('Orang Pertama Yang Melaporkan Insiden')
+                        ->required()
                         ->options([
                             'dokter' => 'Dokter',
                             'perawat' => 'Perawat',
@@ -122,6 +123,7 @@ class PasienSection
                             'Lainnya' => 'Lainnya',
                         ])
                         ->live()
+                        ->required()
                         ->native(false)
                         ->placeholder('Pilih'),
 
@@ -151,6 +153,7 @@ class PasienSection
                             'Lainnya' => 'Lainnya',
                         ])
                         ->live()
+                        ->required()
                         ->native(false)
                         ->placeholder('Pilih'),
 

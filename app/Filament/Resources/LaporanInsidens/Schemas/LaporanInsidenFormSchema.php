@@ -42,17 +42,17 @@ class LaporanInsidenFormSchema
                     static::sectionPasien(),
                 ]),
 
-            Step::make('Kronologi')
-                ->icon('heroicon-o-document-text')
-                ->schema([
-                    static::sectionKronologi(),
-                ]),
+            // Step::make('Kronologi')
+            //     ->icon('heroicon-o-document-text')
+            //     ->schema([
+            //         static::sectionKronologi(),
+            //     ]),
 
-            Step::make('Tindakan')
-                ->icon('heroicon-o-hand-raised')
-                ->schema([
-                    static::sectionTindakan($withAdminFields),
-                ]),
+            // Step::make('Tindakan')
+            //     ->icon('heroicon-o-hand-raised')
+            //     ->schema([
+            //         static::sectionTindakan($withAdminFields),
+            //     ]),
         ];
 
         if ($withAdminFields) {

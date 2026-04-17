@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('kelompok_umur')->nullable()->change();
             $table->string('jenis_kelamin')->nullable()->change();
             $table->string('penanggung_biaya')->nullable()->change();
-            $table->string('insiden_terjadi_pada')->change();
+            $table->string('insiden_terjadi_pada')->default('Pasien')->change();
             $table->string('dampak_insiden')->default('Tidak ada cedera')->change();
             $table->string('grading_risiko')->nullable()->change();
         });
