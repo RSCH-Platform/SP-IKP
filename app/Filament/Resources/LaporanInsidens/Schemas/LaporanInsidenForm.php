@@ -30,7 +30,7 @@ class LaporanInsidenForm
                             LaporanInsidenFormSchema::sectionInsiden(true)->visible(fn($record) => !in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
                             LaporanInsidenFormSchema::sectionInsiden(false)->visible(fn($record) => in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
                             LaporanInsidenFormSchema::sectionPasien(),
-                            // LaporanInsidenFormSchema::sectionKronologi(),
+                            LaporanInsidenFormSchema::sectionKronologi(),
                             LaporanInsidenFormSchema::sectionTindakan(),
                             LaporanInsidenFormSchema::sectionCatatanTambahan()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
                         ]),
