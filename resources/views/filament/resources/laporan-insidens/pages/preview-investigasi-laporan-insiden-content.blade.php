@@ -493,21 +493,4 @@ $investigationDataGrouped = isset($investigationDataGrouped) ? $investigationDat
 
         </div>
     </div>
-
-
-    <!-- Footer Report Component -->
-    <x-footer-report
-        :createdByName="$laporan->reporter?->name ?? $laporan->nama_pelapor ?? '-'"
-        :createdByNip="$laporan->reporter?->nip ?? '-'"
-        :createdByPosition="'Pelapor'"
-        :unitId="$laporan->unit_kerja_id"
-        :reportDate="$laporan->tanggal_lapor?->translatedFormat('d F Y')"
-        :receivedDate="$laporan->verified_at?->translatedFormat('d F Y')"
-        :notes="[
-                'Dokumen investigasi ini bersifat RAHASIA',
-                'Data investigasi diambil dari berbagai sumber termasuk interview, review dokumen, dan observasi',
-                'Semua temuan harus diverifikasi dan didokumentasikan dengan baik',
-                'Laporan investigasi menjadi dasar untuk penentuan rekomendasi tindak lanjut'
-            ]" />
-</div>
 </div>

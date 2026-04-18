@@ -86,7 +86,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                 ->limit(60)
                 ->toggleable(),
 
-            Tables\Columns\TextColumn::make('unitKerja.unit_name')
+            Tables\Columns\TextColumn::make('unit_kerja')
                 ->label('Unit Kerja')
                 ->sortable()
                 ->searchable()
@@ -156,6 +156,16 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                 ->modalHeading('Kirim Laporan Insiden?')
                 ->modalDescription('Laporan akan dikirim ke kepala unit untuk diverifikasi.')
                 ->action(function ($record) {
+                    if (! $record->timelineEvents()->whereHas('entries')->exists()) {
+                        Notification::make()
+                            ->title('Tidak dapat mengirim laporan')
+                            ->body('Kronologi timeline belum lengkap. Lengkapi data kronologi sebelum mengirim laporan ke kepala unit.')
+                            ->warning()
+                            ->send();
+
+                        return;
+                    }
+
                     $record->submitLaporan();
 
                     $kepalaUnits = User::role('kepala_unit_ikp')

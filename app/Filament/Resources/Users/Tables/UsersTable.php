@@ -15,7 +15,6 @@ use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
@@ -23,6 +22,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Guava\FilamentModalRelationManagers\Actions\RelationManagerAction;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use STS\FilamentImpersonate\Actions\Impersonate;
 
@@ -42,18 +42,19 @@ class UsersTable
                         TextColumn::make('roles.name')
                             ->label('Role')
                             ->icon('heroicon-o-shield-check')
+                            ->formatStateUsing(fn(string $state): string => Str::headline($state))
                             ->searchable()
                             ->grow(false)
                     ])->alignStart()->space(1),
 
                     Stack::make([
-                        TextColumn::make('unitKerja.unit_name')
+                        TextColumn::make('unitKerjas.unit_name')
                             ->label('')
                             ->grow(false)
                             ->searchable()
                             ->icon('heroicon-m-building-office')
                             ->formatStateUsing(function ($record) {
-                                $roles = $record->unitKerja->pluck('unit_name')->toArray();
+                                $roles = $record->unitKerjas->pluck('unit_name')->toArray();
                                 return 'Unit Kerja: ' . implode(', ', $roles);
                             }),
                         TextColumn::make('nip')

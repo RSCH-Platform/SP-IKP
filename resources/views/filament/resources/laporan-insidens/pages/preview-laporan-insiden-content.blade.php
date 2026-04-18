@@ -215,13 +215,13 @@ $laporan = $record;
             </div>
             <x-long-text-display label="Penjelasan Insiden" :text="$laporan->deskripsi_kategori_insiden ?? '-'" />
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <x-data-row label="Kategori Insiden" :value="$laporan->kategori_insiden ?? '-'" />
-                <x-data-row label="Orang Pelapor" :value="$laporan->pelapor_insiden_pasien ?? '-'" />
-                <x-data-row label="Insiden Menyangkut" :value="$laporan->insiden_menyangkut_pasien ?? '-'" />
+                <x-data-row label="Kategori Insiden" :value="Str::title($laporan->kategori_insiden) ?? '-'" />
+                <x-data-row label="Orang yang Pelapor" :value="Str::of($laporan->pelapor_insiden_pasien)->replace('_', ' ')->title() ?? '-'" />
+                <x-data-row label="Insiden Menyangkut" :value="Str::of($laporan->insiden_menyangkut_pasien)->replace('_', ' ')->title() ?? '-'" />
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <x-data-row label="Spesialisasi Pasien" :value="$laporan->spesialisasi_pasien ?? '-'" />
-                <x-data-row label="Dampak Insiden" :value="$laporan->dampak_insiden ?? '-'" />
+                <x-data-row label="Spesialisasi Pasien" :value="Str::title($laporan->spesialisasi_pasien) ?? '-'" />
+                <x-data-row label="Dampak Insiden" :value="Str::title($laporan->dampak_insiden) ?? '-'" />
             </div>
             <div class="border border-slate-200 p-2 col-span-full">
                 <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Kejadian Sebelumnya</p>
@@ -260,20 +260,45 @@ $laporan = $record;
     </div>
 
     <!-- SECTION E: GRADING RISIKO -->
-    @if(in_array($laporan->status, ['dilaporkan', 'revisi_unit']))
     <div class="break-inside-avoid mb-8">
         <x-section-header title="BAGIAN E: Grading Risiko" />
         <div class="bg-white border border-slate-300 p-2">
-            @if($laporan->status === 'dilaporkan')
-            <!-- Editable version for dilaporkan status -->
-            <x-grading-display :grade="$laporan->grading_risiko ?? 'BIRU'" :justification="$laporan->catatan_tambahan ?? 'Tidak ada justifikasi'" :editable="true" />
-            @else
-            <!-- Read-only version for revisi_unit status -->
-            <x-grading-display :grade="$laporan->grading_risiko ?? 'BIRU'" :justification="$laporan->catatan_tambahan ?? 'Tidak ada justifikasi'" :disabled="true" />
-            @endif
+            @props(['grade' => 'Biru', 'justification' => 'Tidak ada justifikasi'])
+
+            @php
+            $gradingOptions = ['Biru', 'Hijau', 'Kuning', 'Merah'];
+            $gradingColors = [
+            'Biru' => ['bg' => 'bg-blue-500 text-white', 'border' => 'border-blue-500', 'desc' => 'Tidak ada dampak/Risiko rendah'],
+            'Hijau' => ['bg' => 'bg-green-500 text-white', 'border' => 'border-green-500', 'desc' => 'Dampak minimal/Risiko rendah'],
+            'Kuning' => ['bg' => 'bg-amber-500 text-white', 'border' => 'border-amber-500', 'desc' => 'Dampak sedang/Risiko menengah'],
+            'Merah' => ['bg' => 'bg-red-500 text-white', 'border' => 'border-red-500', 'desc' => 'Dampak berat/Risiko tinggi']
+            ];
+            @endphp
+
+            <div class="mb-2">
+                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Grading Risiko</p>
+                <div class="grid grid-cols-4 gap-2">
+                    @foreach($gradingOptions as $option)
+                    @php
+                    $isSelected = $grade === $option;
+                    $colors = $gradingColors[$option];
+                    $styleClass = $isSelected ? $colors['bg'] : 'border ' . $colors['border'] . ' bg-white text-slate-800';
+                    @endphp
+                    <div>
+                        <div class="flex items-center justify-center p-2 rounded text-xs font-semibold uppercase tracking-wide {{ $styleClass }} title='{{ $colors['desc'] }}'">
+                            {{ $option }}
+                        </div>
+                        <p class="text-xs text-slate-600 text-center mt-1 leading-tight">{{ $colors['desc'] }}</p>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="border border-slate-200 p-2">
+                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Justifikasi Grading</p>
+                <div class="text-xs text-slate-800 whitespace-pre-wrap bg-slate-50 p-2 rounded">{{ $justification }}</div>
+            </div>
         </div>
     </div>
-    @endif
 
     <!-- Footer Report Component -->
     <x-footer-report

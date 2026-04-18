@@ -104,6 +104,17 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
     public function submit(): void
     {
         $data = $this->form->getState();
+
+        if (! $this->hasValidTimeline($data['timelineEvents'] ?? [])) {
+            Notification::make()
+                ->title('Tidak dapat mengirim laporan')
+                ->body('Kronologi timeline belum lengkap. Lengkapi data kronologi sebelum mengirim laporan ke kepala unit.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
         $data['user_id']     = Auth::id();
         $data['status']      = LaporanInsiden::STATUS_DILAPORKAN;
         $data['reported_at'] = now();
@@ -190,5 +201,26 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
                 );
             }
         }
+    }
+
+    private function hasValidTimeline(array $timelineEvents): bool
+    {
+        if (empty($timelineEvents)) {
+            return false;
+        }
+
+        $categoryMap = TimelineCategory::all()->keyBy('code');
+
+        foreach ($timelineEvents as $event) {
+            foreach ($event['entries'] ?? [] as $entry) {
+                $categoryId = $entry['category_id'] ?? $categoryMap[$entry['category_code']]?->id;
+
+                if (! empty($categoryId)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

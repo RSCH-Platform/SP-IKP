@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LaporanInsiden;
 use App\Models\UnitKerja;
+use App\Models\TimelineCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -12,8 +13,10 @@ class LaporanInsidenViewController extends Controller
     /**
      * Display laporan insiden untuk viewing/printing
      */
-    public function show(LaporanInsiden $laporan)
+    public function show(string $nomor_laporan)
     {
+        $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
+
         // Cek autorisasi - hanya pembuat, kepala unit, atau super admin yang bisa melihat
         Gate::authorize('view', $laporan);
 
@@ -182,7 +185,7 @@ class LaporanInsidenViewController extends Controller
         if (!$events || $events->isEmpty()) {
             return [
                 'eventsByDate' => collect(),
-                'dateCategories' => []
+                'allCategories' => collect()
             ];
         }
 
@@ -191,19 +194,12 @@ class LaporanInsidenViewController extends Controller
             return $event->event_datetime?->format('Y-m-d');
         })->sortKeys();
 
-        // Extract unique categories per date
-        $dateCategories = [];
-        foreach ($eventsByDate as $date => $dateEvents) {
-            $dateCategories[$date] = $dateEvents->flatMap(fn($event) => $event->entries ?? [])
-                ->pluck('category')
-                ->unique('id')
-                ->sortBy('sort_order')
-                ->values();
-        }
+        // Get ALL categories from database, sorted by sort_order
+        $allCategories = TimelineCategory::orderBy('sort_order')->get();
 
         return [
             'eventsByDate' => $eventsByDate,
-            'dateCategories' => $dateCategories
+            'allCategories' => $allCategories
         ];
     }
 }

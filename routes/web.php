@@ -30,13 +30,14 @@ Route::name('iam.sso.callback.alternate')->group(function () {
 
     // Route::get('/timeline-entries', [TimelineEntryController::class, 'index']);
 
-    // // Laporan Insiden Routes
-    // Route::get('/laporan-insiden/{laporan}', [LaporanInsidenViewController::class, 'show'])
-    //     ->name('laporan-insiden.show');
-    // // Route::get('/laporan-insiden-dummy', [LaporanInsidenViewController::class, 'dummy'])
-    // //     ->name('laporan-insiden.dummy');
+    // Laporan Insiden Routes
+    Route::get('/laporan-insiden/nomor/{nomor_laporan}', [LaporanInsidenViewController::class, 'show'])
+        ->where('nomor_laporan', '.+')
+        ->name('laporan-insiden.show');
+    // Route::get('/laporan-insiden-dummy', [LaporanInsidenViewController::class, 'dummy'])
+    //     ->name('laporan-insiden.dummy');
 
-    // // Investigasi Laporan Insiden Routes
-    // Route::get('/investigasi-laporan-insiden/{laporan}', [InvestigasiLaporanInsidenViewController::class, 'show'])
-    //     ->name('investigasi-laporan-insiden.show');
+    // Investigasi Laporan Insiden Routes
+    Route::get('/investigasi-laporan-insiden/{laporan}', [InvestigasiLaporanInsidenViewController::class, 'show'])
+        ->name('investigasi-laporan-insiden.show');
 });

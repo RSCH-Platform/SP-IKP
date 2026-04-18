@@ -202,7 +202,7 @@
                         <p class="text-xs text-slate-800">{{ $laporan->kategori_insiden ?? '-' }}</p>
                     </div>
                     <div class="border border-slate-200 p-2">
-                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-0.5">Orang Pelapor</p>
+                        <p class="text-xs uppercase tracking-wide text-slate-500 mb-0.5">Orang yang Pelapor</p>
                         <p class="text-xs text-slate-800">{{ $laporan->pelapor_insiden_pasien ?? '-' }}</p>
                     </div>
                     <div class="border border-slate-200 p-2">

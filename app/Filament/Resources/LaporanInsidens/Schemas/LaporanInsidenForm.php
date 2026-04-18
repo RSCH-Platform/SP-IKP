@@ -24,7 +24,7 @@ class LaporanInsidenForm
             ->components(
                 Wizard::make([
                     Step::make('Review Laporan Insiden')
-                        ->disabled(!Auth::user()->can('ForceEdit:LaporanInsiden'))
+                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT && ! Auth::user()->can('ForceEdit:LaporanInsiden'))
                         ->schema([
                             LaporanInsidenFormSchema::sectionPelapor()->disabled(fn($record) => !Auth::user()->can('ForceEdit:LaporanInsiden') || Auth::id() !== $record->pelapor_id),
                             LaporanInsidenFormSchema::sectionInsiden(true)->visible(fn($record) => !in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
@@ -67,7 +67,7 @@ class LaporanInsidenForm
                         ->schema([
                             // NEW IMPROVED GRID DESIGN
                             LaporanInsidenFormSchema::getFieldTimelineGrid(),
-                            
+
                             // // OLD DESIGN (preserved for reference/comparison)
                             // LaporanInsidenFormSchema::getFieldTabularTimeline(),
                         ]),

@@ -169,3 +169,421 @@
     /* Accent grid */
     --cb-color: rgba(96, 165, 250, 0.08);
 }
+
+/* Report style */
+.ikp-header {
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease;
+}
+
+.ikp-header.status-draft {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.ikp-header.status-dilaporkan {
+    background-color: #fef08a;
+    border-color: #fcd34d;
+}
+
+.ikp-header.status-revisi {
+    background-color: #fee2e2;
+    border-color: #fca5a5;
+}
+
+.ikp-header.status-diverifikasi {
+    background-color: #dbeafe;
+    border-color: #93c5fd;
+}
+
+.ikp-header.status-revisi-unit {
+    background-color: #fed7aa;
+    border-color: #fdba74;
+}
+
+.ikp-header.status-investigasi {
+    background-color: #dcfce7;
+    border-color: #86efac;
+}
+
+.dark .ikp-header {
+    background-color: rgb(31 41 55);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .ikp-header.status-draft {
+    background-color: rgba(75, 85, 99, 0.2);
+    border-color: rgba(75, 85, 99, 0.5);
+}
+
+.dark .ikp-header.status-dilaporkan {
+    background-color: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.dark .ikp-header.status-revisi {
+    background-color: rgba(220, 38, 38, 0.15);
+    border-color: rgba(220, 38, 38, 0.4);
+}
+
+.dark .ikp-header.status-diverifikasi {
+    background-color: rgba(30, 64, 175, 0.15);
+    border-color: rgba(30, 64, 175, 0.4);
+}
+
+.dark .ikp-header.status-revisi-unit {
+    background-color: rgba(217, 119, 6, 0.15);
+    border-color: rgba(217, 119, 6, 0.4);
+}
+
+.dark .ikp-header.status-investigasi {
+    background-color: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.ikp-header-content {
+    padding: 1.5rem;
+}
+
+.ikp-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+.dark .ikp-header-top {
+    border-color: rgb(55 65 81);
+}
+
+.ikp-logo-circle {
+    width: 4rem;
+    height: 4rem;
+    background: linear-gradient(to bottom right, #3b82f6, #06b6d4);
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ikp-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.dark .ikp-title {
+    color: white;
+}
+
+.ikp-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.dark .ikp-subtitle {
+    color: #9ca3af;
+}
+
+.ikp-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.dark .ikp-badge {
+    background-color: rgba(30, 64, 175, 0.2);
+    color: #93c5fd;
+    border-color: rgba(93, 191, 253, 0.3);
+}
+
+.ikp-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-draft {
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+.dark .status-draft {
+    background-color: rgba(75, 85, 99, 0.2);
+    color: #d1d5db;
+}
+
+.status-dilaporkan {
+    background-color: #fef08a;
+    color: #92400e;
+}
+
+.dark .status-dilaporkan {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+}
+
+.status-revisi {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.dark .status-revisi {
+    background-color: rgba(220, 38, 38, 0.2);
+    color: #fca5a5;
+}
+
+.status-diverifikasi {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.dark .status-diverifikasi {
+    background-color: rgba(30, 64, 175, 0.2);
+    color: #93c5fd;
+}
+
+.status-revisi-unit {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.dark .status-revisi-unit {
+    background-color: rgba(220, 38, 38, 0.2);
+    color: #fca5a5;
+}
+
+.status-investigasi {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.dark .status-investigasi {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+}
+
+.ikp-notice {
+    background-color: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+.dark .ikp-notice {
+    background-color: rgba(245, 158, 11, 0.1);
+}
+
+.ikp-notice-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #92400e;
+    margin-bottom: 0.5rem;
+}
+
+.dark .ikp-notice-title {
+    color: #fbbf24;
+}
+
+.ikp-notice-text {
+    font-size: 0.875rem;
+    color: #b45309;
+}
+
+.dark .ikp-notice-text {
+    color: #fcd34d;
+}
+
+.ikp-form-wrapper {
+    border-radius: 0.5rem;
+    background-color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+}
+
+.dark .ikp-form-wrapper {
+    background-color: rgb(31 41 55);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.ikp-form-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.dark .ikp-form-footer {
+    border-color: rgb(55 65 81);
+}
+
+.ikp-footer-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.dark .ikp-footer-text {
+    color: #9ca3af;
+}
+
+.ikp-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ikp-info-item {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    border-left: 3px solid #3b82f6;
+}
+
+.dark .ikp-info-item {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-left-color: #60a5fa;
+}
+
+.ikp-info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dark .ikp-info-label {
+    color: #9ca3af;
+}
+
+.ikp-info-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    margin-top: 0.25rem;
+}
+
+.dark .ikp-info-value {
+    color: white;
+}
+
+/* Tab Styles */
+.ikp-tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.dark .ikp-tabs {
+    border-color: rgb(55 65 81);
+}
+
+.ikp-tab-button {
+    padding: 0.75rem 1.5rem;
+    border-bottom: 3px solid transparent;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #6b7280;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dark .ikp-tab-button {
+    color: #9ca3af;
+}
+
+.ikp-tab-button:hover {
+    color: #111827;
+    background-color: #f9fafb;
+}
+
+.dark .ikp-tab-button:hover {
+    color: white;
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.ikp-tab-button.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+}
+
+.dark .ikp-tab-button.active {
+    color: #60a5fa;
+    border-bottom-color: #60a5fa;
+}
+
+.ikp-tab-content {
+    display: none;
+}
+
+.ikp-tab-content.active {
+    display: block;
+}
+
+.preview-container {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.dark .preview-container {
+    background-color: rgb(31 41 55);
+}
+
+.ikp-form-wrapper {
+    border-radius: 0.5rem;
+    background-color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+}
+
+.dark .ikp-form-wrapper {
+    background-color: rgb(31 41 55);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.ikp-form-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dark .ikp-form-footer {
+    border-color: rgb(55 65 81);
+}

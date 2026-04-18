@@ -46,7 +46,7 @@
                 type="button"
                 wire:click="openAddEventModal('{{ $date }}')"
                 class="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                + Tambah Event
+                + Tambah Event Jam
             </button>
         </div>
 

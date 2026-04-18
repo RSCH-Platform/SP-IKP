@@ -269,37 +269,6 @@
                     <li>Setelah <strong>Submit</strong>, laporan akan masuk ke sistem review</li>
                 </ul>
             </div>
-
-            {{-- Instructions --}}
-            <div class="ikp-steps">
-                <div class="ikp-step ikp-step-1">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div class="ikp-step-number">1</div>
-                        <div>
-                            <h4 class="ikp-step-title">Isi Data Pelapor</h4>
-                            <p class="ikp-step-desc">Identitas pelapor dan unit kerja</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="ikp-step ikp-step-2">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div class="ikp-step-number">2</div>
-                        <div>
-                            <h4 class="ikp-step-title">Detail Insiden</h4>
-                            <p class="ikp-step-desc">Waktu, lokasi, dan kronologi kejadian</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="ikp-step ikp-step-3">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div class="ikp-step-number">3</div>
-                        <div>
-                            <h4 class="ikp-step-title">Analisis & Tindakan</h4>
-                            <p class="ikp-step-desc">Dampak, analisis, dan rekomendasi</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 

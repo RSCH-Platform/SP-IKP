@@ -339,23 +339,23 @@ class EditLaporanInsiden extends EditRecord
 
         // Return/Verify buttons for dilaporkan status
         if ($this->record->status === LaporanInsiden::STATUS_DILAPORKAN && $user?->can('Verifikasi:LaporanInsiden')) {
-            $actions[] = Action::make('kembalikanLaporan')
-                ->label('Kembalikan untuk Revisi')
-                ->icon('heroicon-o-arrow-uturn-left')
-                ->color('danger')
-                ->requiresConfirmation()
-                ->modalHeading('Kembalikan Laporan?')
-                ->modalDescription('Laporan akan dikembalikan ke pelapor untuk diperbaiki.')
-                ->schema([
-                    Textarea::make('alasan_pengembalian')
-                        ->label('Alasan Pengembalian')
-                        ->required()
-                        ->rows(4)
-                        ->placeholder('Jelaskan alasan pengembalian dan apa yang perlu diperbaiki...'),
-                ])
-                ->action(function (array $data) {
-                    $this->kembalikanLaporan($data);
-                });
+            // $actions[] = Action::make('kembalikanLaporan')
+            //     ->label('Kembalikan untuk Revisi')
+            //     ->icon('heroicon-o-arrow-uturn-left')
+            //     ->color('danger')
+            //     ->requiresConfirmation()
+            //     ->modalHeading('Kembalikan Laporan?')
+            //     ->modalDescription('Laporan akan dikembalikan ke pelapor untuk diperbaiki.')
+            //     ->schema([
+            //         Textarea::make('alasan_pengembalian')
+            //             ->label('Alasan Pengembalian')
+            //             ->required()
+            //             ->rows(4)
+            //             ->placeholder('Jelaskan alasan pengembalian dan apa yang perlu diperbaiki...'),
+            //     ])
+            //     ->action(function (array $data) {
+            //         $this->kembalikanLaporan($data);
+            //     });
 
             $actions[] = Action::make('verifikasiLaporan')
                 ->label('Verifikasi & Kirim ke Tim Mutu')

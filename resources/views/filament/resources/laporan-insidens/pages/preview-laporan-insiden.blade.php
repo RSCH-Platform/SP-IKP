@@ -156,7 +156,7 @@ $laporan = $this->record;
             <x-long-text-display label="Penjelasan Insiden" :text="$laporan->deskripsi_kategori_insiden ?? '-'" />
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <x-data-row label="Kategori Insiden" :value="$laporan->kategori_insiden ?? '-'" />
-                <x-data-row label="Orang Pelapor" :value="$laporan->pelapor_insiden_pasien ?? '-'" />
+                <x-data-row label="Orang yang Pelapor" :value="$laporan->pelapor_insiden_pasien ?? '-'" />
                 <x-data-row label="Insiden Menyangkut" :value="$laporan->insiden_menyangkut_pasien ?? '-'" />
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2">

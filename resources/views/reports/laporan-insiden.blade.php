@@ -5,26 +5,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Insiden - {{ $laporan->nomor_laporan ?? 'Laporan' }}</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Font sizes in pixels */
+        .text-xs {
+            font-size: 10px !important;
+            line-height: 1.4;
+        }
+
+        .text-sm {
+            font-size: 12px !important;
+            line-height: 1.4;
+        }
+
+        .text-base {
+            font-size: 16px !important;
+            line-height: 1.5;
+        }
+
+        .text-lg {
+            font-size: 18px !important;
+            line-height: 1.5;
+        }
+
+        @page {
+            size: A4 potrait;
+            margin: 0;
+        }
+
+        @media print and (orientation: landscape) {
+            @page {
+                size: A4 landscape;
+                margin: 0;
+            }
+        }
+
         @media print {
             .no-print {
                 display: none !important;
             }
 
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
             body {
                 background: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            .portrait-mode {
+                width: 210mm;
+                height: 297mm;
+            }
+
+            .landscape-mode {
+                width: 297mm;
+                height: 210mm;
             }
 
             .break-inside-avoid {
                 break-inside: avoid;
             }
         }
+
+        /* Screen mode */
+        .portrait-mode {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 1rem;
+            background: white;
+        }
+
+        .landscape-mode {
+            max-width: 297mm;
+            margin: 0 auto;
+            padding: 1rem;
+            background: white;
+        }
     </style>
 </head>
 
 <body class="bg-slate-300 text-slate-800 font-sans leading-relaxed">
-    <div class="max-w-5xl mx-auto px-4 py-4 bg-white">
+    <!-- Control Panel -->
+    <div class="no-print sticky top-0 z-50 bg-white border-b border-slate-300 shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <!-- Format Info -->
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-semibold text-slate-700">Format:</label>
+                    <span class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-slate-50 text-slate-700">Portrait A4</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Print Button -->
+                <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Cetak
+                </button>
+
+                <!-- Back Button -->
+                <button onclick="window.history.back()" class="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Kembali
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Container -->
+    <div class="portrait-mode">
         <!-- DEBUG SECTION -->
         <!-- <div class="no-print mb-6 bg-red-50 border-2 border-red-400 rounded-lg p-4">
             <p class="text-sm font-bold text-red-700 mb-3">🔴 DEBUG - Semua Data dari Controller:</p>
@@ -168,7 +266,7 @@
                 <x-long-text-display label="Penjelasan Insiden" :text="$laporan->deskripsi_kategori_insiden ?? '-'" />
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                     <x-data-row label="Kategori Insiden" :value="$laporan->kategori_insiden ?? '-'" />
-                    <x-data-row label="Orang Pelapor" :value="$laporan->pelapor_insiden_pasien ?? '-'" />
+                    <x-data-row label="Orang yang Pelapor" :value="$laporan->pelapor_insiden_pasien ?? '-'" />
                     <x-data-row label="Insiden Menyangkut" :value="$laporan->insiden_menyangkut_pasien ?? '-'" />
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -204,12 +302,92 @@
         <div class="break-inside-avoid mb-6">
             <x-section-header title="BAGIAN D: Kronologi Timeline" />
             <div class="bg-white border border-slate-300 p-2">
-                <x-timeline-events :eventsByDate="$timelineData['eventsByDate']" :dateCategories="$timelineData['dateCategories']" />
+                <div class="space-y-6">
+                    @forelse($timelineData['eventsByDate'] as $date => $dateEvents)
+                    <!-- Date Header Section -->
+                    <div>
+                        <div class="bg-slate-100 px-4 py-3 border-t-4 border-b-4 border-slate-400 mb-4">
+                            <p class="text-xs font-semibold text-slate-800 uppercase tracking-wider">
+                                TANGGAL: {{ \Carbon\Carbon::createFromFormat('Y-m-d', $date)?->translatedFormat('l, d F Y') ?? 'Tanggal tidak tersedia' }}
+                            </p>
+                        </div>
+
+                        <!-- Timeline Table -->
+                        @if($dateEvents->flatMap(fn($event) => $event->entries ?? [])->count() > 0)
+                        @php
+                        $categories = $timelineData['allCategories'];
+                        @endphp
+                        <div class="border border-slate-300 rounded-lg w-full">
+                            <table class="w-full text-xs table-fixed border-collapse">
+                                <!-- Table Header -->
+                                <thead>
+                                    <tr class="bg-slate-200 border-b-2 border-slate-400">
+                                        <th class="px-4 py-3 text-left font-semibold text-slate-700 uppercase tracking-wide border-r border-slate-300 text-xs" style="width: 15%;">WAKTU</th>
+                                        @foreach($categories as $category)
+                                        <th class="px-4 py-3 text-left font-semibold text-slate-700 uppercase tracking-wide border-r border-slate-300 text-xs" style="width: {{ 85 / count($categories) }}%;">
+                                            {{ $category->name ?? 'Kategori' }}
+                                        </th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
+
+                                <!-- Table Body -->
+                                <tbody>
+                                    @php
+                                    $timeGroups = $dateEvents->groupBy(fn($event) => \Carbon\Carbon::parse($event->event_datetime)->format('H:i'));
+                                    @endphp
+
+                                    @foreach($timeGroups as $time => $eventsAtSameTime)
+                                    @php
+                                    $mergedEntries = collect($eventsAtSameTime)
+                                    ->flatMap(fn($event) => $event->entries ?? [])
+                                    ->groupBy('category_id');
+                                    @endphp
+                                    <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                                        <!-- Waktu -->
+                                        <td class="px-3 py-2 text-slate-700 font-medium border-r border-slate-200 whitespace-nowrap text-xs" style="width: 15%;">
+                                            {{ $time }}
+                                        </td>
+
+                                        <!-- Category Data -->
+                                        @foreach($categories as $category)
+                                        @php
+                                        $entries = $mergedEntries[$category->id] ?? collect();
+                                        $descriptions = collect($entries)->pluck('description')->filter()->all();
+                                        @endphp
+                                        <td class="px-3 py-2 text-slate-700 border-r border-slate-200 text-xs" style="width: {{ 85 / count($categories) }}%;">
+                                            @if(count($descriptions) > 0)
+                                            <div class="space-y-1">
+                                                @foreach($descriptions as $description)
+                                                <p class="text-xs leading-relaxed">{{ $description }}</p>
+                                                @endforeach
+                                            </div>
+                                            @else
+                                            <span class="text-slate-300">-</span>
+                                            @endif
+                                        </td>
+                                        @endforeach
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div class="text-center py-6 bg-slate-50 rounded-lg border border-slate-200">
+                            <p class="text-xs text-slate-500 italic">Tidak ada entri untuk tanggal ini</p>
+                        </div>
+                        @endif
+                    </div>
+                    @empty
+                    <div class="text-center py-8">
+                        <p class="text-xs text-slate-500 italic">Belum ada kronologi timeline yang tersedia</p>
+                    </div>
+                    @endforelse
+                </div>
             </div>
         </div>
 
         <!-- SECTION E: GRADING RISIKO -->
-        @if(in_array($laporan->status, ['dilaporkan', 'revisi_unit']))
         <div class="break-inside-avoid mb-6">
             <x-section-header title="BAGIAN E: Grading Risiko" />
             <div class="bg-white border border-slate-300 p-2">
@@ -222,7 +400,6 @@
                 @endif
             </div>
         </div>
-        @endif
 
         <!-- Footer Report Component -->
         <x-footer-report
@@ -239,15 +416,6 @@
                 'Grading risiko harus ditentukan oleh kepala unit kerja'
             ]" />
 
-        <!-- Print Controls -->
-        <div class="no-print grid grid-cols-2 gap-2 mb-4 items-center">
-            <button onclick="window.history.back()" class="px-4 py-2 rounded border border-slate-300 text-slate-700 text-xs font-medium hover:bg-slate-50">
-                Kembali
-            </button>
-            <button onclick="window.print()" class="px-4 py-2 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700">
-                Cetak
-            </button>
-        </div>
     </div>
 </body>
 
