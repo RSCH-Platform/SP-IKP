@@ -21,6 +21,18 @@ Route::post('/logout', LogoutController::class)->name('logout');
 // Filament auto-generates this route, but we intercept it to use our custom logout logic
 Route::post('/ikp-application/logout', LogoutController::class)->name('filament.ikp-application.auth.logout');
 
+// Laporan Insiden Routes
+Route::get('/laporan-insiden/nomor/{nomor_laporan}', [LaporanInsidenViewController::class, 'show'])
+    ->where('nomor_laporan', '.+')
+    ->name('laporan-insiden.show');
+Route::get('/laporan-insiden/pdf/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdf'])
+    ->where('nomor_laporan', '.+')
+    ->name('laporan-insiden.pdf');
+
+// Test route - Hello World PDF
+Route::get('/test/hello-pdf', [LaporanInsidenViewController::class, 'testHello'])
+    ->name('test.hello-pdf');
+
 // Handle IAM callback - support both /callback dan /sso/callback paths
 Route::name('iam.sso.callback.alternate')->group(function () {
     Route::get('/sso/callback', function (Illuminate\Http\Request $request) {
@@ -29,13 +41,6 @@ Route::name('iam.sso.callback.alternate')->group(function () {
     });
 
     // Route::get('/timeline-entries', [TimelineEntryController::class, 'index']);
-
-    // Laporan Insiden Routes
-    Route::get('/laporan-insiden/nomor/{nomor_laporan}', [LaporanInsidenViewController::class, 'show'])
-        ->where('nomor_laporan', '.+')
-        ->name('laporan-insiden.show');
-    // Route::get('/laporan-insiden-dummy', [LaporanInsidenViewController::class, 'dummy'])
-    //     ->name('laporan-insiden.dummy');
 
     // Investigasi Laporan Insiden Routes
     Route::get('/investigasi-laporan-insiden/{laporan}', [InvestigasiLaporanInsidenViewController::class, 'show'])

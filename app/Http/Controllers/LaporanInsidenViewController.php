@@ -7,6 +7,7 @@ use App\Models\UnitKerja;
 use App\Models\TimelineCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Browsershot\Browsershot;
 
 class LaporanInsidenViewController extends Controller
 {
@@ -78,6 +79,87 @@ class LaporanInsidenViewController extends Controller
         ];
 
         return view('reports.laporan-insiden', $data);
+    }
+
+    /**
+     * Generate PDF laporan insiden
+     */
+    public function pdf(string $nomor_laporan)
+    {
+        $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
+
+        // Cek autorisasi
+        Gate::authorize('view', $laporan);
+
+        // Load relasi yang diperlukan
+        $laporan->load([
+            'timelineEvents' => function ($query) {
+                $query->orderBy('event_datetime', 'asc');
+            },
+            'timelineEvents.entries.category',
+            'unitKerjas',
+            'reporter',
+            'verifier',
+            'rejecter'
+        ]);
+
+        // Optimalkan timeline events - hapus field yang tidak perlu
+        if ($laporan->timelineEvents) {
+            foreach ($laporan->timelineEvents as $event) {
+                $event->makeHidden([
+                    'id',
+                    'laporan_insiden_id',
+                    'created_by',
+                    'created_at',
+                    'updated_at'
+                ]);
+
+                if ($event->entries) {
+                    foreach ($event->entries as $entry) {
+                        $entry->makeHidden([
+                            'id',
+                            'timeline_event_id',
+                            'category_id',
+                            'created_by',
+                            'created_at',
+                            'updated_at'
+                        ]);
+
+                        if ($entry->category) {
+                            $entry->category->makeHidden([
+                                'id',
+                                'code',
+                                'created_at',
+                                'updated_at'
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Format data untuk view
+        $data = [
+            'laporan' => $laporan,
+            'periodLabel' => $laporan->tanggal_lapor?->translatedFormat('d F Y') ?? 'N/A',
+            'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
+        ];
+
+        // Generate PDF dengan Browsershot dan landscape orientation
+        $html = view('reports.laporan-insiden', $data)->render();
+        $filename = "Laporan-Insiden-{$laporan->nomor_laporan}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
+
+        $pdfContent = Browsershot::html($html)
+            ->format('A4')
+            ->landscape()
+            ->margins(10, 10, 10, 10)
+            ->showBackground()
+            ->noSandbox()
+            ->pdf();
+
+        return response($pdfContent)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
 
     /**
@@ -175,6 +257,27 @@ class LaporanInsidenViewController extends Controller
                 ],
             ]),
         ];
+    }
+
+    /**
+     * Test PDF dengan konten Hello World saja
+     */
+    public function testHello()
+    {
+        $html = view('reports.laporan-insiden-pdf-hello')->render();
+
+        $pdfContent = Browsershot::html($html)
+            ->format('A4')
+            ->portrait()
+            ->margins(10, 10, 10, 10)
+            ->showBackground()
+            ->disableJavascript()
+            ->noSandbox()
+            ->pdf();
+
+        return response($pdfContent)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="test-hello-world.pdf"');
     }
 
     /**
