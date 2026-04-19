@@ -172,7 +172,7 @@ class LaporanInsidenViewController extends Controller
                         '--disable-dev-shm-usage',
                     ])
                     ->waitUntilNetworkIdle()
-                    ->emulateMedia('screen');
+                    ->emulateMedia('print');
             })
             ->format('A4')
             ->inline($filename);

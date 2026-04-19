@@ -110,8 +110,7 @@
     </style>
 </head>
 
-<body x-data="{ orientation: 'portrait' }" :class="orientation === 'portrait' ? 'portrait-mode' : 'landscape-mode'" class="bg-white text-slate-800 font-sans leading-relaxed {{ !empty($pdfMode) ? 'portrait-mode' : '' }}">
-    <style x-text="orientation === 'portrait' ? '@page { size: A4 portrait; margin: 0; }' : '@page { size: A4 landscape; margin: 0; }'"></style>
+<body class="portrait-mode bg-white text-slate-800 font-sans leading-relaxed">
     <!-- Document Container -->
     <div :class="orientation === 'portrait' ? 'portrait-mode' : 'landscape-mode'">
         <!-- DEBUG SECTION -->
