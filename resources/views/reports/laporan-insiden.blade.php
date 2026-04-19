@@ -8,12 +8,20 @@
     @php
     $viteCss = null;
     $manifestPath = public_path('build/manifest.json');
+
     if (file_exists($manifestPath)) {
     $manifest = json_decode(file_get_contents($manifestPath), true);
     $viteCss = $manifest['resources/css/app.css']['file'] ?? null;
     }
     @endphp
-    @if ($viteCss)
+
+    @if (! empty($inlineCss))
+    <style>
+        {
+            ! ! $inlineCss ! !
+        }
+    </style>
+    @elseif ($viteCss)
     <link rel="stylesheet" href="{{ asset('build/'.$viteCss) }}">
     @else
     <style>
@@ -23,6 +31,7 @@
         }
     </style>
     @endif
+
     <style>
         /* Font sizes in pixels */
         .text-xs {
@@ -101,7 +110,7 @@
     </style>
 </head>
 
-<body x-data="{ orientation: 'portrait' }" :class="orientation === 'portrait' ? 'portrait-mode' : 'landscape-mode'" class="bg-white text-slate-800 font-sans leading-relaxed">
+<body x-data="{ orientation: 'portrait' }" :class="orientation === 'portrait' ? 'portrait-mode' : 'landscape-mode'" class="bg-white text-slate-800 font-sans leading-relaxed {{ !empty($pdfMode) ? 'portrait-mode' : '' }}">
     <style x-text="orientation === 'portrait' ? '@page { size: A4 portrait; margin: 0; }' : '@page { size: A4 landscape; margin: 0; }'"></style>
     <!-- Document Container -->
     <div :class="orientation === 'portrait' ? 'portrait-mode' : 'landscape-mode'">

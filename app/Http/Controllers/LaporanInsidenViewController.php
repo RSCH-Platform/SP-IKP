@@ -140,10 +140,24 @@ class LaporanInsidenViewController extends Controller
         }
 
         // Format data untuk view
+        $inlineCss = null;
+        $manifestPath = public_path('build/manifest.json');
+
+        if (file_exists($manifestPath)) {
+            $manifest = json_decode(file_get_contents($manifestPath), true);
+            $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
+
+            if ($cssFile && file_exists(public_path('build/' . $cssFile))) {
+                $inlineCss = file_get_contents(public_path('build/' . $cssFile));
+            }
+        }
+
         $data = [
             'laporan' => $laporan,
             'periodLabel' => $laporan->tanggal_lapor?->translatedFormat('d F Y') ?? 'N/A',
             'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
+            'pdfMode' => true,
+            'inlineCss' => $inlineCss,
         ];
 
         $filename = "Laporan-Insiden-{$laporan->nomor_laporan}-" . now()->format('Y-m-d-H-i-s') . ".pdf";

@@ -28,9 +28,9 @@ Route::get('/laporan-insiden/nomor/{nomor_laporan}', [LaporanInsidenViewControll
 Route::get('/laporan-insiden/pdf/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdf'])
     ->where('nomor_laporan', '.+')
     ->name('laporan-insiden.pdf');
-// Route::get('/laporan-insiden/pdf-view/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdfView'])
-//     ->where('nomor_laporan', '.+')
-//     ->name('laporan-insiden.pdf.view');
+Route::get('/laporan-insiden/pdf-view/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdfView'])
+    ->where('nomor_laporan', '.+')
+    ->name('laporan-insiden.pdf.view');
 // Route::get('/laporan-insiden/pdf-url/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdfUrl'])
 //     ->where('nomor_laporan', '.+')
 //     ->name('laporan-insiden.pdf.url');
