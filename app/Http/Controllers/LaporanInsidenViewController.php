@@ -148,7 +148,7 @@ class LaporanInsidenViewController extends Controller
 
         $filename = "Laporan-Insiden-{$laporan->nomor_laporan}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
 
-        return Pdf::view('reports.laporan-insiden-pdf-view', $data)
+        return Pdf::view('reports.laporan-insiden', $data)
             ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot
                     ->setChromePath('/usr/bin/chromium-browser')
