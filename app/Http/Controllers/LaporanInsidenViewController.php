@@ -208,7 +208,7 @@ class LaporanInsidenViewController extends Controller
             ->emulateMedia('screen')
             ->format('A4')
             ->margins(10, 10, 10, 10)
-            ->showBackground()                                      
+            ->showBackground()
             ->pdf();
 
         return response($pdfContent)
