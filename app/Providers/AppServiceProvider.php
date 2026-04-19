@@ -8,6 +8,8 @@ use App\Models\UnitKerja;
 use App\Observers\LaporanInsidenObserver;
 use App\Observers\ProblemActionObserver;
 use App\Observers\UnitKerjaObserver;
+use App\Policies\FolderPolicy;
+use App\Policies\MediaPolicy;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +33,17 @@ class AppServiceProvider extends ServiceProvider
         Gate::guessPolicyNamesUsing(function (string $modelClass) {
             return str_replace('Models', 'Policies', $modelClass) . 'Policy';
         });
+
+        // Register third-party model policies for Filament Media Manager
+        Gate::policy(
+            \Juniyasyos\FilamentMediaManager\Models\Folder::class,
+            FolderPolicy::class
+        );
+
+        Gate::policy(
+            \Juniyasyos\FilamentMediaManager\Models\Media::class,
+            MediaPolicy::class
+        );
 
         // Spatie MediaLibrary paths for ProblemAction files:
         // {Unit Kerja}/Laporan Insiden/{YYYY-MM}/{Nomor laporan}/...

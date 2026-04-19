@@ -23,7 +23,7 @@ return [
     "filament" => [
         "active" => true,
         "resources" => [
-            \Juniyasyos\FilamentMediaManager\Resources\FolderResource::class,
+            \App\Filament\Resources\Folders\FolderResource::class,
             \Juniyasyos\FilamentMediaManager\Resources\MediaResource::class,
         ]
     ],

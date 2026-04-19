@@ -5,6 +5,7 @@ namespace App\Filament\Resources\LaporanInsidens\Schemas;
 use Filament\Infolists;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 
 class LaporanInsidenInfolistSchema
 {
@@ -138,14 +139,10 @@ class LaporanInsidenInfolistSchema
     public static function sectionKronologi(): Section
     {
         return Section::make('📝 BAGIAN D: KRONOLOGI KEJADIAN')
-            ->description('Uraian kronologis insiden dalam format tabular timeline')
+            ->description('Uraian kronologis insiden dalam format table timeline yang disamakan dengan halaman edit')
             ->icon('heroicon-o-document-text')
             ->schema([
-                Infolists\Components\TextEntry::make('timelineEvents')
-                    ->label('Timeline')
-                    ->columnSpanFull()
-                    ->html()
-                    ->formatStateUsing(fn($state, $record): string => static::formatTimeline($record)),
+                View::make('filament.components.timeline-events-infolist'),
             ])
             ->collapsible()
             ->compact();

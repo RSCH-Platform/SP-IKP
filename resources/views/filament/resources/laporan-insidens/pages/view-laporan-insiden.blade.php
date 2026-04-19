@@ -1,6 +1,6 @@
-<x-filament-panels::page> {{-- Header Section --}}
-    <div class="mb-6 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-        <div class="p-6"> {{-- Hospital Info Header --}}
+<x-filament-panels::page x-data="{ activeTab: 'info' }"> {{-- Header Section --}}
+    <div class="ikp-header status-{{ str_replace('_', '-', $record->status ?? 'draft') }} mb-6 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+        <div class="ikp-header-content p-6"> {{-- Hospital Info Header --}}
             <div class="mb-4 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
                 <div class="flex items-center gap-4">
                     <div>
@@ -171,12 +171,88 @@
             @endif
         </div>
     </div>
-    {{-- Content Section --}}
-    <div class="overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-        <div class="p-6">
-            {{ $this->infolist }}
+
+    {{-- Tab Navigation --}}
+    <div class="ikp-tabs">
+        <button
+            type="button"
+            class="ikp-tab-button"
+            :class="{ 'active': activeTab === 'info' }"
+            @click="activeTab = 'info'">
+            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Info Laporan
+        </button>
+        <button
+            type="button"
+            class="ikp-tab-button"
+            :class="{ 'active': activeTab === 'preview' }"
+            @click="activeTab = 'preview'">
+            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Preview Laporan
+        </button>
+        @if($record->investigation_started_at)
+        <button
+            type="button"
+            class="ikp-tab-button"
+            :class="{ 'active': activeTab === 'investigasi' }"
+            @click="activeTab = 'investigasi'">
+            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Preview Investigasi
+        </button>
+        @else
+        <button
+            type="button"
+            class="ikp-tab-button"
+            disabled
+            style="opacity: 0.5; cursor: not-allowed;">
+            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Preview Investigasi
+        </button>
+        @endif
+    </div>
+
+    {{-- Tab Contents --}}
+    <div class="ikp-tab-content" :class="{ 'active': activeTab === 'info' }">
+        <div class="overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+            <div class="p-6">
+                {{ $this->infolist }}
+            </div>
         </div>
     </div>
+    <div class="ikp-tab-content" :class="{ 'active': activeTab === 'preview' }">
+        <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
+            <a href="{{ action([\App\Http\Controllers\LaporanInsidenViewController::class, 'show'], $record->nomor_laporan) }}" target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+                <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Buka Laporan Penuh
+            </a>
+            <a href="{{ route('laporan-insiden.pdf', $record->nomor_laporan) }}" target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition">
+                <svg style="width: 1rem; height: 1rem;" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.3A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
+                </svg>
+                Download PDF
+            </a>
+        </div>
+        @include('filament.resources.laporan-insidens.pages.preview-laporan-insiden-content')
+    </div>
+    @if($record->investigation_started_at)
+    <div class="ikp-tab-content" :class="{ 'active': activeTab === 'investigasi' }">
+        @include('filament.resources.laporan-insidens.pages.preview-investigasi-laporan-insiden-content')
+    </div>
+    @endif
+
     {{-- Footer Info --}}
     <div class="mt-6 text-center text-xs text-gray-600 dark:text-gray-400">
         <p>Sistem Pelaporan IKP - Informasi dalam laporan ini bersifat rahasia dan hanya untuk keperluan internal</p>

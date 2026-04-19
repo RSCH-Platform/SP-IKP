@@ -1,4 +1,4 @@
-@props(['eventsByDate', 'dateCategories' => null])
+@props(['eventsByDate', 'dateCategories' => null, 'allCategories' => null])
 
 <div class="space-y-6">
     @forelse($eventsByDate as $date => $dateEvents)
@@ -11,13 +11,13 @@
         </div>
 
         <!-- Timeline Table -->
-        @if($dateEvents->flatMap(fn($event) => $event->entries ?? [])->count() > 0)
         @php
-        $categories = $dateCategories[$date] ?? $dateEvents->flatMap(fn($event) => $event->entries ?? [])
+        $categories = $allCategories ?? $dateCategories[$date] ?? $dateEvents->flatMap(fn($event) => $event->entries ?? [])
         ->pluck('category')
         ->unique('id')
         ->sortBy('sort_order');
         @endphp
+        @if(count($categories) > 0)
         <div class="overflow-x-auto border border-slate-300 rounded-lg">
             <table class="min-w-max text-xs">
                 <!-- Table Header -->

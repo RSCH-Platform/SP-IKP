@@ -301,6 +301,39 @@ class ViewLaporanInsiden extends ViewRecord
         ]));
     }
 
+    public function getTimelineEventsForComponent()
+    {
+        $events = $this->record->relationLoaded('timelineEvents')
+            ? $this->record->timelineEvents
+            : $this->record->timelineEvents()
+            ->with(['entries.category'])
+            ->orderBy('event_datetime', 'asc')
+            ->get();
+
+        return $this->prepareTimelineData($events);
+    }
+
+    private function prepareTimelineData($events): array
+    {
+        $eventsByDate = $events->groupBy(function ($event) {
+            return $event->event_datetime?->format('Y-m-d');
+        })->sortKeys();
+
+        $dateCategories = [];
+        foreach ($eventsByDate as $date => $dateEvents) {
+            $dateCategories[$date] = $dateEvents->flatMap(fn($event) => $event->entries ?? [])
+                ->pluck('category')
+                ->unique('id')
+                ->sortBy('sort_order')
+                ->values();
+        }
+
+        return [
+            'eventsByDate' => $eventsByDate,
+            'dateCategories' => $dateCategories,
+        ];
+    }
+
     public function infolist(Schema $schema): Schema
     {
         return $schema
