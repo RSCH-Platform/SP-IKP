@@ -151,10 +151,64 @@ class LaporanInsidenViewController extends Controller
 
         $pdfContent = Browsershot::html($html)
             ->setChromePath('/usr/bin/chromium-browser')
+            ->waitUntilNetworkIdle()
+            ->emulateMedia('screen')
             ->format('A4')
             ->margins(10, 10, 10, 10)
             ->showBackground()
-            ->noSandbox()
+            ->pdf();
+
+        return response($pdfContent)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+    }
+
+    /**
+     * Render view khusus PDF untuk Browsershot testing
+     */
+    public function pdfView(string $nomor_laporan)
+    {
+        $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
+        Gate::authorize('view', $laporan);
+
+        $laporan->load([
+            'timelineEvents' => function ($query) {
+                $query->orderBy('event_datetime', 'asc');
+            },
+            'timelineEvents.entries.category',
+            'unitKerjas',
+            'reporter',
+            'verifier',
+            'rejecter'
+        ]);
+
+        $data = [
+            'laporan' => $laporan,
+            'periodLabel' => $laporan->tanggal_lapor?->translatedFormat('d F Y') ?? 'N/A',
+            'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
+        ];
+
+        return view('reports.laporan-insiden-pdf-view', $data);
+    }
+
+    /**
+     * Generate PDF from route URL untuk Browsershot testing
+     */
+    public function pdfUrl(string $nomor_laporan)
+    {
+        $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
+
+        Gate::authorize('view', $laporan);
+
+        $filename = "Laporan-Insiden-{$laporan->nomor_laporan}-url-" . now()->format('Y-m-d-H-i-s') . ".pdf";
+
+        $pdfContent = Browsershot::url(route('laporan-insiden.pdf.view', $nomor_laporan))
+            ->setChromePath('/usr/bin/chromium-browser')
+            ->waitUntilNetworkIdle()
+            ->emulateMedia('screen')
+            ->format('A4')
+            ->margins(10, 10, 10, 10)
+            ->showBackground()                                      
             ->pdf();
 
         return response($pdfContent)
