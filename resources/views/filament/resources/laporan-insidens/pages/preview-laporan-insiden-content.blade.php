@@ -263,8 +263,6 @@ $laporan = $record;
     <div class="break-inside-avoid mb-8">
         <x-section-header title="BAGIAN E: Grading Risiko" />
         <div class="bg-white border border-slate-300 p-2">
-            @props(['grade' => 'Biru', 'justification' => 'Tidak ada justifikasi'])
-
             @php
             $gradingOptions = ['Biru', 'Hijau', 'Kuning', 'Merah'];
             $gradingColors = [
@@ -280,7 +278,7 @@ $laporan = $record;
                 <div class="grid grid-cols-4 gap-2">
                     @foreach($gradingOptions as $option)
                     @php
-                    $isSelected = $grade === $option;
+                    $isSelected = $laporan->grading_risiko === $option;
                     $colors = $gradingColors[$option];
                     $styleClass = $isSelected ? $colors['bg'] : 'border ' . $colors['border'] . ' bg-white text-slate-800';
                     @endphp
@@ -295,7 +293,7 @@ $laporan = $record;
             </div>
             <div class="border border-slate-200 p-2">
                 <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Justifikasi Grading</p>
-                <div class="text-xs text-slate-800 whitespace-pre-wrap bg-slate-50 p-2 rounded">{{ $justification }}</div>
+                <div class="text-xs text-slate-800 whitespace-pre-wrap bg-slate-50 p-2 rounded">{{ $laporan->catatan_tambahan }}</div>
             </div>
         </div>
     </div>

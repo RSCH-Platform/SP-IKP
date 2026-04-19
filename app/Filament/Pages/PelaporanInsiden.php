@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use App\Filament\Resources\LaporanInsidens\Schemas\LaporanInsidenFormSchema;
 use App\Models\LaporanInsiden;
 use App\Models\TimelineCategory;
@@ -91,14 +92,14 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
         $data['user_id'] = Auth::id();
         $data['status'] = 'draft';
 
-        $this->createLaporanWithTimeline($data);
+        $laporan = $this->createLaporanWithTimeline($data);
 
         Notification::make()
             ->title('Draft berhasil disimpan')
             ->success()
             ->send();
 
-        $this->redirect(static::getUrl());
+        $this->redirect(LaporanInsidenResource::getUrl('edit', ['record' => $laporan->id]));
     }
 
     public function submit(): void

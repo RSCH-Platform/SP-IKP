@@ -558,12 +558,12 @@
 
         <div class="data-row">
             <div class="data-label">Grading Risiko</div>
-            <div class="data-value">{{ $laporan->grading_risiko ?? 'BIRU' }}</div>
+            <div class="data-value">{{ $laporan->grading_risiko ?? '-' }}</div>
         </div>
 
         <div class="data-row">
             <div class="data-label">Justifikasi</div>
-            <div class="data-value">{{ $laporan->catatan_tambahan ?? 'Tidak ada justifikasi' }}</div>
+            <div class="data-value">{{ $laporan->catatan_tambahan ?? 'Belum ada justifikasi grading' }}</div>
         </div>
     </div>
     @endif

@@ -206,10 +206,10 @@ $laporan = $this->record;
         <div class="bg-white border border-slate-300 p-2">
             @if($laporan->status === 'dilaporkan')
             <!-- Editable version for dilaporkan status -->
-            <x-grading-display :grade="$laporan->grading_risiko ?? 'BIRU'" :justification="$laporan->catatan_tambahan ?? 'Tidak ada justifikasi'" :editable="true" />
+            <x-grading-display :grade="$laporan->grading_risiko" :justification="$laporan->catatan_tambahan" :editable="true" />
             @else
             <!-- Read-only version for revisi_unit status -->
-            <x-grading-display :grade="$laporan->grading_risiko ?? 'BIRU'" :justification="$laporan->catatan_tambahan ?? 'Tidak ada justifikasi'" :disabled="true" />
+            <x-grading-display :grade="$laporan->grading_risiko" :justification="$laporan->catatan_tambahan" :disabled="true" />
             @endif
         </div>
     </div>
