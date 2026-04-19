@@ -163,177 +163,177 @@ class LaporanInsidenViewController extends Controller
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
 
-    /**
-     * Render view khusus PDF untuk Browsershot testing
-     */
-    public function pdfView(string $nomor_laporan)
-    {
-        $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
-        Gate::authorize('view', $laporan);
+    // /**
+    //  * Render view khusus PDF untuk Browsershot testing
+    //  */
+    // public function pdfView(string $nomor_laporan)
+    // {
+    //     $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
+    //     Gate::authorize('view', $laporan);
 
-        $laporan->load([
-            'timelineEvents' => function ($query) {
-                $query->orderBy('event_datetime', 'asc');
-            },
-            'timelineEvents.entries.category',
-            'unitKerjas',
-            'reporter',
-            'verifier',
-            'rejecter'
-        ]);
+    //     $laporan->load([
+    //         'timelineEvents' => function ($query) {
+    //             $query->orderBy('event_datetime', 'asc');
+    //         },
+    //         'timelineEvents.entries.category',
+    //         'unitKerjas',
+    //         'reporter',
+    //         'verifier',
+    //         'rejecter'
+    //     ]);
 
-        $data = [
-            'laporan' => $laporan,
-            'periodLabel' => $laporan->tanggal_lapor?->translatedFormat('d F Y') ?? 'N/A',
-            'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
-        ];
+    //     $data = [
+    //         'laporan' => $laporan,
+    //         'periodLabel' => $laporan->tanggal_lapor?->translatedFormat('d F Y') ?? 'N/A',
+    //         'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
+    //     ];
 
-        return view('reports.laporan-insiden-pdf-view', $data);
-    }
+    //     return view('reports.laporan-insiden-pdf-view', $data);
+    // }
 
-    /**
-     * Generate PDF from route URL untuk Browsershot testing
-     */
-    public function pdfUrl(string $nomor_laporan)
-    {
-        $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
+    // /**
+    //  * Generate PDF from route URL untuk Browsershot testing
+    //  */
+    // public function pdfUrl(string $nomor_laporan)
+    // {
+    //     $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
 
-        Gate::authorize('view', $laporan);
+    //     Gate::authorize('view', $laporan);
 
-        $filename = "Laporan-Insiden-{$laporan->nomor_laporan}-url-" . now()->format('Y-m-d-H-i-s') . ".pdf";
+    //     $filename = "Laporan-Insiden-{$laporan->nomor_laporan}-url-" . now()->format('Y-m-d-H-i-s') . ".pdf";
 
-        $pdfContent = Browsershot::url(route('laporan-insiden.pdf.view', $nomor_laporan))
-            ->setChromePath('/usr/bin/chromium-browser')
-            ->waitUntilNetworkIdle()
-            ->emulateMedia('screen')
-            ->format('A4')
-            ->margins(10, 10, 10, 10)
-            ->showBackground()
-            ->pdf();
+    //     $pdfContent = Browsershot::url(route('laporan-insiden.pdf.view', $nomor_laporan))
+    //         ->setChromePath('/usr/bin/chromium-browser')
+    //         ->waitUntilNetworkIdle()
+    //         ->emulateMedia('screen')
+    //         ->format('A4')
+    //         ->margins(10, 10, 10, 10)
+    //         ->showBackground()
+    //         ->pdf();
 
-        return response($pdfContent)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
-    }
+    //     return response($pdfContent)
+    //         ->header('Content-Type', 'application/pdf')
+    //         ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+    // }
 
-    /**
-     * Show dummy data untuk development/testing
-     */
-    public function dummy()
-    {
-        $dummyLaporan = $this->generateDummyData();
+    // /**
+    //  * Show dummy data untuk development/testing
+    //  */
+    // public function dummy()
+    // {
+    //     $dummyLaporan = $this->generateDummyData();
 
-        return view('reports.laporan-insiden-dummy', [
-            'laporan' => $dummyLaporan,
-            'periodLabel' => now()->translatedFormat('d F Y'),
-            'isDummy' => true,
-        ]);
-    }
+    //     return view('reports.laporan-insiden-dummy', [
+    //         'laporan' => $dummyLaporan,
+    //         'periodLabel' => now()->translatedFormat('d F Y'),
+    //         'isDummy' => true,
+    //     ]);
+    // }
 
-    /**
-     * Generate dummy data untuk preview
-     */
-    private function generateDummyData()
-    {
-        return (object) [
-            'id' => 1,
-            'nomor_laporan' => 'IKP/2026/04/0005',
-            'status' => 'dilaporkan',
-            'unit_kerja' => 'Ruang Lotus',
-            'tanggal_lapor' => now(),
-            'waktu_lapor' => now()->format('H:i'),
+    // /**
+    //  * Generate dummy data untuk preview
+    //  */
+    // private function generateDummyData()
+    // {
+    //     return (object) [
+    //         'id' => 1,
+    //         'nomor_laporan' => 'IKP/2026/04/0005',
+    //         'status' => 'dilaporkan',
+    //         'unit_kerja' => 'Ruang Lotus',
+    //         'tanggal_lapor' => now(),
+    //         'waktu_lapor' => now()->format('H:i'),
 
-            // Data Pasien
-            'nama_pasien' => 'Budi Santoso (Dev)',
-            'nomor_rekam_medis' => 'RM-DEV-001',
-            'ruangan' => 'Ruang Anggrek',
-            'umur' => 45,
-            'kelompok_umur' => '>30 tahun - 65 tahun',
-            'jenis_kelamin' => 'Laki-laki',
-            'penanggung_biaya' => 'BPJS',
-            'tanggal_masuk_rs' => now()->subHours(24),
+    //         // Data Pasien
+    //         'nama_pasien' => 'Budi Santoso (Dev)',
+    //         'nomor_rekam_medis' => 'RM-DEV-001',
+    //         'ruangan' => 'Ruang Anggrek',
+    //         'umur' => 45,
+    //         'kelompok_umur' => '>30 tahun - 65 tahun',
+    //         'jenis_kelamin' => 'Laki-laki',
+    //         'penanggung_biaya' => 'BPJS',
+    //         'tanggal_masuk_rs' => now()->subHours(24),
 
-            // Rincian Kejadian
-            'tanggal_insiden' => now(),
-            'waktu_insiden' => '10:25',
-            'jenis_insiden' => 'KPC',
-            'lokasi_insiden' => 'Kamar Mandi Ruang Anggrek',
-            'nama_pasien_insiden' => 'Pasien Jatuh',
-            'kategori_insiden' => 'Pasien Jatuh',
-            'dampak_insiden' => 'Tidak ada cedera',
-            'deskripsi_kategori_insiden' => '[DEV] Insiden pasien jatuh di kamar mandi disebabkan oleh lantai yang licin dan tidak adanya pegangan. Faktor risiko pasien meliputi usia lanjut dan penggunaan obat antihipertensi.',
-            'insiden_terjadi_pada' => 'Pasien',
-            'pelapor_insiden_pasien' => 'Perawat',
-            'insiden_menyangkut_pasien' => 'Pasien rawat inap',
-            'spesialisasi_pasien' => 'Penyakit Dalam',
-            'tindakan_dilakukan' => '[DEV] 1. Memberikan pertolongan pertama kepada pasien 2. Menghubungi dokter jaga 3. Melaporkan kepada kepala ruangan 4. Mengisi formulir laporan insiden 5. Memasang tanda lantai licin di kamar mandi',
-            'tindakan_dilakukan_oleh' => 'Perawat',
-            'kejadian_pernah_terjadi_sebelumnya' => 'Tidak',
-            'grading_risiko' => 'KUNING',
+    //         // Rincian Kejadian
+    //         'tanggal_insiden' => now(),
+    //         'waktu_insiden' => '10:25',
+    //         'jenis_insiden' => 'KPC',
+    //         'lokasi_insiden' => 'Kamar Mandi Ruang Anggrek',
+    //         'nama_pasien_insiden' => 'Pasien Jatuh',
+    //         'kategori_insiden' => 'Pasien Jatuh',
+    //         'dampak_insiden' => 'Tidak ada cedera',
+    //         'deskripsi_kategori_insiden' => '[DEV] Insiden pasien jatuh di kamar mandi disebabkan oleh lantai yang licin dan tidak adanya pegangan. Faktor risiko pasien meliputi usia lanjut dan penggunaan obat antihipertensi.',
+    //         'insiden_terjadi_pada' => 'Pasien',
+    //         'pelapor_insiden_pasien' => 'Perawat',
+    //         'insiden_menyangkut_pasien' => 'Pasien rawat inap',
+    //         'spesialisasi_pasien' => 'Penyakit Dalam',
+    //         'tindakan_dilakukan' => '[DEV] 1. Memberikan pertolongan pertama kepada pasien 2. Menghubungi dokter jaga 3. Melaporkan kepada kepala ruangan 4. Mengisi formulir laporan insiden 5. Memasang tanda lantai licin di kamar mandi',
+    //         'tindakan_dilakukan_oleh' => 'Perawat',
+    //         'kejadian_pernah_terjadi_sebelumnya' => 'Tidak',
+    //         'grading_risiko' => 'KUNING',
 
-            // Reporter info
-            'reporter' => (object) [
-                'id' => 65,
-                'name' => 'ROSITA DEBBY IRAWAN, S.Kep., Ners',
-                'email' => 'pelapor@example.com',
-            ],
+    //         // Reporter info
+    //         'reporter' => (object) [
+    //             'id' => 65,
+    //             'name' => 'ROSITA DEBBY IRAWAN, S.Kep., Ners',
+    //             'email' => 'pelapor@example.com',
+    //         ],
 
-            // Unit Kerja
-            'unitKerjas' => (object) [
-                'id' => 34,
-                'unit_name' => 'Ruang Lotus',
-                'description' => 'Unit Perawatan Pasien Lantai 2',
-            ],
+    //         // Unit Kerja
+    //         'unitKerjas' => (object) [
+    //             'id' => 34,
+    //             'unit_name' => 'Ruang Lotus',
+    //             'description' => 'Unit Perawatan Pasien Lantai 2',
+    //         ],
 
-            // Timeline dummy
-            'timelineEvents' => collect([
-                (object) [
-                    'id' => 1,
-                    'laporan_insiden_id' => 1,
-                    'event_datetime' => now(),
-                    'entries' => collect([
-                        (object) [
-                            'id' => 1,
-                            'category_id' => 1,
-                            'description' => 'Pasien jatuh saat menggunakan kamar mandi. Lantai licin karena basah.',
-                        ],
-                        (object) [
-                            'id' => 2,
-                            'category_id' => 2,
-                            'description' => 'Faktor penyebab: Usia lanjut (45 th), penggunaan antihipertensi, tidak ada pegangan di kamar mandi.',
-                        ],
-                        (object) [
-                            'id' => 3,
-                            'category_id' => 3,
-                            'description' => 'Hasil pemeriksaan: tidak ada cedera, vital sign stabil.',
-                        ],
-                    ]),
-                ],
-            ]),
-        ];
-    }
+    //         // Timeline dummy
+    //         'timelineEvents' => collect([
+    //             (object) [
+    //                 'id' => 1,
+    //                 'laporan_insiden_id' => 1,
+    //                 'event_datetime' => now(),
+    //                 'entries' => collect([
+    //                     (object) [
+    //                         'id' => 1,
+    //                         'category_id' => 1,
+    //                         'description' => 'Pasien jatuh saat menggunakan kamar mandi. Lantai licin karena basah.',
+    //                     ],
+    //                     (object) [
+    //                         'id' => 2,
+    //                         'category_id' => 2,
+    //                         'description' => 'Faktor penyebab: Usia lanjut (45 th), penggunaan antihipertensi, tidak ada pegangan di kamar mandi.',
+    //                     ],
+    //                     (object) [
+    //                         'id' => 3,
+    //                         'category_id' => 3,
+    //                         'description' => 'Hasil pemeriksaan: tidak ada cedera, vital sign stabil.',
+    //                     ],
+    //                 ]),
+    //             ],
+    //         ]),
+    //     ];
+    // }
 
-    /**
-     * Test PDF dengan konten Hello World saja
-     */
-    public function testHello()
-    {
-        $html = view('reports.laporan-insiden-pdf-hello')->render();
+    // /**
+    //  * Test PDF dengan konten Hello World saja
+    //  */
+    // public function testHello()
+    // {
+    //     $html = view('reports.laporan-insiden-pdf-hello')->render();
 
-        $pdfContent = Browsershot::html($html)
-            ->setChromePath('/usr/bin/chromium-browser')
-            ->format('A4')
-            ->portrait()
-            ->margins(10, 10, 10, 10)
-            ->showBackground()
-            ->disableJavascript()
-            ->noSandbox()
-            ->pdf();
+    //     $pdfContent = Browsershot::html($html)
+    //         ->setChromePath('/usr/bin/chromium-browser')
+    //         ->format('A4')
+    //         ->portrait()
+    //         ->margins(10, 10, 10, 10)
+    //         ->showBackground()
+    //         ->disableJavascript()
+    //         ->noSandbox()
+    //         ->pdf();
 
-        return response($pdfContent)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="test-hello-world.pdf"');
-    }
+    //     return response($pdfContent)
+    //         ->header('Content-Type', 'application/pdf')
+    //         ->header('Content-Disposition', 'inline; filename="test-hello-world.pdf"');
+    // }
 
     /**
      * Helper method to prepare timeline data
