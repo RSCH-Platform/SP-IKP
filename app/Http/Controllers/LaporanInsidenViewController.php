@@ -8,6 +8,7 @@ use App\Models\TimelineCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Browsershot\Browsershot;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class LaporanInsidenViewController extends Controller
 {
@@ -145,56 +146,51 @@ class LaporanInsidenViewController extends Controller
             'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
         ];
 
-        // Generate PDF dengan Browsershot dan landscape orientation
-        $html = view('reports.laporan-insiden', $data)->render();
         $filename = "Laporan-Insiden-{$laporan->nomor_laporan}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
 
-        $pdfContent = Browsershot::html($html)
-            ->setChromePath('/usr/bin/chromium-browser')
-            ->addChromiumArguments([
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-            ])
-            ->waitUntilNetworkIdle()
-            ->emulateMedia('screen')
+        return Pdf::view('reports.laporan-insiden-pdf-view', $data)
+            ->withBrowsershot(function (Browsershot $browsershot) {
+                $browsershot
+                    ->setChromePath('/usr/bin/chromium-browser')
+                    ->addChromiumArguments([
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                    ])
+                    ->waitUntilNetworkIdle()
+                    ->emulateMedia('screen');
+            })
             ->format('A4')
-            ->margins(10, 10, 10, 10)
-            ->showBackground()
-            ->pdf();
-
-        return response($pdfContent)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+            ->inline($filename);
     }
 
-    // /**
-    //  * Render view khusus PDF untuk Browsershot testing
-    //  */
-    // public function pdfView(string $nomor_laporan)
-    // {
-    //     $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
-    //     Gate::authorize('view', $laporan);
+    /**
+     * Render view khusus PDF untuk Browsershot testing
+     */
+    public function pdfView(string $nomor_laporan)
+    {
+        $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
+        Gate::authorize('view', $laporan);
 
-    //     $laporan->load([
-    //         'timelineEvents' => function ($query) {
-    //             $query->orderBy('event_datetime', 'asc');
-    //         },
-    //         'timelineEvents.entries.category',
-    //         'unitKerjas',
-    //         'reporter',
-    //         'verifier',
-    //         'rejecter'
-    //     ]);
+        $laporan->load([
+            'timelineEvents' => function ($query) {
+                $query->orderBy('event_datetime', 'asc');
+            },
+            'timelineEvents.entries.category',
+            'unitKerjas',
+            'reporter',
+            'verifier',
+            'rejecter'
+        ]);
 
-    //     $data = [
-    //         'laporan' => $laporan,
-    //         'periodLabel' => $laporan->tanggal_lapor?->translatedFormat('d F Y') ?? 'N/A',
-    //         'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
-    //     ];
+        $data = [
+            'laporan' => $laporan,
+            'periodLabel' => $laporan->tanggal_lapor?->translatedFormat('d F Y') ?? 'N/A',
+            'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
+        ];
 
-    //     return view('reports.laporan-insiden-pdf-view', $data);
-    // }
+        return view('reports.laporan-insiden-pdf-view', $data);
+    }
 
     // /**
     //  * Generate PDF from route URL untuk Browsershot testing
