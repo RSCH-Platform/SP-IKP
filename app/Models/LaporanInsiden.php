@@ -24,6 +24,90 @@ class LaporanInsiden extends Model
     const STATUS_REVISI_UNIT    = 'revisi_unit';    // tim_mutu → kepala_unit
     const STATUS_INVESTIGASI    = 'investigasi';    // tim_mutu sedang investigasi sederhana
 
+    public const JENIS_INSIDEN_OPTIONS = [
+        'KPC (Kondisi Potensial Cedera)' => 'KPC (Kondisi Potensial Cedera)',
+        'KNC (Kejadian Nyaris Cedera)' => 'KNC (Kejadian Nyaris Cedera)',
+        'KTD (Kejadian Tidak Diharapkan)' => 'KTD (Kejadian Tidak Diharapkan)',
+        'KTC (Kejadian Tidak Cedera)' => 'KTC (Kejadian Tidak Cedera)',
+        'Sentinel' => 'Sentinel',
+    ];
+
+    public const DAMPAK_INSIDEN_OPTIONS = [
+        'Tidak ada cedera' => '✅ Tidak ada cedera',
+        'Cedera ringan' => '🟡 Cedera ringan',
+        'Cedera sedang' => '🟠 Cedera sedang',
+        'Cedera berat' => '🔴 Cedera berat',
+        'Meninggal' => '⚫ Meninggal',
+    ];
+
+    public const KATEGORI_INSIDEN_OPTIONS = [
+        'Medication / Cairan IV' => 'Medication / Cairan IV',
+        'Prosedur Klinis' => 'Prosedur Klinis',
+        'Diagnostik' => 'Diagnostik',
+        'Infeksi Terkait Pelayanan Kesehatan' => 'Infeksi Terkait Pelayanan Kesehatan',
+        'Pasien Jatuh' => 'Pasien Jatuh',
+        'Identifikasi Pasien' => 'Identifikasi Pasien',
+        'Komunikasi' => 'Komunikasi',
+        'Dokumentasi Klinis' => 'Dokumentasi Klinis',
+        'Peralatan Medis' => 'Peralatan Medis',
+        'Transfusi Darah / Produk Darah' => 'Transfusi Darah / Produk Darah',
+        'Administrasi / Proses Pelayanan' => 'Administrasi / Proses Pelayanan',
+        'Lingkungan / Fasilitas' => 'Lingkungan / Fasilitas',
+        'Faktor Manusia' => 'Faktor Manusia',
+        'Lainnya' => 'Lainnya',
+    ];
+
+    public const PELAPOR_INSIDEN_PASIEN_OPTIONS = [
+        'dokter' => 'Dokter',
+        'perawat' => 'Perawat',
+        'petugas_lain' => 'Petugas lainnya pasien',
+        'keluarga' => 'Keluarga / Pendamping pasien',
+        'Lainnya' => 'Lainnya',
+    ];
+
+    public const INSIDEN_MENYANGKUT_PASIEN_OPTIONS = [
+        'pasien_rawat_inap' => 'Pasien rawat inap',
+        'pasien_rawat_jalan' => 'Pasien rawat jalan',
+        'pasien_ugd' => 'Pasien UGD',
+        'Lainnya' => 'Lainnya',
+    ];
+
+    public const SPESIALISASI_PASIEN_OPTIONS = [
+        'penyakit_dalam' => 'Penyakit Dalam dan Subspesialisasinya',
+        'anak' => 'Anak dan Subspesialisasinya',
+        'bedah' => 'Bedah dan Subspesialisasinya',
+        'obstetri_gynekologi' => 'Obstetri Gynekologi dan Subspesialisasinya',
+        'tht' => 'THT dan Subspesialisasinya',
+        'mata' => 'Mata dan Subspesialisasinya',
+        'saraf' => 'Saraf dan Subspesialisasinya',
+        'anastesi' => 'Anastesi dan Subspesialisasinya',
+        'kulit_kelamin' => 'Kulit & Kelamin dan Subspesialisasinya',
+        'jantung' => 'Jantung dan Subspesialisasinya',
+        'paru' => 'Paru dan Subspesialisasinya',
+        'jiwa' => 'Jiwa dan Subspesialisasinya',
+        'Lainnya' => 'Lainnya',
+    ];
+
+    public const TINDAKAN_DILAKUKAN_OLEH_OPTIONS = [
+        'Perawat' => 'Perawat',
+        'Dokter' => 'Dokter',
+        'Lainnya' => 'Petugas lainnya',
+    ];
+
+    public const GRADING_RISIKO_OPTIONS = [
+        'Biru' => 'Biru',
+        'Hijau' => 'Hijau',
+        'Kuning' => 'Kuning',
+        'Merah' => 'Merah',
+    ];
+
+    public const GRADING_RISIKO_COLORS = [
+        'Biru' => ['bg' => 'bg-blue-500 text-white', 'border' => 'border-blue-500', 'desc' => 'Tidak ada dampak/Risiko rendah'],
+        'Hijau' => ['bg' => 'bg-green-500 text-white', 'border' => 'border-green-500', 'desc' => 'Dampak minimal/Risiko rendah'],
+        'Kuning' => ['bg' => 'bg-amber-500 text-white', 'border' => 'border-amber-500', 'desc' => 'Dampak sedang/Risiko menengah'],
+        'Merah' => ['bg' => 'bg-red-500 text-white', 'border' => 'border-red-500', 'desc' => 'Dampak berat/Risiko tinggi'],
+    ];
+
     protected $fillable = [
         'user_id',
         'unit_kerja_id',

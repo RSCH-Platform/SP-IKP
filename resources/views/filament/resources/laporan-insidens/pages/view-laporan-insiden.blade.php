@@ -1,4 +1,17 @@
-<x-filament-panels::page x-data="{ activeTab: 'info' }"> {{-- Header Section --}}
+<x-filament-panels::page
+    x-data="{
+        activeTab: 'info',
+        init() {
+            const hash = window.location.hash.replace('#', '');
+            if (['info', 'preview', 'investigasi'].includes(hash)) {
+                this.activeTab = hash;
+            }
+
+            this.$watch('activeTab', (value) => {
+                history.replaceState(null, '', `#${value}`);
+            });
+        },
+    }"> {{-- Header Section --}}
     <div class="ikp-header status-{{ str_replace('_', '-', $record->status ?? 'draft') }} mb-6 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
         <div class="ikp-header-content p-6"> {{-- Hospital Info Header --}}
             <div class="mb-4 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
@@ -43,11 +56,7 @@
                 {{-- Header --}}
                 <div
                     @click="open = !open"
-                    class="group flex items-center justify-between px-6 py-4 border-b
-           border-gray-200 dark:border-slate-700
-           cursor-pointer
-           hover:bg-gray-50 dark:hover:bg-slate-700
-           transition">
+                    class="group flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 transition">
 
                     {{-- Left: Title --}}
                     <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -56,10 +65,7 @@
                     </h3>
 
                     {{-- Right: Chevron --}}
-                    <div class="w-7 h-7 flex items-center justify-center rounded-md
-                bg-gray-100 dark:bg-slate-700
-                group-hover:bg-gray-200 dark:group-hover:bg-slate-600
-                transition">
+                    <div class="w-7 h-7 flex items-center justify-center rounded-md bg-gray-100 dark:bg-slate-700 group-hover:bg-gray-200 dark:group-hover:bg-slate-600 transition">
 
                         <x-heroicon-o-chevron-right
                             class="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-300"

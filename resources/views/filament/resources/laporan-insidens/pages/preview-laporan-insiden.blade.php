@@ -142,51 +142,10 @@ $laporan = $this->record;
     </div>
 
     <!-- SECTION B: RINCIAN KEJADIAN -->
-    <div class="break-inside-avoid mb-6">
-        <x-section-header title="BAGIAN B: Rincian Kejadian" />
-        <div class="bg-white border border-slate-300 p-2 space-y-3">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <x-data-row label="Tanggal Insiden" :value="$laporan->tanggal_insiden?->translatedFormat('d F Y') ?? '-'" />
-                <x-data-row label="Waktu Insiden" :value="$laporan->waktu_insiden ?? '-'" />
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <x-data-row label="Jenis Insiden" :value="$laporan->jenis_insiden ?? '-'" />
-                <x-data-row label="Lokasi Insiden" :value="$laporan->lokasi_insiden ?? '-'" />
-            </div>
-            <x-long-text-display label="Penjelasan Insiden" :text="$laporan->deskripsi_kategori_insiden ?? '-'" />
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <x-data-row label="Kategori Insiden" :value="$laporan->kategori_insiden ?? '-'" />
-                <x-data-row label="Orang yang Pelapor" :value="$laporan->pelapor_insiden_pasien ?? '-'" />
-                <x-data-row label="Insiden Menyangkut" :value="$laporan->insiden_menyangkut_pasien ?? '-'" />
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <x-data-row label="Spesialisasi Pasien" :value="$laporan->spesialisasi_pasien ?? '-'" />
-                <x-data-row label="Dampak Insiden" :value="$laporan->dampak_insiden ?? '-'" />
-            </div>
-            <div class="border border-slate-200 p-2 col-span-full">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Kejadian Sebelumnya</p>
-                <div class="grid grid-cols-2 gap-2">
-                    @php
-                    $kejadianSebelumnya = trim($laporan->kejadian_pernah_terjadi_sebelumnya ?? '');
-                    @endphp
-                    <x-checkbox-display :checked="$kejadianSebelumnya === 'Ya'" label="Ya" disabled />
-                    <x-checkbox-display :checked="$kejadianSebelumnya === 'Tidak'" label="Tidak" disabled />
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-report-incident-details :laporan="$laporan" />
 
     <!-- SECTION C: TINDAKAN YANG DILAKUKAN -->
-    <div class="break-inside-avoid mb-6">
-        <x-section-header title="BAGIAN C: Tindakan Setelah Kejadian" />
-        <div class="bg-white border border-slate-300 p-2 space-y-3">
-            <x-long-text-display label="Tindakan yang Dilakukan Segera Setelah Kejadian" :text="$laporan->tindakan_dilakukan ?? '-'" />
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <x-data-row label="Tindakan Dilakukan Oleh" :value="$laporan->tindakan_dilakukan_oleh ?? '-'" />
-                <x-data-row label="Unit Penyebab" :value="$laporan->unit_kerja ?? '-'" />
-            </div>
-        </div>
-    </div>
+    <x-report-action-section :laporan="$laporan" />
 
     <!-- SECTION D: KRONOLOGI TIMELINE -->
     <div class="break-inside-avoid mb-6">

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LaporanInsidens\Schemas\Sections;
 
+use App\Models\LaporanInsiden;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,11 +26,7 @@ class TindakanSection
 
             Select::make('tindakan_dilakukan_oleh')
                 ->label('Tindakan Dilakukan Oleh')
-                ->options([
-                    'Perawat' => 'Perawat',
-                    'Dokter' => 'Dokter',
-                    'Lainnya' => 'Petugas lainnya',
-                ])
+                ->options(LaporanInsiden::TINDAKAN_DILAKUKAN_OLEH_OPTIONS)
                 ->placeholder('Pilih unit yang melakukan tindakan')
                 ->live()
                 ->native(false)

@@ -151,7 +151,6 @@ class LaporanInsidenViewController extends Controller
 
         $pdfContent = Browsershot::html($html)
             ->format('A4')
-            ->landscape()
             ->margins(10, 10, 10, 10)
             ->showBackground()
             ->noSandbox()

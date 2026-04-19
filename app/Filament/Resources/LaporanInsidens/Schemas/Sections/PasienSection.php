@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LaporanInsidens\Schemas\Sections;
 
+use App\Models\LaporanInsiden;
 use Filament\Forms;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
@@ -95,13 +96,7 @@ class PasienSection
                         ->columnSpanFull()
                         ->label('Orang Pertama Yang Melaporkan Insiden')
                         ->required()
-                        ->options([
-                            'dokter' => 'Dokter',
-                            'perawat' => 'Perawat',
-                            'petugas_lain' => 'Petugas lainnya pasien',
-                            'keluarga' => 'Keluarga / Pendamping pasien',
-                            'Lainnya' => 'Lainnya',
-                        ])
+                        ->options(LaporanInsiden::PELAPOR_INSIDEN_PASIEN_OPTIONS)
                         ->live()
                         ->native(false)
                         ->placeholder('Pilih'),
@@ -116,12 +111,7 @@ class PasienSection
                     Forms\Components\Select::make('insiden_menyangkut_pasien')
                         ->label('Insiden menyangkut pasien')
                         ->columnSpanFull()
-                        ->options([
-                            'pasien_rawat_inap' => 'Pasien rawat inap',
-                            'pasien_rawat_jalan' => 'Pasien rawat jalan',
-                            'pasien_ugd' => 'Pasien UGD',
-                            'Lainnya' => 'Lainnya',
-                        ])
+                        ->options(LaporanInsiden::INSIDEN_MENYANGKUT_PASIEN_OPTIONS)
                         ->live()
                         ->required()
                         ->native(false)
@@ -133,25 +123,10 @@ class PasienSection
                         ->prefixIcon('heroicon-m-pencil')
                         ->visible(fn(Get $get) => $get('insiden_menyangkut_pasien') === 'Lainnya')
                         ->required(fn(Get $get) => $get('insiden_menyangkut_pasien') === 'Lainnya'),
-
                     Forms\Components\Select::make('spesialisasi_pasien')
                         ->label('Insiden terjadi pada pasien : (sesuai kasus penyakit / spesialisasi) ')
                         ->columnSpanFull()
-                        ->options([
-                            'penyakit_dalam' => 'Penyakit Dalam dan Subspesialisasinya',
-                            'anak' => 'Anak dan Subspesialisasinya',
-                            'bedah' => 'Bedah dan Subspesialisasinya',
-                            'obstetri_gynekologi' => 'Obstetri Gynekologi dan Subspesialisasinya',
-                            'tht' => 'THT dan Subspesialisasinya',
-                            'mata' => 'Mata dan Subspesialisasinya',
-                            'saraf' => 'Saraf dan Subspesialisasinya',
-                            'anastesi' => 'Anastesi dan Subspesialisasinya',
-                            'kulit_kelamin' => 'Kulit & Kelamin dan Subspesialisasinya',
-                            'jantung' => 'Jantung dan Subspesialisasinya',
-                            'paru' => 'Paru dan Subspesialisasinya',
-                            'jiwa' => 'Jiwa dan Subspesialisasinya',
-                            'Lainnya' => 'Lainnya',
-                        ])
+                        ->options(LaporanInsiden::SPESIALISASI_PASIEN_OPTIONS)
                         ->live()
                         ->required()
                         ->native(false)

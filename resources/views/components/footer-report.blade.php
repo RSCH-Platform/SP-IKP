@@ -42,7 +42,7 @@ $receivedByPosition = $receivedByPosition ?? 'Kepala Unit';
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
             <!-- Pembuat Laporan -->
             <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Pembuat Laporan</p>
+                <p class="report-field-title">Pembuat Laporan</p>
                 <div class="space-y-0.5 mb-4">
                     <p class="text-xs font-medium text-slate-800">{{ $createdByName }}</p>
                     <p class="text-xs text-slate-600">NIP: {{ $createdByNip }}</p>
@@ -56,7 +56,7 @@ $receivedByPosition = $receivedByPosition ?? 'Kepala Unit';
 
             <!-- Penerima Laporan -->
             <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Penerima Laporan</p>
+                <p class="report-field-title">Penerima Laporan</p>
                 <div class="space-y-0.5 mb-4">
                     <p class="text-xs font-medium text-slate-800">{{ $receivedByName }}</p>
                     <p class="text-xs text-slate-600">NIP: {{ $receivedByNip }}</p>
@@ -72,7 +72,7 @@ $receivedByPosition = $receivedByPosition ?? 'Kepala Unit';
         <!-- Notes -->
         @if(count($notes) > 0)
         <div class="border border-slate-200 p-2 mt-2">
-            <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Catatan Penting</p>
+            <p class="report-field-title">Catatan Penting</p>
             <ul class="list-disc pl-4 space-y-0.5">
                 @foreach($notes as $note)
                 <li class="text-xs text-slate-700">{{ $note }}</li>

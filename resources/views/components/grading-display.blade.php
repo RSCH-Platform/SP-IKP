@@ -1,21 +1,24 @@
-@props(['grade' => null, 'justification' => null])
+@props(['grade' => null, 'justification' => null, 'editable' => false, 'disabled' => false])
 
 @php
-$gradingOptions = ['Biru', 'Hijau', 'Kuning', 'Merah'];
-$gradingColors = [
-'Biru' => ['bg' => 'bg-blue-500 text-white', 'border' => 'border-blue-500', 'desc' => 'Tidak ada dampak/Risiko rendah'],
-'Hijau' => ['bg' => 'bg-green-500 text-white', 'border' => 'border-green-500', 'desc' => 'Dampak minimal/Risiko rendah'],
-'Kuning' => ['bg' => 'bg-amber-500 text-white', 'border' => 'border-amber-500', 'desc' => 'Dampak sedang/Risiko menengah'],
-'Merah' => ['bg' => 'bg-red-500 text-white', 'border' => 'border-red-500', 'desc' => 'Dampak berat/Risiko tinggi']
-];
+use App\Models\LaporanInsiden;
+
+$gradingOptions = array_values(LaporanInsiden::GRADING_RISIKO_OPTIONS);
+$gradingColors = LaporanInsiden::GRADING_RISIKO_COLORS;
+
+$normalizedGrade = null;
+if (! blank($grade)) {
+$normalizedGrade = trim($grade);
+$normalizedGrade = mb_convert_case(strtolower($normalizedGrade), MB_CASE_TITLE, 'UTF-8');
+}
 @endphp
 
 <div class="mb-2">
-    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Grading Risiko</p>
+    <p class="report-field-title">Grading Risiko</p>
     <div class="grid grid-cols-4 gap-2">
         @foreach($gradingOptions as $option)
         @php
-        $isSelected = $grade === $option;
+        $isSelected = $normalizedGrade === $option;
         $colors = $gradingColors[$option];
         $styleClass = $isSelected ? $colors['bg'] : 'border ' . $colors['border'] . ' bg-white text-slate-800';
         @endphp
@@ -29,6 +32,6 @@ $gradingColors = [
     </div>
 </div>
 <div class="border border-slate-200 p-2">
-    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Justifikasi Grading</p>
+    <p class="report-field-title">Justifikasi Grading</p>
     <div class="text-xs text-slate-800 whitespace-pre-wrap bg-slate-50 p-2 rounded">{{ $justification ?? 'Belum ada justifikasi grading' }}</div>
 </div>

@@ -110,191 +110,25 @@ $laporan = $record;
     </div>
 
     <!-- SECTION A: DATA PASIEN -->
-    <div class="break-inside-avoid mb-8">
-        <x-section-header title="BAGIAN A: Data Pasien" />
-        <div class="bg-white border border-slate-300 p-2 space-y-3">
-            <!-- Row 1: Nama Pasien & No Rekam Medis -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div class="border border-slate-200 p-2">
-                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">Nama Pasien</p>
-                    <p class="text-xs text-slate-800 font-medium">{{ $laporan->nama_pasien ?? '-' }}</p>
-                </div>
-                <div class="border border-slate-200 p-2">
-                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">No. Rekam Medis</p>
-                    <p class="text-xs text-slate-800 font-medium">{{ $laporan->nomor_rekam_medis ?? '-' }}</p>
-                </div>
-            </div>
-
-            <!-- Row 2: Ruangan -->
-            <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">Ruangan</p>
-                <p class="text-xs text-slate-800">{{ $laporan->ruangan ?? '-' }}</p>
-            </div>
-
-            <!-- Row 3: Umur & Kelompok Umur -->
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                <div class="border border-slate-200 p-2">
-                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">Umur</p>
-                    <p class="text-xs text-slate-800 font-medium">{{ $laporan->umur ?? '-' }} tahun</p>
-                </div>
-                <div class="col-span-2 border border-slate-200 p-2">
-                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Kelompok Umur</p>
-                    <div class="space-y-1">
-                        @php
-                        $ageGroups = [
-                        '0-1 bulan' => '0-1 bulan',
-                        '> 1 bulan - 1 tahun' => '> 1 bulan - 1 tahun',
-                        '> 1 tahun - 5 tahun' => '> 1 tahun - 5 tahun',
-                        '> 5 tahun - 15 tahun' => '> 5 tahun - 15 tahun',
-                        '> 15 tahun - 30 tahun' => '> 15 tahun - 30 tahun',
-                        '>30 tahun - 65 tahun' => '>30 tahun - 65 tahun',
-                        '> 65 tahun' => '> 65 tahun'
-                        ];
-                        $selectedAge = trim($laporan->kelompok_umur ?? '');
-                        @endphp
-                        <div class="grid grid-cols-2 gap-1">
-                            @foreach($ageGroups as $key => $label)
-                            <x-checkbox-display :checked="trim($key) === $selectedAge" :label="$label" disabled />
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Row 4: Jenis Kelamin -->
-            <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Jenis Kelamin</p>
-                <div class="grid grid-cols-2 gap-2">
-                    @php
-                    $selectedGender = trim($laporan->jenis_kelamin ?? '');
-                    @endphp
-                    <x-checkbox-display :checked="trim('Laki-laki') === $selectedGender" label="Laki-laki" disabled />
-                    <x-checkbox-display :checked="trim('Perempuan') === $selectedGender" label="Perempuan" disabled />
-                </div>
-            </div>
-
-            <!-- Row 5: Penanggung Biaya -->
-            <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Penanggung Biaya Pasien</p>
-                <div class="grid grid-cols-2 gap-2">
-                    @php
-                    $selectedPayment = trim($laporan->penanggung_biaya ?? '');
-                    @endphp
-                    <x-checkbox-display :checked="trim('Pribadi') === $selectedPayment" label="Pribadi" disabled />
-                    <x-checkbox-display :checked="trim('Asuransi Swasta') === $selectedPayment" label="Asuransi Swasta" disabled />
-                    <x-checkbox-display :checked="trim('BPJS') === $selectedPayment" label="BPJS" disabled />
-                    <x-checkbox-display :checked="trim('Lainnya') === $selectedPayment" label="Lainnya" disabled />
-                </div>
-            </div>
-
-            <!-- Row 6: Tanggal Masuk RS -->
-            <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-1">Tanggal Masuk RS</p>
-                <p class="text-xs text-slate-800">
-                    @if($laporan->tanggal_masuk_rs)
-                    Pada tanggal {{ $laporan->tanggal_masuk_rs->translatedFormat('d F Y') }} di jam {{ $laporan->tanggal_masuk_rs->translatedFormat('H:i') }} WIB
-                    @else
-                    -
-                    @endif
-                </p>
-            </div>
-        </div>
-    </div>
+    <x-report-patient-section :laporan="$laporan" />
 
     <!-- SECTION B: RINCIAN KEJADIAN -->
-    <div class="break-inside-avoid mb-8">
-        <x-section-header title="BAGIAN B: Rincian Kejadian" />
-        <div class="bg-white border border-slate-300 p-2 space-y-3">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <x-data-row label="Tanggal Insiden" :value="$laporan->tanggal_insiden?->translatedFormat('d F Y') ?? '-'" />
-                <x-data-row label="Waktu Insiden" :value="$laporan->waktu_insiden ?? '-'" />
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <x-data-row label="Jenis Insiden" :value="$laporan->jenis_insiden ?? '-'" />
-                <x-data-row label="Lokasi Insiden" :value="$laporan->lokasi_insiden ?? '-'" />
-            </div>
-            <x-long-text-display label="Penjelasan Insiden" :text="$laporan->deskripsi_kategori_insiden ?? '-'" />
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <x-data-row label="Kategori Insiden" :value="Str::title($laporan->kategori_insiden) ?? '-'" />
-                <x-data-row label="Orang yang Pelapor" :value="Str::of($laporan->pelapor_insiden_pasien)->replace('_', ' ')->title() ?? '-'" />
-                <x-data-row label="Insiden Menyangkut" :value="Str::of($laporan->insiden_menyangkut_pasien)->replace('_', ' ')->title() ?? '-'" />
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <x-data-row label="Spesialisasi Pasien" :value="Str::title($laporan->spesialisasi_pasien) ?? '-'" />
-                <x-data-row label="Dampak Insiden" :value="Str::title($laporan->dampak_insiden) ?? '-'" />
-            </div>
-            <div class="border border-slate-200 p-2 col-span-full">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Kejadian Sebelumnya</p>
-                <div class="grid grid-cols-2 gap-2">
-                    @php
-                    $kejadianSebelumnya = trim($laporan->kejadian_pernah_terjadi_sebelumnya ?? '');
-                    @endphp
-                    <x-checkbox-display :checked="$kejadianSebelumnya === 'Ya'" label="Ya" disabled />
-                    <x-checkbox-display :checked="$kejadianSebelumnya === 'Tidak'" label="Tidak" disabled />
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-report-incident-details :laporan="$laporan" />
 
     <!-- SECTION C: TINDAKAN YANG DILAKUKAN -->
-    <div class="break-inside-avoid mb-8">
-        <x-section-header title="BAGIAN C: Tindakan Setelah Kejadian" />
-        <div class="bg-white border border-slate-300 p-2 space-y-3">
-            <x-long-text-display label="Tindakan yang Dilakukan Segera Setelah Kejadian" :text="$laporan->tindakan_dilakukan ?? '-'" />
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <x-data-row label="Tindakan Dilakukan Oleh" :value="$laporan->tindakan_dilakukan_oleh ?? '-'" />
-                <x-data-row label="Unit Penyebab" :value="$laporan->unit_kerja ?? '-'" />
-            </div>
-        </div>
-    </div>
+    <x-report-action-section :laporan="$laporan" />
 
     <!-- SECTION D: KRONOLOGI TIMELINE -->
-    <div class="break-inside-avoid mb-8">
-        <x-section-header title="BAGIAN D: Timeline Kronologi" />
-        <div class="bg-white border border-slate-300 p-2">
-            @php
-            $timelineData = $this->getTimelineEventsForComponent();
-            @endphp
-            <x-timeline-events :eventsByDate="$timelineData['eventsByDate']" :dateCategories="$timelineData['dateCategories']" />
-        </div>
-    </div>
+    @php
+    $timelineData = $this->getTimelineEventsForComponent();
+    @endphp
+    <x-report-timeline-section :timeline-data="$timelineData" />
 
     <!-- SECTION E: GRADING RISIKO -->
     <div class="break-inside-avoid mb-8">
         <x-section-header title="BAGIAN E: Grading Risiko" />
         <div class="bg-white border border-slate-300 p-2">
-            @php
-            $gradingOptions = ['Biru', 'Hijau', 'Kuning', 'Merah'];
-            $gradingColors = [
-            'Biru' => ['bg' => 'bg-blue-500 text-white', 'border' => 'border-blue-500', 'desc' => 'Tidak ada dampak/Risiko rendah'],
-            'Hijau' => ['bg' => 'bg-green-500 text-white', 'border' => 'border-green-500', 'desc' => 'Dampak minimal/Risiko rendah'],
-            'Kuning' => ['bg' => 'bg-amber-500 text-white', 'border' => 'border-amber-500', 'desc' => 'Dampak sedang/Risiko menengah'],
-            'Merah' => ['bg' => 'bg-red-500 text-white', 'border' => 'border-red-500', 'desc' => 'Dampak berat/Risiko tinggi']
-            ];
-            @endphp
-
-            <div class="mb-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-2">Grading Risiko</p>
-                <div class="grid grid-cols-4 gap-2">
-                    @foreach($gradingOptions as $option)
-                    @php
-                    $isSelected = $laporan->grading_risiko === $option;
-                    $colors = $gradingColors[$option];
-                    $styleClass = $isSelected ? $colors['bg'] : 'border ' . $colors['border'] . ' bg-white text-slate-800';
-                    @endphp
-                    <div>
-                        <div class="flex items-center justify-center p-2 rounded text-xs font-semibold uppercase tracking-wide {{ $styleClass }} title='{{ $colors['desc'] }}'">
-                            {{ $option }}
-                        </div>
-                        <p class="text-xs text-slate-600 text-center mt-1 leading-tight">{{ $colors['desc'] }}</p>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Justifikasi Grading</p>
-                <div class="text-xs text-slate-800 whitespace-pre-wrap bg-slate-50 p-2 rounded">{{ $laporan->catatan_tambahan }}</div>
-            </div>
+            <x-grading-display :grade="$laporan->grading_risiko" :justification="$laporan->catatan_tambahan" />
         </div>
     </div>
 
