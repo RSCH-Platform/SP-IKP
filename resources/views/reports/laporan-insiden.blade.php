@@ -5,7 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Insiden - {{ $laporan->nomor_laporan ?? 'Laporan' }}</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @php
+    $viteCss = null;
+    $manifestPath = public_path('build/manifest.json');
+    if (file_exists($manifestPath)) {
+    $manifest = json_decode(file_get_contents($manifestPath), true);
+    $viteCss = $manifest['resources/css/app.css']['file'] ?? null;
+    }
+    @endphp
+    @if ($viteCss)
+    <link rel="stylesheet" href="{{ asset('build/'.$viteCss) }}">
+    @else
+    <style>
+        /* CSS fallback jika build Vite tidak tersedia */
+        body {
+            font-family: ui-sans-serif, system-ui, sans-serif;
+        }
+    </style>
+    @endif
     <style>
         /* Font sizes in pixels */
         .text-xs {
@@ -61,7 +78,7 @@
         }
 
         body {
-            background: #f1f5f9;
+            background: white;
         }
 
         /* Screen mode */
@@ -84,44 +101,8 @@
     </style>
 </head>
 
-<body x-data="{ orientation: 'portrait' }" :class="orientation === 'portrait' ? 'portrait-mode' : 'landscape-mode'" class="bg-gray-500 text-slate-800 font-sans leading-relaxed">
+<body x-data="{ orientation: 'portrait' }" :class="orientation === 'portrait' ? 'portrait-mode' : 'landscape-mode'" class="bg-white text-slate-800 font-sans leading-relaxed">
     <style x-text="orientation === 'portrait' ? '@page { size: A4 portrait; margin: 0; }' : '@page { size: A4 landscape; margin: 0; }'"></style>
-    <!-- Control Panel -->
-    <div class="no-print sticky top-0 z-50 bg-white border-b border-slate-300 shadow-md">
-        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <!-- Format Info -->
-                <div class="flex items-center gap-2">
-                    <label class="text-sm font-semibold text-slate-700">Format:</label>
-                    <button type="button" @click="orientation = 'portrait'" :class="orientation === 'portrait' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-700 border-slate-300'" class="px-3 py-1.5 text-sm border rounded-lg transition">
-                        Portrait
-                    </button>
-                    <button type="button" @click="orientation = 'landscape'" :class="orientation === 'landscape' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-700 border-slate-300'" class="px-3 py-1.5 text-sm border rounded-lg transition">
-                        Landscape
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <!-- Print Button -->
-                <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Cetak
-                </button>
-
-                <!-- Back Button -->
-                <button onclick="window.history.back()" class="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Kembali
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Document Container -->
     <div :class="orientation === 'portrait' ? 'portrait-mode' : 'landscape-mode'">
         <!-- DEBUG SECTION -->
