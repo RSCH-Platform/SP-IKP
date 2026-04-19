@@ -150,6 +150,7 @@ class LaporanInsidenViewController extends Controller
         $filename = "Laporan-Insiden-{$laporan->nomor_laporan}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
 
         $pdfContent = Browsershot::html($html)
+            ->setChromePath('/usr/bin/chromium-browser')
             ->format('A4')
             ->margins(10, 10, 10, 10)
             ->showBackground()
@@ -266,6 +267,7 @@ class LaporanInsidenViewController extends Controller
         $html = view('reports.laporan-insiden-pdf-hello')->render();
 
         $pdfContent = Browsershot::html($html)
+            ->setChromePath('/usr/bin/chromium-browser')
             ->format('A4')
             ->portrait()
             ->margins(10, 10, 10, 10)
