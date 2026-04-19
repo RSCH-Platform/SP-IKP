@@ -151,6 +151,11 @@ class LaporanInsidenViewController extends Controller
 
         $pdfContent = Browsershot::html($html)
             ->setChromePath('/usr/bin/chromium-browser')
+            ->addChromiumArguments([
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+            ])
             ->waitUntilNetworkIdle()
             ->emulateMedia('screen')
             ->format('A4')
