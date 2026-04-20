@@ -56,15 +56,16 @@ $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_se
     <x-section-header :title="$title" />
 
     <div class="bg-white border border-slate-300 p-2 space-y-3">
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-3 gap-2">
             <x-data-row label="Tanggal Insiden" :value="$tanggalInsiden" />
             <x-data-row label="Waktu Insiden" :value="$waktuInsiden" />
+            <x-data-row label="Lokasi Insiden" :value="$lokasiInsiden" />
         </div>
 
         <div class="grid grid-cols-2 gap-2">
-            <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Jenis Insiden</p>
-                <div class="grid grid-cols-2 gap-2">
+            <div class="col-span-2 border border-slate-200 p-2">
+                <p class="report-field-label">Jenis Insiden</p>
+                <div class="mt-2 grid grid-cols-3 gap-2">
                     @foreach(LaporanInsiden::JENIS_INSIDEN_OPTIONS as $optionValue => $optionLabel)
                     <x-checkbox-display
                         :checked="$jenisInsiden === $optionValue"
@@ -73,15 +74,14 @@ $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_se
                     @endforeach
                 </div>
             </div>
-            <x-data-row label="Lokasi Insiden" :value="$lokasiInsiden" />
         </div>
 
         <x-long-text-display label="Penjelasan Insiden" :text="$deskripsiInsiden" />
 
-        <div class="grid grid-cols-3 gap-2">
-            <div class="border border-slate-200 p-2 col-span-3">
-                <p class="report-field-title">Kategori Insiden</p>
-                <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-4 gap-2">
+            <div class="border border-slate-200 p-2 col-span-4">
+                <p class="report-field-label">Kategori Insiden</p>
+                <div class="mt-2 grid grid-cols-3 gap-2">
                     @foreach(LaporanInsiden::KATEGORI_INSIDEN_OPTIONS as $optionValue => $optionLabel)
                     <x-checkbox-display
                         :checked="$rawKategoriInsiden === $optionValue"
@@ -91,43 +91,41 @@ $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_se
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 border border-slate-200 p-2 col-span-3">
-                <div class="border border-slate-200 p-2">
-                    <p class="report-field-title">Orang yang Pelapor</p>
-                    <div class="grid grid-cols-1 gap-2">
-                        @foreach(LaporanInsiden::PELAPOR_INSIDEN_PASIEN_OPTIONS as $optionValue => $optionLabel)
-                        <x-checkbox-display
-                            :checked="$rawPelaporInsidenPasien === $optionValue"
-                            :label="$optionLabel"
-                            disabled />
-                        @endforeach
-                    </div>
-                    @if($rawPelaporInsidenPasien === 'Lainnya' && $pelaporInsidenPasienLainnya)
-                    <p class="mt-2 text-xs text-slate-500">Lainnya: {{ $pelaporInsidenPasienLainnya }}</p>
-                    @endif
+            <div class="border border-slate-200 p-2 col-span-2">
+                <p class="report-field-label">Orang yang Melapor</p>
+                <div class="mt-2 grid grid-cols-1 gap-2">
+                    @foreach(LaporanInsiden::PELAPOR_INSIDEN_PASIEN_OPTIONS as $optionValue => $optionLabel)
+                    <x-checkbox-display
+                        :checked="$rawPelaporInsidenPasien === $optionValue"
+                        :label="$optionLabel"
+                        disabled />
+                    @endforeach
                 </div>
+                @if($rawPelaporInsidenPasien === 'Lainnya' && $pelaporInsidenPasienLainnya)
+                <p class="mt-2 text-xs text-slate-500">Lainnya: {{ $pelaporInsidenPasienLainnya }}</p>
+                @endif
+            </div>
 
-                <div class="border border-slate-200 p-2">
-                    <p class="report-field-title">Insiden Menyangkut</p>
-                    <div class="grid grid-cols-1 gap-2">
-                        @foreach(LaporanInsiden::INSIDEN_MENYANGKUT_PASIEN_OPTIONS as $optionValue => $optionLabel)
-                        <x-checkbox-display
-                            :checked="$rawInsidenMenyangkutPasien === $optionValue"
-                            :label="$optionLabel"
-                            disabled />
-                        @endforeach
-                    </div>
-                    @if($rawInsidenMenyangkutPasien === 'Lainnya' && $insidenMenyangkutPasienLainnya)
-                    <p class="mt-2 text-xs text-slate-500">Lainnya: {{ $insidenMenyangkutPasienLainnya }}</p>
-                    @endif
+            <div class="border border-slate-200 p-2 col-span-2">
+                <p class="report-field-label">Insiden Menyangkut</p>
+                <div class="mt-2 grid grid-cols-1 gap-2">
+                    @foreach(LaporanInsiden::INSIDEN_MENYANGKUT_PASIEN_OPTIONS as $optionValue => $optionLabel)
+                    <x-checkbox-display
+                        :checked="$rawInsidenMenyangkutPasien === $optionValue"
+                        :label="$optionLabel"
+                        disabled />
+                    @endforeach
                 </div>
+                @if($rawInsidenMenyangkutPasien === 'Lainnya' && $insidenMenyangkutPasienLainnya)
+                <p class="mt-2 text-xs text-slate-500">Lainnya: {{ $insidenMenyangkutPasienLainnya }}</p>
+                @endif
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
-            <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Spesialisasi Pasien</p>
-                <div class="grid grid-cols-2 gap-2">
+            <div class="border border-slate-200 p-2 col-span-2">
+                <p class="report-field-label">Spesialisasi Pasien</p>
+                <div class="mt-2 grid grid-cols-3 gap-2">
                     @foreach(LaporanInsiden::SPESIALISASI_PASIEN_OPTIONS as $optionValue => $optionLabel)
                     <x-checkbox-display
                         :checked="$rawSpesialisasiPasien === $optionValue"
@@ -139,14 +137,24 @@ $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_se
                 <p class="mt-2 text-xs text-slate-500">Lainnya: {{ $spesialisasiPasienLainnya }}</p>
                 @endif
             </div>
-            <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Dampak Insiden</p>
-                <div class="grid grid-cols-2 gap-2">
+            <div class="border border-slate-200 p-2 col-span-2">
+                <p class="report-field-label">Dampak Insiden</p>
+
+                <div class="mt-2 grid grid-cols-5 gap-1.5">
                     @foreach(LaporanInsiden::DAMPAK_INSIDEN_OPTIONS as $optionValue => $optionLabel)
-                    <x-checkbox-display
-                        :checked="$rawDampakInsiden === $optionValue"
-                        :label="$optionLabel"
-                        disabled />
+                    @php
+                    $isSelected = $rawDampakInsiden === $optionValue;
+                    @endphp
+
+                    <div class="flex items-center justify-between rounded-md border px-2 py-1.5 text-xs leading-tight {{ $isSelected ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-200 bg-white text-slate-700' }}">
+                        <span class="font-medium truncate">
+                            {{ $optionLabel }}
+                        </span>
+
+                        @if($isSelected)
+                        <span class="text-[10px] text-white font-semibold">✓</span>
+                        @endif
+                    </div>
                     @endforeach
                 </div>
             </div>

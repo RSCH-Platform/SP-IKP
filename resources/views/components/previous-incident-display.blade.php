@@ -5,8 +5,8 @@
 ])
 
 <div class="border border-slate-200 p-2">
-    <p class="report-field-title">{{ $label }}</p>
-    <div class="grid grid-cols-2 gap-2">
+    <p class="report-field-label">{{ $label }}</p>
+    <div class="mt-2 mb-4 grid grid-cols-2 gap-2">
         <x-checkbox-display :checked="$previousIncident === 'Ya'" label="Ya" disabled />
         <x-checkbox-display :checked="$previousIncident === 'Tidak'" label="Tidak" disabled />
     </div>
@@ -16,9 +16,6 @@
     @endphp
 
     @if($previousIncident === 'Ya' && $descriptionText !== '')
-    <div class="mt-3 p-2 bg-slate-50 border border-slate-200 rounded">
-        <p class="report-field-title">Deskripsi Kejadian Sebelumnya</p>
-        <p class="text-sm text-slate-700 whitespace-pre-wrap">{{ $descriptionText }}</p>
-    </div>
+    <x-long-text-display label="Deskripsi Kejadian Sebelumnya" :text="$descriptionText" />
     @endif
 </div>

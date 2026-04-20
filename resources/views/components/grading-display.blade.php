@@ -14,8 +14,8 @@ $normalizedGrade = mb_convert_case(strtolower($normalizedGrade), MB_CASE_TITLE, 
 @endphp
 
 <div class="mb-2">
-    <p class="report-field-title">Grading Risiko</p>
-    <div class="grid grid-cols-4 gap-2">
+    <p class="report-field-label">Grading Risiko</p>
+    <div class="mt-2 grid grid-cols-4 gap-2">
         @foreach($gradingOptions as $option)
         @php
         $isSelected = $normalizedGrade === $option;
@@ -31,7 +31,6 @@ $normalizedGrade = mb_convert_case(strtolower($normalizedGrade), MB_CASE_TITLE, 
         @endforeach
     </div>
 </div>
-<div class="border border-slate-200 p-2">
-    <p class="report-field-title">Justifikasi Grading</p>
-    <div class="text-xs text-slate-800 whitespace-pre-wrap bg-slate-50 p-2 rounded">{{ $justification ?? 'Belum ada justifikasi grading' }}</div>
+<div class="mt-4">
+    <x-long-text-display label="Justifikasi Grading" :text="$justification ?? 'Belum ada justifikasi grading'" />
 </div>

@@ -12,8 +12,8 @@ $tindakanDilakukanOlehLainnya = trim((string) ($laporan->tindakan_dilakukan_oleh
         <x-long-text-display label="Tindakan yang Dilakukan Segera Setelah Kejadian" :text="$laporan->tindakan_dilakukan ?? '-'" />
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Tindakan Dilakukan Oleh</p>
-                <div class="grid grid-cols-1 gap-2">
+                <p class="report-field-label">Tindakan Dilakukan Oleh</p>
+                <div class="mt-2 grid grid-cols-1 gap-1">
                     @foreach(LaporanInsiden::TINDAKAN_DILAKUKAN_OLEH_OPTIONS as $optionValue => $optionLabel)
                     <x-checkbox-display
                         :checked="$selectedTindakanDilakukanOleh === $optionValue"

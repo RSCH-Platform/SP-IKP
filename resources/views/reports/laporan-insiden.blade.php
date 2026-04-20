@@ -15,13 +15,28 @@
         }
 
         .text-sm {
-            font-size: 12px !important;
-            line-height: 1.4;
+            font-size: 10px !important;
+            line-height: 1.2;
         }
 
-        .text-base {
-            font-size: 16px !important;
-            line-height: 1.5;
+        .report-field-label {
+            font-size: 10px !important;
+            line-height: 1;
+            color: #1e293b;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .report-field-title {
+            font-size: 12px !important;
+            line-height: 1.2;
+            color: #0f172a;
+            font-weight: 400;
+            margin-bottom: 0.25rem;
+            text-transform: none;
+            letter-spacing: normal;
         }
 
         .text-lg {
@@ -76,11 +91,13 @@
         }
 
         .portrait-mode {
-            max-width: 210mm;
+            width: 210mm;
+            min-height: 297mm;
         }
 
         .landscape-mode {
-            max-width: 297mm;
+            width: 297mm;
+            min-height: 210mm;
         }
     </style>
 </head>
@@ -116,7 +133,7 @@
             </div>
             <div class="border border-slate-200 p-2">
                 <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Status</p>
-                <span class="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">{{ ucfirst($laporan->status ?? 'Draft') }}</span>
+                <p class="text-xs text-blue-800 font-medium">{{ ucfirst($laporan->status ?? 'Draft') }}</p>
             </div>
             <div class="border border-slate-200 p-2">
                 <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Tanggal Cetak</p>

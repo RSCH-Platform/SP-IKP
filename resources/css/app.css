@@ -12,9 +12,3 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
-
-@layer utilities {
-    .report-field-title {
-        @apply text-xs uppercase tracking-wide text-slate-700 font-semibold mb-2;
-    }
-}

@@ -2,13 +2,13 @@
 
 @php
 $ageGroups = [
-'0-1 bulan' => '0-1 bulan',
-'> 1 bulan - 1 tahun' => '> 1 bulan - 1 tahun',
-'> 1 tahun - 5 tahun' => '> 1 tahun - 5 tahun',
-'> 5 tahun - 15 tahun' => '> 5 tahun - 15 tahun',
-'> 15 tahun - 30 tahun' => '> 15 tahun - 30 tahun',
-'>30 tahun - 65 tahun' => '>30 tahun - 65 tahun',
-'> 65 tahun' => '> 65 tahun',
+'0-1 bulan' => '0 - 1 bulan',
+'> 1 bulan - 1 tahun' => '1 bulan - 1 tahun',
+'> 1 tahun - 5 tahun' => '1 tahun - 5 tahun',
+'> 5 tahun - 15 tahun' => '5 tahun - 15 tahun',
+'> 15 tahun - 30 tahun' => '15 tahun - 30 tahun',
+'>30 tahun - 65 tahun' => '30 tahun - 65 tahun',
+'> 65 tahun' => '65 tahun ke atas',
 ];
 
 $selectedAge = trim($laporan->kelompok_umur ?? '');
@@ -24,28 +24,28 @@ $selectedPayment = trim($laporan->penanggung_biaya ?? '');
         {{-- IDENTITAS --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Nama Pasien</p>
-                <p class="text-xs text-slate-800 font-medium">{{ $laporan->nama_pasien ?? '-' }}</p>
+                <p class="report-field-label">Nama Pasien</p>
+                <p class="report-field-title">{{ $laporan->nama_pasien ?? '-' }}</p>
             </div>
             <div class="border border-slate-200 p-2">
-                <p class="report-field-title">No. Rekam Medis</p>
-                <p class="text-xs text-slate-800 font-medium">{{ $laporan->nomor_rekam_medis ?? '-' }}</p>
+                <p class="report-field-label">No. Rekam Medis</p>
+                <p class="report-field-title">{{ $laporan->nomor_rekam_medis ?? '-' }}</p>
             </div>
         </div>
 
         <div class="border-t border-slate-200"></div>
 
         {{-- DEMOGRAFI --}}
-        <div class="grid grid-cols-3 md:grid-cols-3 gap-2">
-            <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Umur</p>
-                <p class="text-xs text-slate-800 font-medium">{{ $laporan->umur ?? '-' }} tahun</p>
+        <div class="grid grid-cols-2 md:grid-cols-2 gap-2">
+            <div class="col-span-2 border border-slate-200 p-2">
+                <p class="report-field-label">Umur</p>
+                <p class="report-field-title">{{ $laporan->umur ?? '-' }} tahun</p>
             </div>
 
             <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Kelompok Umur</p>
+                <p class="report-field-label">Kelompok Umur</p>
                 <div class="space-y-2">
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="mt-2 grid grid-cols-2 gap-2">
                         @foreach($ageGroups as $key => $label)
                         <x-checkbox-display :checked="trim($key) === $selectedAge" :label="$label" disabled />
                         @endforeach
@@ -54,26 +54,24 @@ $selectedPayment = trim($laporan->penanggung_biaya ?? '');
             </div>
 
             <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Jenis Kelamin</p>
-                <div class="grid grid-cols-2 max-w-xs gap-2">
+                <p class="report-field-label">Jenis Kelamin</p>
+                <div class="mt-2 grid grid-cols-1 gap-2">
                     <x-checkbox-display :checked="trim('Laki-laki') === $selectedGender" label="Laki-laki" disabled />
                     <x-checkbox-display :checked="trim('Perempuan') === $selectedGender" label="Perempuan" disabled />
                 </div>
             </div>
         </div>
-
-        <div class="border-t border-slate-200"></div>
-
+        
         {{-- ADMINISTRASI --}}
         <div class="grid grid-cols-2 gap-2">
-            <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Ruangan</p>
-                <p class="text-xs text-slate-800">{{ $laporan->ruangan ?? '-' }}</p>
+            <div class="border border-slate-200 p-2 col-span-2">
+                <p class="report-field-label">Ruangan</p>
+                <p class="report-field-title">{{ $laporan->ruangan ?? '-' }}</p>
             </div>
 
-            <div class="border border-slate-200 p-2">
-                <p class="report-field-title">Penanggung Biaya Pasien</p>
-                <div class="grid grid-cols-2 gap-3">
+            <div class="border border-slate-200 p-2 col-span-2">
+                <p class="report-field-label">Penanggung Biaya Pasien</p>
+                <div class="mt-2 grid grid-cols-4 gap-2">
                     <x-checkbox-display :checked="trim('Pribadi') === $selectedPayment" label="Pribadi" disabled />
                     <x-checkbox-display :checked="trim('Asuransi Swasta') === $selectedPayment" label="Asuransi Swasta" disabled />
                     <x-checkbox-display :checked="trim('BPJS') === $selectedPayment" label="BPJS" disabled />
@@ -86,10 +84,10 @@ $selectedPayment = trim($laporan->penanggung_biaya ?? '');
 
         {{-- WAKTU --}}
         <div class="border border-slate-200 p-2">
-            <p class="report-field-title">Tanggal Masuk RS</p>
-            <p class="text-xs text-slate-800">
+            <p class="report-field-label">Tanggal Masuk RS</p>
+            <p class="report-field-title">
                 @if($laporan->tanggal_masuk_rs)
-                Pada tanggal {{ $laporan->tanggal_masuk_rs->translatedFormat('d F Y') }} di jam {{ $laporan->tanggal_masuk_rs->translatedFormat('H:i') }} WIB
+                Pada tanggal {{ $laporan->tanggal_masuk_rs->translatedFormat('d F Y') }} Pukul {{ $laporan->tanggal_masuk_rs->translatedFormat('H:i') }} WIB
                 @else
                 -
                 @endif
