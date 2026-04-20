@@ -44,7 +44,7 @@
                 "event_datetime": "2026-04-09 14:38:00"
             },
             {
-                "category_code": "tindakan",
+                "category_code": "good_practice",
                 "description": "Tim medis menstabilkan pasien, memberikan analgesik ringan, serta memindahkan pasien ke tempat tidur dengan bantuan tiga perawat.",
                 "event_datetime": "2026-04-09 14:50:00"
             },
@@ -131,7 +131,7 @@
                 "event_datetime": "2026-04-11 08:22:00"
             },
             {
-                "category_code": "tindakan",
+                "category_code": "good_practice",
                 "description": "Pada 08.25 WIB, perawat melakukan verifikasi ulang dengan formula 6 benar dan menghubungi dokter untuk memastikan dosis yang sesuai.",
                 "event_datetime": "2026-04-11 08:25:00"
             },
@@ -218,7 +218,7 @@
                 "event_datetime": "2026-04-08 10:15:00"
             },
             {
-                "category_code": "tindakan",
+                "category_code": "good_practice",
                 "description": "Sampel kultur diambil pada 8 April 2026 pukul 12.00 WIB dan dikirim ke laboratorium mikrobiologi untuk pemeriksaan.",
                 "event_datetime": "2026-04-08 12:00:00"
             },
@@ -228,7 +228,7 @@
                 "event_datetime": "2026-04-09 11:30:00"
             },
             {
-                "category_code": "tindakan",
+                "category_code": "good_practice",
                 "description": "Terapi antibiotik bergeser ke regimen empiris broad-spectrum pada 9 April 2026 pukul 14.00 WIB setelah konsultasi dengan tim infeksi.",
                 "event_datetime": "2026-04-09 14:00:00"
             },
@@ -295,7 +295,7 @@
                 "event_datetime": "2026-04-10 09:17:00"
             },
             {
-                "category_code": "tindakan",
+                "category_code": "good_practice",
                 "description": "Pada 09.20 WIB, proses pengambilan darah sempat dihentikan dan pasien yang salah diarahkan kembali ke ruang tunggu.",
                 "event_datetime": "2026-04-10 09:20:00"
             },

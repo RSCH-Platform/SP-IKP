@@ -6,12 +6,12 @@ $eventsByDate = $timelineData['eventsByDate'] ?? collect();
 $allCategories = $timelineData['allCategories'] ?? collect();
 @endphp
 
-<div class="break-inside-avoid mb-6">
+<div class="break-inside-avoid mb-3">
     <x-section-header title="BAGIAN D: Kronologi Timeline" />
     <div class="bg-white">
         <div class="space-y-6">
             @forelse($eventsByDate as $date => $dateEvents)
-            <div>
+            <div class="mb-[-5px]">
                 <div class="bg-slate-100 px-1 py-1 border-t-2 border-b-2 border-slate-200">
                     <p class="text-xs font-semibold text-slate-800 uppercase tracking-wider">
                         TANGGAL: {{ \Carbon\Carbon::createFromFormat('Y-m-d', $date)?->translatedFormat('l, d F Y') ?? 'Tanggal tidak tersedia' }}
@@ -55,7 +55,7 @@ $allCategories = $timelineData['allCategories'] ?? collect();
                                     @if(count($descriptions) > 0)
                                     <div class="space-y-1">
                                         @foreach($descriptions as $description)
-                                        <p class="text-xs leading-relaxed text-left">{{ $description }}</p>
+                                        <p class="text-[8px] leading-relaxed text-left">{{ $description }}</p>
                                         @endforeach
                                     </div>
                                     @else

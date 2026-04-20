@@ -1,9 +1,25 @@
 @props(['eventsByDate', 'dateCategories' => null, 'allCategories' => null])
 
 <div class="space-y-6">
+    @php
+    $globalCategories = $allCategories ?? collect($dateCategories)
+    ->flatten(1)
+    ->unique('id')
+    ->sortBy('sort_order')
+    ->values();
+
+    if ($globalCategories->isEmpty()) {
+    $globalCategories = $eventsByDate->flatMap(fn($dateEvents) => $dateEvents->flatMap(fn($event) => $event->entries ?? []))
+    ->pluck('category')
+    ->unique('id')
+    ->sortBy('sort_order')
+    ->values();
+    }
+    @endphp
+
     @forelse($eventsByDate as $date => $dateEvents)
     <!-- Date Header Section -->
-    <div>
+    <div class="mb-[-10px]">
         <div class="bg-slate-100 px-1 py-1 border-t-2 border-b-2 border-slate-200">
             <p class="text-xs font-semibold text-slate-800 uppercase tracking-wider">
                 TANGGAL: {{ \Carbon\Carbon::createFromFormat('Y-m-d', $date)?->translatedFormat('l, d F Y') ?? 'Tanggal tidak tersedia' }}
@@ -12,10 +28,13 @@
 
         <!-- Timeline Table -->
         @php
-        $categories = $allCategories ?? $dateCategories[$date] ?? $dateEvents->flatMap(fn($event) => $event->entries ?? [])
+        $categories = $globalCategories->isNotEmpty()
+        ? $globalCategories
+        : ($dateCategories[$date] ?? $dateEvents->flatMap(fn($event) => $event->entries ?? [])
         ->pluck('category')
         ->unique('id')
-        ->sortBy('sort_order');
+        ->sortBy('sort_order')
+        ->values());
         @endphp
         @if(count($categories) > 0)
         <div class="border border-slate-300 w-full">

@@ -407,7 +407,7 @@ class EditLaporanInsiden extends EditRecord
         }
 
         // Start investigation button for investigasi status (not yet started)
-        if ($this->record->status === LaporanInsiden::STATUS_INVESTIGASI && !$this->record->investigation_started_at && $user?->can('Investigasi:LaporanInsiden')) {
+        if (in_array($this->record->status, [LaporanInsiden::STATUS_INVESTIGASI, LaporanInsiden::STATUS_DIVERIFIKASI]) && !$this->record->investigation_started_at && $user?->can('Investigasi:LaporanInsiden')) {
             $actions[] = Action::make('mulaiInvestigasi')
                 ->label('Mulai Investigasi')
                 ->icon('heroicon-o-play-circle')
