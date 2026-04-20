@@ -5,32 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Insiden - {{ $laporan->nomor_laporan ?? 'Laporan' }}</title>
-    @php
-    $viteCss = null;
-    $manifestPath = public_path('build/manifest.json');
-
-    if (file_exists($manifestPath)) {
-    $manifest = json_decode(file_get_contents($manifestPath), true);
-    $viteCss = $manifest['resources/css/app.css']['file'] ?? null;
-    }
-    @endphp
-
-    @if (! empty($inlineCss))
-    <style>
-        {
-            ! ! $inlineCss ! !
-        }
-    </style>
-    @elseif ($viteCss)
-    <link rel="stylesheet" href="{{ asset('build/'.$viteCss) }}">
-    @else
-    <style>
-        /* CSS fallback jika build Vite tidak tersedia */
-        body {
-            font-family: ui-sans-serif, system-ui, sans-serif;
-        }
-    </style>
-    @endif
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <style>
         /* Font sizes in pixels */

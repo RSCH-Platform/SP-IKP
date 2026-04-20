@@ -175,6 +175,8 @@ class LaporanInsidenViewController extends Controller
                     ->emulateMedia('print');
             })
             ->format('A4')
+            ->landscape()
+            ->margins(15, 15, 15, 15)
             ->inline($filename);
     }
 

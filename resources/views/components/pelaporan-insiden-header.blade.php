@@ -10,7 +10,7 @@
     <div class="flex items-center justify-between gap-4 mb-3">
         <!-- Logo Kiri -->
         <div style="width: 100px; height: 100px; flex-shrink: 0;">
-            <img src="{{ asset('images/assets/logo-rs.webp') }}"
+            <img src="file://{{ public_path('images/assets/logo-rs.webp') }}"
                 alt="Logo RS Citra Husada Jember" style="width: 100%; height: 100%; object-fit: contain;">
         </div>
 
