@@ -16,18 +16,18 @@ $selectedGender = trim($laporan->jenis_kelamin ?? '');
 $selectedPayment = trim($laporan->penanggung_biaya ?? '');
 @endphp
 
-<div class="break-inside-avoid mb-6">
+<section class="mb-4 break-inside-auto print:block">
     <x-section-header title="BAGIAN A: Data Pasien" />
 
-    <div class="bg-white border border-slate-300 p-2 space-y-4">
+    <div class="bg-white border border-slate-300 p-2 space-y-4 print:block break-inside-avoid print:break-inside-avoid">
 
         {{-- IDENTITAS --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <div class="border border-slate-200 p-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 print:block">
+            <div class="border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Nama Pasien</p>
                 <p class="report-field-title">{{ $laporan->nama_pasien ?? '-' }}</p>
             </div>
-            <div class="border border-slate-200 p-2">
+            <div class="border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">No. Rekam Medis</p>
                 <p class="report-field-title">{{ $laporan->nomor_rekam_medis ?? '-' }}</p>
             </div>
@@ -36,13 +36,13 @@ $selectedPayment = trim($laporan->penanggung_biaya ?? '');
         <div class="border-t border-slate-200"></div>
 
         {{-- DEMOGRAFI --}}
-        <div class="grid grid-cols-2 md:grid-cols-2 gap-2">
-            <div class="col-span-2 border border-slate-200 p-2">
+        <div class="grid grid-cols-2 md:grid-cols-2 gap-2 print:block">
+            <div class="col-span-2 border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Umur</p>
                 <p class="report-field-title">{{ $laporan->umur ?? '-' }} tahun</p>
             </div>
 
-            <div class="border border-slate-200 p-2">
+            <div class="border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Kelompok Umur</p>
                 <div class="space-y-2">
                     <div class="mt-2 grid grid-cols-2 gap-2">
@@ -53,7 +53,7 @@ $selectedPayment = trim($laporan->penanggung_biaya ?? '');
                 </div>
             </div>
 
-            <div class="border border-slate-200 p-2">
+            <div class="border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Jenis Kelamin</p>
                 <div class="mt-2 grid grid-cols-1 gap-2">
                     <x-checkbox-display :checked="trim('Laki-laki') === $selectedGender" label="Laki-laki" disabled />
@@ -61,15 +61,15 @@ $selectedPayment = trim($laporan->penanggung_biaya ?? '');
                 </div>
             </div>
         </div>
-        
+
         {{-- ADMINISTRASI --}}
-        <div class="grid grid-cols-2 gap-2">
-            <div class="border border-slate-200 p-2 col-span-2">
+        <div class="grid grid-cols-2 gap-2 print:block">
+            <div class="border border-slate-200 p-2 col-span-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Ruangan</p>
                 <p class="report-field-title">{{ $laporan->ruangan ?? '-' }}</p>
             </div>
 
-            <div class="border border-slate-200 p-2 col-span-2">
+            <div class="border border-slate-200 p-2 col-span-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Penanggung Biaya Pasien</p>
                 <div class="mt-2 grid grid-cols-4 gap-2">
                     <x-checkbox-display :checked="trim('Pribadi') === $selectedPayment" label="Pribadi" disabled />
@@ -83,7 +83,7 @@ $selectedPayment = trim($laporan->penanggung_biaya ?? '');
         <div class="border-t border-slate-200"></div>
 
         {{-- WAKTU --}}
-        <div class="border border-slate-200 p-2">
+        <div class="border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
             <p class="report-field-label">Tanggal Masuk RS</p>
             <p class="report-field-title">
                 @if($laporan->tanggal_masuk_rs)
@@ -95,4 +95,4 @@ $selectedPayment = trim($laporan->penanggung_biaya ?? '');
         </div>
 
     </div>
-</div>
+</section>

@@ -36,7 +36,7 @@ class InvestigasiLaporanInsidenViewController extends Controller
         return Pdf::view('reports.investigasi-laporan-insiden', $data)
             ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot
-                    ->setChromePath('/usr/bin/chromium-browser')
+                    ->setChromePath(env('BROWSERSHOT_CHROME_PATH', '/home/juni/.cache/puppeteer/chrome/linux-147.0.7727.57/chrome-linux64/chrome'))
                     ->addChromiumArguments([
                         '--no-sandbox',
                         '--disable-setuid-sandbox',

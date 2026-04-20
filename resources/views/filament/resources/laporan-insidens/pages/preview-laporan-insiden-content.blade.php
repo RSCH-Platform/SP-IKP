@@ -96,7 +96,7 @@ $laporan = $record;
     }
 </style>
 
-<div class="a4-landscape-container">
+<div class="a4-landscape-container bg-white">
     <!-- Header Component -->
     <x-pelaporan-insiden-header
         title="LAPORAN INSIDEN"

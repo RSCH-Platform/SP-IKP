@@ -7,6 +7,7 @@ use App\Models\UnitKerja;
 use App\Models\TimelineCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 use Spatie\LaravelPdf\Facades\Pdf;
 
@@ -89,14 +90,16 @@ class LaporanInsidenViewController extends Controller
     {
         $laporan = LaporanInsiden::where('nomor_laporan', $nomor_laporan)->firstOrFail();
 
-        // Cek autorisasi
         Gate::authorize('view', $laporan);
 
-        // Load relasi yang diperlukan
+        // kalau PDF sudah ada → langsung return (FAST PATH 🚀)
+        if ($laporan->pdf_path && Storage::exists($laporan->pdf_path)) {
+            return response()->file(storage_path('app/' . $laporan->pdf_path));
+        }
+
+        // load relasi
         $laporan->load([
-            'timelineEvents' => function ($query) {
-                $query->orderBy('event_datetime', 'asc');
-            },
+            'timelineEvents' => fn($q) => $q->orderBy('event_datetime', 'asc'),
             'timelineEvents.entries.category',
             'unitKerjas',
             'reporter',
@@ -104,42 +107,20 @@ class LaporanInsidenViewController extends Controller
             'rejecter'
         ]);
 
-        // Optimalkan timeline events - hapus field yang tidak perlu
-        if ($laporan->timelineEvents) {
-            foreach ($laporan->timelineEvents as $event) {
-                $event->makeHidden([
-                    'id',
-                    'laporan_insiden_id',
-                    'created_by',
-                    'created_at',
-                    'updated_at'
-                ]);
+        // bersihin field berat (optional tapi bagus)
+        foreach ($laporan->timelineEvents ?? [] as $event) {
+            $event->makeHidden(['id', 'laporan_insiden_id', 'created_by', 'created_at', 'updated_at']);
 
-                if ($event->entries) {
-                    foreach ($event->entries as $entry) {
-                        $entry->makeHidden([
-                            'id',
-                            'timeline_event_id',
-                            'category_id',
-                            'created_by',
-                            'created_at',
-                            'updated_at'
-                        ]);
+            foreach ($event->entries ?? [] as $entry) {
+                $entry->makeHidden(['id', 'timeline_event_id', 'category_id', 'created_by', 'created_at', 'updated_at']);
 
-                        if ($entry->category) {
-                            $entry->category->makeHidden([
-                                'id',
-                                'code',
-                                'created_at',
-                                'updated_at'
-                            ]);
-                        }
-                    }
+                if ($entry->category) {
+                    $entry->category->makeHidden(['id', 'code', 'created_at', 'updated_at']);
                 }
             }
         }
 
-        // Format data untuk view
+        // inline CSS (biar gak load external)
         $inlineCss = null;
         $manifestPath = public_path('build/manifest.json');
 
@@ -160,24 +141,44 @@ class LaporanInsidenViewController extends Controller
             'inlineCss' => $inlineCss,
         ];
 
-        $filename = "Laporan-Insiden-{$laporan->nomor_laporan}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
+        // nama file konsisten (biar overwrite, gak numpuk)
+        $filename = "Laporan-Insiden-{$laporan->nomor_laporan}.pdf";
+        $relativePath = "pdfs/{$filename}";
+        $fullPath = storage_path("app/{$relativePath}");
 
-        return Pdf::view('reports.laporan-insiden', $data)
-            ->withBrowsershot(function (Browsershot $browsershot) {
-                $browsershot
-                    ->setChromePath('/usr/bin/chromium-browser')
+        // pastikan folder ada
+        if (!file_exists(dirname($fullPath))) {
+            mkdir(dirname($fullPath), 0755, true);
+        }
+
+        // generate & simpan PDF
+        Pdf::view('reports.laporan-insiden', $data)
+            ->withBrowsershot(function (Browsershot $b) {
+                $b->setChromePath(env('BROWSERSHOT_CHROME_PATH'))
                     ->addChromiumArguments([
                         '--no-sandbox',
                         '--disable-setuid-sandbox',
                         '--disable-dev-shm-usage',
+                        '--disable-gpu',
+                        '--no-zygote',
+                        '--single-process',
                     ])
                     ->waitUntilNetworkIdle()
+                    ->setDelay(300)
+                    ->timeout(60)
                     ->emulateMedia('print');
             })
             ->format('A4')
-            ->landscape()
             ->margins(15, 15, 15, 15)
-            ->inline($filename);
+            ->save($fullPath);
+
+        // simpan path ke database
+        $laporan->update([
+            'pdf_path' => $relativePath
+        ]);
+
+        // return file
+        return response()->file($fullPath);
     }
 
     /**

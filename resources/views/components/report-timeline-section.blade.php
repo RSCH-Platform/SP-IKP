@@ -6,12 +6,12 @@ $eventsByDate = $timelineData['eventsByDate'] ?? collect();
 $allCategories = $timelineData['allCategories'] ?? collect();
 @endphp
 
-<div class="break-inside-avoid mb-3">
+<section class="mb-4 break-inside-auto print:block">
     <x-section-header title="BAGIAN D: Kronologi Timeline" />
-    <div class="bg-white">
-        <div class="space-y-6">
+    <div class="bg-white print:block break-inside-avoid print:break-inside-avoid">
+        <div class="space-y-6 print:block">
             @forelse($eventsByDate as $date => $dateEvents)
-            <div class="mb-[-5px]">
+            <div class="mb-[-5px] print:block">
                 <div class="bg-slate-100 px-1 py-1 border-t-2 border-b-2 border-slate-200">
                     <p class="text-xs font-semibold text-slate-800 uppercase tracking-wider">
                         TANGGAL: {{ \Carbon\Carbon::createFromFormat('Y-m-d', $date)?->translatedFormat('l, d F Y') ?? 'Tanggal tidak tersedia' }}
@@ -81,4 +81,4 @@ $allCategories = $timelineData['allCategories'] ?? collect();
             @endforelse
         </div>
     </div>
-</div>
+</section>

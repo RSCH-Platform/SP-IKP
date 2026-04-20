@@ -6,12 +6,12 @@ $selectedTindakanDilakukanOleh = trim((string) ($laporan->tindakan_dilakukan_ole
 $tindakanDilakukanOlehLainnya = trim((string) ($laporan->tindakan_dilakukan_oleh_lainnya ?? ''));
 @endphp
 
-<div class="break-inside-avoid mb-8">
+<section class="mb-4 break-inside-auto print:block">
     <x-section-header title="BAGIAN C: Tindakan Setelah Kejadian" />
-    <div class="bg-white border border-slate-300 p-2 space-y-3">
+    <div class="bg-white border border-slate-300 p-2 space-y-3 print:block break-inside-avoid print:break-inside-avoid">
         <x-long-text-display label="Tindakan yang Dilakukan Segera Setelah Kejadian" :text="$laporan->tindakan_dilakukan ?? '-'" />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <div class="border border-slate-200 p-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 print:block">
+            <div class="border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Tindakan Dilakukan Oleh</p>
                 <div class="mt-2 grid grid-cols-1 gap-1">
                     @foreach(LaporanInsiden::TINDAKAN_DILAKUKAN_OLEH_OPTIONS as $optionValue => $optionLabel)
@@ -28,4 +28,4 @@ $tindakanDilakukanOlehLainnya = trim((string) ($laporan->tindakan_dilakukan_oleh
             <x-data-row label="Unit Penyebab" :value="$laporan->unit_kerja ?? '-'" />
         </div>
     </div>
-</div>
+</section>

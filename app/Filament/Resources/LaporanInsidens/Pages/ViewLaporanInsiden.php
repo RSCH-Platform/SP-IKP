@@ -301,6 +301,28 @@ class ViewLaporanInsiden extends ViewRecord
         ]));
     }
 
+    public function getGroupedInvestigationData(): array
+    {
+        $categories = [
+            'interview' => ['label' => '👤 Interview', 'items' => []],
+            'review_dokumen' => ['label' => '📄 Review Dokumen', 'items' => []],
+            'observasi' => ['label' => '👁️ Observasi', 'items' => []],
+        ];
+
+        $investigationData = $this->record->investigationData()
+            ->with(['creator'])
+            ->get();
+
+        foreach ($investigationData as $item) {
+            $kategori = trim($item->kategori ?? 'interview');
+            if (isset($categories[$kategori])) {
+                $categories[$kategori]['items'][] = $item;
+            }
+        }
+
+        return array_filter($categories, fn($cat) => !empty($cat['items']));
+    }
+
     public function getTimelineEventsForComponent()
     {
         $events = $this->record->relationLoaded('timelineEvents')

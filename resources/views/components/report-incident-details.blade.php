@@ -52,18 +52,18 @@ $previousIncident = trim((string) ($laporan->kejadian_pernah_terjadi_sebelumnya 
 $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_sebelumnya_deskripsi ?? null);
 @endphp
 
-<div class="break-inside-avoid mb-6">
+<section class="mb-4 break-inside-auto print:block">
     <x-section-header :title="$title" />
 
-    <div class="bg-white border border-slate-300 p-2 space-y-3">
-        <div class="grid grid-cols-3 gap-2">
+    <div class="bg-white border border-slate-300 p-2 space-y-3 print:block break-inside-avoid print:break-inside-avoid">
+        <div class="grid grid-cols-3 gap-2 print:block">
             <x-data-row label="Tanggal Insiden" :value="$tanggalInsiden" />
             <x-data-row label="Waktu Insiden" :value="$waktuInsiden" />
             <x-data-row label="Lokasi Insiden" :value="$lokasiInsiden" />
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
-            <div class="col-span-2 border border-slate-200 p-2">
+        <div class="grid grid-cols-2 gap-2 print:block">
+            <div class="col-span-2 border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Jenis Insiden</p>
                 <div class="mt-2 grid grid-cols-3 gap-2">
                     @foreach(LaporanInsiden::JENIS_INSIDEN_OPTIONS as $optionValue => $optionLabel)
@@ -122,8 +122,8 @@ $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_se
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
-            <div class="border border-slate-200 p-2 col-span-2">
+        <div class="grid grid-cols-2 gap-2 print:block">
+            <div class="border border-slate-200 p-2 col-span-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Spesialisasi Pasien</p>
                 <div class="mt-2 grid grid-cols-3 gap-2">
                     @foreach(LaporanInsiden::SPESIALISASI_PASIEN_OPTIONS as $optionValue => $optionLabel)
@@ -164,4 +164,4 @@ $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_se
             :previousIncident="$previousIncident"
             :description="$previousIncidentDescription" />
     </div>
-</div>
+    </div>
