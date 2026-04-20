@@ -7,6 +7,7 @@ use App\Models\TimelineCategory;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Carbon;
 
 class LaporanInsidenSeeder extends Seeder
 {
@@ -61,7 +62,7 @@ class LaporanInsidenSeeder extends Seeder
             // Hitung tanggal insiden
             $tanggalInsiden = now()->subDays($data['days_ago'] ?? 0);
             $tanggalLapor = $tanggalInsiden->copy()->addDays(1);
-            $tanggalMasukRS = $tanggalInsiden->copy()->subDays(5 + rand(0, 3));
+            $tanggalMasukRS = $tanggalInsiden->copy()->subDays(5);
 
             // Create laporan insiden
             $laporan = LaporanInsiden::create([
@@ -113,14 +114,9 @@ class LaporanInsidenSeeder extends Seeder
                 ]);
             }
 
-            // Create timeline entries from JSON
+            // Create detailed timeline events from JSON with explicit timestamps.
             if (!empty($data['timeline_entries'])) {
-                $this->createTimelineForReport($laporan, [
-                    [
-                        'event_datetime' => $tanggalInsiden,
-                        'entries' => $data['timeline_entries'],
-                    ]
-                ]);
+                $this->createTimelineForReport($laporan, $tanggalInsiden, $data['waktu_insiden'] ?? '08:00:00', $data['timeline_entries']);
             }
 
             $this->command->info("✅ Berhasil membuat laporan: {$data['nama_pasien']} - {$data['jenis_insiden']}");
@@ -129,45 +125,73 @@ class LaporanInsidenSeeder extends Seeder
         $this->command->info('✅ Seeding laporan insiden berhasil');
     }
 
-    private function createTimelineForReport(LaporanInsiden $laporan, array $events): void
+    private function createTimelineForReport(LaporanInsiden $laporan, Carbon $tanggalInsiden, string $reportTime, array $entries): void
     {
+        $baseDateTime = $tanggalInsiden->copy()->setTimeFromTimeString($reportTime);
         $categoryMap = TimelineCategory::all()->keyBy('code');
 
-        foreach ($events as $event) {
-            $timelineEvent = $laporan->timelineEvents()->create([
-                'event_datetime' => $event['event_datetime'] ?? now(),
-                'created_by' => $laporan->user_id,
-            ]);
-
-            foreach ($event['entries'] as $entry) {
-                $categoryId = $entry['category_id'] ?? null;
-
-                if (! $categoryId && isset($entry['category_code'])) {
-                    $category = $categoryMap[$entry['category_code']] ?? null;
-
-                    if (! $category) {
-                        $category = TimelineCategory::firstOrCreate(
-                            ['code' => $entry['category_code']],
-                            ['name' => ucfirst(str_replace('_', ' ', $entry['category_code'])), 'sort_order' => 999]
-                        );
-                        $categoryMap[$entry['category_code']] = $category;
-                    }
-
-                    $categoryId = $category->id;
-                }
-
-                if (! $categoryId) {
-                    continue;
-                }
-
-                $timelineEvent->entries()->updateOrCreate(
-                    ['category_id' => $categoryId],
-                    [
-                        'description' => $entry['description'] ?? '',
-                        'created_by' => $laporan->user_id,
-                    ]
-                );
-            }
+        foreach ($entries as $index => $entry) {
+            $eventDatetime = $this->resolveTimelineEntryDateTime($entry, $baseDateTime, $index);
+            $this->createTimelineEvent($laporan, $entry, $eventDatetime, $categoryMap);
         }
+    }
+
+    private function resolveTimelineEntryDateTime(array $entry, Carbon $baseDateTime, int $index): Carbon
+    {
+        if (! empty($entry['event_datetime'])) {
+            return Carbon::parse($entry['event_datetime']);
+        }
+
+        if (! empty($entry['event_time'])) {
+            return $baseDateTime->copy()->setTimeFromTimeString($entry['event_time']);
+        }
+
+        $category = strtolower($entry['category_code'] ?? 'informasi');
+        $minutesOffset = match ($category) {
+            'kejadian' => 0,
+            'informasi' => 20 + ($index * 5),
+            'good_practice' => 40 + ($index * 10),
+            'cmp' => 75 + ($index * 10),
+            'sdp' => 95 + ($index * 10),
+            default => 30 + ($index * 10),
+        };
+
+        return $baseDateTime->copy()->addMinutes($minutesOffset);
+    }
+
+    private function createTimelineEvent(LaporanInsiden $laporan, array $entry, Carbon $eventDatetime, $categoryMap): void
+    {
+        $timelineEvent = $laporan->timelineEvents()->create([
+            'event_datetime' => $eventDatetime,
+            'created_by' => $laporan->user_id,
+        ]);
+
+        $categoryId = $entry['category_id'] ?? null;
+
+        if (! $categoryId && isset($entry['category_code'])) {
+            $category = $categoryMap[$entry['category_code']] ?? null;
+
+            if (! $category) {
+                $category = TimelineCategory::firstOrCreate(
+                    ['code' => $entry['category_code']],
+                    ['name' => ucfirst(str_replace('_', ' ', $entry['category_code'])), 'sort_order' => 999]
+                );
+                $categoryMap[$entry['category_code']] = $category;
+            }
+
+            $categoryId = $category->id;
+        }
+
+        if (! $categoryId) {
+            return;
+        }
+
+        $timelineEvent->entries()->updateOrCreate(
+            ['category_id' => $categoryId],
+            [
+                'description' => $entry['description'] ?? '',
+                'created_by' => $laporan->user_id,
+            ]
+        );
     }
 }
