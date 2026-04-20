@@ -3,78 +3,96 @@ $laporan = $record;
 @endphp
 
 <style>
+    /* Font sizes in pixels */
+    .text-xs {
+        font-size: 10px !important;
+        line-height: 1.4;
+    }
+
+    .text-sm {
+        font-size: 10px !important;
+        line-height: 1.2;
+    }
+
+    .report-field-label {
+        font-size: 10px !important;
+        line-height: 1;
+        color: #1e293b;
+        font-weight: 300;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+
+    .report-field-title {
+        font-size: 12px !important;
+        line-height: 1.2;
+        color: #0f172a;
+        font-weight: 400;
+        margin-bottom: 0.25rem;
+        text-transform: none;
+        letter-spacing: normal;
+    }
+
+    .text-lg {
+        font-size: 18px !important;
+        line-height: 1.5;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+
     @media print {
-        @page {
-            size: A4 landscape;
-            margin: 10mm;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background: white;
-            font-size: 10pt;
-        }
-
-        .a4-landscape-container {
-            width: 100%;
-            padding: 10mm;
-            box-sizing: border-box;
-        }
-
-        .break-inside-avoid {
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-
         .no-print {
             display: none !important;
         }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        .portrait-mode {
+            width: 210mm;
+            height: 297mm;
+        }
+
+        .landscape-mode {
+            width: 297mm;
+            height: 210mm;
+        }
     }
 
-    .a4-landscape-container {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        background-color: white;
-        padding: 1rem;
-        font-size: 14px;
+    body {
+        background: white;
     }
 
-    /* Optimize for landscape: reduce vertical space, optimize horizontal */
-    .a4-landscape-container .grid {
-        column-gap: 0.75rem;
-        row-gap: 0.5rem;
+    /* Screen mode */
+    .portrait-mode,
+    .landscape-mode {
+        margin: 2rem auto;
+        padding: 1.5rem;
+        background: white;
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
     }
 
-    .a4-landscape-container .space-y-3>*+* {
-        margin-top: 0.5rem;
+    .portrait-mode {
+        width: 210mm;
+        min-height: 297mm;
     }
 
-    .a4-landscape-container .space-y-4>*+* {
-        margin-top: 0.75rem;
-    }
-
-    .a4-landscape-container .mb-6 {
-        margin-bottom: 0.75rem;
-    }
-
-    .a4-landscape-container .px-4 {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }
-
-    .a4-landscape-container .py-4 {
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
-    }
-
-    .a4-landscape-container .text-xs {
-        font-size: 0.7rem;
-    }
-
-    .a4-landscape-container .p-2 {
-        padding: 0.5rem;
+    .landscape-mode {
+        width: 297mm;
+        min-height: 210mm;
     }
 </style>
 

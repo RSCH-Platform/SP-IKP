@@ -4,8 +4,8 @@
     @forelse($eventsByDate as $date => $dateEvents)
     <!-- Date Header Section -->
     <div>
-        <div class="bg-slate-100 px-4 py-3 border-t-4 border-b-4 border-slate-400 mb-4">
-            <p class="text-sm font-bold text-slate-800 uppercase tracking-wider">
+        <div class="bg-slate-100 px-1 py-1 border-t-2 border-b-2 border-slate-200">
+            <p class="text-xs font-semibold text-slate-800 uppercase tracking-wider">
                 TANGGAL: {{ \Carbon\Carbon::createFromFormat('Y-m-d', $date)?->translatedFormat('l, d F Y') ?? 'Tanggal tidak tersedia' }}
             </p>
         </div>
@@ -18,15 +18,15 @@
         ->sortBy('sort_order');
         @endphp
         @if(count($categories) > 0)
-        <div class="overflow-x-auto border border-slate-300 rounded-lg">
-            <table class="min-w-max text-xs">
+        <div class="border border-slate-300 w-full">
+            <table class="w-full text-xs table-fixed border-collapse">
                 <!-- Table Header -->
                 <thead>
                     <tr class="bg-slate-200 border-b-2 border-slate-400">
-                        <th class="px-4 py-3 text-left font-bold text-slate-800 uppercase tracking-wide border-r border-slate-300 w-20">WAKTU</th>
+                        <th class="px-1 py-1 text-left font-semibold text-slate-700 uppercase tracking-wide border-r border-slate-300 text-xs" style="width: 15%;">WAKTU</th>
                         @foreach($categories as $category)
-                        <th class="px-4 py-3 text-left font-bold text-slate-800 uppercase tracking-wide border-r border-slate-300 w-40">
-                            {{ $category?->name ?? 'Kategori' }}
+                        <th class="px-1 py-1 text-left font-semibold text-slate-700 uppercase tracking-wide border-r border-slate-300 text-xs" style="width: {{ 85 / max($categories->count(), 1) }}%;">
+                            {{ $category->name ?? 'Kategori' }}
                         </th>
                         @endforeach
                     </tr>
@@ -45,18 +45,16 @@
                     ->groupBy('category_id');
                     @endphp
                     <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
-                        <!-- Waktu -->
-                        <td class="px-4 py-3 text-slate-700 font-medium border-r border-slate-200 whitespace-nowrap">
+                        <td class="px-3 py-2 text-slate-700 font-medium border-r border-slate-200 whitespace-nowrap text-xs" style="width: 15%;">
                             {{ $time }}
                         </td>
-
                         <!-- Category Data -->
                         @foreach($categories as $category)
                         @php
                         $entries = $mergedEntries[$category->id] ?? collect();
                         $descriptions = collect($entries)->pluck('description')->filter()->all();
                         @endphp
-                        <td class="px-4 py-3 text-slate-700 border-r border-slate-200">
+                        <td class="px-1.5 py-2 text-slate-700 border-r border-slate-200 text-xs" style="width: {{ 85 / max($categories->count(), 1) }}%;">
                             @if(count($descriptions) > 0)
                             <div class="space-y-2">
                                 @foreach($descriptions as $description)
