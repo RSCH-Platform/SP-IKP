@@ -56,6 +56,8 @@ $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_se
     <x-section-header :title="$title" />
 
     <div class="bg-white border border-slate-300 p-2 space-y-3 break-inside-avoid print:break-inside-avoid">
+        <x-long-text-display label="Insiden" :text="$deskripsiInsiden" />
+
         <section class="mb-4 break-inside-auto break-inside-avoid print:break-inside-avoid">
             <div class="grid grid-cols-3 gap-2 mb-4 bg-white border border-slate-300 items-center text-left">
                 <x-data-row label="Tanggal Insiden" :value="$tanggalInsiden" />
@@ -63,7 +65,6 @@ $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_se
                 <x-data-row label="Lokasi Insiden" :value="$lokasiInsiden" />
             </div>
         </section>
-
 
         <div class="grid grid-cols-2 gap-2 print:block">
             <div class="col-span-2 border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
@@ -78,8 +79,6 @@ $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_se
                 </div>
             </div>
         </div>
-
-        <x-long-text-display label="Penjelasan Insiden" :text="$deskripsiInsiden" />
 
         <div class="grid grid-cols-4 gap-2">
             <div class="border border-slate-200 p-2 col-span-4">
