@@ -67,44 +67,6 @@
             line-height: 1.5;
         }
 
-        @media print {
-            * {
-                margin: 0;
-                padding: 0;
-                box-shadow: none !important;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            .portrait-mode {
-                width: 210mm;
-                min-height: 297mm;
-            }
-
-            .landscape-mode {
-                width: 297mm;
-                min-height: 210mm;
-            }
-
-            .print\:block {
-                display: block !important;
-            }
-
-            .print\:hidden {
-                display: none !important;
-            }
-
-            .print\:break-inside-auto {
-                break-inside: auto !important;
-            }
-
-            .print\:break-inside-avoid {
-                break-inside: avoid !important;
-            }
-        }
-
         body {
             background: white;
         }
@@ -127,22 +89,12 @@
             width: 297mm;
             min-height: 210mm;
         }
-
-            {
-            ! ! $inlineCss ?? '' ! !
-        }
     </style>
 </head>
 
 <body class="portrait-mode bg-white text-slate-800 font-sans leading-relaxed">
     <!-- Document Container -->
     <div class="portrait-mode block print:block">
-        <!-- DEBUG SECTION -->
-        <!-- <div class="no-print mb-6 bg-red-50 border-2 border-red-400 rounded-lg p-4">
-            <p class="text-sm font-bold text-red-700 mb-3">🔴 DEBUG - Semua Data dari Controller:</p>
-            <pre class="text-xs bg-white p-3 rounded border border-red-200 overflow-x-auto text-slate-800"><code>{{ json_encode($laporan->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</code></pre>
-        </div> -->
-
         <!-- Header Component -->
         <x-pelaporan-insiden-header
             title="LAPORAN INSIDEN"
@@ -154,8 +106,8 @@
             ]" />
 
         <!-- Info Summary -->
-        <section class="mb-4 break-inside-auto print:block">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 bg-white border border-slate-300 p-1 items-center text-left print:block break-inside-avoid print:break-inside-avoid">
+        <section class="mb-4 break-inside-auto print:block print:block break-inside-avoid print:break-inside-avoid">
+            <div class="grid grid-cols-4 gap-2 mb-6 bg-white border border-slate-300 p-1 items-center text-left">
                 <div class="border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
                     <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">No. Laporan</p>
                     <p class="text-xs text-slate-800">{{ $laporan->nomor_laporan ?? '-' }}</p>
@@ -196,7 +148,7 @@
         </section>
 
         <!-- SECTION E: GRADING RISIKO -->
-        <section class="mb-4 break-inside-auto print:block">
+        <section class="mb-4 break-inside-auto print:block print:block break-inside-avoid print:break-inside-avoid">
             <x-section-header title="BAGIAN E: Grading Risiko" />
             <div class="bg-white border border-slate-300 p-2 print:block break-inside-avoid print:break-inside-avoid">
                 @if($laporan->status === 'dilaporkan')

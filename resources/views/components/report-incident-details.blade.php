@@ -52,15 +52,18 @@ $previousIncident = trim((string) ($laporan->kejadian_pernah_terjadi_sebelumnya 
 $previousIncidentDescription = $formatValue($laporan->kejadian_pernah_terjadi_sebelumnya_deskripsi ?? null);
 @endphp
 
-<section class="mb-4 break-inside-auto print:block">
+<section class="mb-4 break-inside-auto print:block break-inside-avoid print:break-inside-avoid">
     <x-section-header :title="$title" />
 
-    <div class="bg-white border border-slate-300 p-2 space-y-3 print:block break-inside-avoid print:break-inside-avoid">
-        <div class="grid grid-cols-3 gap-2 print:block">
-            <x-data-row label="Tanggal Insiden" :value="$tanggalInsiden" />
-            <x-data-row label="Waktu Insiden" :value="$waktuInsiden" />
-            <x-data-row label="Lokasi Insiden" :value="$lokasiInsiden" />
-        </div>
+    <div class="bg-white border border-slate-300 p-2 space-y-3 break-inside-avoid print:break-inside-avoid">
+        <section class="mb-4 break-inside-auto break-inside-avoid print:break-inside-avoid">
+            <div class="grid grid-cols-3 gap-2 mb-4 bg-white border border-slate-300 items-center text-left">
+                <x-data-row label="Tanggal Insiden" :value="$tanggalInsiden" />
+                <x-data-row label="Waktu Insiden" :value="$waktuInsiden" />
+                <x-data-row label="Lokasi Insiden" :value="$lokasiInsiden" />
+            </div>
+        </section>
+
 
         <div class="grid grid-cols-2 gap-2 print:block">
             <div class="col-span-2 border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">

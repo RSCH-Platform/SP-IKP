@@ -6,9 +6,9 @@ $eventsByDate = $timelineData['eventsByDate'] ?? collect();
 $allCategories = $timelineData['allCategories'] ?? collect();
 @endphp
 
-<section class="mb-4 break-inside-auto print:block">
-    <x-section-header title="BAGIAN D: Kronologi Timeline" />
+<section class="mb-6 break-inside-auto print:block">
     <div class="bg-white print:block break-inside-avoid print:break-inside-avoid">
+        <x-section-header title="BAGIAN D: Kronologi Timeline" />
         <div class="space-y-6 print:block">
             @forelse($eventsByDate as $date => $dateEvents)
             <div class="mb-[-5px] print:block">

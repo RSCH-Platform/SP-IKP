@@ -28,16 +28,16 @@ Route::get('/laporan-insiden/nomor/{nomor_laporan}', [LaporanInsidenViewControll
 Route::get('/laporan-insiden/pdf/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdf'])
     ->where('nomor_laporan', '.+')
     ->name('laporan-insiden.pdf');
-Route::get('/laporan-insiden/pdf-view/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdfView'])
-    ->where('nomor_laporan', '.+')
-    ->name('laporan-insiden.pdf.view');
+// Route::get('/laporan-insiden/pdf-view/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdfView'])
+//     ->where('nomor_laporan', '.+')
+//     ->name('laporan-insiden.pdf.view');
 // Route::get('/laporan-insiden/pdf-url/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdfUrl'])
 //     ->where('nomor_laporan', '.+')
 //     ->name('laporan-insiden.pdf.url');
 
-// Test route - Hello World PDF
-Route::get('/test/hello-pdf', [LaporanInsidenViewController::class, 'testHello'])
-    ->name('test.hello-pdf');
+// Test route - dummy PDF from static HTML
+// Route::get('/test/pdf-dummy', [LaporanInsidenViewController::class, 'testHello'])
+//     ->name('test.pdf-dummy');
 
 // Handle IAM callback - support both /callback dan /sso/callback paths
 Route::name('iam.sso.callback.alternate')->group(function () {

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan Insiden - Test PDF</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @page {
+            margin: 25mm;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .avoid-break {
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+
+<body class="bg-white text-gray-800 text-sm">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+
+        <!-- HEADER -->
+        <div class="report-header border-b-2 border-gray-800 pb-4 mb-8">
+            <div class="flex items-center justify-between gap-4 mb-3">
+                <!-- Logo Kiri -->
+                <div style="width: 100px; height: 100px; flex-shrink: 0;">
+                    <img src="{{ url('images/assets/logo-rs.webp') }}" alt="Logo RS Citra Husada Jember"
+                        style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+
+                <!-- Text Content -->
+                <div class="flex-1 text-center">
+                    <h2 class="text-base font-bold text-gray-800 uppercase" style="letter-spacing: 1.5px;">Laporan
+                        Insiden
+                    </h2>
+                    <h1 class="text-xl font-bold text-gray-900 mb-1" style="letter-spacing: 1px;">RUMAH SAKIT CITRA
+                        HUSADA
+                        JEMBER</h1>
+                    <div class="text-xs text-gray-600 mb-2" style="letter-spacing: 0.5px;">Jl. Teratai No. 22, Kab.
+                        Jember, Jawa
+                        Timur | Telp. (0331) 486200 </div>
+                    <div class="text-xs text-gray-600 mb-2" style="letter-spacing: 0.5px;">Telp. (0331) 486200 | Fax.
+                        (0331)
+                        427088</div>
+                </div>
+
+                <!-- Logo Kanan -->
+                <div style="width: 100px; height: 100px; flex-shrink: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 280" width="96"
+                        height="{{ 96 * 1.4 }}" role="img" aria-labelledby="logo-report-title logo-report-desc" {{
+                        $attributes }}>
+
+                        <title id="logo-report-title">SI-IMUT — Sistem Informasi Indikator Mutu Terintegrasi</title>
+                        <desc id="logo-report-desc">Ikon indikator mutu terintegrasi untuk laporan.</desc>
+
+                        <defs>
+                            <style>
+                                /* ===== LIGHT MODE ===== */
+                                .icon-primary {
+                                    stroke: #0F4CAD;
+                                }
+
+                                .icon-accent {
+                                    stroke: #00A78E;
+                                }
+
+                                .text-main {
+                                    fill: #0F172A;
+                                }
+
+                                /* ===== DARK MODE ===== */
+                                .dark .icon-primary {
+                                    stroke: #60A5FA;
+                                }
+
+                                .dark .icon-accent {
+                                    stroke: #34D399;
+                                }
+
+                                .dark .text-main {
+                                    fill: #F8FAFC;
+                                }
+
+                                .font {
+                                    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+                                }
+                            </style>
+                        </defs>
+
+                        <!-- ========= ICON ========= -->
+                        <g transform="translate(50,30)">
+                            <!-- Segmented outer indicator -->
+                            <circle cx="60" cy="60" r="46" fill="none" class="icon-primary" stroke-width="10"
+                                stroke-dasharray="150 80" stroke-linecap="round" transform="rotate(-40 60 60)" />
+
+                            <!-- Inner quality ring -->
+                            <circle cx="60" cy="60" r="30" fill="none" class="icon-accent" stroke-width="8" />
+
+                            <!-- Validation check -->
+                            <path d="M47 62 L58 73 L75 52" fill="none" class="icon-accent" stroke-width="6"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </g>
+
+                        <!-- ========= TEXT ========= -->
+                        <g transform="translate(100,180)">
+                            <text x="0" y="0" font-size="36" font-weight="700" letter-spacing="-0.4"
+                                text-anchor="middle" class="text-main font">
+                                SI-IMUT
+                            </text>
+                        </g>
+
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION A -->
+        <div class="space-y-3">
+            <h2 class="font-bold text-lg border-l-4 border-blue-500 pl-2">A. Informasi Pelapor</h2>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div class="border p-3 rounded">
+                    <p class="text-xs text-gray-500">Nama</p>
+                    <p class="font-semibold">Ahmad Ilyas</p>
+                </div>
+                <div class="border p-3 rounded">
+                    <p class="text-xs text-gray-500">Email</p>
+                    <p class="font-semibold">ahmad@mail.com</p>
+                </div>
+                <div class="border p-3 rounded">
+                    <p class="text-xs text-gray-500">No HP</p>
+                    <p class="font-semibold">08123456789</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION B -->
+        <div class="space-y-3 avoid-break">
+            <h2 class="font-bold text-lg border-l-4 border-green-500 pl-2">B. Detail Insiden</h2>
+
+            <div class="border p-4 rounded">
+                <p>
+                    Terjadi gangguan pada sistem server yang menyebabkan downtime selama beberapa jam.
+                    Analisis awal menunjukkan adanya overload traffic serta kegagalan pada sistem load balancer.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="border p-3 rounded">
+                    <p class="text-xs text-gray-500">Kategori</p>
+                    <p class="font-semibold">Server</p>
+                </div>
+                <div class="border p-3 rounded">
+                    <p class="text-xs text-gray-500">Severity</p>
+                    <p class="font-semibold text-red-600">High</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION C - TABLE -->
+        <div class="space-y-3">
+            <h2 class="font-bold text-lg border-l-4 border-purple-500 pl-2">C. Timeline</h2>
+
+            <table class="w-full border border-gray-300 text-xs">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="border p-2 text-left">Waktu</th>
+                        <th class="border p-2 text-left">Event</th>
+                        <th class="border p-2 text-left">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- repeat banyak row biar panjang -->
+                    <!-- duplicating for multi-page -->
+                    <script>
+                        for (let i = 1; i <= 40; i++) {
+                            document.write(`
+                            <tr>
+                                <td class="border p-2">10:${i}</td>
+                                <td class="border p-2">Event ${i}</td>
+                                <td class="border p-2">Deskripsi kejadian ke-${i}</td>
+                            </tr>
+                        `);
+                        }
+                    </script>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGE BREAK -->
+        <div class="page-break"></div>
+
+        <!-- SECTION D -->
+        <div class="space-y-3">
+            <h2 class="font-bold text-lg border-l-4 border-red-500 pl-2">D. Analisis & Akar Masalah</h2>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="border p-4 rounded">
+                    <p class="font-semibold mb-2">Root Cause</p>
+                    <p>Overload server karena traffic spike mendadak.</p>
+                </div>
+                <div class="border p-4 rounded">
+                    <p class="font-semibold mb-2">Contributing Factors</p>
+                    <p>Load balancer tidak auto-scale.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION E -->
+        <div class="space-y-3">
+            <h2 class="font-bold text-lg border-l-4 border-yellow-500 pl-2">E. Tindakan Perbaikan</h2>
+
+            <div class="space-y-2">
+                <div class="border p-3 rounded">Upgrade server capacity</div>
+                <div class="border p-3 rounded">Implement auto scaling</div>
+                <div class="border p-3 rounded">Monitoring real-time</div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="pt-6 text-xs text-gray-500 text-center">
+            Generated by System • 2026
+        </div>
+
+    </div>
+
+</body>
+
+</html>

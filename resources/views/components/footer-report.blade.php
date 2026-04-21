@@ -35,11 +35,11 @@ $receivedByNip = $receivedByNip ?? '-';
 $receivedByPosition = $receivedByPosition ?? 'Kepala Unit';
 @endphp
 
-<div class="break-inside-avoid">
+<div class="break-inside-avoid print:block break-inside-avoid print:break-inside-avoid">
     <x-section-header title="BAGIAN F: Tanda Tangan dan Persetujuan" />
 
-    <div class="bg-white border border-slate-300 p-2">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+    <div class="bg-white border border-slate-300 p-2 print:block break-inside-avoid print:break-inside-avoid">
+        <div class="grid grid-cols-2 gap-2 mb-3">
             <!-- Pembuat Laporan -->
             <div class="border border-slate-200 p-2">
                 <p class="report-field-label">Pembuat Laporan</p>

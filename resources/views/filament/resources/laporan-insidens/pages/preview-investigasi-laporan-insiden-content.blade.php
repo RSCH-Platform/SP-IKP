@@ -99,15 +99,15 @@ $investigationDataGrouped = isset($investigationDataGrouped) ? $investigationDat
         </div>
         <div class="border border-slate-200 p-2">
             <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Unit Kerja</p>
-            <p class="text-xs text-slate-800">{{ $laporan->unitKerja?->unit_name ?? '-' }}</p>
+            <p class="text-xs text-slate-800">{{ $laporan->unit_kerja ?? '-' }}</p>
         </div>
         <div class="border border-slate-200 p-2">
-            <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Status</p>
-            <span class="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">{{ ucfirst($laporan->status ?? 'Draft') }}</span>
+            <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Investigator</p>
+            <p class="text-xs text-slate-800">{{ $laporan->investigationStarter->name ?? '-' }}</p>
         </div>
         <div class="border border-slate-200 p-2">
-            <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Tanggal Cetak</p>
-            <p class="text-xs text-slate-800">{{ now()->translatedFormat('d F Y') }}</p>
+            <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Tanggal Investigasi</p>
+            <p class="text-xs text-slate-800">{{ $laporan->investigation_started_at?->translatedFormat('d F Y') ?? '-' }} - {{ $laporan->investigation_ended_at?->translatedFormat('d F Y') ?? '-' }}</p>
         </div>
     </div>
 

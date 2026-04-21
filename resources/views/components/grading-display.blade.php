@@ -13,7 +13,7 @@ $normalizedGrade = mb_convert_case(strtolower($normalizedGrade), MB_CASE_TITLE, 
 }
 @endphp
 
-<div class="mb-2">
+<div class="mb-2 print:block break-inside-avoid print:break-inside-avoid">
     <p class="report-field-label">Grading Risiko</p>
     <div class="mt-2 grid grid-cols-4 gap-2">
         @foreach($gradingOptions as $option)

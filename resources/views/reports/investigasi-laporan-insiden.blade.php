@@ -5,26 +5,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investigasi Laporan Insiden - {{ $laporan->nomor_laporan ?? 'Laporan' }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        @media print {
-            .no-print {
-                display: none !important;
-            }
+        @page {
+            margin: 15mm;
+        }
 
-            body {
-                background: white;
-            }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: white;
+            color: #0f172a;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
 
-            .break-inside-avoid {
-                break-inside: avoid;
-            }
+        .page-break {
+            page-break-before: always;
+        }
+
+        .avoid-break {
+            page-break-inside: avoid;
+        }
+
+        .allow-break {
+            page-break-inside: auto;
+        }
+
+        .text-xs {
+            font-size: 10px !important;
+            line-height: 1.4;
+        }
+
+        .text-sm {
+            font-size: 10px !important;
+            line-height: 1.2;
+        }
+
+        .report-field-label {
+            font-size: 10px !important;
+            line-height: 1;
+            color: #1e293b;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .report-field-title {
+            font-size: 12px !important;
+            line-height: 1.2;
+            color: #0f172a;
+            font-weight: 400;
+            margin-bottom: 0.25rem;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .text-lg {
+            font-size: 18px !important;
+            line-height: 1.5;
+        }
+
+        body {
+            background: white;
+        }
+
+        .portrait-mode,
+        .landscape-mode {
+            margin: 0 auto;
+            padding: 0;
+            background: white;
+            border: none;
+            box-shadow: none;
+        }
+
+        .portrait-mode {
+            width: 210mm;
+            min-height: 297mm;
+        }
+
+        .landscape-mode {
+            width: 297mm;
+            min-height: 210mm;
         }
     </style>
 </head>
 
-<body class="bg-slate-300 text-slate-800 font-sans leading-relaxed">
-    <div class="max-w-5xl mx-auto px-4 py-4 bg-white">
+<body class="portrait-mode bg-white text-slate-800 font-sans leading-relaxed">
+    <!-- Document Container -->
+    <div class="portrait-mode block print:block">
         <!-- Header Component -->
         <x-pelaporan-insiden-header
             title="INVESTIGASI LAPORAN INSIDEN"
@@ -36,28 +106,30 @@
             ]" />
 
         <!-- Info Summary -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 bg-white border border-slate-300 p-1 items-center text-left">
-            <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">No. Laporan</p>
-                <p class="text-xs text-slate-800">{{ $laporan->nomor_laporan ?? '-' }}</p>
+        <section class="mb-4 break-inside-auto print:block print:block break-inside-avoid print:break-inside-avoid">
+            <div class="grid grid-cols-4 gap-2 mb-6 bg-white border border-slate-300 p-1 items-center text-left">
+                <div class="border border-slate-200 p-2">
+                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">No. Laporan</p>
+                    <p class="text-xs text-slate-800">{{ $laporan->nomor_laporan ?? '-' }}</p>
+                </div>
+                <div class="border border-slate-200 p-2">
+                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Unit Kerja</p>
+                    <p class="text-xs text-slate-800">{{ $laporan->unit_kerja ?? '-' }}</p>
+                </div>
+                <div class="border border-slate-200 p-2">
+                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Investigator</p>
+                    <p class="text-xs text-slate-800">{{ $laporan->investigationStarter->name ?? '-' }}</p>
+                </div>
+                <div class="border border-slate-200 p-2">
+                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Tanggal Investigasi</p>
+                    <p class="text-xs text-slate-800">{{ $laporan->investigation_started_at?->translatedFormat('d F Y') ?? '-' }} - {{ $laporan->investigation_ended_at?->translatedFormat('d F Y') ?? '-' }}</p>
+                </div>
             </div>
-            <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Unit Kerja</p>
-                <p class="text-xs text-slate-800">{{ $laporan->unit_kerja ?? '-' }}</p>
-            </div>
-            <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Investigator</p>
-                <p class="text-xs text-slate-800">{{ $laporan->investigationStarter->name ?? '-' }}</p>
-            </div>
-            <div class="border border-slate-200 p-2">
-                <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Tanggal Investigasi</p>
-                <p class="text-xs text-slate-800">{{ $laporan->investigation_started_at?->translatedFormat('d F Y') ?? '-' }} - {{ $laporan->investigation_ended_at?->translatedFormat('d F Y') ?? '-' }}</p>
-            </div>
-        </div>
+        </section>
 
-        <x-investigasi.report-investigation-section-a :investigationDataGrouped="$investigationDataGrouped" />
-        <x-investigasi.report-investigation-section-b :laporan="$laporan" :timelineData="$timelineData" />
-        <x-investigasi.report-investigation-section-c :laporan="$laporan" />
+        <x-investigasi.report-investigation-section-a class="break-inside-auto print:block" :investigationDataGrouped="$investigationDataGrouped" />
+        <x-investigasi.report-investigation-section-b class="break-inside-auto print:block" :laporan="$laporan" :timelineData="$timelineData" />
+        <x-investigasi.report-investigation-section-c class="break-inside-auto print:block" :laporan="$laporan" />
     </div>
 </body>
 

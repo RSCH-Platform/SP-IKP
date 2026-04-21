@@ -1,8 +1,8 @@
 @props(['laporan'])
 
-<div class="mb-6">
-    <x-section-header title="BAGIAN C: Flowchart Analisa 5 WHY" />
-    <div class="bg-white border border-slate-300 p-3 space-y-6">
+<section class="mb-6 break-inside-auto print:block">
+    <div class="bg-white print:block break-inside-avoid print:break-inside-avoid">
+        <x-section-header title="BAGIAN C: Flowchart Analisa 5 WHY" />
         @if($laporan->problems && $laporan->problems->count() > 0)
         <div class="flex flex-col items-center mb-12">
             <div class="px-6 py-3 rounded-lg bg-slate-800 text-white text-sm font-semibold text-center shadow">
@@ -110,4 +110,4 @@
         </div>
         @endif
     </div>
-</div>
+    </div>

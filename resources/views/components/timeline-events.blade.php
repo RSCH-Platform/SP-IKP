@@ -19,7 +19,7 @@
 
     @forelse($eventsByDate as $date => $dateEvents)
     <!-- Date Header Section -->
-    <div class="mb-[-10px]">
+    <div class="mb-[-5px] print:block">
         <div class="bg-slate-100 px-1 py-1 border-t-2 border-b-2 border-slate-200">
             <p class="text-xs font-semibold text-slate-800 uppercase tracking-wider">
                 TANGGAL: {{ \Carbon\Carbon::createFromFormat('Y-m-d', $date)?->translatedFormat('l, d F Y') ?? 'Tanggal tidak tersedia' }}
@@ -77,7 +77,7 @@
                             @if(count($descriptions) > 0)
                             <div class="space-y-2">
                                 @foreach($descriptions as $description)
-                                <p class="text-xs leading-relaxed">{{ $description }}</p>
+                                <p class="text-[8px] leading-relaxed text-left">{{ $description }}</p>
                                 @endforeach
                             </div>
                             @else

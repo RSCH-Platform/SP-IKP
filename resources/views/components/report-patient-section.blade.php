@@ -16,13 +16,13 @@ $selectedGender = trim($laporan->jenis_kelamin ?? '');
 $selectedPayment = trim($laporan->penanggung_biaya ?? '');
 @endphp
 
-<section class="mb-4 break-inside-auto print:block">
+<section class="mb-4">
     <x-section-header title="BAGIAN A: Data Pasien" />
 
     <div class="bg-white border border-slate-300 p-2 space-y-4 print:block break-inside-avoid print:break-inside-avoid">
 
         {{-- IDENTITAS --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 print:block">
+        <div class="grid grid-cols-2 gap-2">
             <div class="border border-slate-200 p-2 break-inside-avoid print:break-inside-avoid">
                 <p class="report-field-label">Nama Pasien</p>
                 <p class="report-field-title">{{ $laporan->nama_pasien ?? '-' }}</p>

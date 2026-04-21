@@ -331,27 +331,18 @@ class LaporanInsidenViewController extends Controller
     //     ];
     // }
 
-    // /**
-    //  * Test PDF dengan konten Hello World saja
-    //  */
-    // public function testHello()
-    // {
-    //     $html = view('reports.laporan-insiden-pdf-hello')->render();
+    /**
+     * Test PDF dengan dummy HTML statis.
+     */
+    public function testHello()
+    {
+        $html = view('reports.laporan-insiden-pdf-dummy')->render();
 
-    //     $pdfContent = Browsershot::html($html)
-    //         ->setChromePath('/usr/bin/chromium-browser')
-    //         ->format('A4')
-    //         ->portrait()
-    //         ->margins(10, 10, 10, 10)
-    //         ->showBackground()
-    //         ->disableJavascript()
-    //         ->noSandbox()
-    //         ->pdf();
-
-    //     return response($pdfContent)
-    //         ->header('Content-Type', 'application/pdf')
-    //         ->header('Content-Disposition', 'inline; filename="test-hello-world.pdf"');
-    // }
+        return Pdf::html($html)
+            ->format('A4')
+            ->margins(15, 15, 15, 15)
+            ->inline('laporan-insiden-dummy.pdf');
+    }
 
     /**
      * Helper method to prepare timeline data
