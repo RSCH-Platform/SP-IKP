@@ -25,9 +25,10 @@ Route::post('/ikp-application/logout', LogoutController::class)->name('filament.
 Route::get('/laporan-insiden/nomor/{nomor_laporan}', [LaporanInsidenViewController::class, 'show'])
     ->where('nomor_laporan', '.+')
     ->name('laporan-insiden.show');
-Route::get('/laporan-insiden/pdf/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdf'])
-    ->where('nomor_laporan', '.+')
-    ->name('laporan-insiden.pdf');
+// PDF generation disabled
+// Route::get('/laporan-insiden/pdf/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdf'])
+//     ->where('nomor_laporan', '.+')
+//     ->name('laporan-insiden.pdf');
 // Route::get('/laporan-insiden/pdf-view/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdfView'])
 //     ->where('nomor_laporan', '.+')
 //     ->name('laporan-insiden.pdf.view');
@@ -52,6 +53,7 @@ Route::name('iam.sso.callback.alternate')->group(function () {
 Route::get('/investigasi-laporan-insiden/{nomor_laporan}', [InvestigasiLaporanInsidenViewController::class, 'show'])
     ->where('nomor_laporan', '.*')
     ->name('investigasi-laporan-insiden.show');
-Route::get('/investigasi-laporan-insiden/pdf/{nomor_laporan}', [InvestigasiLaporanInsidenViewController::class, 'pdf'])
-    ->where('nomor_laporan', '.*')
-    ->name('investigasi-laporan-insiden.pdf');
+// PDF generation disabled
+// Route::get('/investigasi-laporan-insiden/pdf/{nomor_laporan}', [InvestigasiLaporanInsidenViewController::class, 'pdf'])
+//     ->where('nomor_laporan', '.*')
+//     ->name('investigasi-laporan-insiden.pdf');

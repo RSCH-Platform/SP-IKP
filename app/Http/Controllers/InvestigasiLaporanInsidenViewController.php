@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\LaporanInsiden;
 use Illuminate\Support\Facades\Gate;
-use Spatie\Browsershot\Browsershot;
-use Spatie\LaravelPdf\Facades\Pdf;
 
 class InvestigasiLaporanInsidenViewController extends Controller
 {
@@ -19,36 +17,6 @@ class InvestigasiLaporanInsidenViewController extends Controller
         Gate::authorize('view', $laporan);
 
         return view('reports.investigasi-laporan-insiden', $this->buildViewData($laporan));
-    }
-
-    /**
-     * Generate PDF investigasi laporan insiden
-     */
-    public function pdf(string $nomor_laporan)
-    {
-        $laporan = $this->findByNomorLaporan($nomor_laporan);
-
-        Gate::authorize('view', $laporan);
-
-        $data = $this->buildViewData($laporan);
-        $filename = "Investigasi-Laporan-Insiden-{$laporan->nomor_laporan}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
-
-        return Pdf::view('reports.investigasi-laporan-insiden', $data)
-            ->withBrowsershot(function (Browsershot $browsershot) {
-                $browsershot
-                    ->setChromePath(env('BROWSERSHOT_CHROME_PATH', '/home/juni/.cache/puppeteer/chrome/linux-147.0.7727.57/chrome-linux64/chrome'))
-                    ->addChromiumArguments([
-                        '--no-sandbox',
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                    ])
-                    ->waitUntilNetworkIdle()
-                    ->emulateMedia('print');
-            })
-            ->format('A4')
-            ->landscape()
-            ->margins(15, 15, 15, 15)
-            ->inline($filename);
     }
 
     private function findByNomorLaporan(string $nomor_laporan): LaporanInsiden

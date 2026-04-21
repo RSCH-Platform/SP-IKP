@@ -20,8 +20,6 @@
         "laravel/tinker": "^2.10.1",
         "league/flysystem-aws-s3-v3": "*",
         "livewire/livewire": "^3.0",
-        "spatie/browsershot": "^5.2",
-        "spatie/laravel-pdf": "^2.6",
         "spykapps/theme-edinburgh": "^1.0",
         "stechstudio/filament-impersonate": "^5.1"
     },
