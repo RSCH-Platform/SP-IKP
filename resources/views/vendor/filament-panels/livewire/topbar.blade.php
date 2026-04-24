@@ -228,6 +228,10 @@
 
             {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER) }}
 
+            @if (config('iam.enabled'))
+            @livewire('iam-app-switcher')
+            @endif
+
             @if (filament()->auth()->check())
             @if (filament()->hasDatabaseNotifications() && filament()->getDatabaseNotificationsPosition() === \Filament\Enums\DatabaseNotificationsPosition::Topbar)
             @livewire(Filament\Livewire\DatabaseNotifications::class, [
