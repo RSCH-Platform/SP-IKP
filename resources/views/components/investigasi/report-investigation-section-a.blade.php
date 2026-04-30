@@ -91,7 +91,7 @@
                     ? $filePath
                     : route('investigasi-file', ['encryptedPath' => encrypt($filePath)]);
                     @endphp
-                    <div class="mt-3 bg-white border border-slate-200 rounded-lg p-3">
+                    <div class="mt-3">
                         <p class="report-field-label">Lampiran</p>
                         @if($isImage)
                         <a href="{{ $fileUrl }}" target="_blank" rel="noopener" class="block mt-2">
