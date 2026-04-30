@@ -42,6 +42,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 \App\Filament\Widgets\AccountWidget::class,
                 \App\Filament\Widgets\FilamentInfoWidget::class,
+                \App\Filament\Widgets\UnitKerjaInfo::class,
             ])
             ->middleware([
                 EncryptCookies::class,
