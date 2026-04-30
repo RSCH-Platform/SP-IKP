@@ -21,7 +21,7 @@ class TimelineGridSection
 {
     public static function make(): Section
     {
-        return Section::make('📊 Timeline Grid (Improved Design)')
+        return Section::make('📊 Timeline Insiden')
             ->description('Timeline kejadian dalam format grid - tanggal terpisah, waktu di baris, kategori di kolom')
             ->schema([
                 // Livewire Timeline Grid Manager Component

@@ -92,9 +92,8 @@ return [
      * Here you can specify which path generator should be used for the given class.
      */
     'custom_path_generators' => [
-        // Model::class => PathGenerator::class
-        // or
-        // 'model_morph_alias' => PathGenerator::class
+        App\Models\ProblemAction::class => App\Support\ProblemActionMediaPathGenerator::class,
+        App\Models\InvestigationData::class => App\Support\InvestigationDataMediaPathGenerator::class,
     ],
 
     /*

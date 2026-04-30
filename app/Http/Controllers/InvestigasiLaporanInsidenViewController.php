@@ -31,7 +31,7 @@ class InvestigasiLaporanInsidenViewController extends Controller
     {
         $laporan->load([
             'investigationData' => function ($query) {
-                $query->orderBy('created_at', 'asc');
+                $query->with('media')->orderBy('created_at', 'asc');
             },
             'investigationData.creator',
             'timelineEvents' => function ($query) {

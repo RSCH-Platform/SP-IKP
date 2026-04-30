@@ -3,7 +3,31 @@ $laporan = $record;
 @endphp
 
 <style>
-    /* Font sizes in pixels */
+    @page {
+        margin: 15mm;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        background: white;
+        color: #0f172a;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .page-break {
+        page-break-before: always;
+    }
+
+    .avoid-break {
+        page-break-inside: avoid;
+    }
+
+    .allow-break {
+        page-break-inside: auto;
+    }
+
     .text-xs {
         font-size: 10px !important;
         line-height: 1.4;
@@ -39,50 +63,17 @@ $laporan = $record;
         line-height: 1.5;
     }
 
-    @page {
-        size: A4 portrait;
-        margin: 0;
-    }
-
-    @media print {
-        .no-print {
-            display: none !important;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            background: white;
-            margin: 0;
-            padding: 0;
-        }
-
-        .portrait-mode {
-            width: 210mm;
-            height: 297mm;
-        }
-
-        .landscape-mode {
-            width: 297mm;
-            height: 210mm;
-        }
-    }
-
     body {
         background: white;
     }
 
-    /* Screen mode */
     .portrait-mode,
     .landscape-mode {
-        margin: 2rem auto;
-        padding: 1.5rem;
+        margin: 0 auto;
+        padding: 0;
         background: white;
-        border: 1px solid #cbd5e1;
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        border: none;
+        box-shadow: none;
     }
 
     .portrait-mode {

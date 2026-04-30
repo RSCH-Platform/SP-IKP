@@ -6,5 +6,8 @@ use Juniyasyos\FilamentMediaManager\Resources\FolderResource as ResourcesFolderR
 
 class FolderResource extends ResourcesFolderResource
 {
-
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Administration';
+    }
 }

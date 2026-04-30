@@ -81,13 +81,19 @@ trait HandlesActions
             if (!empty($this->uploadedFiles)) {
                 foreach ($this->uploadedFiles as $file) {
                     try {
-                        $action->addMedia($file['path'])
+                        $mediaItem = $action->addMedia($file['path'])
                             ->preservingOriginal()
                             ->toMediaCollection('action_evidence');
 
-                        Log::info('ProblemAnalysisManager: File uploaded to action', [
-                            'actionId' => $action->id,
-                            'fileName' => $file['name'],
+                        Log::info('ProblemAnalysisManager: File persisted to media library', [
+                            'action_id' => $action->id,
+                            'media_id' => $mediaItem->id ?? null,
+                            'collection_name' => 'action_evidence',
+                            'original_file_name' => $file['name'],
+                            'mime_type' => $file['type'],
+                            'source_temp_path' => $file['path'],
+                            'storage_disk' => $mediaItem->disk ?? null,
+                            'storage_path' => $mediaItem->getPath() ?? null,
                         ]);
                     } catch (\Exception $fileE) {
                         Log::error('ProblemAnalysisManager: Error uploading file', [

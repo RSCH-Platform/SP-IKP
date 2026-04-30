@@ -8,13 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Support\Str;
 use App\Models\TimelineEvent;
 use App\Models\TimelineEntry;
+use Juniyasyos\FilamentMediaManager\Traits\InteractsWithMediaFolders;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 class LaporanInsiden extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, InteractsWithMediaFolders, InteractsWithMedia;
 
     // Status constants
     const STATUS_DRAFT          = 'draft';
@@ -232,6 +234,25 @@ class LaporanInsiden extends Model
     public function timelineEntries(): HasManyThrough
     {
         return $this->hasManyThrough(TimelineEntry::class, TimelineEvent::class);
+    }
+
+    public function getMediaFolderPath(): string
+    {
+        $unitName = $this->unitKerja?->unit_name
+            ?? $this->unit_kerja
+            ?? 'unit-kerja-tidak-diketahui';
+
+        $unitSlug = Str::slug($unitName, '-');
+
+        $month = optional($this->tanggal_lapor)->format('Y-m')
+            ?? optional($this->tanggal_insiden)->format('Y-m')
+            ?? date('Y-m');
+
+        $reportSegment = $this->nomor_laporan
+            ? Str::slug($this->nomor_laporan, '-')
+            : "laporan-{$this->id}";
+
+        return trim("{$unitSlug}/Laporan Insiden/{$month}/{$reportSegment}/Investigation Data", '/');
     }
 
     /**

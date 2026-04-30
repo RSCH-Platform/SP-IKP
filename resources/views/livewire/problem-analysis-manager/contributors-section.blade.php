@@ -8,6 +8,25 @@
         </button>
     </div>
 
+    @env('app_debug')
+    <div class="mb-4">
+        <details class="group rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900">
+            <summary class="cursor-pointer select-none px-4 py-2 flex items-center justify-between text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <span>🧪 Debug Data: problem</span>
+                <span class="text-xs text-slate-500 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+
+            <div class="px-4 pb-4 pt-2 text-xs text-slate-700 dark:text-slate-300 overflow-x-auto">
+                <div class="mb-2 text-[11px] text-slate-500">
+                    Menampilkan struktur data hasil grouping investigasi (pretty JSON)
+                </div>
+
+                <pre class="whitespace-pre-wrap break-words font-mono leading-relaxed">@json($problem, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)</pre>
+            </div>
+        </details>
+    </div>
+    @endenv
+
     @if(count($problem['contributors'] ?? []) > 0)
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         @foreach($problem['contributors'] as $contrib)
@@ -20,11 +39,7 @@
                                 📂 Kategori
                             </span>
                             <p class="text-sm text-gray-800 dark:text-gray-200 mt-1 font-semibold">
-                                @if($contrib['object'] && $contrib['object']->category)
-                                {{ $contrib['object']->category->name }}
-                                @else
-                                -
-                                @endif
+                                {{ $contrib['category'] ?? '-' }}
                             </p>
                         </div>
                         <div class="text-xs">
@@ -32,11 +47,7 @@
                                 🔧 Komponen
                             </span>
                             <p class="text-sm text-gray-800 dark:text-gray-200 mt-1 font-semibold">
-                                @if($contrib['object'] && $contrib['object']->component)
-                                {{ $contrib['object']->component->name }}
-                                @else
-                                -
-                                @endif
+                                {{ $contrib['component'] ?? '-' }}
                             </p>
                         </div>
                         <div class="text-xs">
@@ -44,11 +55,7 @@
                                 ⚙️ Sub Komponen
                             </span>
                             <p class="text-sm text-gray-800 dark:text-gray-200 mt-1 font-semibold">
-                                @if($contrib['object'] && $contrib['object']->subComponent)
-                                {{ $contrib['object']->subComponent->name }}
-                                @else
-                                -
-                                @endif
+                                {{ $contrib['sub_component'] ?? '-' }}
                             </p>
                         </div>
                     </div>

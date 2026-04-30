@@ -132,13 +132,15 @@ class ProblemAnalysisManager extends Component
                         'problem_statement' => $w->problem_statement,
                     ])->values()->toArray(),
                     'contributors' => $problem->contributors->map(function ($c) {
+                        $categoryRelation = $c->getRelation('category');
+                        $componentRelation = $c->getRelation('component');
+
                         return [
                             'id' => $c->id,
-                            'category_id' => $c->category_id,
-                            'component_id' => $c->component_id,
-                            'sub_component_id' => $c->sub_component_id,
+                            'category' => $categoryRelation?->name ?? $c->category,
+                            'component' => $componentRelation?->name ?? $c->component,
+                            'sub_component' => $c->subComponent?->name ?? $c->sub_component,
                             'description' => $c->description,
-                            'object' => $c, // Store raw object untuk akses relasi
                         ];
                     })->toArray(),
                     'recommendations' => $problem->recommendations->map(fn($r) => [

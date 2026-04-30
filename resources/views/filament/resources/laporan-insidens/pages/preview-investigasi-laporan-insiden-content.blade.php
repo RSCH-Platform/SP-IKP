@@ -162,11 +162,29 @@ $investigationDataGrouped = isset($investigationDataGrouped) ? $investigationDat
 
                         <!-- File Attachment -->
                         @if($item->file_path)
-                        <div class="mt-2 bg-blue-50 border border-blue-200 rounded p-2 flex items-center">
-                            <svg class="w-4 h-4 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M8 16.5a1 1 0 11-2 0 1 1 0 012 0zM15 7a2 2 0 11-4 0 2 2 0 014 0zM18.5 1a2.5 2.5 0 00-2.5 2.5V4H5V3.5A2.5 2.5 0 002.5 1h-1a2.5 2.5 0 00-2.5 2.5v12A2.5 2.5 0 001.5 18h1A2.5 2.5 0 005 15.5V15h8v.5a2.5 2.5 0 001.5 2.5h1a2.5 2.5 0 002.5-2.5v-12A2.5 2.5 0 0018.5 1z" />
-                            </svg>
-                            <span class="text-xs text-blue-700 font-medium truncate">{{ basename($item->file_path) }}</span>
+                        @php
+                        $filePath = $item->file_path;
+                        $fileExtension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+                        $isImage = in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                        $isRemoteUrl = preg_match('/^https?:\/\//i', $filePath) === 1;
+                        if ($isRemoteUrl && preg_match('/^(https?:\/\/[^\/]+)::/', $filePath)) {
+                        $filePath = preg_replace('/^(https?:\/\/[^\/]+)::/', '$1:', $filePath);
+                        }
+                        $fileUrl = $isRemoteUrl
+                        ? $filePath
+                        : route('investigasi-file', ['encryptedPath' => encrypt($filePath)]);
+                        @endphp
+                        <div class="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                            <p class="text-[11px] uppercase tracking-wide font-semibold text-blue-700 mb-2">Bukti / Lampiran</p>
+                            @if($isImage)
+                            <a href="{{ $fileUrl }}" target="_blank" rel="noopener" class="block mb-2">
+                                <img src="{{ $fileUrl }}" alt="{{ basename($filePath) }}" class="max-w-full max-h-[280px] rounded border border-slate-200 object-contain" />
+                            </a>
+                            @endif
+                            <div class="flex flex-col gap-1 text-xs text-slate-700">
+                                <a href="{{ $fileUrl }}" target="_blank" rel="noopener" class="font-medium text-blue-700 underline break-all">{{ basename($filePath) }}</a>
+                                <span class="text-slate-500">{{ strtoupper($fileExtension) }}</span>
+                            </div>
                         </div>
                         @endif
 

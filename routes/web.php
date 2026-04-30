@@ -5,6 +5,7 @@ use App\Http\Controllers\LaporanInsidenViewController;
 use App\Http\Controllers\InvestigasiLaporanInsidenViewController;
 use App\Http\Controllers\Auth\LogoutController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
 // Root redirect - redirect to ikp-application path
@@ -53,6 +54,37 @@ Route::name('iam.sso.callback.alternate')->group(function () {
 Route::get('/investigasi-laporan-insiden/{nomor_laporan}', [InvestigasiLaporanInsidenViewController::class, 'show'])
     ->where('nomor_laporan', '.*')
     ->name('investigasi-laporan-insiden.show');
+
+Route::get('/investigasi-file/{encryptedPath}', function (string $encryptedPath) {
+    try {
+        $path = decrypt($encryptedPath);
+    } catch (\Throwable $e) {
+        abort(404);
+    }
+
+    $availableDisks = ['local', 'private', 'public', 's3'];
+    $diskName = null;
+
+    foreach ($availableDisks as $candidate) {
+        if (Storage::disk($candidate)->exists($path)) {
+            $diskName = $candidate;
+            break;
+        }
+    }
+
+    if (! $diskName) {
+        abort(404);
+    }
+
+    $disk = Storage::disk($diskName);
+    $fullPath = $disk->path($path);
+    $mimeType = $disk->mimeType($path);
+
+    return response()->file($fullPath, [
+        'Content-Type' => $mimeType,
+    ]);
+})->where('encryptedPath', '.*')->name('investigasi-file');
+
 // PDF generation disabled
 // Route::get('/investigasi-laporan-insiden/pdf/{nomor_laporan}', [InvestigasiLaporanInsidenViewController::class, 'pdf'])
 //     ->where('nomor_laporan', '.*')

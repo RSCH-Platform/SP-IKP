@@ -16,13 +16,17 @@ class TimelineGridManager extends Component
     public $categories = [];
 
     public $showModal = false;
-    public $modalMode = 'edit'; // 'edit' or 'add-event'
+    public $modalMode = 'edit'; // 'edit', 'add-event', or 'move'
 
     // Modal fields
     public $editingEventId = null;
     public $editingCategoryId = null;
     public $editingDescription = '';
     public $editingEventDateTime = '';
+
+    // Move category fields
+    public $moveSourceCategoryId = null;
+    public $moveTargetCategoryId = null;
 
     public function mount($recordId = null)
     {
@@ -244,6 +248,23 @@ class TimelineGridManager extends Component
         $this->showModal = true;
     }
 
+    public function openMoveModal($eventId, $sourceCategoryId)
+    {
+        $event = $this->timelineEvents[array_search($eventId, array_column($this->timelineEvents, 'id'))] ?? null;
+
+        if (!$event) {
+            return;
+        }
+
+        $this->editingEventId = $eventId;
+        $this->moveSourceCategoryId = $sourceCategoryId;
+        $this->moveTargetCategoryId = collect($this->categories)
+            ->firstWhere('id', '!=', $sourceCategoryId)['id'] ?? null;
+
+        $this->modalMode = 'move';
+        $this->showModal = true;
+    }
+
     /**
      * Save edited entry
      */
@@ -286,6 +307,53 @@ class TimelineGridManager extends Component
         }
     }
 
+    public function moveEntry()
+    {
+        try {
+            if (!$this->moveTargetCategoryId || $this->moveTargetCategoryId === $this->moveSourceCategoryId) {
+                $this->dispatch('notify-error', message: 'Pilih kategori tujuan yang berbeda');
+                return;
+            }
+
+            $sourceEntry = TimelineEntry::where('timeline_event_id', $this->editingEventId)
+                ->where('category_id', $this->moveSourceCategoryId)
+                ->first();
+
+            if (!$sourceEntry) {
+                $this->dispatch('notify-error', message: 'Entry sumber tidak ditemukan');
+                return;
+            }
+
+            $targetEntry = TimelineEntry::where('timeline_event_id', $this->editingEventId)
+                ->where('category_id', $this->moveTargetCategoryId)
+                ->first();
+
+            if ($targetEntry) {
+                if ($sourceEntry->description) {
+                    if ($targetEntry->description) {
+                        $targetEntry->description = trim($targetEntry->description . "\n\n[Dipindahkan dari kategori lain]\n" . $sourceEntry->description);
+                    } else {
+                        $targetEntry->description = $sourceEntry->description;
+                    }
+                    $targetEntry->created_by = auth()->id();
+                    $targetEntry->save();
+                }
+
+                $sourceEntry->delete();
+            } else {
+                $sourceEntry->category_id = $this->moveTargetCategoryId;
+                $sourceEntry->save();
+            }
+
+            $this->showModal = false;
+            $this->resetModal();
+            $this->loadTimelineData();
+            $this->dispatch('notify', message: 'Entry berhasil dipindahkan');
+        } catch (\Exception $e) {
+            $this->dispatch('notify-error', message: 'Gagal memindahkan entry: ' . $e->getMessage());
+        }
+    }
+
     /**
      * Delete entire timeline event
      */
@@ -315,6 +383,8 @@ class TimelineGridManager extends Component
         $this->editingCategoryId = null;
         $this->editingDescription = '';
         $this->editingEventDateTime = '';
+        $this->moveSourceCategoryId = null;
+        $this->moveTargetCategoryId = null;
     }
 
     public function eventsByDate()

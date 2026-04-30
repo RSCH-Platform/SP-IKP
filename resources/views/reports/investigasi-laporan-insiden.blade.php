@@ -106,30 +106,12 @@
             ]" />
 
         <!-- Info Summary -->
-        <section class="mb-4 break-inside-auto print:block print:block break-inside-avoid print:break-inside-avoid">
-            <div class="grid grid-cols-4 gap-2 mb-6 bg-white border border-slate-300 p-1 items-center text-left">
-                <div class="border border-slate-200 p-2">
-                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">No. Laporan</p>
-                    <p class="text-xs text-slate-800">{{ $laporan->nomor_laporan ?? '-' }}</p>
-                </div>
-                <div class="border border-slate-200 p-2">
-                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Unit Kerja</p>
-                    <p class="text-xs text-slate-800">{{ $laporan->unit_kerja ?? '-' }}</p>
-                </div>
-                <div class="border border-slate-200 p-2">
-                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Investigator</p>
-                    <p class="text-xs text-slate-800">{{ $laporan->investigationStarter->name ?? '-' }}</p>
-                </div>
-                <div class="border border-slate-200 p-2">
-                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Tanggal Investigasi</p>
-                    <p class="text-xs text-slate-800">{{ $laporan->investigation_started_at?->translatedFormat('d F Y') ?? '-' }} - {{ $laporan->investigation_ended_at?->translatedFormat('d F Y') ?? '-' }}</p>
-                </div>
-            </div>
+        <section class="mb-4 print:block">
+            <x-investigasi.report-investigation-section-a class="page-break" :laporan="$laporan" :investigationDataGrouped="$investigationDataGrouped" />
+            <x-investigasi.report-investigation-section-b class="page-break mt-4" :laporan="$laporan" :timelineData="$timelineData" />
+            <x-investigasi.report-investigation-section-c class="page-break mt-4" :laporan="$laporan" />
         </section>
 
-        <x-investigasi.report-investigation-section-a class="break-inside-auto print:block" :investigationDataGrouped="$investigationDataGrouped" />
-        <x-investigasi.report-investigation-section-b class="break-inside-auto print:block" :laporan="$laporan" :timelineData="$timelineData" />
-        <x-investigasi.report-investigation-section-c class="break-inside-auto print:block" :laporan="$laporan" />
     </div>
 </body>
 

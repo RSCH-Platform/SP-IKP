@@ -68,11 +68,16 @@ trait HandlesActionFileUploads
                         'size' => round($fileSizeKB, 2),
                         'type' => $mimeType,
                         'storagePath' => $path,
+                        'storageDisk' => 'local',
                     ];
 
-                    Log::info('ProblemAnalysisManager: File queued for upload', [
-                        'fileName' => $file->getClientOriginalName(),
-                        'storagePath' => $path,
+                    Log::info('ProblemAnalysisManager: Temporary upload saved', [
+                        'original_file_name' => $file->getClientOriginalName(),
+                        'mime_type' => $mimeType,
+                        'size_kb' => round($fileSizeKB, 2),
+                        'temp_storage_disk' => 'local',
+                        'temp_storage_path' => $path,
+                        'temp_full_path' => $fullPath,
                     ]);
                 } elseif (is_array($file) && isset($file['name'])) {
                     Log::warning('ProblemAnalysisManager: Skipping unsupported raw file array upload', [
@@ -83,6 +88,9 @@ trait HandlesActionFileUploads
 
             if (!empty($this->uploadedFiles)) {
                 $this->dispatch('notify', message: '✅ ' . count($this->uploadedFiles) . ' file(s) siap untuk disimpan');
+                Log::info('ProblemAnalysisManager: Uploaded files staged for action save', [
+                    'staged_file_count' => count($this->uploadedFiles),
+                ]);
             }
         } catch (\Exception $e) {
             Log::error('ProblemAnalysisManager: Error handling file upload', [
@@ -105,8 +113,9 @@ trait HandlesActionFileUploads
                 unset($this->uploadedFiles[$index]);
                 $this->uploadedFiles = array_values($this->uploadedFiles);
 
-                Log::info('ProblemAnalysisManager: Uploaded file removed', [
-                    'fileName' => $file['name'],
+                Log::info('ProblemAnalysisManager: Uploaded file removed from staging', [
+                    'file_name' => $file['name'],
+                    'storage_path' => $file['path'],
                 ]);
 
                 $this->dispatch('notify', message: '✅ File dihapus dari antrian upload');
