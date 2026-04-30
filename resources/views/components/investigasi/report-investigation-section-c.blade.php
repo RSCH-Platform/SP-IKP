@@ -71,7 +71,7 @@
                                 Why {{ $why->why_level }}
                             </p>
 
-                            <p class="text-[12px] ml-2 text-slate-600 leading-snug">
+                            <p class="text-[10px] ml-2 text-slate-600 leading-snug">
                                 {{ $why->problem_statement ?? '-' }}
                             </p>
                         </div>
@@ -111,22 +111,33 @@
 
                     @php
                     $contributorsByCategory = $problem->contributors->groupBy(function ($contrib) {
-                    return $contrib->category?->id ?? 'uncategorized';
+                    return $contrib->category_name ?: 'Lainnya';
                     });
                     @endphp
 
-                    <div class="space-y-3">
-                        @foreach($contributorsByCategory as $categoryId => $contributors)
-                        <div>
-                            <p class="text-xs font-semibold text-slate-700 mb-1">
-                                {{ $contributors->first()->category?->name ?? 'Lainnya' }}
-                            </p>
-
-                            <ul class="list-disc ml-4 text-sm text-slate-700 space-y-1">
+                    <div class="space-y-4">
+                        @foreach($contributorsByCategory as $categoryLabel => $contributors)
+                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                <p class="text-xs font-semibold text-slate-700">
+                                    Kategori: {{ $categoryLabel }}
+                                </p>
+                            </div>
+                            <div class="space-y-2">
                                 @foreach($contributors as $contrib)
-                                <li>{{ $contrib->description ?? '-' }}</li>
+                                <div class="grid grid-cols-2 gap-2 mb-2 bg-white border border-slate-300 p-1 items-center text-left">
+                                    <div class="border border-slate-200 p-2">
+                                        <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Komponen</p>
+                                        <p class="text-xs text-slate-800">{{ $contrib->component_name ?: '-'  }}</p>
+                                    </div>
+                                    <div class="border border-slate-200 p-2">
+                                        <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Sub Komponen</p>
+                                        <p class="text-xs text-slate-800">{{ $contrib->sub_component_name ?: '-' }}</p>
+                                    </div>
+                                </div>
+                                <x-long-text-display label="Deskripsi" :text="$contrib->description ?? 'Belum ada justifikasi grading'" />
                                 @endforeach
-                            </ul>
+                            </div>
                         </div>
                         @endforeach
                     </div>
@@ -134,6 +145,98 @@
                     @else
                     <div class="text-xs text-slate-500 italic border border-dashed border-slate-300 rounded p-2">
                         Tidak ada faktor kontributor yang diidentifikasi.
+                    </div>
+                    @endif
+                </div>
+
+                {{-- RECOMMENDATIONS --}}
+                <div class="px-3 pb-4">
+                    <p class="text-[10px] uppercase text-slate-500 font-medium mb-2">
+                        Rekomendasi Perbaikan
+                    </p>
+
+                    @if($problem->recommendations->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($problem->recommendations as $recommendation)
+                        <div class="bg-white border border-slate-200 rounded-lg p-3">
+                            <div class="grid grid-cols-4 gap-2 mb-2 bg-white items-center text-left">
+                                <div class="border border-slate-200 p-2">
+                                    <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Prioritas</p>
+                                    <p @class([ 'text-xs font-bold uppercase' , 'text-red-700'=> ($recommendation->priority ?? '') === 'high',
+                                        'text-amber-700' => ($recommendation->priority ?? '') === 'medium',
+                                        'text-emerald-700' => ($recommendation->priority ?? '') === 'low',
+                                        'text-slate-800' => !in_array(($recommendation->priority ?? ''), ['high', 'medium', 'low']),
+                                        ])>
+                                        {{ ucfirst($recommendation->priority ?? 'normal') }}
+                                    </p>
+                                </div>
+                            </div>
+                            <x-long-text-display label="Rekomendasi" :text="$recommendation->recommendation_text ?? 'Belum ada rekomendasi'" />
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="text-xs text-slate-500 italic border border-dashed border-slate-300 rounded p-2">
+                        Belum ada rekomendasi.
+                    </div>
+                    @endif
+                </div>
+
+                {{-- ACTIONS --}}
+                <div class="px-3 pb-4">
+                    <p class="text-[10px] uppercase text-slate-500 font-medium mb-2">
+                        Tindakan
+                    </p>
+
+                    @if($problem->actions->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($problem->actions as $action)
+                        <div class="bg-white border border-slate-200 rounded-lg p-3">
+                            <div class="flex flex-col gap-2">
+                                <p class="text-[12px] font-semibold text-slate-800">{{ $action->action_text ?? '-' }}</p>
+                                <div class="grid grid-cols-3 gap-2 mb-2 bg-white border border-slate-300 p-1 items-center text-left">
+                                    <div class="border border-slate-200 p-2">
+                                        <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Penanggung Jawab</p>
+                                        <p class="text-xs text-slate-800">{{ $action->responsible_person ?: '-'  }}</p>
+                                    </div>
+                                    <div class="border border-slate-200 p-2">
+                                        <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Deadline</p>
+                                        <p class="text-xs text-slate-800">{{ $action->deadline ?: '-' }}</p>
+                                    </div>
+                                    <div class="border border-slate-200 p-2">
+                                        <p class="text-xs uppercase tracking-wide text-slate-700 font-medium mb-0.5">Status</p>
+                                        <p class="text-xs text-slate-800">{{ $action->status ?: 'Pending' }}</p>
+                                    </div>
+                                </div>
+                                @php
+                                $actionMedia = $action->media->where('collection_name', 'action_evidence');
+                                @endphp
+                                @if($actionMedia->isNotEmpty())
+                                <div class="mt-3 border-t border-slate-200 pt-3">
+                                    <p class="text-xs font-semibold text-slate-700 mb-2">Bukti</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($actionMedia as $media)
+                                        <a href="{{ $media->getUrl() }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded border border-slate-200 hover:bg-slate-200 transition">
+                                            @if(str_contains($media->mime_type, 'image'))
+                                            🖼️
+                                            @elseif($media->mime_type === 'application/pdf')
+                                            📄
+                                            @else
+                                            📎
+                                            @endif
+                                            {{ $media->name ?? basename($media->file_name ?? '') }}
+                                        </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="text-xs text-slate-500 italic border border-dashed border-slate-300 rounded p-2">
+                        Belum ada tindakan.
                     </div>
                     @endif
                 </div>

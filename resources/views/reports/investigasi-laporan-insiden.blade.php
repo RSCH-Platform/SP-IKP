@@ -109,6 +109,12 @@
         <section class="mb-4 print:block">
             <x-investigasi.report-investigation-section-a class="page-break" :laporan="$laporan" :investigationDataGrouped="$investigationDataGrouped" />
             <x-investigasi.report-investigation-section-b class="page-break mt-4" :laporan="$laporan" :timelineData="$timelineData" />
+
+            <!-- <div class="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 overflow-x-auto print:hidden">
+                <div class="font-semibold mb-2">DEBUG FAKTOR KONTRIBUTOR</div>
+                <pre class="whitespace-pre-wrap break-words">{{ json_encode($debugPayload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+            </div> -->
+
             <x-investigasi.report-investigation-section-c class="page-break mt-4" :laporan="$laporan" />
         </section>
 

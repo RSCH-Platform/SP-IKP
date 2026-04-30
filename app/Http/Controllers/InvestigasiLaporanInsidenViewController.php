@@ -45,13 +45,34 @@ class InvestigasiLaporanInsidenViewController extends Controller
             'problems.contributors.component',
             'problems.contributors.subComponent',
             'problems.recommendations',
-            'problems.actions',
+            'problems.actions.media',
         ]);
+
+        $investigationDataGrouped = $this->groupInvestigationData($laporan->investigationData);
+        $timelineData = $this->prepareTimelineData($laporan->timelineEvents);
 
         return [
             'laporan' => $laporan,
-            'investigationDataGrouped' => $this->groupInvestigationData($laporan->investigationData),
-            'timelineData' => $this->prepareTimelineData($laporan->timelineEvents),
+            'investigationDataGrouped' => $investigationDataGrouped,
+            'timelineData' => $timelineData,
+            'debugPayload' => [
+                'problems' => $laporan->problems->map(function ($problem) {
+                    return [
+                        'id' => $problem->id,
+                        'problem_type' => $problem->problem_type,
+                        'problem_description' => $problem->problem_description,
+                        'contributors' => $problem->contributors->map(function ($contrib) {
+                            return [
+                                'id' => $contrib->id,
+                                'category' => $contrib->category_name,
+                                'component' => $contrib->component_name,
+                                'sub_component' => $contrib->sub_component_name,
+                                'description' => $contrib->description,
+                            ];
+                        })->values(),
+                    ];
+                })->values(),
+            ],
         ];
     }
 

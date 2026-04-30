@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Juniyasyos\FilamentMediaManager\Traits\InteractsWithMediaFolders;
 use Spatie\MediaLibrary\HasMedia;
@@ -134,6 +135,13 @@ class InvestigationData extends Model implements HasMedia
             return $value;
         }
 
+        if ($this->relationLoaded('media')) {
+            $media = $this->media->firstWhere('collection_name', 'investigation_documents');
+            if ($media) {
+                return $media->getUrl();
+            }
+        }
+
         $media = $this->getFirstMedia('investigation_documents');
         if (! $media) {
             return null;
@@ -149,7 +157,7 @@ class InvestigationData extends Model implements HasMedia
         static::creating(function ($model) {
             // Auto-set created_by if not provided
             if (empty($model->created_by)) {
-                $model->created_by = auth()->id();
+                $model->created_by = Auth::id();
             }
         });
     }

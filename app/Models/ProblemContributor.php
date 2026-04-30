@@ -20,6 +20,12 @@ class ProblemContributor extends Model
         'description',
     ];
 
+    protected $appends = [
+        'category_name',
+        'component_name',
+        'sub_component_name',
+    ];
+
     public function problem(): BelongsTo
     {
         return $this->belongsTo(IncidentProblem::class, 'problem_id');
@@ -43,6 +49,36 @@ class ProblemContributor extends Model
     /**
      * Get the full hierarchy path for this contributor.
      */
+    public function getCategoryNameAttribute(): ?string
+    {
+        $relation = $this->getRelation('category');
+        if ($relation) {
+            return $relation->name;
+        }
+
+        return $this->getAttribute('category');
+    }
+
+    public function getComponentNameAttribute(): ?string
+    {
+        $relation = $this->getRelation('component');
+        if ($relation) {
+            return $relation->name;
+        }
+
+        return $this->getAttribute('component');
+    }
+
+    public function getSubComponentNameAttribute(): ?string
+    {
+        $relation = $this->getRelation('subComponent');
+        if ($relation) {
+            return $relation->name;
+        }
+
+        return $this->getAttribute('sub_component');
+    }
+
     public function getFullPathAttribute(): string
     {
         if (!$this->subComponent) {
