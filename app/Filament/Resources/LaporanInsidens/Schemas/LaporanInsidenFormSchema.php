@@ -29,17 +29,17 @@ class LaporanInsidenFormSchema
                     static::sectionPelapor(),
                 ]),
 
-            Step::make('Insiden')
-                ->icon('heroicon-o-exclamation-triangle')
-                ->schema([
-                    static::sectionInsiden(),
-                ]),
-
             Step::make('Pasien')
                 ->icon('heroicon-o-identification')
                 ->hidden(fn(Get $get) => $get('insiden_terjadi_pada') !== 'Pasien')
                 ->schema([
                     static::sectionPasien(),
+                ]),
+
+            Step::make('Insiden')
+                ->icon('heroicon-o-exclamation-triangle')
+                ->schema([
+                    static::sectionInsiden(),
                 ]),
 
             // Step::make('Kronologi')
@@ -81,8 +81,8 @@ class LaporanInsidenFormSchema
     {
         $sections = [
             static::sectionPelapor(),
-            static::sectionInsiden(),
             static::sectionPasien(),
+            static::sectionInsiden(),
             static::sectionKronologi(),
             static::sectionTindakan($withAdminFields),
         ];

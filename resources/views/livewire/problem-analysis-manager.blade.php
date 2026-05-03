@@ -3,7 +3,7 @@
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
         <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            🧠 Analisa Masalah (5 WHY)
+            Analisa Masalah (5 WHY)
         </h3>
         <span class="text-sm text-gray-600 dark:text-gray-400">
             Total: {{ count($problems ?? []) }} masalah

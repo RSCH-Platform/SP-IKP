@@ -17,7 +17,7 @@ $recordId = $record?->id
 'recordId' => $recordId,
 ], key('timeline-grid-' . $recordId))
 @else
-<div class="p-4 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm">
+<div class="p-4 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded text-yellow-800 dark:text-yellow-200 text-sm">
     ⚠️ DEBUG: recordId tidak ditemukan.
     Record: {{ $record?->id ?? 'null' }} |
     Route: {{ request()->route('record') ?? 'null' }}

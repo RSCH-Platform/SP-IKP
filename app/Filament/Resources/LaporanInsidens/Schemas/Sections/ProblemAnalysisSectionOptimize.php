@@ -9,8 +9,8 @@ class ProblemAnalysisSectionOptimize
 {
     public static function make(): Section
     {
-        return Section::make('🧠 Analisa Masalah (5 WHY)')
-            ->description('Analisis akar masalah berdasarkan metode 5 WHY dengan custom interface yang user-friendly')
+        return Section::make('Analisa Masalah')
+            ->description('Analisis akar masalah berdasarkan metode 5 WHY')
             ->schema([
                 View::make('filament.components.problem-analysis-livewire-wrapper'),
             ])

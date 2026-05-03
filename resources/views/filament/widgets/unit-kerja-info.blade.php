@@ -4,39 +4,36 @@
         <div class="space-y-6">
 
             {{-- Header --}}
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex items-start gap-3">
+            <div class="flex items-start gap-3">
 
-                    {{-- Icon --}}
-                    <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
-                        @svg("heroicon-o-building-office-2", "w-6 h-6")
-                    </div>
+                {{-- Icon --}}
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
+                    @svg("heroicon-o-building-office-2", "w-6 h-6")
+                </div>
 
-                    {{-- Title --}}
-                    <div>
-                        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
-                            {{ $unitKerja->unit_name }}
-                        </h2>
+                {{-- Title --}}
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
+                        {{ $unitKerja->unit_name }}
+                    </h2>
 
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            ID: {{ $unitKerja->id }} •
-                            {{ $unitKerja->created_at->translatedFormat('d M Y') }}
-                        </p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        ID: {{ $unitKerja->id }} •
+                        {{ $unitKerja->created_at->translatedFormat('d M Y') }}
+                    </p>
 
-                        @if ($unitKerja->description)
-                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 max-w-xl">
-                            {{ $unitKerja->description }}
-                        </p>
-                        @endif
-                    </div>
+                    @if ($unitKerja->description)
+                    <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                        {{ $unitKerja->description }}
+                    </p>
+                    @endif
                 </div>
             </div>
 
-            {{-- Divider --}}
-            <div class="border-t border-slate-200 dark:border-slate-700"></div>
+            <div class="-mx-6 border-t border-slate-200 dark:border-slate-700"></div>
 
             {{-- Stats --}}
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
 
                 <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
 
@@ -87,7 +84,7 @@
                         </div>
 
                         {{-- Optional badge --}}
-                        <span class="text-[10px] px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        <span class="text-[10px] px-2 py-1 rounded-full  bg-slate-100 dark:bg-slate-700  text-slate-600 dark:text-slate-300">
                             User
                         </span>
                     </div>

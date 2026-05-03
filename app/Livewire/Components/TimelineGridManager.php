@@ -296,11 +296,26 @@ class TimelineGridManager extends Component
     public function deleteEntry($eventId, $categoryId)
     {
         try {
+            $event = TimelineEvent::findOrFail($eventId);
+            $laporanInsidenId = $event->laporan_insiden_id;
+
             TimelineEntry::where('timeline_event_id', $eventId)
                 ->where('category_id', $categoryId)
                 ->delete();
 
+            // Clean up orphaned problems (problems with no children)
+            \App\Models\IncidentProblem::where('incident_id', $laporanInsidenId)
+                ->whereDoesntHave('whys')
+                ->whereDoesntHave('contributors')
+                ->whereDoesntHave('recommendations')
+                ->whereDoesntHave('actions')
+                ->delete();
+
             $this->loadTimelineData();
+
+            // Emit event to refresh problem analysis in ProblemAnalysisManager
+            $this->dispatch('refresh-problems');
+
             $this->dispatch('notify', message: 'Entry berhasil dihapus');
         } catch (\Exception $e) {
             $this->dispatch('notify-error', message: 'Gagal menghapus entry: ' . $e->getMessage());
@@ -360,8 +375,25 @@ class TimelineGridManager extends Component
     public function deleteEvent($eventId)
     {
         try {
-            TimelineEvent::findOrFail($eventId)->delete();
+            $event = TimelineEvent::findOrFail($eventId);
+            $laporanInsidenId = $event->laporan_insiden_id;
+
+            // Delete the event (cascade will delete TimelineEntry)
+            $event->delete();
+
+            // Clean up orphaned problems (problems with no children)
+            \App\Models\IncidentProblem::where('incident_id', $laporanInsidenId)
+                ->whereDoesntHave('whys')
+                ->whereDoesntHave('contributors')
+                ->whereDoesntHave('recommendations')
+                ->whereDoesntHave('actions')
+                ->delete();
+
             $this->loadTimelineData();
+
+            // Emit event to refresh problem analysis in ProblemAnalysisManager
+            $this->dispatch('refresh-problems');
+
             $this->dispatch('notify', message: 'Event berhasil dihapus');
         } catch (\Exception $e) {
             $this->dispatch('notify-error', message: 'Gagal menghapus event: ' . $e->getMessage());

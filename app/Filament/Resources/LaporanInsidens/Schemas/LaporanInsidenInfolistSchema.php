@@ -54,7 +54,7 @@ class LaporanInsidenInfolistSchema
 
     public static function sectionInsiden(): Section
     {
-        return Section::make('📍 BAGIAN B: RINCIAN KEJADIAN INSIDEN')
+        return Section::make('📍 BAGIAN C: RINCIAN KEJADIAN INSIDEN')
             ->description('Informasi lengkap tentang waktu dan tempat terjadinya insiden')
             ->icon('heroicon-o-exclamation-triangle')
             ->schema([

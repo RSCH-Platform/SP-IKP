@@ -23,7 +23,7 @@ class ProblemAnalysisSection
 {
     public static function make(): Section
     {
-        return Section::make('🧠 Analisa Masalah (5 WHY)')
+        return Section::make('🧠 ANALISA MASALAH')
             ->description('Analisis akar masalah berdasarkan metode 5 WHY')
             ->schema([
                 Repeater::make('problems')

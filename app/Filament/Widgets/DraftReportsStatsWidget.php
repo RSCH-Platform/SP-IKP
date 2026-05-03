@@ -17,6 +17,10 @@ class DraftReportsStatsWidget extends BaseWidget
 
     protected static ?int $sort = 2;
 
+    protected ?string $heading = 'Ringkasan Laporan Unit Kerja';
+
+    protected ?string $description = 'Lihat ringkasan status laporan insiden unit kerja Anda: draft, proses, selesai, dan laporan yang perlu perhatian prioritas.';
+
     protected function scopedQuery(): Builder
     {
         $query = LaporanInsiden::query();

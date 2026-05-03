@@ -99,6 +99,17 @@ class ProblemAnalysisManager extends Component
         }
     }
 
+    /**
+     * Listen for refresh-problems event from TimelineGridManager
+     * This triggers when timeline events are deleted
+     */
+    #[\Livewire\Attributes\On('refresh-problems')]
+    public function refreshProblems()
+    {
+        Log::debug('ProblemAnalysisManager: refresh-problems event received');
+        $this->loadProblems();
+    }
+
     public function loadProblems()
     {
         if (!$this->recordId) {
