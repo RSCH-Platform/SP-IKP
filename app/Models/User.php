@@ -19,6 +19,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     protected $fillable = [
+        'iam_id',
         'name',
         'nip',
         'no_hp',

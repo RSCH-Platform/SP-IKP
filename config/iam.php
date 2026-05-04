@@ -170,9 +170,8 @@ return [
     'user_fields' => [
         'iam_id' => 'sub',        // Required: JWT sub maps to iam_id
         'name' => 'name',
-        'email' => 'email',
-        // Add custom mappings:
         'nip' => 'nip',
+        // Add custom mappings:
         // 'nik' => 'nik',
         // 'employee_id' => 'employee_id',
         // 'phone' => 'phone_number',
@@ -197,10 +196,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | Primary field to identify users (used in updateOrCreate).
-    | Usually 'iam_id' or 'email'
+    | Usually 'iam_id' or 'email'. IKP uses 'nip' since email column doesn't exist.
     |
     */
-    'identifier_field' => env('IAM_IDENTIFIER_FIELD', 'email'),
+    'identifier_field' => env('IAM_IDENTIFIER_FIELD', 'nip'),
 
     /*
     |--------------------------------------------------------------------------
