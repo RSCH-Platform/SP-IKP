@@ -16,6 +16,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class EditLaporanInsiden extends EditRecord
@@ -29,6 +30,25 @@ class EditLaporanInsiden extends EditRecord
     protected function authorizeAccess(): void
     {
         abort_unless(static::getResource()::canEdit($this->getRecord()), 404);
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Eager load investigationData untuk mengurangi N+1 queries
+        $this->record->load('investigationData');
+        
+        // Clear cache untuk memastikan counts fresh saat page load
+        Cache::forget("investigation_counts_{$this->record->id}");
+        
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Clear cache after save so next render gets fresh data
+        Cache::forget("investigation_counts_{$this->record->id}");
+        
+        return $data;
     }
 
     public function submitLaporan(): void

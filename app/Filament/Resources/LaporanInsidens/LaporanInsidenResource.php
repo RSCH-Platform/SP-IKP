@@ -68,7 +68,9 @@ class LaporanInsidenResource extends Resource
         return parent::getRecordRouteBindingEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            // Eager load investigation data untuk reduce N+1 queries
+            ->with('investigationData');
     }
 
     public static function getEloquentQuery(): Builder

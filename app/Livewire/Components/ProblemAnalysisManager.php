@@ -37,6 +37,9 @@ class ProblemAnalysisManager extends Component
     public $editingItemId = null;
     public $editingItemType = null;
 
+    // Docker safety: prevent memory bloat during save
+    public $categories = [];
+
     /**
      * Toggle problem accordion expansion
      */
@@ -64,8 +67,12 @@ class ProblemAnalysisManager extends Component
             $this->recordId = $recordId;
         }
 
-        // Skip loading if this is a Filament save action to prevent memory spike
+        // Docker safety: Clear data during save to prevent memory spike
         if ($this->isSaveAction()) {
+            // Aggressively clear large data structures during save
+            $this->problems = [];
+            $this->categories = [];
+            $this->expandedProblemId = null;
             return;
         }
 
@@ -81,13 +88,25 @@ class ProblemAnalysisManager extends Component
 
     /**
      * Detect if request is a Filament save action
-     * Prevents loading large data during form saves
+     * Works reliably in Docker by checking multiple indicators
      */
     private function isSaveAction(): bool
     {
-        return request()->has('__livewire') && 
-               (request()->input('method') === 'save' || 
-                str_contains(request()->input('payload.actionName', ''), 'save'));
+        $method = request()->input('method');
+        $actionName = request()->input('payload.actionName', '');
+        $updates = request()->input('payload.updates', []);
+
+        // Filament save calls typically have method=save or specific action
+        if ($method === 'save' || str_contains($actionName, 'save')) {
+            return true;
+        }
+
+        // Check if updating form fields without component action
+        if (is_array($updates) && count($updates) > 0 && empty($actionName)) {
+            return true; // Form field update - not component action
+        }
+
+        return false;
     }
 
     #[\Livewire\Attributes\On('refresh-problems')]

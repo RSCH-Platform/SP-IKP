@@ -12,6 +12,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Section;
+use Illuminate\Support\Facades\Cache;
 
 class DataCollectionSection
 {
@@ -34,14 +35,20 @@ class DataCollectionSection
                             ];
                         }
 
+                        // Cache investigation data counts untuk mengurangi queries
+                        $cacheKey = "investigation_counts_{$record->id}";
+                        $counts = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($record) {
+                            return [
+                                'interview' => $record->investigationData()->where('kategori', 'interview')->count(),
+                                'review_dokumen' => $record->investigationData()->where('kategori', 'review_dokumen')->count(),
+                                'observasi' => $record->investigationData()->where('kategori', 'observasi')->count(),
+                            ];
+                        });
+
                         return [
                             Tab::make('Interview')
                                 ->icon('heroicon-m-microphone')
-                                ->badge(
-                                    $record->investigationData()
-                                        ->where('kategori', 'interview')
-                                        ->count()
-                                )
+                                ->badge($counts['interview'] ?: null)
                                 ->schema([
                                     Repeater::make('interview_data')
                                         ->relationship(
@@ -65,6 +72,7 @@ class DataCollectionSection
                                         ->addActionLabel('Tambah Interview')
                                         ->reorderable()
                                         ->collapsible()
+                                        ->minItems(0)
                                         ->itemLabel(function (array $state): ?string {
                                             $sumber = $state['sumber'] ?? null;
                                             $hasil = $state['hasil'] ?? null;
@@ -79,11 +87,7 @@ class DataCollectionSection
 
                             Tab::make('Review Dokumen')
                                 ->icon('heroicon-m-document-text')
-                                ->badge(
-                                    $record->investigationData()
-                                        ->where('kategori', 'review_dokumen')
-                                        ->count()
-                                )
+                                ->badge($counts['review_dokumen'] ?: null)
                                 ->schema([
                                     Repeater::make('review_data')
                                         ->relationship(
@@ -106,7 +110,7 @@ class DataCollectionSection
                                                 ->openable()
                                                 ->downloadable()
                                                 ->preserveFilenames()
-                                                ->previewable(true)
+                                                ->previewable(false)
                                                 ->columnSpanFull()
                                                 ->maxSize(20480)
                                                 ->acceptedFileTypes([
@@ -131,6 +135,7 @@ class DataCollectionSection
                                         ->addActionLabel('Tambah Review Dokumen')
                                         ->reorderable()
                                         ->collapsible()
+                                        ->minItems(0)
                                         ->itemLabel(function (array $state): ?string {
                                             $sumber = $state['sumber'] ?? null;
                                             $hasil = $state['hasil'] ?? null;
@@ -145,11 +150,7 @@ class DataCollectionSection
 
                             Tab::make('Observasi')
                                 ->icon('heroicon-m-eye')
-                                ->badge(
-                                    $record->investigationData()
-                                        ->where('kategori', 'observasi')
-                                        ->count()
-                                )
+                                ->badge($counts['observasi'] ?: null)
                                 ->schema([
                                     Repeater::make('observasi_data')
                                         ->relationship(
@@ -172,7 +173,7 @@ class DataCollectionSection
                                                 ->openable()
                                                 ->downloadable()
                                                 ->preserveFilenames()
-                                                ->previewable(true)
+                                                ->previewable(false)
                                                 ->columnSpanFull()
                                                 ->maxSize(20480)
                                                 ->acceptedFileTypes([
@@ -193,6 +194,7 @@ class DataCollectionSection
                                         ->addActionLabel('Tambah Observasi')
                                         ->reorderable()
                                         ->collapsible()
+                                        ->minItems(0)
                                         ->itemLabel(function (array $state): ?string {
                                             $lokasi = $state['lokasi'] ?? null;
                                             $hasil = $state['hasil'] ?? null;
