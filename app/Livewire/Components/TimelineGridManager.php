@@ -455,8 +455,8 @@ class TimelineGridManager extends Component
             list($hour, $minute) = explode(':', $this->editingTimeValue);
             $existingDateTime = \Carbon\Carbon::parse($event->event_datetime);
             $newDateTime = $existingDateTime
-                ->setHour($hour)
-                ->setMinute($minute)
+                ->setHour((int)$hour)
+                ->setMinute((int)$minute)
                 ->setSecond(0);
 
             $event->update(['event_datetime' => $newDateTime]);
