@@ -39,22 +39,9 @@ class PelaporSection
                         ->label('Nama Lengkap Pelapor')
                         ->required()
                         ->live()
-                        ->options(function (): array {
-                            $authUser = static::getAuthenticatedUser();
-
-                            if (static::shouldLockPelaporIdentityFields() && $authUser instanceof User) {
-                                return User::query()
-                                    ->whereKey($authUser->getKey())
-                                    ->orderBy('name')
-                                    ->pluck('name', 'id')
-                                    ->all();
-                            }
-
-                            return User::query()
-                                ->orderBy('name')
-                                ->pluck('name', 'id')
-                                ->all();
-                        })
+                        ->searchable()
+                        ->preload()
+                        ->relationship('user', 'name', fn($query) => $query->orderBy('name'))
                         ->default(fn(): ?int => Auth::id())
                         ->afterStateHydrated(function ($state, callable $set): void {
                             if (! static::shouldLockPelaporIdentityFields()) {
@@ -86,7 +73,7 @@ class PelaporSection
 
                     Forms\Components\Select::make('unit_kerja_id')
                         ->label('Unit Kerja / Departemen')
-                        ->relationship('unitKerjas', 'unit_name')
+                        ->relationship('unitKerjas', 'unit_name', fn($query) => $query->orderBy('unit_name'))
                         ->searchable()
                         ->preload()
                         ->native(false)
@@ -96,21 +83,6 @@ class PelaporSection
                         ->placeholder('Pilih unit kerja')
                         ->default(function (): ?int {
                             return static::getAuthenticatedUser()?->unitKerjas()->first()?->id;
-                        })
-                        ->options(function (): array {
-                            $authUser = static::getAuthenticatedUser();
-
-                            if (! $authUser instanceof User) {
-                                return [];
-                            }
-
-                            if (static::shouldLockPelaporIdentityFields()) {
-                                return $authUser->unitKerjas()
-                                    ->pluck('unit_name', 'unit_kerja.id')
-                                    ->all();
-                            }
-
-                            return UnitKerja::query()->pluck('unit_name', 'id')->all();
                         })
                         ->afterStateHydrated(function ($state, callable $set): void {
                             if (! static::shouldLockPelaporIdentityFields() || filled($state)) {

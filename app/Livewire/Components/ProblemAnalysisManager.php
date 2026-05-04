@@ -48,65 +48,34 @@ class ProblemAnalysisManager extends Component
     public function mount($recordId = null)
     {
         $this->recordId = $recordId ?? request()->route('record');
-        Log::info('ProblemAnalysisManager MOUNT', [
-            'recordId' => $this->recordId,
-            'timestamp' => now(),
-        ]);
         $this->loadProblems();
-
-        // Initialize problems from TimelineEntry (CMP/SDP) if no problems exist yet
-        if (empty($this->problems)) {
-            $this->initializeProblemsFromTimeline();
-        }
-
         $this->loadCategories();
     }
 
     /**
-     * Hydrate lifecycle hook
-     * Runs every time component is rendered/updated
-     * 
-     * This ensures data stays fresh when wizard steps change.
-     * Similar fix applied to TimelineGridManager for consistency.
+     * Hydrate lifecycle hook - OPTIMIZED
+     * Only loads when data is missing, not on every render
      */
     public function hydrate()
     {
-        // Sync recordId if not set
+        // Sync recordId from route
         if (!$this->recordId && ($recordId = request()->route('record'))) {
             $this->recordId = $recordId;
         }
 
-        Log::debug('ProblemAnalysisManager HYDRATE', [
-            'recordId' => $this->recordId,
-            'problemCount' => count($this->problems),
-            'expandedId' => $this->expandedProblemId,
-            'timestamp' => now(),
-        ]);
-
-        // Reload problems to ensure fresh state when step visibility changes
+        // Only load if data empty (prevent excessive queries)
         if ($this->recordId && empty($this->problems)) {
             $this->loadProblems();
-
-            // Initialize if still empty
-            if (empty($this->problems)) {
-                $this->initializeProblemsFromTimeline();
-            }
         }
 
-        // Ensure categories available
         if (empty($this->categories)) {
             $this->loadCategories();
         }
     }
 
-    /**
-     * Listen for refresh-problems event from TimelineGridManager
-     * This triggers when timeline events are deleted
-     */
     #[\Livewire\Attributes\On('refresh-problems')]
     public function refreshProblems()
     {
-        Log::debug('ProblemAnalysisManager: refresh-problems event received');
         $this->loadProblems();
     }
 
@@ -124,7 +93,7 @@ class ProblemAnalysisManager extends Component
                 'problems.contributors.component',
                 'problems.contributors.subComponent',
                 'problems.recommendations',
-                'problems.actions'
+                'problems.actions.media'
             ])->find($this->recordId);
 
             if (!$incident || $incident->problems->isEmpty()) {
@@ -175,20 +144,14 @@ class ProblemAnalysisManager extends Component
                 ];
             })->toArray();
 
-            // Auto-set first problem as expanded if none selected
             if (empty($this->expandedProblemId) && count($this->problems) > 0) {
                 $this->expandedProblemId = $this->problems[0]['id'];
             }
 
-            // Validate selected problem still exists
             if (!empty($this->expandedProblemId) && !collect($this->problems)->contains('id', $this->expandedProblemId)) {
                 $this->expandedProblemId = $this->problems[0]['id'] ?? null;
             }
         } catch (\Exception $e) {
-            Log::error('ProblemAnalysisManager: Error loading problems', [
-                'recordId' => $this->recordId,
-                'error' => $e->getMessage(),
-            ]);
             $this->problems = [];
         }
     }

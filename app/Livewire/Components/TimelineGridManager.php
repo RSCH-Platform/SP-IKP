@@ -28,24 +28,21 @@ class TimelineGridManager extends Component
     public $moveSourceCategoryId = null;
     public $moveTargetCategoryId = null;
 
+    // Time edit fields
+    public $editingTimeEventId = null;
+    public $editingTimeValue = '';
+
     public function mount($recordId = null)
     {
         $this->recordId = $recordId ?? request()->route('record');
-        Log::info('TimelineGridManager MOUNT', [
-            'recordId' => $this->recordId,
-            'timestamp' => now(),
-        ]);
         $this->loadTimelineData();
         $this->loadCategories();
     }
 
     /**
-     * Hydrate lifecycle hook
-     * Runs every time component is rendered/updated
-     * Ensures data stays fresh when step visibility changes or on re-render
-     * 
-     * IMPORTANT: This ALWAYS reloads data to fix issue where data disappears
-     * when changing wizard steps. This is more aggressive than checking if empty.
+     * Hydrate lifecycle hook - OPTIMIZED
+     * Only loads data if necessary (first time or data cleared)
+     * Prevents unnecessary database queries on every render
      */
     public function hydrate()
     {
@@ -54,21 +51,12 @@ class TimelineGridManager extends Component
             $this->recordId = $recordId;
         }
 
-        Log::debug('TimelineGridManager HYDRATE', [
-            'recordId' => $this->recordId,
-            'eventCount' => count($this->timelineEvents),
-            'categoryCount' => count($this->categories),
-            'timestamp' => now(),
-        ]);
-
-        // ALWAYS reload timeline data when rendering
-        // Don't check if empty - just always reload to ensure fresh state
-        // This fixes data disappearing when wizard steps change
-        if ($this->recordId) {
+        // Only load if data is empty (prevent N queries per render)
+        if ($this->recordId && empty($this->timelineEvents)) {
             $this->loadTimelineData();
         }
 
-        // Ensure categories are always available
+        // Load categories once
         if (empty($this->categories)) {
             $this->loadCategories();
         }
@@ -77,13 +65,10 @@ class TimelineGridManager extends Component
     public function loadTimelineData()
     {
         if (!$this->recordId) {
-            Log::warning('TimelineGridManager.loadTimelineData: No recordId provided');
             return;
         }
 
         try {
-            Log::debug('TimelineGridManager.loadTimelineData: START', ['recordId' => $this->recordId]);
-
             // Load record with all related timeline data in one query
             $record = LaporanInsiden::with([
                 'timelineEvents' => function ($query) {
@@ -93,9 +78,6 @@ class TimelineGridManager extends Component
             ])->find($this->recordId);
 
             if ($record && $record->timelineEvents) {
-                Log::debug('TimelineGridManager.loadTimelineData: Record found', [
-                    'eventCount' => $record->timelineEvents->count(),
-                ]);
 
                 $this->timelineEvents = $record->timelineEvents
                     ->map(function ($event) {
@@ -113,25 +95,10 @@ class TimelineGridManager extends Component
                         ];
                     })
                     ->toArray();
-
-                Log::info('TimelineGridManager.loadTimelineData: SUCCESS', [
-                    'eventCount' => count($this->timelineEvents),
-                    'timestamp' => now(),
-                ]);
             } else {
-                // No events found, ensure empty array
-                Log::info('TimelineGridManager.loadTimelineData: No events found for recordId', [
-                    'recordId' => $this->recordId,
-                    'timestamp' => now(),
-                ]);
                 $this->timelineEvents = [];
             }
         } catch (\Exception $e) {
-            Log::error('TimelineGridManager: Error loading timeline data', [
-                'recordId' => $this->recordId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
             $this->timelineEvents = [];
         }
     }
@@ -148,14 +115,7 @@ class TimelineGridManager extends Component
                     'sort_order' => $cat->sort_order,
                 ])
                 ->toArray();
-
-            Log::debug('TimelineGridManager.loadCategories: SUCCESS', [
-                'categoryCount' => count($this->categories),
-            ]);
         } catch (\Exception $e) {
-            Log::error('TimelineGridManager.loadCategories: Error', [
-                'error' => $e->getMessage(),
-            ]);
             $this->categories = [];
         }
     }
@@ -417,6 +377,64 @@ class TimelineGridManager extends Component
         $this->editingEventDateTime = '';
         $this->moveSourceCategoryId = null;
         $this->moveTargetCategoryId = null;
+        $this->editingTimeEventId = null;
+        $this->editingTimeValue = '';
+    }
+
+    /**
+     * Open modal to edit event time
+     */
+    public function openEditTimeModal($eventId)
+    {
+        $event = collect($this->timelineEvents)->firstWhere('id', $eventId);
+
+        if (!$event) {
+            return;
+        }
+
+        $this->modalMode = 'edit-time';
+        $this->editingTimeEventId = $eventId;
+
+        // Extract time from datetime (format: 2026-04-14 08:43:00)
+        $dateTime = \Carbon\Carbon::parse($event['event_datetime']);
+        $this->editingTimeValue = $dateTime->format('H:i');
+
+        $this->showModal = true;
+    }
+
+    /**
+     * Save the new event time
+     */
+    public function saveEventTime()
+    {
+        if (!$this->editingTimeEventId || !$this->editingTimeValue) {
+            return;
+        }
+
+        try {
+            $event = TimelineEvent::find($this->editingTimeEventId);
+
+            if (!$event) {
+                $this->dispatch('notify-error', message: 'Event tidak ditemukan');
+                return;
+            }
+
+            // Parse the time value (HH:mm) and combine with existing date
+            list($hour, $minute) = explode(':', $this->editingTimeValue);
+            $existingDateTime = \Carbon\Carbon::parse($event->event_datetime);
+            $newDateTime = $existingDateTime
+                ->setHour($hour)
+                ->setMinute($minute)
+                ->setSecond(0);
+
+            $event->update(['event_datetime' => $newDateTime]);
+
+            $this->dispatch('notify-success', message: 'Waktu event berhasil diubah');
+            $this->loadTimelineData();
+            $this->closeModal();
+        } catch (\Exception $e) {
+            $this->dispatch('notify-error', message: 'Gagal mengubah waktu: ' . $e->getMessage());
+        }
     }
 
     public function eventsByDate()

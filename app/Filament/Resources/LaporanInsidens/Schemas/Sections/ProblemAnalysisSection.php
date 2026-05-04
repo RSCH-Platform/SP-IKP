@@ -23,6 +23,13 @@ class ProblemAnalysisSection
 {
     public static function make(): Section
     {
+        // Cache data to avoid N+1 queries in itemLabel()
+        $categories = ProblemContributorCategory::pluck('name', 'id')->all();
+        $components = ProblemContributorComponent::pluck('name', 'id')->all();
+        $subComponents = ProblemContributorSubComponent::pluck('name', 'id')->all();
+        $descriptionCounts = ProblemContributorDescription::select('sub_component_id')->distinct()
+            ->pluck('sub_component_id')->countBy()->all();
+
         return Section::make('🧠 ANALISA MASALAH')
             ->description('Analisis akar masalah berdasarkan metode 5 WHY')
             ->schema([
@@ -163,28 +170,28 @@ class ProblemAnalysisSection
                                 Textarea::make('description')
                                     ->label('Deskripsi')
                                     ->rows(10)
-                                    ->hint(function ($get) {
+                                    ->hint(function ($get) use ($descriptionCounts) {
                                         $subComponentId = $get('sub_component_id');
 
                                         if (! $subComponentId) {
                                             return null;
                                         }
 
-                                        $count = ProblemContributorDescription::where('sub_component_id', $subComponentId)->count();
+                                        $count = $descriptionCounts[$subComponentId] ?? 0;
                                         return $count > 0 ? "💡 {$count} deskripsi tersedia (auto-filled)" : null;
                                     }),
                             ])
                             ->addActionLabel('Tambah Faktor')
                             ->reorderable()
                             ->collapsible()
-                            ->itemLabel(function (array $state): ?string {
+                            ->itemLabel(function (array $state) use ($categories, $components, $subComponents): ?string {
                                 $categoryId = $state['category_id'] ?? null;
                                 $componentId = $state['component_id'] ?? null;
                                 $subId = $state['sub_component_id'] ?? null;
 
-                                $category = $categoryId ? ProblemContributorCategory::find($categoryId)?->name : null;
-                                $component = $componentId ? ProblemContributorComponent::find($componentId)?->name : null;
-                                $sub = $subId ? ProblemContributorSubComponent::find($subId)?->name : null;
+                                $category = $categoryId && isset($categories[$categoryId]) ? $categories[$categoryId] : null;
+                                $component = $componentId && isset($components[$componentId]) ? $components[$componentId] : null;
+                                $sub = $subId && isset($subComponents[$subId]) ? $subComponents[$subId] : null;
 
                                 if ($category && $component && $sub) {
                                     return "{$category} > {$component} > {$sub}";

@@ -74,6 +74,10 @@ class LaporanInsidenResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
+        
+        // Eager load unitKerjas to prevent N+1 queries
+        $query->with('unitKerjas');
+        
         $user = Auth::user();
 
         if ($user->can('ForceEdit:LaporanInsiden') && $user->can('ViewAllData:LaporanInsiden')) {

@@ -88,9 +88,14 @@
                         @endphp
 
                         <tr class="border-b dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors duration-150 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }}">
-                            <!-- Time Cell -->
-                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100 sticky left-0 z-10 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }} hover:bg-blue-50 dark:hover:bg-slate-700">
-                                {{ $timeFormatted }}
+                            <!-- Time Cell - Clickable to Edit -->
+                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100 sticky left-0 z-10 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }} hover:bg-blue-50 dark:hover:bg-slate-700 cursor-pointer group relative" 
+                                wire:click="openEditTimeModal({{ $event['id'] }})"
+                                title="Klik untuk edit waktu">
+                                <div class="flex items-center justify-between">
+                                    <span>{{ $timeFormatted }}</span>
+                                    <span class="opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-xs text-blue-500">✎</span>
+                                </div>
                             </td>
 
                             <!-- Category Cells -->
@@ -250,6 +255,31 @@
                     </select>
                 </div>
 
+                @elseif($modalMode === 'edit-time')
+                @php
+                $event = collect($timelineEvents)->firstWhere('id', $editingTimeEventId);
+                $eventDate = $event ? \Illuminate\Support\Carbon::parse($event['event_datetime'])->translatedFormat('d F Y') : 'N/A';
+                @endphp
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                        Tanggal Event
+                    </label>
+                    <div class="p-3 bg-gray-50 dark:bg-slate-900 rounded text-sm border dark:border-gray-600 text-gray-900 dark:text-gray-100">
+                        {{ $eventDate }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                        Waktu Event <span class="text-red-500 dark:text-red-400">*</span>
+                    </label>
+                    <input
+                        type="time"
+                        wire:model="editingTimeValue"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-600" />
+                </div>
+
                 @else
                 <!-- Add Event Mode -->
                 <div>
@@ -281,12 +311,14 @@
                 </button>
                 <button
                     type="button"
-                    wire:click="@if($modalMode === 'edit') saveEntry @elseif($modalMode === 'move') moveEntry @else addTimelineEvent @endif"
+                    wire:click="@if($modalMode === 'edit') saveEntry @elseif($modalMode === 'move') moveEntry @elseif($modalMode === 'edit-time') saveEventTime @else addTimelineEvent @endif"
                     class="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-150 font-medium shadow-sm dark:shadow-md">
                     @if($modalMode === 'edit')
                     💾 Simpan
                     @elseif($modalMode === 'move')
                     ➡️ Pindahkan
+                    @elseif($modalMode === 'edit-time')
+                    💾 Update Waktu
                     @else
                     ➕ Tambah Event
                     @endif
