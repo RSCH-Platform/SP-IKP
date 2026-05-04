@@ -43,12 +43,18 @@ class TimelineGridManager extends Component
      * Hydrate lifecycle hook - OPTIMIZED
      * Only loads data if necessary (first time or data cleared)
      * Prevents unnecessary database queries on every render
+     * CRITICAL: Skip loading during Filament save to prevent memory bloat
      */
     public function hydrate()
     {
         // Sync recordId from route in case URL changed
         if (!$this->recordId && ($recordId = request()->route('record'))) {
             $this->recordId = $recordId;
+        }
+
+        // Skip loading if this is a Filament save action to prevent memory spike
+        if ($this->isSaveAction()) {
+            return;
         }
 
         // Only load if data is empty (prevent N queries per render)
@@ -60,6 +66,17 @@ class TimelineGridManager extends Component
         if (empty($this->categories)) {
             $this->loadCategories();
         }
+    }
+
+    /**
+     * Detect if request is a Filament save action
+     * Prevents loading large data during form saves
+     */
+    private function isSaveAction(): bool
+    {
+        return request()->has('__livewire') && 
+               (request()->input('method') === 'save' || 
+                str_contains(request()->input('payload.actionName', ''), 'save'));
     }
 
     public function loadTimelineData()
