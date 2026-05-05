@@ -1,0 +1,104 @@
+.ikp-tabs {
+    display: flex;
+    gap: 0.75rem;
+    border-bottom: 2px solid #e5e7eb;
+    flex-wrap: wrap;
+    padding: 0.25rem;
+    background: linear-gradient(to bottom, #ffffff, #f3f4f6);
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+}
+
+.dark .ikp-tabs {
+    border-color: rgb(55 65 81);
+    background: linear-gradient(to bottom, rgb(31 41 55), rgb(17 24 39));
+}
+
+.ikp-tab-button {
+    padding: 0.875rem 1.75rem;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.25s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    position: relative;
+    user-select: none;
+}
+
+.dark .ikp-tab-button {
+    color: #d1d5db;
+}
+
+.ikp-tab-button:hover {
+    color: #1f2937;
+    background-color: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+.dark .ikp-tab-button:hover {
+    color: #f3f4f6;
+    background-color: rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+.ikp-tab-button:active {
+    transform: translateY(0);
+}
+
+.ikp-tab-button.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-bottom-color: transparent;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+    font-weight: 700;
+}
+
+.dark .ikp-tab-button.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border-bottom-color: transparent;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+    font-weight: 700;
+}
+
+.ikp-tab-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+.dark .ikp-tab-button:disabled {
+    color: #6b7280;
+}
+
+.ikp-tab-button:disabled:hover {
+    background-color: transparent;
+    transform: none;
+}
+
+.ikp-tab-content {
+    display: none;
+}
+
+.ikp-tab-content.active {
+    display: block;
+}
+
+.preview-container {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.dark .preview-container {
+    background-color: rgb(31 41 55);
+}

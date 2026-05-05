@@ -141,12 +141,13 @@ class PasienSection
                 ]),
         ];
 
-        return Section::make('👤 BAGIAN B: DATA PASIEN')
+        return Section::make('BAGIAN B: DATA PASIEN')
             ->description('Lengkapi informasi pasien jika insiden melibatkan pasien')
             ->icon('heroicon-o-identification')
             ->visible(fn(Get $get) => $get('insiden_terjadi_pada') === 'Pasien')
             ->schema($schema)
             ->collapsible()
+            ->collapsed()
             ->compact();
     }
 }

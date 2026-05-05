@@ -26,6 +26,7 @@ class TindakanSection
 
             Select::make('tindakan_dilakukan_oleh')
                 ->label('Tindakan Dilakukan Oleh')
+                ->required()
                 ->options(LaporanInsiden::TINDAKAN_DILAKUKAN_OLEH_OPTIONS)
                 ->placeholder('Pilih unit yang melakukan tindakan')
                 ->live()
@@ -67,7 +68,7 @@ class TindakanSection
                 ->columnSpanFull();
         }
 
-        return Section::make('🩹 BAGIAN D: TINDAKAN YANG DILAKUKAN')
+        return Section::make('BAGIAN E: TINDAKAN YANG DILAKUKAN')
             ->description('Tindakan yang telah dilakukan setelah terjadinya insiden')
             ->icon('heroicon-o-hand-raised')
             ->schema($fields)

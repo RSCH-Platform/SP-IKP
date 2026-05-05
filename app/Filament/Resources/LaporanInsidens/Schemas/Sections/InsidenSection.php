@@ -104,11 +104,12 @@ class InsidenSection
             $schema[] = GradingResikoSection::make();
         }
 
-        return Section::make('📍 BAGIAN C: RINCIAN KEJADIAN INSIDEN')
+        return Section::make('BAGIAN C: RINCIAN KEJADIAN INSIDEN')
             ->description('Informasi lengkap tentang waktu dan tempat terjadinya insiden')
             ->icon('heroicon-o-exclamation-triangle')
             ->schema($schema)
             ->collapsible()
+            ->collapsed()
             ->persistCollapsed()
             ->compact();
     }

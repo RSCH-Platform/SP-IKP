@@ -16,7 +16,7 @@ class PelaporSection
 {
     public static function make(): Section
     {
-        return Section::make('📋 BAGIAN A: DATA PELAPOR')
+        return Section::make('BAGIAN A: DATA PELAPOR')
             ->description('Identitas dan informasi kontak pelapor insiden (Otomatis Terisi)')
             ->icon('heroicon-o-user-circle')
             ->schema([
@@ -112,6 +112,7 @@ class PelaporSection
                 ]),
             ])
             ->collapsible()
+            ->collapsed()
             ->persistCollapsed()
             ->compact();
     }

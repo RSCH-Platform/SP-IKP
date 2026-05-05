@@ -15,6 +15,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -27,6 +28,11 @@ class EditLaporanInsiden extends EditRecord
 
     protected string $view = 'filament.resources.laporan-insidens.pages.edit-laporan-insiden';
 
+    public function getHeading(): string|Htmlable
+    {
+        return '';
+    }
+
     protected function authorizeAccess(): void
     {
         abort_unless(static::getResource()::canEdit($this->getRecord()), 404);
@@ -36,10 +42,10 @@ class EditLaporanInsiden extends EditRecord
     {
         // Eager load investigationData untuk mengurangi N+1 queries
         $this->record->load('investigationData');
-        
+
         // Clear cache untuk memastikan counts fresh saat page load
         Cache::forget("investigation_counts_{$this->record->id}");
-        
+
         return $data;
     }
 
@@ -47,7 +53,7 @@ class EditLaporanInsiden extends EditRecord
     {
         // Clear cache after save so next render gets fresh data
         Cache::forget("investigation_counts_{$this->record->id}");
-        
+
         return $data;
     }
 
@@ -160,9 +166,9 @@ class EditLaporanInsiden extends EditRecord
                 $missing[] = 'grading risiko';
             }
 
-            if (!$this->record->catatan_tambahan) {
-                $missing[] = 'catatan tambahan';
-            }
+            // if (!$this->record->catatan_tambahan) {
+            //     $missing[] = 'catatan tambahan';
+            // }
 
             if ($missing) {
                 Notification::make()

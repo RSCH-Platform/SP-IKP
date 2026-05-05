@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LaporanInsidens\Tables;
 
+use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use App\Models\LaporanInsiden;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -244,88 +245,141 @@ class LaporanInsidensTable
                 |--------------------------------------------------------------------------
                 */
 
-                ActionGroup::make([
+                // ActionGroup::make([
 
-                    Action::make('verifikasi_laporan')
-                        ->label('Verifikasi')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->visible(
-                            fn($record) =>
-                            auth()->user()?->can('Verifikasi:LaporanInsiden') &&
-                                $record->status === LaporanInsiden::STATUS_DILAPORKAN
-                        )
-                        ->requiresConfirmation()
-                        ->modalHeading('Verifikasi Laporan')
-                        ->schema([
-                            ToggleButtons::make('grading_risiko')
-                                ->label('Grading Risiko')
-                                ->required()
-                                ->options([
-                                    'Biru'   => '🔵 Biru (Tidak signifikan)',
-                                    'Hijau'  => '🟢 Hijau (Minor)',
-                                    'Kuning' => '🟡 Kuning (Moderat)',
-                                    'Merah'  => '🔴 Merah (Mayor)',
-                                    'Hitam'  => '⚫ Hitam (Katastropik)',
-                                ])
-                                ->colors([
-                                    'Biru'   => 'info',
-                                    'Hijau'  => 'success',
-                                    'Kuning' => 'warning',
-                                    'Merah'  => 'danger',
-                                    'Hitam'  => 'gray',
-                                ])
-                                ->inline()
-                                ->helperText('Hanya diisi oleh Validator / Tim IKP')
-                                ->default(fn($record) => $record->grading_risiko),
-                            Textarea::make('catatan_tambahan')
-                                ->label('Catatan Verifikasi')
-                                ->rows(3)
-                                ->default(fn($record) => $record->catatan_tambahan),
-                        ])
-                        ->action(function ($record, array $data) {
-                            $record->update([
-                                'grading_risiko' => $data['grading_risiko'],
-                                'catatan_tambahan' => $data['catatan_tambahan'],
-                            ]);
-                            $record->verifikasiLaporan(auth()->id());
+                //     Action::make('verifikasi_laporan')
+                //         ->label('Verifikasi')
+                //         ->icon('heroicon-o-check-circle')
+                //         ->color('success')
+                //         ->visible(
+                //             fn($record) =>
+                //             auth()->user()?->can('Verifikasi:LaporanInsiden') &&
+                //                 $record->status === LaporanInsiden::STATUS_DILAPORKAN
+                //         )
+                //         ->requiresConfirmation()
+                //         ->modalHeading('Verifikasi Laporan')
+                //         ->schema([
+                //             ToggleButtons::make('grading_risiko')
+                //                 ->label('Grading Risiko')
+                //                 ->required()
+                //                 ->options([
+                //                     'Biru'   => '🔵 Biru (Tidak signifikan)',
+                //                     'Hijau'  => '🟢 Hijau (Minor)',
+                //                     'Kuning' => '🟡 Kuning (Moderat)',
+                //                     'Merah'  => '🔴 Merah (Mayor)',
+                //                     'Hitam'  => '⚫ Hitam (Katastropik)',
+                //                 ])
+                //                 ->colors([
+                //                     'Biru'   => 'info',
+                //                     'Hijau'  => 'success',
+                //                     'Kuning' => 'warning',
+                //                     'Merah'  => 'danger',
+                //                     'Hitam'  => 'gray',
+                //                 ])
+                //                 ->inline()
+                //                 ->helperText('Hanya diisi oleh Validator / Tim IKP')
+                //                 ->default(fn($record) => $record->grading_risiko),
+                //             Textarea::make('catatan_tambahan')
+                //                 ->label('Catatan Verifikasi')
+                //                 ->hidden()
+                //                 ->rows(3)
+                //                 ->default(fn($record) => $record->catatan_tambahan),
+                //         ])
+                //         ->action(function ($record, array $data) {
+                //             $record->update([
+                //                 'grading_risiko' => $data['grading_risiko'],
+                //                 'catatan_tambahan' => $data['catatan_tambahan'],
+                //             ]);
+                //             $record->verifikasiLaporan(auth()->id());
 
-                            Notification::make()
-                                ->title('Laporan diverifikasi')
-                                ->success()
-                                ->send();
-                        }),
+                //             Notification::make()
+                //                 ->title('Laporan diverifikasi')
+                //                 ->success()
+                //                 ->send();
+                //         }),
 
-                    Action::make('kembalikan_ke_pelapor')
-                        ->label('Kembalikan ke Pelapor')
-                        ->icon('heroicon-o-arrow-uturn-left')
-                        ->color('danger')
-                        ->visible(
-                            fn($record) =>
-                            auth()->user()?->can('Kembalikan:LaporanInsiden') &&
-                                $record->status === LaporanInsiden::STATUS_DILAPORKAN
-                        )
-                        ->schema([
-                            Textarea::make('rejection_reason')
-                                ->label('Alasan Pengembalian')
-                                ->required(),
-                        ])
-                        ->action(function ($record, array $data) {
+                //     Action::make('kembalikan_ke_pelapor')
+                //         ->label('Kembalikan ke Pelapor')
+                //         ->icon('heroicon-o-arrow-uturn-left')
+                //         ->color('danger')
+                //         ->visible(
+                //             fn($record) =>
+                //             auth()->user()?->can('Kembalikan:LaporanInsiden') &&
+                //                 $record->status === LaporanInsiden::STATUS_DILAPORKAN
+                //         )
+                //         ->schema([
+                //             Textarea::make('rejection_reason')
+                //                 ->label('Alasan Pengembalian')
+                //                 ->required(),
+                //         ])
+                //         ->action(function ($record, array $data) {
 
-                            $record->kembalikanKePelapor(auth()->id(), $data['rejection_reason']);
+                //             $record->kembalikanKePelapor(auth()->id(), $data['rejection_reason']);
 
-                            Notification::make()
-                                ->title('Laporan dikembalikan ke pelapor')
-                                ->danger()
-                                ->send();
-                        }),
+                //             Notification::make()
+                //                 ->title('Laporan dikembalikan ke pelapor')
+                //                 ->danger()
+                //                 ->send();
+                //         }),
 
-                ])
-                    ->visible(fn() => auth()->user()?->can('Verifikasi:LaporanInsiden'))
-                    ->label('Kepala Unit')
+                // ])
+                //     ->visible(fn() => auth()->user()?->can('Verifikasi:LaporanInsiden'))
+                //     ->label('Verifikasi Laporan')
+                //     ->button()
+                //     ->color('info')
+                //     ->icon('heroicon-o-building-office'),
+
+                Action::make('verifikasi_laporan')
+                    ->label('Verifikasi Laporan')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('warning')
                     ->button()
-                    ->color('info')
-                    ->icon('heroicon-o-building-office'),
+                    ->visible(
+                        fn($record) =>
+                        auth()->user()?->can('Verifikasi:LaporanInsiden') &&
+                            $record->status === LaporanInsiden::STATUS_DILAPORKAN
+                    )
+                    ->requiresConfirmation()
+                    ->modalHeading('Verifikasi Laporan')
+                    ->schema([
+                        ToggleButtons::make('grading_risiko')
+                            ->label('Grading Risiko')
+                            ->required()
+                            ->options([
+                                'Biru'   => '🔵 Biru (Tidak signifikan)',
+                                'Hijau'  => '🟢 Hijau (Minor)',
+                                'Kuning' => '🟡 Kuning (Moderat)',
+                                'Merah'  => '🔴 Merah (Mayor)',
+                                'Hitam'  => '⚫ Hitam (Katastropik)',
+                            ])
+                            ->colors([
+                                'Biru'   => 'info',
+                                'Hijau'  => 'success',
+                                'Kuning' => 'warning',
+                                'Merah'  => 'danger',
+                                'Hitam'  => 'gray',
+                            ])
+                            ->inline()
+                            ->helperText('Hanya diisi oleh Validator / Tim IKP')
+                            ->default(fn($record) => $record->grading_risiko),
+                        Textarea::make('catatan_tambahan')
+                            ->label('Catatan Verifikasi')
+                            ->hidden()
+                            ->rows(3)
+                            ->default(fn($record) => $record->catatan_tambahan),
+                    ])
+                    ->action(function ($record, array $data) {
+                        $record->update([
+                            'grading_risiko' => $data['grading_risiko'],
+                            // 'catatan_tambahan' => $data['catatan_tambahan'],
+                        ]);
+                        $record->verifikasiLaporan(auth()->id());
+
+                        Notification::make()
+                            ->title('Laporan diverifikasi')
+                            ->success()
+                            ->send();
+                    }),
 
                 /*
                 |--------------------------------------------------------------------------
@@ -333,61 +387,100 @@ class LaporanInsidensTable
                 |--------------------------------------------------------------------------
                 */
 
-                ActionGroup::make([
+                // ActionGroup::make([
 
-                    Action::make('mulai_investigasi')
-                        ->label('Mulai Investigasi')
-                        ->icon('heroicon-o-magnifying-glass')
-                        ->color('info')
-                        ->visible(
-                            fn($record) =>
-                            auth()->user()?->can('Investigasi:LaporanInsiden') &&
-                                $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
-                        )
-                        ->requiresConfirmation()
-                        ->action(function ($record) {
-                            if (blank($record->grading_risiko)) {
-                                Notification::make()
-                                    ->title('Belum bisa investigasi')
-                                    ->body('Grading risiko wajib diisi saat verifikasi sebelum memulai investigasi.')
-                                    ->danger()
-                                    ->send();
+                //     Action::make('mulai_investigasi')
+                //         ->label('Mulai Investigasi')
+                //         ->icon('heroicon-o-magnifying-glass')
+                //         ->color('info')
+                //         ->visible(
+                //             fn($record) =>
+                //             auth()->user()?->can('Investigasi:LaporanInsiden') &&
+                //                 $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
+                //         )
+                //         ->requiresConfirmation()
+                //         ->action(function ($record) {
+                //             if (blank($record->grading_risiko)) {
+                //                 Notification::make()
+                //                     ->title('Belum bisa investigasi')
+                //                     ->body('Grading risiko wajib diisi saat verifikasi sebelum memulai investigasi.')
+                //                     ->danger()
+                //                     ->send();
 
-                                return;
-                            }
+                //                 return;
+                //             }
 
-                            $record->mulaiInvestigasi(auth()->id());
-                        }),
+                //             $record->mulaiInvestigasi(auth()->id());
+                //         }),
 
-                    Action::make('kembalikan_ke_unit')
-                        ->label('Kembalikan ke Kepala Unit')
-                        ->icon('heroicon-o-arrow-uturn-left')
-                        ->color('danger')
-                        ->visible(
-                            fn($record) =>
-                            auth()->user()?->can('KembalikanUnit:LaporanInsiden') &&
-                                $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
-                        )
-                        ->schema([
-                            Textarea::make('rejection_reason')
-                                ->label('Alasan Pengembalian')
-                                ->required(),
-                        ])
-                        ->action(function ($record, array $data) {
+                //     Action::make('kembalikan_ke_unit')
+                //         ->label('Kembalikan ke Kepala Unit')
+                //         ->icon('heroicon-o-arrow-uturn-left')
+                //         ->color('danger')
+                //         ->visible(
+                //             fn($record) =>
+                //             auth()->user()?->can('KembalikanUnit:LaporanInsiden') &&
+                //                 $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
+                //         )
+                //         ->schema([
+                //             Textarea::make('rejection_reason')
+                //                 ->label('Alasan Pengembalian')
+                //                 ->required(),
+                //         ])
+                //         ->action(function ($record, array $data) {
 
-                            $record->kembalikanKeKepalaUnit(auth()->id(), $data['rejection_reason']);
+                //             $record->kembalikanKeKepalaUnit(auth()->id(), $data['rejection_reason']);
 
+                //             Notification::make()
+                //                 ->title('Laporan dikembalikan ke kepala unit')
+                //                 ->danger()
+                //                 ->send();
+                //         }),
+
+                // ])
+                //     ->visible(fn() => auth()->user()?->can('Investigasi:LaporanInsiden'))
+                //     ->button()
+                //     ->color('success')
+                //     ->label('Investigasi Insiden')
+                //     ->icon('heroicon-o-shield-check'),
+
+                Action::make('mulai_investigasi')
+                    ->label('Mulai Investigasi')
+                    ->icon('heroicon-o-magnifying-glass')
+                    ->color('info')
+                    ->visible(
+                        fn($record) =>
+                        auth()->user()?->can('Investigasi:LaporanInsiden') &&
+                            $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
+                    )
+                    ->requiresConfirmation()
+                    ->modalHeading('Mulai Investigasi')
+                    ->modalDescription('Laporan akan masuk ke tahap investigasi dan tim akan memulai proses investigasi laporan ini.')
+                    ->modalSubmitActionLabel('Mulai Investigasi')
+                    ->action(function ($record) {
+                        if (blank($record->grading_risiko)) {
                             Notification::make()
-                                ->title('Laporan dikembalikan ke kepala unit')
+                                ->title('Belum bisa investigasi')
+                                ->body('Grading risiko wajib diisi saat verifikasi sebelum memulai investigasi.')
                                 ->danger()
                                 ->send();
-                        }),
 
-                ])
-                    ->visible(fn() => auth()->user()?->can('Investigasi:LaporanInsiden'))
+                            return;
+                        }
+
+                        $record->mulaiInvestigasi(auth()->id());
+
+                        Notification::make()
+                            ->title('Investigasi dimulai')
+                            ->body("Laporan {$record->nomor_laporan} sekarang masuk ke tahap investigasi.")
+                            ->success()
+                            ->send();
+
+                        redirect(LaporanInsidenResource::getUrl('edit', ['record' => $record]));
+                    })
                     ->button()
                     ->color('success')
-                    ->label('Tim Mutu')
+                    ->label('Investigasi Insiden')
                     ->icon('heroicon-o-shield-check'),
 
                 ActionGroup::make([

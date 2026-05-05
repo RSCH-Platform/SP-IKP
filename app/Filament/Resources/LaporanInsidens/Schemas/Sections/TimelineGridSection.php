@@ -21,12 +21,14 @@ class TimelineGridSection
 {
     public static function make(): Section
     {
-        return Section::make('📊 Timeline Insiden')
+        return Section::make('BAGIAN D: TIMELINE INSIDEN')
             ->description('Timeline kejadian dalam format grid - tanggal terpisah, waktu di baris, kategori di kolom')
+            ->icon('heroicon-o-clock')
             ->schema([
                 // Livewire Timeline Grid Manager Component
                 View::make('filament.components.timeline-grid-livewire-wrapper'),
             ])
+            ->collapsed()
             ->collapsible();
     }
 }

@@ -82,6 +82,7 @@ class ViewLaporanInsiden extends ViewRecord
                             ->default(fn() => $this->record->grading_risiko),
                         Textarea::make('catatan_tambahan')
                             ->label('Catatan Verifikasi')
+                            ->hidden()
                             ->rows(3)
                             ->default(fn() => $this->record->catatan_tambahan),
                     ])
@@ -89,7 +90,7 @@ class ViewLaporanInsiden extends ViewRecord
                     ->modalHeading('Verifikasi Laporan')
                     ->modalDescription('Laporan akan diverifikasi dan diteruskan ke tim mutu untuk investigasi.')
                     ->modalSubmitActionLabel('Verifikasi')
-                    ->action(fn() => $this->verifikasiLaporan()),
+                    ->action(fn(array $data) => $this->verifikasiLaporan($data)),
 
 
                 Action::make('kembalikan_laporan')
@@ -124,19 +125,10 @@ class ViewLaporanInsiden extends ViewRecord
                             $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
                     )
                     ->requiresConfirmation()
-                    ->action(function ($record) {
-                        if (blank($record->grading_risiko)) {
-                            Notification::make()
-                                ->title('Belum bisa investigasi')
-                                ->body('Grading risiko wajib diisi saat verifikasi sebelum memulai investigasi.')
-                                ->danger()
-                                ->send();
-
-                            return;
-                        }
-
-                        $record->mulaiInvestigasi(auth()->id());
-                    }),
+                    ->modalHeading('Mulai Investigasi')
+                    ->modalDescription('Laporan akan masuk ke tahap investigasi dan tim akan memulai proses investigasi laporan ini.')
+                    ->modalSubmitActionLabel('Mulai Investigasi')
+                    ->action(fn() => $this->mulaiInvestigasi()),
             ])
                 ->label('Aksi Cepat')
                 ->icon('heroicon-o-bolt')
@@ -252,8 +244,18 @@ class ViewLaporanInsiden extends ViewRecord
         ]));
     }
 
-    protected function verifikasiLaporan(): void
+    protected function verifikasiLaporan(array $data): void
     {
+        // Simpan grading risiko dan catatan terlebih dahulu
+        $this->record->update([
+            'grading_risiko' => $data['grading_risiko'] ?? null,
+            'catatan_tambahan' => $data['catatan_tambahan'] ?? null,
+        ]);
+
+        // Refresh instance untuk mendapatkan data terbaru
+        $this->record->refresh();
+
+        // Sekarang verifikasi
         $this->record->verifikasiLaporan(auth()->id());
 
         $notifyUsers = User::role(['tim_mutu_ikp', 'admin_ikp'])->get();
@@ -297,6 +299,33 @@ class ViewLaporanInsiden extends ViewRecord
             ->send();
 
         $this->redirect(static::getResource()::getUrl('view', [
+            'record' => $this->record
+        ]));
+    }
+
+    protected function mulaiInvestigasi(): void
+    {
+        // Validasi grading risiko
+        if (blank($this->record->grading_risiko)) {
+            Notification::make()
+                ->title('Belum bisa investigasi')
+                ->body('Grading risiko wajib diisi saat verifikasi sebelum memulai investigasi.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        // Mulai investigasi
+        $this->record->mulaiInvestigasi(auth()->id());
+
+        Notification::make()
+            ->title('Investigasi dimulai')
+            ->body("Laporan dari {$this->record->nama_pelapor} sekarang masuk ke tahap investigasi.")
+            ->success()
+            ->send();
+
+        $this->redirect(static::getResource()::getUrl('edit', [
             'record' => $this->record
         ]));
     }

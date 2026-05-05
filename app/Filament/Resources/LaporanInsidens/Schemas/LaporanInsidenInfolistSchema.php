@@ -54,7 +54,7 @@ class LaporanInsidenInfolistSchema
 
     public static function sectionInsiden(): Section
     {
-        return Section::make('📍 BAGIAN C: RINCIAN KEJADIAN INSIDEN')
+        return Section::make('BAGIAN C: RINCIAN KEJADIAN INSIDEN')
             ->description('Informasi lengkap tentang waktu dan tempat terjadinya insiden')
             ->icon('heroicon-o-exclamation-triangle')
             ->schema([
@@ -84,7 +84,7 @@ class LaporanInsidenInfolistSchema
 
     public static function sectionPasien(): Section
     {
-        return Section::make('👤 BAGIAN C: DATA PASIEN')
+        return Section::make('BAGIAN C: DATA PASIEN')
             ->description('Informasi pasien yang terlibat dalam insiden')
             ->icon('heroicon-o-identification')
             ->schema([
@@ -138,7 +138,7 @@ class LaporanInsidenInfolistSchema
 
     public static function sectionKronologi(): Section
     {
-        return Section::make('📝 BAGIAN D: KRONOLOGI KEJADIAN')
+        return Section::make('BAGIAN D: KRONOLOGI KEJADIAN')
             ->description('Uraian kronologis insiden dalam format table timeline yang disamakan dengan halaman edit')
             ->icon('heroicon-o-document-text')
             ->schema([
@@ -270,6 +270,7 @@ class LaporanInsidenInfolistSchema
                     ->formatStateUsing(fn(?string $state): string => $state ? nl2br(e($state)) : '<span class="text-gray-400">Tidak ada catatan tambahan</span>')
                     ->placeholder('Tidak ada catatan tambahan'),
             ])
+            ->hidden()
             ->collapsible()
             ->collapsed()
             ->compact();

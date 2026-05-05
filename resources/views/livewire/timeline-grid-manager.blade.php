@@ -34,9 +34,9 @@
     $sortedEvents = collect($dateEvents)->sortBy('event_datetime');
     @endphp
 
-    <div class="border rounded-lg overflow-hidden bg-white dark:bg-slate-800 shadow-sm dark:shadow-lg dark:border-gray-600 transition-all duration-300" x-data="{ expanded: true }">
+    <div class="border rounded-lg overflow-hidden bg-white dark:bg-slate-800 shadow-sm dark:shadow-lg dark:border-gray-600 transition-all duration-300" x-data="{ expanded: true, activeRow: null }">
         <!-- Date Header - Accordion -->
-        <div @click="expanded = !expanded" class="group cursor-pointer bg-gradient-to-r from-blue-50 to-blue-25 dark:from-blue-950 dark:to-blue-900 px-4 py-3 border-b dark:border-blue-800 flex items-center justify-between hover:from-blue-100 dark:hover:from-blue-900 transition-colors duration-200">
+        <div @click="expanded = !expanded" class="group cursor-pointer bg-gradient-to-r from-blue-50 to-blue-25 dark:from-blue-950 dark:to-blue-900 px-4 py-3 border-b dark:border-blue-800 flex items-center justify-between hover:from-blue-100 dark:hover:from-blue-900 active:from-blue-100 dark:active:from-blue-800 transition-colors duration-200">
             <div class="flex items-center gap-3">
                 <!-- Chevron Icon -->
                 <div class="flex-shrink-0">
@@ -87,14 +87,14 @@
                         $isEven = $eventIndex % 2 === 0;
                         @endphp
 
-                        <tr class="border-b dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors duration-150 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }}">
+                        <tr class="border-b dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors duration-150 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }}" x-data="{ rowId: {{ $event['id'] }} }" @click="activeRow === rowId ? activeRow = null : activeRow = rowId">
                             <!-- Time Cell - Clickable to Edit -->
-                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100 sticky left-0 z-10 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }} hover:bg-blue-50 dark:hover:bg-slate-700 cursor-pointer group relative" 
+                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100 sticky left-0 z-10 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }} hover:bg-blue-50 dark:hover:bg-slate-700 active:bg-blue-100 dark:active:bg-slate-600 cursor-pointer group relative transition-colors duration-150"
                                 wire:click="openEditTimeModal({{ $event['id'] }})"
                                 title="Klik untuk edit waktu">
                                 <div class="flex items-center justify-between">
                                     <span>{{ $timeFormatted }}</span>
-                                    <span class="opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-xs text-blue-500">✎</span>
+                                    <span class="opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity ml-2 text-xs text-blue-500">✎</span>
                                 </div>
                             </td>
 
@@ -107,32 +107,35 @@
                             @endphp
 
                             <td class="px-4 py-3">
-                                <div class="group flex flex-col gap-2">
+                                <div class="flex flex-col gap-2">
                                     @if($hasContent)
                                     <p class="text-gray-800 dark:text-gray-200 text-sm leading-relaxed">{{ Str::limit($description, 120) }}</p>
                                     @else
                                     <p class="text-gray-400 dark:text-gray-500 text-sm italic">[Kosong]</p>
                                     @endif
 
-                                    <!-- Hover Action Buttons -->
-                                    <div class="hidden group-hover:flex gap-1">
+                                    <!-- Action Buttons - Show Only When Row is Active -->
+                                    <div x-show="activeRow === rowId" x-transition class="flex gap-1 flex-wrap">
                                         <button
                                             type="button"
                                             wire:click="openMoveModal({{ $event['id'] }}, {{ $category['id'] }})"
-                                            class="px-2 py-1 text-xs bg-yellow-500 dark:bg-yellow-600 text-white rounded hover:bg-yellow-600 dark:hover:bg-yellow-500 transition-colors duration-150 font-medium shadow-sm">
+                                            @click.stop
+                                            class="px-2 py-1 text-xs bg-yellow-500 dark:bg-yellow-600 text-white rounded hover:bg-yellow-600 dark:hover:bg-yellow-500 active:bg-yellow-700 dark:active:bg-yellow-700 transition-colors duration-150 font-medium shadow-sm whitespace-nowrap">
                                             ➡️ Pindah
                                         </button>
                                         <button
                                             type="button"
                                             wire:click="openEditModal({{ $event['id'] }}, {{ $category['id'] }})"
-                                            class="px-2 py-1 text-xs bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-500 transition-colors duration-150 font-medium shadow-sm">
+                                            @click.stop
+                                            class="px-2 py-1 text-xs bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-500 active:bg-blue-700 dark:active:bg-blue-700 transition-colors duration-150 font-medium shadow-sm whitespace-nowrap">
                                             ✎ Edit
                                         </button>
                                         <button
                                             type="button"
                                             wire:click="deleteEntry({{ $event['id'] }}, {{ $category['id'] }})"
                                             wire:confirm="Yakin hapus entry ini?"
-                                            class="px-2 py-1 text-xs bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-500 transition-colors duration-150 font-medium shadow-sm">
+                                            @click.stop
+                                            class="px-2 py-1 text-xs bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-500 active:bg-red-700 dark:active:bg-red-700 transition-colors duration-150 font-medium shadow-sm whitespace-nowrap">
                                             🗑 Hapus
                                         </button>
                                     </div>
@@ -146,7 +149,7 @@
                                     type="button"
                                     wire:click="deleteEvent({{ $event['id'] }})"
                                     wire:confirm="Hapus event ini dan semua entrinya?"
-                                    class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium text-xs transition-colors duration-150">
+                                    class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 active:text-red-900 dark:active:text-red-200 font-medium text-xs transition-colors duration-150">
                                     🗑
                                 </button>
                             </td>

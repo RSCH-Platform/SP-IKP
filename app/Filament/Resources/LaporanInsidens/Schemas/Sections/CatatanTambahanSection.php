@@ -22,6 +22,7 @@ class CatatanTambahanSection
             ])
             ->collapsible()
             ->collapsed()
+            ->hidden()
             ->persistCollapsed()
             ->compact();
     }
