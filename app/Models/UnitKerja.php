@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use Juniyasyos\ManageUnitKerja\Models\UnitKerja as ModelsUnitKerja;
 
-class UnitKerja extends ModelsUnitKerja
+class UnitKerja extends Model
 {
     use HasFactory, SoftDeletes;
 

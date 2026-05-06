@@ -2,60 +2,78 @@
 
 namespace App\Filament\Resources\UnitKerjas;
 
-use App\Filament\Resources\UnitKerjas\Pages\CreateUnitKerja;
-use App\Filament\Resources\UnitKerjas\Pages\EditUnitKerja;
-use App\Filament\Resources\UnitKerjas\Pages\ListUnitKerjas;
-use App\Filament\Resources\UnitKerjas\Pages\ViewUnitKerja;
-use App\Filament\Resources\UnitKerjas\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\UnitKerjas\Schemas\UnitKerjaForm;
-use App\Filament\Resources\UnitKerjas\Schemas\UnitKerjaInfolist;
 use App\Filament\Resources\UnitKerjas\Tables\UnitKerjasTable;
-use App\Models\UnitKerja;
 use BackedEnum;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
-use BezhanSalleh\PluginEssentials\Concerns\Resource as Essentials;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Juniyasyos\ManageUnitKerja\Filament\Resources\UnitKerjaResource as ResourcesUnitKerjaResource;
-use UnitEnum;
+use Illuminate\Database\Eloquent\Model;
 
-class UnitKerjaResource extends ResourcesUnitKerjaResource
+class UnitKerjaResource extends Resource implements HasShieldPermissions
 {
-    use Essentials\BelongsToParent;
-    use Essentials\BelongsToTenant;
-    use Essentials\HasGlobalSearch;
-    use Essentials\HasLabels;
-    use Essentials\HasNavigation;
+    protected static ?string $model = null;
 
-    protected static ?string $model = UnitKerja::class;
+    protected static ?string $slug = 'unit-kerjas';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-office';
+    public static function getModel(): string
+    {
+        return config('manage-unit-kerja.model.unit_kerja', parent::getModel());
+    }
 
-    protected static ?string $recordTitleAttribute = 'unit_name';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    // must match parent signature exactly (order and imported type)
-    protected static UnitEnum|string|null $navigationGroup = 'Administration';
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'restore',
+            'restore_any',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+            'attach_user_to_unit_kerja',
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['unit_name'];
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): ?string
+    {
+        return static::getUrl(name: 'edit', parameters: ['record' => $record]);
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->unit_name;
+    }
+
+    public static function getLabel(): ?string
+    {
+        return __('filament-forms::unit-kerja.navigation.title');
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return __('filament-forms::unit-kerja.navigation.plural');
+    }
 
     public static function getNavigationGroup(): ?string
     {
-        if (static::$navigationGroup instanceof UnitEnum) {
-            return (string) static::$navigationGroup->value;
-        }
-
-        return is_string(static::$navigationGroup)
-            ? static::$navigationGroup
-            : parent::getNavigationGroup();
+        return 'Administration';
     }
 
-    public static function schema(Schema $schema): Schema
+    public static function schema(Schema $form): Schema
     {
-        return UnitKerjaForm::configure($schema);
-    }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return UnitKerjaInfolist::configure($schema);
+        return UnitKerjaForm::configure($form);
     }
 
     public static function table(Table $table): Table
@@ -63,28 +81,12 @@ class UnitKerjaResource extends ResourcesUnitKerjaResource
         return UnitKerjasTable::configure($table);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            UsersRelationManager::class,
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => ListUnitKerjas::route('/'),
-            'create' => CreateUnitKerja::route('/create'),
-            'view' => ViewUnitKerja::route('/{record}'),
-            'edit' => EditUnitKerja::route('/{record}/edit'),
+            'index' => Pages\ListUnitKerjas::route('/'),
+            'create' => Pages\CreateUnitKerja::route('/create'),
+            'edit' => Pages\EditUnitKerja::route('/{record:slug}/edit'),
         ];
-    }
-
-    public static function getRecordRouteBindingEloquentQuery(): Builder
-    {
-        return parent::getRecordRouteBindingEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }

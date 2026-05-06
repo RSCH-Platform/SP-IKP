@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "07e5a70cd2492d9ddc0c73dec9c80d70",
+    "content-hash": "21c7023015d8fe1a70fc8eed2ac74666",
     "packages": [
         {
             "name": "bezhansalleh/filament-plugin-essentials",
@@ -2515,61 +2515,6 @@
                 "source": "https://github.com/juniyasyos/filament-media-manager/tree/v1.4.1"
             },
             "time": "2026-03-21T18:51:31+00:00"
-        },
-        {
-            "name": "juniyasyos/manage-unit-kerja",
-            "version": "v2.1.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/juniyasyos/manage-unit-kerja.git",
-                "reference": "0a0b7414e0e4fec00c6ec212e12f3ba3b266978c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/juniyasyos/manage-unit-kerja/zipball/0a0b7414e0e4fec00c6ec212e12f3ba3b266978c",
-                "reference": "0a0b7414e0e4fec00c6ec212e12f3ba3b266978c",
-                "shasum": ""
-            },
-            "require": {
-                "bezhansalleh/filament-shield": "^4.1",
-                "filament/filament": "^4.0",
-                "guava/filament-modal-relation-managers": "^2.0",
-                "illuminate/support": "^10.0|^11.0|^12.0",
-                "php": "^8.2"
-            },
-            "require-dev": {
-                "orchestra/testbench": "^8.0|^9.0",
-                "phpunit/phpunit": "^10.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Juniyasyos\\ManageUnitKerja\\ManageUnitKerjaServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Juniyasyos\\ManageUnitKerja\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Juniyasyos",
-                    "email": "juniyasyos@gmail.com"
-                }
-            ],
-            "description": "Plugin manage Unit Kerja untuk Filament (modul terpisah)",
-            "support": {
-                "issues": "https://github.com/juniyasyos/manage-unit-kerja/issues",
-                "source": "https://github.com/juniyasyos/manage-unit-kerja/tree/v2.1.6"
-            },
-            "time": "2026-04-24T22:16:17+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",

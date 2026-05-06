@@ -35,13 +35,14 @@ class UsersRelationManager extends RelationManager
             ->headerActions([
                 \Filament\Actions\AttachAction::make()
                     ->preloadRecordSelect()
+                    ->hidden()
                     ->recordSelectSearchColumns(['name', 'nip']),
             ])
             ->recordActions([
-                \Filament\Actions\DetachAction::make(),
+                \Filament\Actions\DetachAction::make()->hidden(),
             ])
             ->toolbarActions([
-                \Filament\Actions\DetachBulkAction::make(),
+                \Filament\Actions\DetachBulkAction::make()->hidden(),
             ]);
     }
 }
