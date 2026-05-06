@@ -12,9 +12,10 @@ use Illuminate\Support\Str;
 use App\Models\TimelineEvent;
 use App\Models\TimelineEntry;
 use Juniyasyos\FilamentMediaManager\Traits\InteractsWithMediaFolders;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class LaporanInsiden extends Model
+class LaporanInsiden extends Model implements HasMedia
 {
     use HasFactory, SoftDeletes, InteractsWithMediaFolders, InteractsWithMedia;
 

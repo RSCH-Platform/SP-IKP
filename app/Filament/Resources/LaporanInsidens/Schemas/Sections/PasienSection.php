@@ -11,7 +11,7 @@ use Filament\Schemas\Components\Utilities\Get;
 
 class PasienSection
 {
-    public static function make(): Section
+    public static function make(bool $collapsed = true): Section
     {
         $schema = [
             Grid::make(3)->schema([
@@ -147,7 +147,7 @@ class PasienSection
             ->visible(fn(Get $get) => $get('insiden_terjadi_pada') === 'Pasien')
             ->schema($schema)
             ->collapsible()
-            ->collapsed()
+            ->collapsed($collapsed)
             ->compact();
     }
 }

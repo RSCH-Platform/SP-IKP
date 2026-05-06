@@ -16,7 +16,7 @@ use Filament\Schemas\Components\Utilities\Get;
 
 class InsidenSection
 {
-    public static function make(bool $withGrading = false): Section
+    public static function make(bool $withGrading = false, bool $collapsed = false): Section
     {
         $schema = [
             Grid::make(2)->schema([
@@ -109,7 +109,7 @@ class InsidenSection
             ->icon('heroicon-o-exclamation-triangle')
             ->schema($schema)
             ->collapsible()
-            ->collapsed()
+            ->collapsed($collapsed)
             ->persistCollapsed()
             ->compact();
     }

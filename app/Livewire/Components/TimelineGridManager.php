@@ -6,6 +6,7 @@ use App\Models\LaporanInsiden;
 use App\Models\TimelineCategory;
 use App\Models\TimelineEvent;
 use App\Models\TimelineEntry;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
 
@@ -222,7 +223,7 @@ class TimelineGridManager extends Component
             $event = TimelineEvent::create([
                 'laporan_insiden_id' => $this->recordId,
                 'event_datetime' => $dateTime,
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
             ]);
 
             // Create entries for all categories (empty)
@@ -231,13 +232,16 @@ class TimelineGridManager extends Component
                     'timeline_event_id' => $event->id,
                     'category_id' => $category['id'],
                     'description' => '',
-                    'created_by' => auth()->id(),
+                    'created_by' => Auth::id(),
                 ]);
             }
 
             $this->showModal = false;
             $this->resetModal();
             $this->loadTimelineData();
+
+            // Keep problem analysis in sync with newly created timeline entries
+            $this->dispatch('refresh-problems');
 
             $this->dispatch('notify', message: 'Event timeline berhasil ditambahkan');
         } catch (\Exception $e) {
@@ -299,12 +303,15 @@ class TimelineGridManager extends Component
 
             $entry->update([
                 'description' => $this->editingDescription,
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
             ]);
 
             $this->showModal = false;
             $this->resetModal();
             $this->loadTimelineData();
+
+            // Keep problem analysis in sync with edited timeline entries
+            $this->dispatch('refresh-problems');
 
             $this->dispatch('notify', message: 'Entry berhasil disimpan');
         } catch (\Exception $e) {
@@ -372,7 +379,7 @@ class TimelineGridManager extends Component
                     } else {
                         $targetEntry->description = $sourceEntry->description;
                     }
-                    $targetEntry->created_by = auth()->id();
+                    $targetEntry->created_by = Auth::id();
                     $targetEntry->save();
                 }
 
@@ -385,6 +392,10 @@ class TimelineGridManager extends Component
             $this->showModal = false;
             $this->resetModal();
             $this->loadTimelineData();
+
+            // Keep problem analysis in sync after moving an entry between categories
+            $this->dispatch('refresh-problems');
+
             $this->dispatch('notify', message: 'Entry berhasil dipindahkan');
         } catch (\Exception $e) {
             $this->dispatch('notify-error', message: 'Gagal memindahkan entry: ' . $e->getMessage());

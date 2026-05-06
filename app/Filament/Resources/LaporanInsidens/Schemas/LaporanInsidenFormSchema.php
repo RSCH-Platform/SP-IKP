@@ -26,20 +26,20 @@ class LaporanInsidenFormSchema
             Step::make('Pelapor')
                 ->icon('heroicon-o-user-circle')
                 ->schema([
-                    static::sectionPelapor(),
+                    static::sectionPelapor(collapsed: false),
                 ]),
 
             Step::make('Pasien')
                 ->icon('heroicon-o-identification')
                 ->hidden(fn(Get $get) => $get('insiden_terjadi_pada') !== 'Pasien')
                 ->schema([
-                    static::sectionPasien(),
+                    static::sectionPasien(collapsed: false),
                 ]),
 
             Step::make('Insiden')
                 ->icon('heroicon-o-exclamation-triangle')
                 ->schema([
-                    static::sectionInsiden(),
+                    static::sectionInsiden(collapsed: false),
                 ]),
 
             // Step::make('Kronologi')
@@ -95,19 +95,19 @@ class LaporanInsidenFormSchema
         return $sections;
     }
 
-    public static function sectionPelapor(): Section
+    public static function sectionPelapor(bool $collapsed = false): Section
     {
-        return PelaporSection::make();
+        return PelaporSection::make($collapsed);
     }
 
-    public static function sectionInsiden(bool $withGrading = false): Section
+    public static function sectionInsiden(bool $withGrading = false, bool $collapsed = false): Section
     {
-        return InsidenSection::make($withGrading);
+        return InsidenSection::make($withGrading, $collapsed);
     }
 
-    public static function sectionPasien(): Section
+    public static function sectionPasien(bool $collapsed = false): Section
     {
-        return PasienSection::make();
+        return PasienSection::make($collapsed);
     }
 
     public static function sectionKronologi(): Section

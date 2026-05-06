@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\TimelineEntry;
 use App\Models\TimelineCategory;
 use App\Models\IncidentProblem;
+use Illuminate\Support\Facades\Cache;
 
 class TimelineEntryObserver
 {
@@ -12,11 +13,22 @@ class TimelineEntryObserver
 
     public function created(TimelineEntry $entry)
     {
+        if ($this->shouldDeleteEmptyEntry($entry)) {
+            $entry->delete();
+            return;
+        }
+
         $this->syncProblemForEntry($entry);
+        $this->notifyProblemRefresh($entry);
     }
 
     public function updated(TimelineEntry $entry)
     {
+        if ($this->shouldDeleteEmptyEntry($entry)) {
+            $entry->delete();
+            return;
+        }
+
         $originalCategoryId = $entry->getOriginal('category_id');
         $newCategoryId = $entry->category_id;
 
@@ -67,11 +79,13 @@ class TimelineEntryObserver
                 }
             }
 
+            $this->notifyProblemRefresh($entry);
             return;
         }
 
         // If only description changed (or other non-category fields), sync description
         $this->syncProblemForEntry($entry);
+        $this->notifyProblemRefresh($entry);
     }
 
     public function deleted(TimelineEntry $entry)
@@ -89,6 +103,7 @@ class TimelineEntryObserver
         IncidentProblem::where('incident_id', $incidentId)
             ->where('problem_type', strtoupper($code))
             ->delete();
+        $this->notifyProblemRefresh($entry);
     }
 
     protected function syncProblemForEntry(TimelineEntry $entry): void
@@ -115,5 +130,26 @@ class TimelineEntryObserver
         }
 
         $problem->save();
+    }
+
+    protected function shouldDeleteEmptyEntry(TimelineEntry $entry): bool
+    {
+        return trim((string) $entry->description) === '';
+    }
+
+    /**
+     * Notify Livewire component to refresh problems
+     * Uses cache key to signal component across request boundaries
+     * Component checks this flag in hydrate() and reloads data if needed
+     */
+    protected function notifyProblemRefresh(TimelineEntry $entry): void
+    {
+        $incidentId = $entry->event?->laporan_insiden_id;
+        if (! $incidentId) {
+            return;
+        }
+
+        // Set a cache flag that component will check in hydrate
+        Cache::put("problem-refresh-needed-{$incidentId}", time(), now()->addMinutes(1));
     }
 }

@@ -13,7 +13,7 @@ use App\Livewire\Components\Traits\HandlesWhys;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Cache;
 class ProblemAnalysisManager extends Component
 {
     use WithFileUploads;
@@ -74,6 +74,18 @@ class ProblemAnalysisManager extends Component
             $this->categories = [];
             $this->expandedProblemId = null;
             return;
+        }
+
+        // Check if observer triggered problem refresh via cache flag
+        if ($this->recordId) {
+            $cacheKey = "problem-refresh-needed-{$this->recordId}";
+            if (Cache::has($cacheKey)) {
+                // Observer created/updated/deleted a problem
+                // Force reload from database
+                $this->loadProblems();
+                Cache::forget($cacheKey);
+                return;
+            }
         }
 
         // Only load if data empty (prevent excessive queries)

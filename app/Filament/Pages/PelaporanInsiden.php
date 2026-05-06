@@ -146,7 +146,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
         return [
             \Filament\Actions\Action::make('simpanDraft')
                 ->label('Simpan Draft')
-                ->color('gray')
+                ->color('success')
                 ->action('simpanDraft'),
 
             // \Filament\Actions\Action::make('submit')
