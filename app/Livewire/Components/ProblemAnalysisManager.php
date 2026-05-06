@@ -38,7 +38,7 @@ class ProblemAnalysisManager extends Component
     public $editingItemType = null;
 
     // Docker safety: prevent memory bloat during save
-    public $categories = [];
+    // Note: contributor categories are declared in the HandlesContributors trait
 
     /**
      * Toggle problem accordion expansion
@@ -71,7 +71,7 @@ class ProblemAnalysisManager extends Component
         if ($this->isSaveAction()) {
             // Aggressively clear large data structures during save
             $this->problems = [];
-            $this->categories = [];
+            $this->contributor_categories = [];
             $this->expandedProblemId = null;
             return;
         }
@@ -93,7 +93,7 @@ class ProblemAnalysisManager extends Component
             $this->loadProblems();
         }
 
-        if (empty($this->categories)) {
+        if (empty($this->contributor_categories)) {
             $this->loadCategories();
         }
     }

@@ -1,4 +1,4 @@
-<div x-data="{ openRecommendationModal: false }" class="space-y-3 border-b border-gray-200 dark:border-slate-700 pb-6 bg-white dark:bg-slate-800">
+<div x-data="{ openRecommendationModal: false }" @close-recommendation-modal.window="openRecommendationModal = false" class="space-y-3 border-b border-gray-200 dark:border-slate-700 pb-6 bg-white dark:bg-slate-800">
     <div class="flex items-center justify-between">
         <h4 class="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <span class="text-xl">💡</span> Rekomendasi Perbaikan

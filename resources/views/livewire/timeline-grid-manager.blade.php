@@ -341,20 +341,35 @@
                     class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-2.5 text-[12px] font-medium text-slate-700 transition duration-150 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
                     Batal
                 </button>
+                @if($modalMode === 'edit')
                 <button
                     type="button"
-                    wire:click="@if($modalMode === 'edit') saveEntry @elseif($modalMode === 'move') moveEntry @elseif($modalMode === 'edit-time') saveEventTime @else addTimelineEvent @endif"
+                    wire:click="saveEntry"
                     class="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-[12px] font-medium text-white transition duration-150 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950">
-                    @if($modalMode === 'edit')
                     💾 Simpan
-                    @elseif($modalMode === 'move')
-                    ➡️ Pindahkan
-                    @elseif($modalMode === 'edit-time')
-                    💾 Update Waktu
-                    @else
-                    ➕ Tambah Event
-                    @endif
                 </button>
+                @elseif($modalMode === 'move')
+                <button
+                    type="button"
+                    wire:click="moveEntry"
+                    class="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-[12px] font-medium text-white transition duration-150 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950">
+                    ➡️ Pindahkan
+                </button>
+                @elseif($modalMode === 'edit-time')
+                <button
+                    type="button"
+                    wire:click="saveEventTime"
+                    class="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-[12px] font-medium text-white transition duration-150 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950">
+                    💾 Update Waktu
+                </button>
+                @else
+                <button
+                    type="button"
+                    wire:click="addTimelineEvent"
+                    class="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-[12px] font-medium text-white transition duration-150 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950">
+                    ➕ Tambah Event
+                </button>
+                @endif
             </div>
         </div>
     </div>

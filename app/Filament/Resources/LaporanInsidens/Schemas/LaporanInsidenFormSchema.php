@@ -95,29 +95,29 @@ class LaporanInsidenFormSchema
         return $sections;
     }
 
-    public static function sectionPelapor(bool $collapsed = false): Section
+    public static function sectionPelapor(bool $collapsed = true): Section
     {
         return PelaporSection::make($collapsed);
     }
 
-    public static function sectionInsiden(bool $withGrading = false, bool $collapsed = false): Section
+    public static function sectionInsiden(bool $withGrading = false, bool $collapsed = true): Section
     {
         return InsidenSection::make($withGrading, $collapsed);
     }
 
-    public static function sectionPasien(bool $collapsed = false): Section
+    public static function sectionPasien(bool $collapsed = true): Section
     {
         return PasienSection::make($collapsed);
     }
 
-    public static function sectionKronologi(): Section
+    public static function sectionKronologi(bool $collapsed = true): Section
     {
-        return TimelineGridSection::make();
+        return TimelineGridSection::make($collapsed);
     }
 
-    public static function sectionTindakan(bool $withAnalysis = false): Section
+    public static function sectionTindakan(bool $withAnalysis = false, bool $collapsed = true): Section
     {
-        return TindakanSection::make($withAnalysis);
+        return TindakanSection::make($withAnalysis, $collapsed);
     }
 
     public static function sectionCatatanTambahan(): Section
@@ -149,13 +149,9 @@ class LaporanInsidenFormSchema
     {
         return ProblemAnalysisSectionOptimize::make();
     }
-    public static function getFieldProblemAnalysis(): Section
-    {
-        return ProblemAnalysisSection::make();
-    }
 
-    public static function getFieldTimelineGrid(): Section
+    public static function getFieldTimelineGrid(bool $collapsed = true): Section
     {
-        return TimelineGridSection::make();
+        return TimelineGridSection::make($collapsed);
     }
 }

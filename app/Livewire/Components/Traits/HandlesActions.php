@@ -108,6 +108,7 @@ trait HandlesActions
             $this->loadProblems();
             $this->resetForms();
             $this->dispatch('notify', message: $message);
+            $this->dispatch('close-action-modal');
         } catch (\Exception $e) {
             Log::error('ProblemAnalysisManager: Error saving action', [
                 'error' => $e->getMessage(),

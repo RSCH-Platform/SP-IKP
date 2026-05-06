@@ -10,7 +10,7 @@
             </span>
 
             <span class="text-sm text-gray-500 dark:text-gray-400 italic">
-                {{ $problem['problem_type'] === 'CMP' ? 'Conformance Issue' : 'Management Issue' }}
+                {{ $problem['problem_type'] === 'CMP' ? 'Care Management Problem' : 'Service Delivery Problem' }}
             </span>
         </div>
     </div>

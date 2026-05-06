@@ -1,6 +1,6 @@
 <div wire:key="problem-analysis-manager" class="space-y-4">
 
-    @if(config('app.debug'))
+    @if(@env('app_debug'))
     <div
         class="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900
            dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-100"

@@ -13,7 +13,7 @@ use Filament\Schemas\Components\Utilities\Get;
 
 class TindakanSection
 {
-    public static function make(bool $withAnalysis = false): Section
+    public static function make(bool $withAnalysis = false, bool $collapsed = true): Section
     {
         $fields = [
             Textarea::make('tindakan_dilakukan')
@@ -46,6 +46,7 @@ class TindakanSection
                     'Ya' => '✅ Ya',
                     'Tidak' => '❌ Tidak',
                 ])
+                ->required()
                 ->inline()
                 ->live()
                 ->helperText('Pilih "Ya" jika insiden serupa pernah terjadi sebelumnya, pilih "Tidak" jika ini adalah pertama kalinya insiden ini terjadi.'),
@@ -67,13 +68,13 @@ class TindakanSection
                 ->placeholder("Contoh:\nPenyebab utama insiden adalah kurangnya komunikasi antara petugas saat shift change. Faktor yang berkontribusi termasuk kurangnya standar komunikasi yang jelas dan tidak adanya checklist handover. Rencana tindakan pencegahan meliputi implementasi SBAR untuk komunikasi antar shift dan pelatihan ulang bagi seluruh staf.")
                 ->columnSpanFull();
         }
-
+        
         return Section::make('BAGIAN E: TINDAKAN YANG DILAKUKAN')
             ->description('Tindakan yang telah dilakukan setelah terjadinya insiden')
             ->icon('heroicon-o-hand-raised')
             ->schema($fields)
             ->collapsible()
-            ->collapsed()
+            ->collapsed($collapsed)
             ->persistCollapsed()
             ->compact();
     }

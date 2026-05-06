@@ -1,4 +1,4 @@
-<div x-data="{ openContributorModal: false }" class="space-y-3 border-b border-gray-200 dark:border-slate-700 pb-6 bg-white dark:bg-slate-800">
+<div x-data="{ openContributorModal: false }" @close-contributor-modal.window="openContributorModal = false" class="space-y-3 border-b border-gray-200 dark:border-slate-700 pb-6 bg-white dark:bg-slate-800">
     <div class="flex items-center justify-between">
         <h4 class="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <span class="text-xl">🎯</span> Faktor Kontributor (5M Analysis)
@@ -92,7 +92,7 @@
     </h5>
     <div class="space-y-4">
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategori (5M) <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategori Kontributor <span class="text-red-500">*</span></label>
             <select wire:model="contributorFormData.category_id" wire:change="onCategoryChange($event.target.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
                 <option value="">-- Pilih Kategori --</option>
                 @foreach($categories ?? [] as $cat)

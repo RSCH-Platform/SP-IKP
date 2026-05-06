@@ -31,8 +31,8 @@ class LaporanInsidenForm
                             LaporanInsidenFormSchema::sectionPasien(),
                             LaporanInsidenFormSchema::sectionInsiden(true)->visible(fn($record) => !in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
                             LaporanInsidenFormSchema::sectionInsiden(false)->visible(fn($record) => in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
-                            LaporanInsidenFormSchema::sectionKronologi(),
-                            LaporanInsidenFormSchema::sectionTindakan(),
+                            LaporanInsidenFormSchema::sectionKronologi(collapsed:false),
+                            LaporanInsidenFormSchema::sectionTindakan(collapsed:false),
                             // LaporanInsidenFormSchema::sectionCatatanTambahan()->hidden(fn($record) => !($record->status !== LaporanInsiden::STATUS_DRAFT)),
                         ]),
                     // Step::make('Grading Resiko & Catatan Tambahan') (Laporan Status: Dilaporkan)
@@ -70,7 +70,7 @@ class LaporanInsidenForm
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_INVESTIGASI))
                         ->schema([
                             // NEW IMPROVED GRID DESIGN
-                            LaporanInsidenFormSchema::getFieldTimelineGrid(),
+                            LaporanInsidenFormSchema::getFieldTimelineGrid(collapsed:false),
 
                             // // OLD DESIGN (preserved for reference/comparison)
                             // LaporanInsidenFormSchema::getFieldTabularTimeline(),

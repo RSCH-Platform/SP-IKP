@@ -296,12 +296,16 @@ class TimelineGridManager extends Component
      */
     public function saveEntry()
     {
-        try {
-            $entry = TimelineEntry::where('timeline_event_id', $this->editingEventId)
-                ->where('category_id', $this->editingCategoryId)
-                ->firstOrFail();
+        if (! $this->editingEventId || ! $this->editingCategoryId) {
+            $this->dispatch('notify-error', message: 'Entry tidak valid');
+            return;
+        }
 
-            $entry->update([
+        try {
+            TimelineEntry::updateOrCreate([
+                'timeline_event_id' => $this->editingEventId,
+                'category_id' => $this->editingCategoryId,
+            ], [
                 'description' => $this->editingDescription,
                 'created_by' => Auth::id(),
             ]);
@@ -315,6 +319,11 @@ class TimelineGridManager extends Component
 
             $this->dispatch('notify', message: 'Entry berhasil disimpan');
         } catch (\Exception $e) {
+            Log::error('TimelineGridManager: Error saving entry', [
+                'error' => $e->getMessage(),
+                'editingEventId' => $this->editingEventId,
+                'editingCategoryId' => $this->editingCategoryId,
+            ]);
             $this->dispatch('notify-error', message: 'Gagal menyimpan entry: ' . $e->getMessage());
         }
     }

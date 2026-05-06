@@ -19,16 +19,16 @@ use Filament\Schemas\Components\View;
  */
 class TimelineGridSection
 {
-    public static function make(): Section
+    public static function make(bool $collapsed = true): Section
     {
         return Section::make('BAGIAN D: TIMELINE INSIDEN')
-            ->description('Timeline kejadian dalam format grid - tanggal terpisah, waktu di baris, kategori di kolom')
+            ->description('Berisi rangkaian kejadian insiden yang disusun berdasarkan waktu')
             ->icon('heroicon-o-clock')
             ->schema([
                 // Livewire Timeline Grid Manager Component
                 View::make('filament.components.timeline-grid-livewire-wrapper'),
             ])
-            ->collapsed()
+            ->collapsed($collapsed)
             ->collapsible();
     }
 }

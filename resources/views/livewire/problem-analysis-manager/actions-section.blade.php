@@ -1,4 +1,4 @@
-<div x-data="{ openActionModal: false }" class="space-y-3 border-b border-gray-200 dark:border-slate-700 pb-6 bg-white dark:bg-slate-800">
+<div x-data="{ openActionModal: false }" @close-action-modal.window="openActionModal = false" class="space-y-3 border-b border-gray-200 dark:border-slate-700 pb-6 bg-white dark:bg-slate-800">
     <div class="flex items-center justify-between">
         <h4 class="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <span class="text-xl">✅</span> Tindakan Korektif & Preventif
@@ -27,11 +27,11 @@
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                 <div>
-                    <span class="text-gray-600 dark:text-gray-400 font-medium">PJ:</span>
+                    <span class="text-gray-600 dark:text-gray-400 font-medium uppercase">Penanggung Jawab:</span>
                     <p class="text-gray-700 dark:text-gray-200">{{ $action['responsible_person'] ?? '-' }}</p>
                 </div>
                 <div>
-                    <span class="text-gray-600 dark:text-gray-400 font-medium">Deadline:</span>
+                    <span class="text-gray-600 dark:text-gray-400 font-medium uppercase">Deadline:</span>
                     <p class="text-gray-700 dark:text-gray-200">{{ $action['deadline'] ?? '-' }}</p>
                 </div>
                 <div class="col-span-2">

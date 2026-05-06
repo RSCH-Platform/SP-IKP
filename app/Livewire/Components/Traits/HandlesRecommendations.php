@@ -45,6 +45,7 @@ trait HandlesRecommendations
             $this->loadProblems();
             $this->resetForms();
             $this->dispatch('notify', message: $message);
+            $this->dispatch('close-recommendation-modal');
         } catch (\Exception $e) {
             $this->dispatch('notify-error', message: 'Error: ' . $e->getMessage());
         }

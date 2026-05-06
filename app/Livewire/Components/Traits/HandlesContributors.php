@@ -142,6 +142,7 @@ trait HandlesContributors
             $this->loadProblems();
             $this->resetForms();
             $this->dispatch('notify', message: $message);
+            $this->dispatch('close-contributor-modal');
         } catch (\Exception $e) {
             Log::error('ProblemAnalysisManager: Error saving contributor', [
                 'error' => $e->getMessage(),

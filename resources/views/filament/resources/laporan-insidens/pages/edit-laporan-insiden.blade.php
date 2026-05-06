@@ -1,6 +1,7 @@
 <x-filament-panels::page x-data="{ activeTab: 'form' }">
     {{-- Header Section --}}
-    <div class="ikp-header status-{{ str_replace('_', '-', $record->status ?? 'draft') }}">
+    <!-- <div class="ikp-header status-{{ str_replace('_', '-', $record->status ?? 'draft') }}"> -->
+    <div class="ikp-header">
         <div class="ikp-header-content">
             {{-- Hospital Info Header --}}
             <div class="ikp-header-top">
@@ -22,7 +23,7 @@
                         <svg style="width: 1rem; height: 1rem;" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
-                        <span>
+                        <span class="uppercase text-[1rem]">
                             @switch($record->status ?? 'draft')
                             @case('draft')
                             Draft
@@ -313,7 +314,7 @@
 
                     <div>
                         <p class="text-sm font-semibold leading-tight">
-                            Cetak Laporan Sekarang
+                            Cetak Laporan Insiden
                         </p>
                         <p class="text-xs text-blue-100">
                             Buka & langsung print laporan ini
@@ -322,20 +323,43 @@
                 </div>
             </a>
         </div>
-        @include('filament.resources.laporan-insidens.pages.preview-laporan-insiden-content')
-    </div>
+        <div class="preview-container">
+            @include('filament.resources.laporan-insidens.pages.preview-laporan-insiden-content')
+        </div>
     </div>
 
     {{-- Tab 3: Preview Investigasi --}}
     @if($record->investigation_started_at)
     <div class="ikp-tab-content" :class="{ 'active': activeTab === 'investigasi' }">
-        <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-            <a href="{{ route('investigasi-laporan-insiden.show', $record->nomor_laporan) }}" target="_blank" rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-                <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Buka Laporan Investigasi
+        <div class="mb-6">
+            <a
+                href="{{ route('investigasi-laporan-insiden.show', $record->nomor_laporan) }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-center justify-start">
+                <div class="flex items-center gap-3 gap-4 p-4 rounded-xl 
+               bg-gradient-to-br from-blue-600 to-blue-700 text-white 
+               shadow-lg shadow-blue-600/30 
+               hover:shadow-xl hover:shadow-blue-600/40 
+               hover:-translate-y-0.5 
+               transition-all duration-200">
+                    <div class="p-2 rounded-lg bg-white/20 group-hover:bg-white/25 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <!-- icon print -->
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 9V4h12v5M6 18h12v2H6v-2M6 14h12a2 2 0 002-2v-3a2 2 0 00-2-2H6a2 2 0 00-2 2v3a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-semibold leading-tight">
+                            Cetak Laporan Investigasi
+                        </p>
+                        <p class="text-xs text-blue-100">
+                            Buka & langsung print laporan ini
+                        </p>
+                    </div>
+                </div>
             </a>
         </div>
         <div class="preview-container">
