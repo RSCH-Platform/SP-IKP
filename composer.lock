@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "21c7023015d8fe1a70fc8eed2ac74666",
+    "content-hash": "d08e51cb812049aee0a2bc36dd2d6806",
     "packages": [
         {
             "name": "bezhansalleh/filament-plugin-essentials",
@@ -2389,16 +2389,16 @@
         },
         {
             "name": "juniyasyos/auth-bridge-client",
-            "version": "v1.2.4",
+            "version": "v1.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/juniyasyos/auth-bridge-client.git",
-                "reference": "5707ab9605613ace1147afbd05da2cccd17e62fa"
+                "reference": "4e1b506bc6b1eae70f751c82c6505dcae8658b6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/juniyasyos/auth-bridge-client/zipball/5707ab9605613ace1147afbd05da2cccd17e62fa",
-                "reference": "5707ab9605613ace1147afbd05da2cccd17e62fa",
+                "url": "https://api.github.com/repos/juniyasyos/auth-bridge-client/zipball/4e1b506bc6b1eae70f751c82c6505dcae8658b6c",
+                "reference": "4e1b506bc6b1eae70f751c82c6505dcae8658b6c",
                 "shasum": ""
             },
             "require": {
@@ -2444,9 +2444,9 @@
             ],
             "support": {
                 "issues": "https://github.com/juniyasyos/auth-bridge-client/issues",
-                "source": "https://github.com/juniyasyos/auth-bridge-client/tree/v1.2.4"
+                "source": "https://github.com/juniyasyos/auth-bridge-client/tree/v1.2.5"
             },
-            "time": "2026-05-04T20:08:12+00:00"
+            "time": "2026-05-04T21:57:17+00:00"
         },
         {
             "name": "juniyasyos/filament-media-manager",
