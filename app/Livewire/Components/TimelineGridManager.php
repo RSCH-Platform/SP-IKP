@@ -23,6 +23,8 @@ class TimelineGridManager extends Component
     public $editingCategoryId = null;
     public $editingDescription = '';
     public $editingEventDateTime = '';
+    public $addEventDate = null;
+    public $addEventTime = '';
 
     // Move category fields
     public $moveSourceCategoryId = null;
@@ -163,13 +165,30 @@ class TimelineGridManager extends Component
     public function openAddEventModal($date = null)
     {
         $this->modalMode = 'add-event';
-        // Format for datetime-local input: YYYY-MM-DDTHH:mm
+
         if ($date) {
-            $dateTime = \Carbon\Carbon::parse($date);
-            $this->editingEventDateTime = $dateTime->format('Y-m-d\TH:i');
+            $selectedDate = \Carbon\Carbon::parse($date)->toDateString();
+
+            $latestEvent = collect($this->timelineEvents)
+                ->filter(function ($event) use ($selectedDate) {
+                    return str_starts_with($event['event_datetime'] ?? '', $selectedDate);
+                })
+                ->sortByDesc('event_datetime')
+                ->first();
+
+            $defaultTime = $latestEvent
+                ? \Carbon\Carbon::parse($latestEvent['event_datetime'])->format('H:i')
+                : now()->format('H:i');
+
+            $this->addEventDate = $selectedDate;
+            $this->addEventTime = $defaultTime;
+            $this->editingEventDateTime = $selectedDate . 'T' . $defaultTime;
         } else {
+            $this->addEventDate = null;
+            $this->addEventTime = '';
             $this->editingEventDateTime = now()->format('Y-m-d\TH:i');
         }
+
         $this->showModal = true;
     }
 
@@ -178,6 +197,17 @@ class TimelineGridManager extends Component
      */
     public function addTimelineEvent()
     {
+        if ($this->addEventDate) {
+            $this->validate([
+                'addEventTime' => 'required|date_format:H:i',
+            ], [
+                'addEventTime.required' => 'Jam harus diisi',
+                'addEventTime.date_format' => 'Format jam tidak valid',
+            ]);
+
+            $this->editingEventDateTime = $this->addEventDate . 'T' . $this->addEventTime;
+        }
+
         // Transform datetime format from datetime-local (2026-04-14T08:43) to Y-m-d H:i format
         $dateTime = str_replace('T', ' ', $this->editingEventDateTime);
 
@@ -407,6 +437,8 @@ class TimelineGridManager extends Component
         $this->editingCategoryId = null;
         $this->editingDescription = '';
         $this->editingEventDateTime = '';
+        $this->addEventDate = null;
+        $this->addEventTime = '';
         $this->moveSourceCategoryId = null;
         $this->moveTargetCategoryId = null;
         $this->editingTimeEventId = null;

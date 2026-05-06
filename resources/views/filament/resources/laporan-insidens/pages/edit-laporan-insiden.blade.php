@@ -56,7 +56,7 @@
             {{-- Laporan Info Grid --}}
 
             <div class="mb-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
-                <div class="text-lg font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
+                <div class="text-[1rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
                     Insiden
                 </div>
                 <div class="text-base align-text-top text-gray-900 dark:text-white leading-relaxed">

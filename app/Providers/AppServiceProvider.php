@@ -8,6 +8,7 @@ use App\Models\UnitKerja;
 use App\Observers\LaporanInsidenObserver;
 use App\Observers\ProblemActionObserver;
 use App\Observers\UnitKerjaObserver;
+use App\Observers\TimelineEntryObserver;
 use App\Policies\FolderPolicy;
 use App\Policies\MediaPolicy;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
@@ -57,5 +58,6 @@ class AppServiceProvider extends ServiceProvider
         ProblemAction::observe(ProblemActionObserver::class);
         UnitKerja::observe(UnitKerjaObserver::class);
         LaporanInsiden::observe(LaporanInsidenObserver::class);
+        \App\Models\TimelineEntry::observe(TimelineEntryObserver::class);
     }
 }

@@ -178,54 +178,74 @@
 
     <!-- Edit Modal -->
     @if($showModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70" wire:key="modal">
-        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl mx-4 dark:shadow-2xl">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm dark:bg-black/60" wire:key="modal">
+        <div class="w-full max-w-6xl mx-4 overflow-hidden rounded-[10px] border border-slate-200/80 bg-white shadow-[0_35px_80px_-40px_rgba(15,23,42,0.45)] transition-all duration-300 dark:border-slate-700/80 dark:bg-slate-950 dark:shadow-[0_35px_80px_-40px_rgba(15,23,42,0.7)]">
             <!-- Modal Header -->
-            <div class="border-b dark:border-gray-700 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-slate-700">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    @if($modalMode === 'edit')
-                    Edit Entry
-                    @elseif($modalMode === 'move')
-                    Pindah Kategori Entry
-                    @else
-                    Tambah Event Timeline
-                    @endif
-                </h2>
-                <button
-                    type="button"
-                    wire:click="closeModal"
-                    class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 text-2xl transition-colors duration-150">
-                    ×
-                </button>
+            <div class="flex flex-col gap-2 px-6 py-5 bg-gradient-to-r from-sky-50 to-white dark:from-slate-900 dark:to-slate-950 border-b border-slate-200/80 dark:border-slate-700/80">
+                <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 shadow-sm">
+                            @if($modalMode === 'edit')✏️@elseif($modalMode === 'move')➡️@elseif($modalMode === 'edit-time')⏰@else➕@endif
+                        </span>
+                        <div>
+                            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                                @if($modalMode === 'edit')
+                                Edit Entry
+                                @elseif($modalMode === 'move')
+                                Pindah Kategori Entry
+                                @elseif($modalMode === 'edit-time')
+                                Ubah Waktu Event
+                                @else
+                                Tambah Event Timeline
+                                @endif
+                            </h2>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">
+                                @if($modalMode === 'edit')
+                                Perbarui isi deskripsi untuk entry ini.
+                                @elseif($modalMode === 'move')
+                                Pilih kategori tujuan untuk memindahkan entry.
+                                @elseif($modalMode === 'edit-time')
+                                Atur ulang jam event tanpa mengubah tanggal.
+                                @else
+                                Tambahkan event baru ke timeline Anda.
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        wire:click="closeModal"
+                        class="rounded-full p-2 text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white">
+                        <span class="text-xl">×</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Modal Body -->
-            <div class="px-6 py-4 space-y-4 dark:bg-slate-800">
+            <div class="space-y-5 px-6 py-6 bg-white dark:bg-slate-950">
                 @if($modalMode === 'edit')
                 @php
                 $category = collect($categories)->firstWhere('id', $editingCategoryId);
                 $eventDate = \Illuminate\Support\Carbon::parse($editingEventDateTime)->translatedFormat('d F Y, H:i');
                 @endphp
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                        Event & Kategori
-                    </label>
-                    <div class="p-3 bg-gray-50 dark:bg-slate-900 rounded text-sm border dark:border-gray-600 text-gray-900 dark:text-gray-100">
-                        <p><strong>Tanggal:</strong> {{ $eventDate }}</p>
-                        <p><strong>Kategori:</strong> {{ $category['name'] ?? 'N/A' }}</p>
+                <div class="space-y-4 rounded-2xl border border-slate-200/80 bg-slate-50 p-5 dark:border-slate-700/80 dark:bg-slate-900">
+                    <div>
+                        <p class="text-[12px] font-medium text-slate-700 dark:text-slate-200">Event & Kategori</p>
+                        <div class="mt-3 rounded-xl bg-white px-4 py-3 text-[12px] text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100">
+                            <p class="mb-1"><strong>Tanggal:</strong> {{ $eventDate }}</p>
+                            <p><strong>Kategori:</strong> {{ $category['name'] ?? 'N/A' }}</p>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                        Deskripsi
-                    </label>
-                    <textarea
-                        wire:model="editingDescription"
-                        rows="6"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
-                        placeholder="Tuliskan deskripsi di sini..."></textarea>
+                    <div>
+                        <label class="block text-[12px] font-medium text-slate-700 dark:text-slate-200 mb-2">Deskripsi</label>
+                        <textarea
+                            wire:model="editingDescription"
+                            rows="6"
+                            class="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-[12px] text-slate-900 shadow-sm outline-none transition duration-150 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-900"
+                            placeholder="Tuliskan deskripsi di sini..."></textarea>
+                    </div>
                 </div>
 
                 @elseif($modalMode === 'move')
@@ -233,29 +253,27 @@
                 $sourceCategory = collect($categories)->firstWhere('id', $moveSourceCategoryId);
                 @endphp
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                        Pindahkan entry dari kategori
-                    </label>
-                    <div class="p-3 bg-gray-50 dark:bg-slate-900 rounded text-sm border dark:border-gray-600 text-gray-900 dark:text-gray-100">
-                        <p><strong>Sumber:</strong> {{ $sourceCategory['name'] ?? 'N/A' }}</p>
+                <div class="space-y-4 rounded-3xl border border-slate-200/80 bg-slate-50 p-5 dark:border-slate-700/80 dark:bg-slate-900">
+                    <div>
+                        <p class="text-[12px] font-medium text-slate-700 dark:text-slate-200 mb-2">Pindahkan entry dari kategori</p>
+                        <div class="rounded-2xl bg-white px-4 py-3 text-[12px] text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100">
+                            <p><strong>Sumber:</strong> {{ $sourceCategory['name'] ?? 'N/A' }}</p>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                        Pilih kategori tujuan <span class="text-red-500 dark:text-red-400">*</span>
-                    </label>
-                    <select
-                        wire:model="moveTargetCategoryId"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-600">
-                        <option value="">Pilih kategori</option>
-                        @foreach($categories as $category)
-                        @if($category['id'] !== $moveSourceCategoryId)
-                        <option value="{{ $category['id'] }}">{{ $category['name'] }}</option>
-                        @endif
-                        @endforeach
-                    </select>
+                    <div>
+                        <label class="block text-[12px] font-medium text-slate-700 dark:text-slate-200 mb-2">Pilih kategori tujuan <span class="text-red-500 dark:text-red-400">*</span></label>
+                        <select
+                            wire:model="moveTargetCategoryId"
+                            class="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-[12px] text-slate-900 outline-none transition duration-150 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-yellow-500 dark:focus:ring-yellow-900">
+                            <option value="">Pilih kategori</option>
+                            @foreach($categories as $category)
+                            @if($category['id'] !== $moveSourceCategoryId)
+                            <option value="{{ $category['id'] }}">{{ $category['name'] }}</option>
+                            @endif
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
                 @elseif($modalMode === 'edit-time')
@@ -264,58 +282,69 @@
                 $eventDate = $event ? \Illuminate\Support\Carbon::parse($event['event_datetime'])->translatedFormat('d F Y') : 'N/A';
                 @endphp
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                        Tanggal Event
-                    </label>
-                    <div class="p-3 bg-gray-50 dark:bg-slate-900 rounded text-sm border dark:border-gray-600 text-gray-900 dark:text-gray-100">
-                        {{ $eventDate }}
+                <div class="space-y-4 rounded-3xl border border-slate-200/80 bg-slate-50 p-5 dark:border-slate-700/80 dark:bg-slate-900">
+                    <div>
+                        <p class="text-[12px] font-medium text-slate-700 dark:text-slate-200 mb-2">Tanggal Event</p>
+                        <div class="rounded-2xl bg-white px-4 py-3 text-[12px] text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100">
+                            {{ $eventDate }}
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                        Waktu Event <span class="text-red-500 dark:text-red-400">*</span>
-                    </label>
-                    <input
-                        type="time"
-                        wire:model="editingTimeValue"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-600" />
+                    <div>
+                        <label class="block text-[12px] font-medium text-slate-700 dark:text-slate-200 mb-2">Waktu Event <span class="text-red-500 dark:text-red-400">*</span></label>
+                        <input
+                            type="time"
+                            wire:model="editingTimeValue"
+                            class="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-[12px] text-slate-900 outline-none transition duration-150 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-yellow-500 dark:focus:ring-yellow-900" />
+                    </div>
                 </div>
 
                 @else
                 <!-- Add Event Mode -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                        Tanggal & Waktu <span class="text-red-500 dark:text-red-400">*</span>
-                    </label>
-                    <input
-                        type="datetime-local"
-                        wire:model="editingEventDateTime"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600" />
-                    @error('editingEventDateTime')
-                    <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                <div class="space-y-5 rounded-3xl border border-slate-200/80 bg-slate-50 p-5 dark:border-slate-700/80 dark:bg-slate-900">
+                    @if($addEventDate)
+                    <div>
+                        <label class="block text-[12px] font-medium text-slate-700 dark:text-slate-200 mb-2">Jam Event <span class="text-red-500 dark:text-red-400">*</span></label>
+                        <input
+                            type="time"
+                            wire:model="addEventTime"
+                            class="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-[12px] text-slate-900 outline-none transition duration-150 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-900" />
+                        @error('addEventTime')
+                        <p class="mt-2 text-xs text-red-500 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    @else
+                    <div>
+                        <label class="block text-[12px] font-medium text-slate-700 dark:text-slate-200 mb-2">Tanggal & Waktu <span class="text-red-500 dark:text-red-400">*</span></label>
+                        <input
+                            type="datetime-local"
+                            wire:model="editingEventDateTime"
+                            class="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-[12px] text-slate-900 outline-none transition duration-150 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-900" />
+                        @error('editingEventDateTime')
+                        <p class="mt-2 text-xs text-red-500 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    @endif
 
-                <div class="p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded text-sm text-blue-800 dark:text-blue-200">
-                    <p>Event baru akan dibuat dengan 5 kategori kosong. Anda bisa mengisinya setelah event dibuat.</p>
+                    <div class="rounded-3xl bg-blue-50 px-4 py-3 text-[12px] text-blue-900 border border-blue-200 dark:bg-blue-950/80 dark:border-blue-700 dark:text-blue-200">
+                        <p>Event baru akan dibuat dengan 5 kategori kosong. Anda bisa mengisinya setelah event dibuat.</p>
+                    </div>
                 </div>
                 @endif
             </div>
 
             <!-- Modal Footer -->
-            <div class="border-t dark:border-gray-700 px-6 py-4 flex justify-end gap-2 bg-gray-50 dark:bg-slate-700">
+            <div class="flex flex-wrap items-center justify-end gap-3 border-t border-slate-200/80 bg-slate-50 px-6 py-4 dark:border-slate-700/80 dark:bg-slate-950">
                 <button
                     type="button"
                     wire:click="closeModal"
-                    class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors duration-150 font-medium">
+                    class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-2.5 text-[12px] font-medium text-slate-700 transition duration-150 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
                     Batal
                 </button>
                 <button
                     type="button"
                     wire:click="@if($modalMode === 'edit') saveEntry @elseif($modalMode === 'move') moveEntry @elseif($modalMode === 'edit-time') saveEventTime @else addTimelineEvent @endif"
-                    class="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-150 font-medium shadow-sm dark:shadow-md">
+                    class="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-[12px] font-medium text-white transition duration-150 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950">
                     @if($modalMode === 'edit')
                     💾 Simpan
                     @elseif($modalMode === 'move')

@@ -1,10 +1,10 @@
 @php
-    $isContained = $isContained();
-    $key = $getKey();
-    $previousAction = $getAction('previous');
-    $nextAction = $getAction('next');
-    $steps = $getChildSchema()->getComponents();
-    $isHeaderHidden = $isHeaderHidden();
+$isContained = $isContained();
+$key = $getKey();
+$previousAction = $getAction('previous');
+$nextAction = $getAction('next');
+$steps = $getChildSchema()->getComponents();
+$isHeaderHidden = $isHeaderHidden();
 @endphp
 
 <div
@@ -32,8 +32,7 @@
                 'fi-contained' => $isContained,
                 'fi-sc-wizard-header-hidden' => $isHeaderHidden,
             ])
-    }}
->
+    }}>
     <input
         type="hidden"
         value="{{
@@ -43,40 +42,36 @@
                 ->values()
                 ->toJson()
         }}"
-        x-ref="stepsData"
-    />
+        x-ref="stepsData" />
 
     @if (! $isHeaderHidden)
-        <ol
-            @if (filled($label = $getLabel()))
-                aria-label="{{ $label }}"
-            @endif
-            role="list"
-            x-cloak
-            x-ref="header"
-            class="fi-sc-wizard-header"
-        >
-            @foreach ($steps as $step)
-                <li
-                    class="fi-sc-wizard-header-step"
-                    x-bind:class="{
+    <ol
+        @if (filled($label=$getLabel()))
+        aria-label="{{ $label }}"
+        @endif
+        role="list"
+        x-cloak
+        x-ref="header"
+        class="fi-sc-wizard-header">
+        @foreach ($steps as $step)
+        <li
+            class="fi-sc-wizard-header-step"
+            x-bind:class="{
                         'fi-active': getStepIndex(step) === {{ $loop->index }},
                         'fi-completed': getStepIndex(step) > {{ $loop->index }},
-                    }"
-                >
-                    <button
-                        type="button"
-                        x-bind:aria-current="getStepIndex(step) === {{ $loop->index }} ? 'step' : null"
-                        x-on:click="step = @js($step->getKey())"
-                        x-bind:disabled="! isStepAccessible(@js($step->getKey())) || @js($previousAction->isDisabled())"
-                        class="fi-sc-wizard-header-step-btn"
-                    >
-                        <div class="fi-sc-wizard-header-step-icon-ctn">
-                            @php
-                                $completedIcon = $step->getCompletedIcon();
-                            @endphp
+                    }">
+            <button
+                type="button"
+                x-bind:aria-current="getStepIndex(step) === {{ $loop->index }} ? 'step' : null"
+                x-on:click="step = @js($step->getKey())"
+                x-bind:disabled="! isStepAccessible(@js($step->getKey())) || @js($previousAction->isDisabled())"
+                class="fi-sc-wizard-header-step-btn">
+                <div class="fi-sc-wizard-header-step-icon-ctn">
+                    @php
+                    $completedIcon = $step->getCompletedIcon();
+                    @endphp
 
-                            {{
+                    {{
                                 \Filament\Support\generate_icon_html(
                                     $completedIcon ?? \Filament\Support\Icons\Heroicon::OutlinedCheck,
                                     alias: filled($completedIcon) ? null : \Filament\Schemas\View\SchemaIconAlias::COMPONENTS_WIZARD_COMPLETED_STEP,
@@ -88,8 +83,8 @@
                                 )
                             }}
 
-                            @if (filled($icon = $step->getIcon()))
-                                {{
+                    @if (filled($icon = $step->getIcon()))
+                    {{
                                     \Filament\Support\generate_icon_html(
                                         $icon,
                                         attributes: new \Illuminate\View\ComponentAttributeBag([
@@ -99,66 +94,64 @@
                                         size: \Filament\Support\Enums\IconSize::Large,
                                     )
                                 }}
-                            @else
-                                <span
-                                    x-show="getStepIndex(step) <= {{ $loop->index }}"
-                                    class="fi-sc-wizard-header-step-number"
-                                >
-                                    {{ str_pad($loop->index + 1, 2, '0', STR_PAD_LEFT) }}
-                                </span>
-                            @endif
-                        </div>
-
-                        <div class="fi-sc-wizard-header-step-text">
-                            @if (! $step->isLabelHidden())
-                                <span class="fi-sc-wizard-header-step-label">
-                                    {{ $step->getLabel() }}
-                                </span>
-                            @endif
-
-                            @if (filled($description = $step->getDescription()))
-                                <span
-                                    class="fi-sc-wizard-header-step-description"
-                                >
-                                    {{ $description }}
-                                </span>
-                            @endif
-                        </div>
-                    </button>
-
-                    @if (! $loop->last)
-                        <svg
-                            fill="none"
-                            preserveAspectRatio="none"
-                            viewBox="0 0 22 80"
-                            aria-hidden="true"
-                            class="fi-sc-wizard-header-step-separator"
-                        >
-                            <path
-                                d="M0 -2L20 40L0 82"
-                                stroke-linejoin="round"
-                                stroke="currentcolor"
-                                vector-effect="non-scaling-stroke"
-                            ></path>
-                        </svg>
+                    @else
+                    <span
+                        x-show="getStepIndex(step) <= {{ $loop->index }}"
+                        class="fi-sc-wizard-header-step-number">
+                        {{ str_pad($loop->index + 1, 2, '0', STR_PAD_LEFT) }}
+                    </span>
                     @endif
-                </li>
-            @endforeach
-        </ol>
+                </div>
+
+                <div class="fi-sc-wizard-header-step-text">
+                    @if (! $step->isLabelHidden())
+                    <span class="fi-sc-wizard-header-step-label">
+                        {{ $step->getLabel() }}
+                    </span>
+                    @endif
+
+                    @if (filled($description = $step->getDescription()))
+                    <span
+                        class="fi-sc-wizard-header-step-description">
+                        {{ $description }}
+                    </span>
+                    @endif
+                </div>
+            </button>
+
+            @if (! $loop->last)
+            <svg
+                preserveAspectRatio="none"
+                viewBox="0 0 20 80"
+                aria-hidden="true"
+                class="fi-sc-wizard-header-step-separator">
+                <!-- Segitiga -->
+                <path class="separator-fill" d="M0 0 L20 40 L0 80 Z"></path>
+
+                <!-- Sisi miring atas -->
+                <path class="separator-stroke" d="M0 0 L20 40"></path>
+
+                <!-- Sisi miring bawah -->
+                <path class="separator-stroke" d="M20 40 L0 80"></path>
+            </svg>
+            @endif
+        </li>
+        @endforeach
+    </ol>
     @endif
 
     @foreach ($steps as $step)
-        {{ $step }}
+    {{ $step }}
     @endforeach
 
     <div x-cloak class="fi-sc-wizard-footer">
         <div
             x-cloak
             @if (! $previousAction->isDisabled())
-                x-on:click="goToPreviousStep"
+            x-on:click="goToPreviousStep"
             @endif
             x-show="! isFirstStep()"
-        >
+            >
             {{ $previousAction }}
         </div>
 
@@ -169,11 +162,11 @@
         <div
             x-cloak
             @if (! $nextAction->isDisabled())
-                x-on:click="requestNextStep()"
+            x-on:click="requestNextStep()"
             @endif
             x-bind:class="{ 'fi-hidden': isLastStep() }"
             wire:loading.class="fi-disabled"
-        >
+            >
             {{ $nextAction }}
         </div>
 

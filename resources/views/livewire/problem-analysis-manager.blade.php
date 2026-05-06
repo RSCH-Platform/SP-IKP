@@ -1,5 +1,33 @@
 <div wire:key="problem-analysis-manager" class="space-y-4">
 
+    @if(config('app.debug'))
+    <div
+        class="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900
+           dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-100"
+        style="--debug-max-h: 260px;">
+        <div class="font-semibold">DEBUG Problems</div>
+
+        <div class="mt-1">Count: {{ count($problems ?? []) }}</div>
+        <div class="mt-1 break-all">Expanded ID: {{ $expandedProblemId ?? 'null' }}</div>
+
+        <details class="mt-2">
+            <summary class="cursor-pointer font-medium">Lihat raw data</summary>
+
+            {{-- Problems --}}
+            <pre
+                class="mt-2 overflow-auto rounded border border-amber-200 bg-white p-2 text-[11px] leading-relaxed text-amber-900
+                   dark:border-amber-700 dark:bg-slate-900 dark:text-amber-100"
+                style="max-height: var(--debug-max-h);">{{ json_encode($problems ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+
+            {{-- Timeline --}}
+            <pre
+                class="mt-2 overflow-auto rounded border border-amber-200 bg-white p-2 text-[11px] leading-relaxed text-amber-900
+                   dark:border-amber-700 dark:bg-slate-900 dark:text-amber-100"
+                style="max-height: var(--debug-max-h);">{{ json_encode($record?->timelineEntries->toArray() ?? $record?->timelineEvents->toArray() ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+        </details>
+    </div>
+    @endif
+
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
         <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">

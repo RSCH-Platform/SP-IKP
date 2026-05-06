@@ -24,9 +24,10 @@ class LaporanInsidenForm
             ->components(
                 Wizard::make([
                     Step::make('Review Laporan Insiden')
-                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT && ! Auth::user()->can('ForceEdit:LaporanInsiden'))
+                        ->key('review-laporan-insiden')
+                        ->disabled(fn($record) => $record->status !== LaporanInsiden::STATUS_DRAFT && ! Auth::user()?->can('ForceEdit:LaporanInsiden'))
                         ->schema([
-                            LaporanInsidenFormSchema::sectionPelapor()->disabled(fn($record) => !Auth::user()->can('ForceEdit:LaporanInsiden') || Auth::id() !== $record->pelapor_id),
+                            LaporanInsidenFormSchema::sectionPelapor()->disabled(fn($record) => !Auth::user()?->can('ForceEdit:LaporanInsiden') || Auth::id() !== $record->pelapor_id),
                             LaporanInsidenFormSchema::sectionPasien(),
                             LaporanInsidenFormSchema::sectionInsiden(true)->visible(fn($record) => !in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
                             LaporanInsidenFormSchema::sectionInsiden(false)->visible(fn($record) => in_array($record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_DILAPORKAN])),
@@ -36,6 +37,7 @@ class LaporanInsidenForm
                         ]),
                     // Step::make('Grading Resiko & Catatan Tambahan') (Laporan Status: Dilaporkan)
                     Step::make('Grading Resiko & Catatan Tambahan')
+                        ->key('grading-resiko-catatan-tambahan')
                         ->hidden(fn($record) => !in_array($record->status, [LaporanInsiden::STATUS_DILAPORKAN, LaporanInsiden::STATUS_REVISI_UNIT]))
                         ->disabled(fn($record) => ($record->status !== LaporanInsiden::STATUS_DILAPORKAN))
                         ->schema([
@@ -45,9 +47,10 @@ class LaporanInsidenForm
 
                     // Step::make('Investigasi & Pengumpulan Data') (Laporan Status: Investigasi)
                     Step::make('Pengumpulan Data')
+                        ->key('pengumpulan-data')
                         ->hidden(
                             fn($record) =>
-                            ! (Auth::user()->can('Investigasi:LaporanInsiden') &&
+                            ! (Auth::user()?->can('Investigasi:LaporanInsiden') &&
                                 $record->status === LaporanInsiden::STATUS_INVESTIGASI &&
                                 $record->investigation_started_by !== null)
                         )
@@ -57,9 +60,10 @@ class LaporanInsidenForm
                         ]),
 
                     Step::make('Tabular Timeline')
+                        ->key('tabular-timeline')
                         ->hidden(
                             fn($record) =>
-                            ! (Auth::user()->can('Investigasi:LaporanInsiden') &&
+                            ! (Auth::user()?->can('Investigasi:LaporanInsiden') &&
                                 $record->status === LaporanInsiden::STATUS_INVESTIGASI &&
                                 $record->investigation_started_by !== null)
                         )
@@ -73,9 +77,10 @@ class LaporanInsidenForm
                         ]),
 
                     Step::make('Analisa Masalah')
+                        ->key('analisa-masalah')
                         ->hidden(
                             fn($record) =>
-                            ! (Auth::user()->can('Investigasi:LaporanInsiden') &&
+                            ! (Auth::user()?->can('Investigasi:LaporanInsiden') &&
                                 $record->status === LaporanInsiden::STATUS_INVESTIGASI &&
                                 $record->investigation_started_by !== null)
                         )
@@ -83,7 +88,7 @@ class LaporanInsidenForm
                         ->schema([
                             LaporanInsidenFormSchema::getFieldProblemAnalysisOptimize(),
                         ]),
-                ])
+                ])->persistStepInQueryString()
             )->columns(1);
     }
 }

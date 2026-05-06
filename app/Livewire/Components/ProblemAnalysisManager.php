@@ -325,8 +325,32 @@ class ProblemAnalysisManager extends Component
             $problem = collect($this->problems)->firstWhere('id', $this->editingProblemId);
         }
 
+        $record = null;
+        if ($this->recordId) {
+            $record = \App\Models\LaporanInsiden::with([
+                'user',
+                'creator',
+                'unitKerjas',
+                'reporter',
+                'verifier',
+                'rejecter',
+                'investigationData',
+                'investigationStarter',
+                'investigationCompleter',
+                'timelineEvents',
+                'timelineEntries',
+                'problems.whys',
+                'problems.contributors.category',
+                'problems.contributors.component',
+                'problems.contributors.subComponent',
+                'problems.recommendations',
+                'problems.actions.media',
+            ])->find($this->recordId);
+        }
+
         return view('livewire.problem-analysis-manager', [
             'problems' => $this->problems,
+            'record' => $record,
             'problem' => $problem,
             'categories' => $this->contributor_categories,
             'components' => $this->contributor_components,
