@@ -123,7 +123,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
         $laporan = $this->createLaporanWithTimeline($data);
 
         // Notify kepala_unit users about the new report
-        $kepalaUnits = User::role('kepala_unit_ikp')->get();
+        $kepalaUnits = User::role('kepala_unit')->get();
         if ($kepalaUnits->isNotEmpty()) {
             Notification::make()
                 ->title('Laporan Insiden Baru')

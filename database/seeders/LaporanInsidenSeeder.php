@@ -19,7 +19,7 @@ class LaporanInsidenSeeder extends Seeder
         $reporters = User::query()
             ->whereHas('unitKerjas')
             ->whereDoesntHave('roles', function ($query) {
-                $query->whereIn('name', ['admin_ikp', 'super_admin_ikp']);
+                $query->whereIn('name', ['admin_ikp', 'super_admin']);
             })
             ->with('unitKerjas:id,unit_name')
             ->get();

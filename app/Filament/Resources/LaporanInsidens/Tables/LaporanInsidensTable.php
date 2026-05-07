@@ -224,7 +224,7 @@ class LaporanInsidensTable
 
                         $record->submitLaporan();
 
-                        $kepalaUnits = User::role('kepala_unit_ikp')->get();
+                        $kepalaUnits = User::role('kepala_unit')->get();
 
                         Notification::make()
                             ->title('Laporan berhasil dikirim')

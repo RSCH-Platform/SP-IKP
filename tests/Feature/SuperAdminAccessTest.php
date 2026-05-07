@@ -31,9 +31,9 @@ class SuperAdminAccessTest extends TestCase
         $user->password = bcrypt('Rschjaya123');
         $user->save();
 
-        $user->assignRole('super_admin_ikp');
+        $user->assignRole('super_admin');
 
-        $this->assertTrue($user->hasRole('super_admin_ikp'));
+        $this->assertTrue($user->hasRole('super_admin'));
     }
 
     public function test_super_admin_role_has_all_permissions(): void
@@ -41,7 +41,7 @@ class SuperAdminAccessTest extends TestCase
         $superAdmin = User::where('nip', '0000.00000')->first();
         $this->assertNotNull($superAdmin);
 
-        $superAdmin->assignRole('super_admin_ikp');
+        $superAdmin->assignRole('super_admin');
 
         $permissionNames = Permission::pluck('name');
         $this->assertEqualsCanonicalizing(
@@ -71,7 +71,7 @@ class SuperAdminAccessTest extends TestCase
         $user = User::where('nip', '0000.00000')->first();
         $this->assertNotNull($user);
 
-        $user->assignRole('super_admin_ikp');
+        $user->assignRole('super_admin');
 
         // Ensure the user can perform a key permission check (gate)
         $this->assertTrue($user->can('ViewAny:LaporanInsiden'));
@@ -119,7 +119,7 @@ class SuperAdminAccessTest extends TestCase
         $user = User::where('nip', '0000.00000')->first();
         $this->assertNotNull($user);
 
-        $user->assignRole('super_admin_ikp');
+        $user->assignRole('super_admin');
 
         // This is the URL you're testing; in phpunit this will commonly return 403
         // because it is not a route in the test application environment.

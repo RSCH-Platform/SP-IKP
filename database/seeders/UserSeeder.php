@@ -75,8 +75,8 @@ class UserSeeder extends Seeder
 
         // Role mapping: jika role di JSON tidak ada di DB, gunakan mapping ini
         $roleMapping = [
-            'validator_pic'   => 'kepala_unit_ikp',
-            'pengumpul_data'  => 'pelapor_ikp',
+            'validator_pic'   => 'kepala_unit',
+            'pengumpul_data'  => 'pelapor',
         ];
 
         $assigned = 0;
@@ -90,7 +90,7 @@ class UserSeeder extends Seeder
             if (isset($existingRoles[$entry['role_name']])) {
                 $roleName = $entry['role_name'];
             } else {
-                $roleName = $roleMapping[$entry['role_name']] ?? 'pelapor_ikp';
+                $roleName = $roleMapping[$entry['role_name']] ?? 'pelapor';
             }
 
             // Assign role jika belum dimiliki

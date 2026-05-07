@@ -123,11 +123,11 @@ class ShieldSeeder extends Seeder
         */
 
         $roles = [
-            'super_admin_ikp',
+            'super_admin',
             'admin_ikp',
-            'tim_mutu_ikp',
-            'kepala_unit_ikp',
-            'pelapor_ikp',
+            'tim_mutu',
+            'kepala_unit',
+            'pelapor',
             'manajemen_ikp',
         ];
 
@@ -149,7 +149,7 @@ class ShieldSeeder extends Seeder
         $allPermissions = Permission::all();
 
         // Super Admin → semua permission
-        $roleInstances['super_admin_ikp']->syncPermissions($allPermissions);
+        $roleInstances['super_admin']->syncPermissions($allPermissions);
 
         // Admin → semua laporan + manajemen role + semua workflow
         $adminPermissions = collect($actions)
@@ -173,7 +173,7 @@ class ShieldSeeder extends Seeder
         $roleInstances['admin_ikp']->syncPermissions($adminPermissions);
 
         // Kepala unit → verifikasi & kembalikan ke pelapor
-        $roleInstances['kepala_unit_ikp']->syncPermissions([
+        $roleInstances['kepala_unit']->syncPermissions([
             'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
             'Update:LaporanInsiden',
@@ -188,7 +188,7 @@ class ShieldSeeder extends Seeder
         ]);
 
         // Tim mutu → investigasi & kembalikan ke kepala unit
-        $roleInstances['tim_mutu_ikp']->syncPermissions([
+        $roleInstances['tim_mutu']->syncPermissions([
             'ViewAllData:LaporanInsiden',
             'ViewAny:LaporanInsiden',
             'View:LaporanInsiden',
@@ -207,7 +207,7 @@ class ShieldSeeder extends Seeder
         ]);
 
         // Pelapor → submit & lihat
-        $roleInstances['pelapor_ikp']->syncPermissions([
+        $roleInstances['pelapor']->syncPermissions([
             'View:LaporanInsiden',
             'ViewAny:LaporanInsiden',
             'Create:LaporanInsiden',

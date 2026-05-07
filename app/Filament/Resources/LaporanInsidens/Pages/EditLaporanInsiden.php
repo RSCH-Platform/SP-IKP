@@ -99,7 +99,7 @@ class EditLaporanInsiden extends EditRecord
             $this->record->refresh();
             $this->record->submitLaporan();
 
-            $kepalaUnits = User::role('kepala_unit_ikp')->get();
+            $kepalaUnits = User::role('kepala_unit')->get();
 
             if ($kepalaUnits->isNotEmpty()) {
                 Notification::make()
@@ -182,7 +182,7 @@ class EditLaporanInsiden extends EditRecord
 
             $this->record->verifikasiLaporan(Auth::id());
 
-            $timMutu = User::role(['tim_mutu_ikp', 'admin_ikp'])->get();
+            $timMutu = User::role(['tim_mutu', 'admin_ikp'])->get();
 
             Notification::make()
                 ->title('Laporan berhasil diverifikasi')
@@ -218,7 +218,7 @@ class EditLaporanInsiden extends EditRecord
 
             $this->record->verifikasiLaporan(Auth::id());
 
-            $timMutu = User::role(['tim_mutu_ikp', 'admin_ikp'])->get();
+            $timMutu = User::role(['tim_mutu', 'admin_ikp'])->get();
 
             Notification::make()
                 ->title('Laporan diverifikasi ulang')
