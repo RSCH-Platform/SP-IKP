@@ -8,6 +8,50 @@
     </div>
     @endif
 
+    <details class="rounded-xl border border-blue-200 bg-blue-50/80 shadow-sm open:shadow-md dark:border-blue-800 dark:bg-blue-950/40">
+        <summary class="cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3 text-sm font-semibold text-blue-900 dark:text-blue-100">
+            <span class="flex items-center gap-2">
+                <span class="text-base">ℹ️</span>
+                <span>Panduan CRUD Timeline</span>
+            </span>
+            <span class="text-xs font-medium text-blue-700 dark:text-blue-200">Klik untuk lihat langkah</span>
+        </summary>
+
+        <div class="border-t border-blue-200 px-4 py-4 text-sm text-slate-700 dark:border-blue-800 dark:text-slate-200">
+            <div class="grid gap-3 md:grid-cols-3">
+                <div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+                    <div class="mb-2 flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200">1</span>
+                        Tambah event baru
+                    </div>
+                    <p class="leading-relaxed text-sm text-slate-600 dark:text-slate-300">
+                        Klik tombol <span class="font-semibold">Tambah Event</span> di atas untuk membuat event baru dengan tanggal dan jam lengkap.
+                    </p>
+                </div>
+
+                <div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+                    <div class="mb-2 flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200">2</span>
+                        Tambah jam saja
+                    </div>
+                    <p class="leading-relaxed text-sm text-slate-600 dark:text-slate-300">
+                        Jika sudah memilih tanggal, gunakan tombol <span class="font-semibold">Tambah Event Jam</span> pada blok tanggal tersebut untuk mengisi jam tanpa mengubah tanggal.
+                    </p>
+                </div>
+
+                <div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+                    <div class="mb-2 flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200">3</span>
+                        Edit, pindah, hapus
+                    </div>
+                    <p class="leading-relaxed text-sm text-slate-600 dark:text-slate-300">
+                        Klik <span class="font-semibold">baris event</span> dulu agar tombol aksi muncul. Setelah itu pilih <span class="font-semibold">Pindah</span>, <span class="font-semibold">Edit</span>, atau <span class="font-semibold">Hapus</span> sesuai kebutuhan.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </details>
+
     <!-- Action Header - Always Visible -->
     <div class="flex items-center justify-between mb-6">
         <div class="flex-1">

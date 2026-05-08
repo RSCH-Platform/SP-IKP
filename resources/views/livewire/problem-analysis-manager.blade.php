@@ -29,13 +29,24 @@
     @endif
 
     {{-- Header --}}
-    <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Analisa Masalah (5 WHY)
-        </h3>
-        <span class="text-sm text-gray-600 dark:text-gray-400">
-            Total: {{ count($problems ?? []) }} masalah
-        </span>
+    <div class="flex items-center justify-between gap-3 mb-6">
+        <div>
+            <h3 class="text-base font-bold text-gray-900 dark:text-gray-100">
+                Total: {{ count($problems ?? []) }} masalah
+            </h3>
+        </div>
+
+        <button
+            type="button"
+            wire:click="syncTimelineEntryProblems"
+            wire:loading.attr="disabled"
+            wire:target="syncTimelineEntryProblems"
+            class="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 hover:border-blue-300 disabled:cursor-not-allowed disabled:opacity-60 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-900/50"
+        >
+            <span wire:loading.remove wire:target="syncTimelineEntryProblems">🔄</span>
+            <span wire:loading wire:target="syncTimelineEntryProblems">⏳</span>
+            Sync Timeline
+        </button>
     </div>
 
     {{-- Problems List (Accordion) --}}

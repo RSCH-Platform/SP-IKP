@@ -14,6 +14,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+
 class ProblemAnalysisManager extends Component
 {
     use WithFileUploads;
@@ -125,6 +126,30 @@ class ProblemAnalysisManager extends Component
     public function refreshProblems()
     {
         $this->loadProblems();
+    }
+
+    public function syncTimelineEntryProblems(): void
+    {
+        try {
+            $syncedCount = $this->initializeProblemsFromTimeline();
+
+            $this->loadProblems();
+            $this->dispatch('refresh-problems');
+
+            if ($syncedCount > 0) {
+                $this->dispatch('notify', message: "Sync selesai: {$syncedCount} timeline entry berhasil disinkronkan ke problem.");
+                return;
+            }
+
+            $this->dispatch('notify', message: 'Tidak ada timeline entry CMP/SDP baru yang perlu disinkronkan.');
+        } catch (\Exception $e) {
+            Log::error('ProblemAnalysisManager: Error syncing timeline entries to problems', [
+                'error' => $e->getMessage(),
+                'recordId' => $this->recordId,
+            ]);
+
+            $this->dispatch('notify-error', message: 'Gagal sinkron timeline entry ke problem: ' . $e->getMessage());
+        }
     }
 
     public function loadProblems()
@@ -240,10 +265,10 @@ class ProblemAnalysisManager extends Component
         return '(Belum diisi)';
     }
 
-    public function initializeProblemsFromTimeline()
+    public function initializeProblemsFromTimeline(): int
     {
         if (!$this->recordId) {
-            return;
+            return 0;
         }
 
         // Get CMP and SDP timeline categories
@@ -252,7 +277,7 @@ class ProblemAnalysisManager extends Component
             ->toArray();
 
         if (empty($categoryIds)) {
-            return;
+            return 0;
         }
 
         // Get timeline entries for this specific laporan (through timeline_events)
@@ -260,39 +285,48 @@ class ProblemAnalysisManager extends Component
             $query->where('laporan_insiden_id', $this->recordId);
         })
             ->whereIn('category_id', $categoryIds)
+            ->whereDoesntHave('incidentProblem')
             ->with('category')
             ->orderBy('id')
-            ->get()
-            ->groupBy(fn(TimelineEntry $entry) => strtoupper($entry->category?->code ?? ''))
-            ->map(fn($group) => $group->first());
+            ->get();
 
-        if (empty($timelineEntries)) {
-            return;
+        if ($timelineEntries->isEmpty()) {
+            return 0;
         }
 
         // Create problems from timeline entries
         try {
             $incident = \App\Models\LaporanInsiden::find($this->recordId);
             if (!$incident) {
-                return;
+                return 0;
             }
 
+            $syncedCount = 0;
+
             foreach ($timelineEntries as $entry) {
-                IncidentProblem::create([
+                IncidentProblem::updateOrCreate([
+                    'timeline_entry_id' => $entry->id,
+                ], [
                     'incident_id' => $this->recordId,
                     'problem_type' => strtoupper($entry->category?->code ?? 'UNKNOWN'),
                     'problem_description' => $entry->description ?? '',
                 ]);
+
+                $syncedCount++;
             }
 
             // Reload problems after creating them
             $this->loadProblems();
+
+            return $syncedCount;
         } catch (\Exception $e) {
             // Silently fail - this is optional initialization
             Log::warning('ProblemAnalysisManager: Error initializing problems from timeline', [
                 'error' => $e->getMessage(),
                 'recordId' => $this->recordId,
             ]);
+
+            return 0;
         }
     }
 

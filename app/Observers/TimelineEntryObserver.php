@@ -48,21 +48,20 @@ class TimelineEntryObserver
 
             if ($newIsTarget && ! $oldIsTarget) {
                 // became a problem -> create if missing
-                IncidentProblem::firstOrCreate([
+                IncidentProblem::updateOrCreate([
+                    'timeline_entry_id' => $entry->id,
+                ], [
                     'incident_id' => $incidentId,
                     'problem_type' => strtoupper($newCode),
-                ], [
                     'problem_description' => $entry->description ?? '',
                 ]);
             } elseif (! $newIsTarget && $oldIsTarget) {
                 // no longer a problem -> remove existing
-                IncidentProblem::where('incident_id', $incidentId)
-                    ->where('problem_type', strtoupper($oldCode))
+                IncidentProblem::where('timeline_entry_id', $entry->id)
                     ->delete();
             } elseif ($newIsTarget && $oldIsTarget && $newCode !== $oldCode) {
                 // rename problem type
-                $problem = IncidentProblem::where('incident_id', $incidentId)
-                    ->where('problem_type', strtoupper($oldCode))
+                $problem = IncidentProblem::where('timeline_entry_id', $entry->id)
                     ->first();
 
                 if ($problem) {
@@ -90,18 +89,7 @@ class TimelineEntryObserver
 
     public function deleted(TimelineEntry $entry)
     {
-        $code = strtolower($entry->category?->code ?? TimelineCategory::find($entry->getOriginal('category_id'))?->code ?? '');
-        if (! in_array($code, $this->targetCodes, true)) {
-            return;
-        }
-
-        $incidentId = $entry->event?->laporan_insiden_id;
-        if (! $incidentId) {
-            return;
-        }
-
-        IncidentProblem::where('incident_id', $incidentId)
-            ->where('problem_type', strtoupper($code))
+        IncidentProblem::where('timeline_entry_id', $entry->id)
             ->delete();
         $this->notifyProblemRefresh($entry);
     }
@@ -119,10 +107,11 @@ class TimelineEntryObserver
         }
 
         $problem = IncidentProblem::firstOrNew([
-            'incident_id' => $incidentId,
-            'problem_type' => strtoupper($code),
+            'timeline_entry_id' => $entry->id,
         ]);
 
+        $problem->incident_id = $incidentId;
+        $problem->problem_type = strtoupper($code);
         $problem->problem_description = $entry->description ?? $problem->problem_description;
         if (! $problem->exists) {
             // set created_by if possible

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class TimelineEntry extends Model
 {
@@ -55,6 +56,11 @@ class TimelineEntry extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(TimelineCategory::class);
+    }
+
+    public function incidentProblem(): HasOne
+    {
+        return $this->hasOne(IncidentProblem::class, 'timeline_entry_id');
     }
 
     public function creator(): BelongsTo

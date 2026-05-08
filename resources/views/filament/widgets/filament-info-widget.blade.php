@@ -26,7 +26,7 @@
                     href="https://juniyasyos.github.io"
                     :icon="\Filament\Support\Icons\Heroicon::InformationCircle"
                 >
-                    Version 1.0.0 - Beta Release
+                    Version 1.0.0 - Beta
                 </x-filament::link>
             </div>
         </div>

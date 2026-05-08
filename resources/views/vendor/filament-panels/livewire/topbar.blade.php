@@ -85,8 +85,135 @@
             {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_LOGO_BEFORE) }}
 
             @if ($homeUrl = filament()->getHomeUrl())
-            <a {{ \Filament\Support\generate_href_html($homeUrl) }}>
-                <x-filament-panels::logo />
+            <a {{ \Filament\Support\generate_href_html($homeUrl) }}
+                class="group flex items-center gap-4 rounded-2xl px-2 py-1 transition-all duration-300 hover:bg-slate-100/70 dark:hover:bg-slate-800/60">
+
+                @props(['width' => '220'])
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 820 180"
+                    width="{{ $width }}"
+                    height="{{ $width * 0.22 }}"
+                    role="img"
+                    aria-labelledby="logo-title logo-desc"
+                    {{ $attributes }}>
+
+                    <title id="logo-title">SI-KP — Sistem Pelaporan Insiden Keselamatan Pasien</title>
+
+                    <desc id="logo-desc">
+                        Logo sistem pelaporan insiden keselamatan pasien modern dengan ikon perlindungan pasien dan detak kesehatan.
+                    </desc>
+
+                    <defs>
+                        <style>
+                            /* ===== LIGHT MODE ===== */
+                            .shield-main {
+                                stroke: #0F766E;
+                            }
+
+                            .shield-inner {
+                                stroke: #14B8A6;
+                            }
+
+                            .pulse-line {
+                                stroke: #06B6D4;
+                            }
+
+                            .heart-fill {
+                                fill: #EF4444;
+                            }
+
+                            .text-main {
+                                fill: #0F172A;
+                            }
+
+                            .text-sub {
+                                fill: #475569;
+                            }
+
+                            /* ===== DARK MODE ===== */
+                            .dark .shield-main {
+                                stroke: #2DD4BF;
+                            }
+
+                            .dark .shield-inner {
+                                stroke: #5EEAD4;
+                            }
+
+                            .dark .pulse-line {
+                                stroke: #67E8F9;
+                            }
+
+                            .dark .heart-fill {
+                                fill: #F87171;
+                            }
+
+                            .dark .text-main {
+                                fill: #F8FAFC;
+                            }
+
+                            .dark .text-sub {
+                                fill: #CBD5E1;
+                            }
+
+                            .font {
+                                font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+                            }
+                        </style>
+                    </defs>
+                    <g transform="translate(20,12)">
+                        <!-- OUTER SHIELD: Tinggi dikurangi 10%, lebar tetap ramping -->
+                        <path d="M80 10 L130 35 V80 C130 115 105 142 80 153 C55 142 30 115 30 80 V35 L80 10Z"
+                            fill="none"
+                            class="shield-main"
+                            stroke-width="10"
+                            stroke-linejoin="round" />
+
+                        <!-- INNER SHIELD: Mengikuti pengurangan tinggi outer shield -->
+                        <path d="M80 25 L118 42 V78 C118 105 100 128 80 140 C60 128 42 105 42 78 V42 L80 25Z"
+                            fill="none"
+                            class="shield-inner"
+                            stroke-width="5"
+                            stroke-linejoin="round"
+                            opacity="0.8" />
+
+                        <!-- HEART: Disesuaikan posisinya agar tetap di tengah perisai yang lebih pendek -->
+                        <path d="M80 118 C45 93 40 53 62 45 C75 41 80 51 80 51 C80 51 85 41 98 45 C120 53 115 93 80 118Z"
+                            class="heart-fill" />
+
+                        <!-- ECG: Disesuaikan sedikit lebih rendah agar presisi dengan jantung -->
+                        <path d="M35 83 H52 L62 68 L80 113 L98 53 L108 83 H125"
+                            fill="none"
+                            class="pulse-line"
+                            stroke-width="7"
+                            stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </g>
+                    <!-- ========= TEXT ========= -->
+                    <g transform="translate(210,56)">
+
+                        <text x="0"
+                            y="44"
+                            font-size="64"
+                            font-weight="800"
+                            letter-spacing="-1.5"
+                            class="text-main font">
+                            SP-IKP
+                        </text>
+
+                        <text x="0"
+                            y="84"
+                            font-size="25"
+                            font-weight="500"
+                            class="text-sub font"
+                            opacity="0.92">
+                            Sistem Pelaporan Insiden Keselamatan Pasien
+                        </text>
+
+                    </g>
+
+                </svg>
+
             </a>
             @else
             <x-filament-panels::logo />

@@ -16,7 +16,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Schema;
-
+use Illuminate\Contracts\Support\Htmlable;
 
 class ViewLaporanInsiden extends ViewRecord
 {
@@ -26,6 +26,10 @@ class ViewLaporanInsiden extends ViewRecord
 
     protected string $view = 'filament.resources.laporan-insidens.pages.view-laporan-insiden';
 
+    public function getHeading(): string|Htmlable
+    {
+        return '';
+    }
 
     protected function getHeaderActions(): array
     {

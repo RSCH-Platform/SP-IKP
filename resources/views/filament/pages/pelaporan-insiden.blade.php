@@ -27,15 +27,13 @@
                 </div>
             </div>
 
-            <div class="mt-6 rounded-xl border border-amber-300/60 bg-amber-50/80 
-    dark:border-amber-400/20 dark:bg-amber-900/10">
+            <div class="mt-6 rounded-xl border border-amber-300/60 bg-amber-50/80 dark:border-amber-400/20 dark:bg-amber-900/10">
 
                 <div class="p-5">
                     <div class="flex items-start gap-3">
 
                         <!-- Icon -->
-                        <div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center 
-                rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300">
+                        <div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300">
                             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l6.516 11.59c.75 1.335-.213 2.99-1.742 2.99H3.483c-1.53 0-2.492-1.655-1.743-2.99l6.517-11.59zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-1-6a1 1 0 00-1 1v3a1 1 0 102 0V8a1 1 0 00-1-1z"

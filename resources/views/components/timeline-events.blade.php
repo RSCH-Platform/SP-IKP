@@ -20,7 +20,7 @@
     @forelse($eventsByDate as $date => $dateEvents)
     <!-- Date Header Section -->
     <div class="mb-[-5px] print:block">
-        <div class="bg-slate-100 px-1 py-1 border-t-2 border-b-2 border-slate-200">
+        <div class="bg-slate-100 dark:bg-slate-700 px-1 py-1 border-t-2 border-b-2 border-slate-200">
             <p class="text-xs font-semibold text-slate-800 uppercase tracking-wider">
                 TANGGAL: {{ \Carbon\Carbon::createFromFormat('Y-m-d', $date)?->translatedFormat('l, d F Y') ?? 'Tanggal tidak tersedia' }}
             </p>

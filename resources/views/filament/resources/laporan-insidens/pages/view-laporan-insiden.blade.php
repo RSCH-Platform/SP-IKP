@@ -33,21 +33,30 @@
                     <p class="mt-2 text-xs text-gray-600 dark:text-gray-400"> Dibuat: {{ $record->created_at?->format('d F Y H:i') ?? 'N/A' }} </p>
                 </div>
             </div>
+
+            <div class="mb-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-700 p-5 shadow-sm">
+                <div class="text-[1rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
+                    Insiden
+                </div>
+                <div class="text-base align-text-top text-gray-900 dark:text-white leading-relaxed">
+                    {{ $record->deskripsi_kategori_insiden ?? '-' }}
+                </div>
+            </div>
             {{-- Laporan Info Grid --}}
             <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="rounded bg-gray-100 p-4 dark:bg-gray-800/50 dark:ring-1 dark:ring-gray-700">
+                <div class=" border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-700 p-5 shadow-sm">
                     <div class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">Nomor Laporan</div>
                     <div class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $record->nomor_laporan ?? '-' }}</div>
                 </div>
-                <div class="rounded bg-gray-100 p-4 dark:bg-gray-800/50 dark:ring-1 dark:ring-gray-700">
+                <div class=" border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-700 p-5 shadow-sm">
                     <div class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">Pelapor</div>
                     <div class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $record->nama_pelapor ?? '-' }}</div>
                 </div>
-                <div class="rounded bg-gray-100 p-4 dark:bg-gray-800/50 dark:ring-1 dark:ring-gray-700">
+                <div class=" border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-700 p-5 shadow-sm">
                     <div class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">Tanggal Insiden</div>
                     <div class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $record->tanggal_insiden?->format('d F Y') ?? '-' }}</div>
                 </div>
-                <div class="rounded bg-gray-100 p-4 dark:bg-gray-800/50 dark:ring-1 dark:ring-gray-700">
+                <div class=" border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-700 p-5 shadow-sm">
                     <div class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">Jenis Insiden</div>
                     <div class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $record->jenis_insiden ?? '-' }}</div>
                 </div>

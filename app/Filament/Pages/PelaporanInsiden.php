@@ -30,7 +30,7 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
 
     protected static ?string $navigationLabel = 'Pelaporan Insiden';
 
-    protected static ?string $title = 'Form Pelaporan Insiden Keselamatan Pasien';
+    protected static ?string $title = '';
 
     public ?array $data = [];
 
