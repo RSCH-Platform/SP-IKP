@@ -12,7 +12,7 @@
             });
         },
     }"> {{-- Header Section --}}
-    <div class="ikp-header status-{{ str_replace('_', '-', $record->status ?? 'draft') }} mb-6 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+    <div class="ikp-header status-draft mb-6 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
         <div class="ikp-header-content p-6"> {{-- Hospital Info Header --}}
             <div class="mb-4 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
                 <div class="flex items-center gap-4">
