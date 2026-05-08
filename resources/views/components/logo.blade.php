@@ -19,18 +19,22 @@
             /* ===== LIGHT MODE ===== */
             .shield-main {
                 stroke: #0F766E;
+                /* deep teal */
             }
 
             .shield-inner {
                 stroke: #14B8A6;
+                /* teal accent */
             }
 
             .pulse-line {
-                stroke: #06B6D4;
+                stroke: #0EA5A4;
+                /* dibuat senada teal */
             }
 
             .heart-fill {
-                fill: #EF4444;
+                fill: #DC2626;
+                /* red lebih mature */
             }
 
             .text-main {
@@ -43,15 +47,15 @@
 
             /* ===== DARK MODE ===== */
             .dark .shield-main {
-                stroke: #2DD4BF;
-            }
-
-            .dark .shield-inner {
                 stroke: #5EEAD4;
             }
 
+            .dark .shield-inner {
+                stroke: #99F6E4;
+            }
+
             .dark .pulse-line {
-                stroke: #67E8F9;
+                stroke: #2DD4BF;
             }
 
             .dark .heart-fill {
@@ -64,10 +68,6 @@
 
             .dark .text-sub {
                 fill: #CBD5E1;
-            }
-
-            .font {
-                font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
             }
         </style>
     </defs>

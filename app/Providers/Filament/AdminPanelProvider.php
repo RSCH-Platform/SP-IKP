@@ -44,6 +44,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\AccountWidget::class,
                 \App\Filament\Widgets\FilamentInfoWidget::class,
                 \App\Filament\Widgets\UnitKerjaInfo::class,
+                \App\Filament\Widgets\LaporanInsidenReport::class,
             ])
             ->middleware([
                 EncryptCookies::class,

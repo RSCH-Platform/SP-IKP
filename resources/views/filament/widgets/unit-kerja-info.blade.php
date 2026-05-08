@@ -1,5 +1,5 @@
 <x-filament-widgets::widget class="fi-filament-info-widget">
-    <x-filament::section>
+    <div class="space-y-6 fi-section p-4">
         @if ($unitKerja)
         <div class="space-y-6">
 
@@ -125,5 +125,5 @@
         </div>
 
         @endif
-    </x-filament::section>
+    </div>
 </x-filament-widgets::widget>
