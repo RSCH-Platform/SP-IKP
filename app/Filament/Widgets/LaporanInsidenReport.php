@@ -144,4 +144,16 @@ class LaporanInsidenReport extends Widget
 
         return $reportRows->toArray();
     }
+
+    /**
+     * Get a formatted label for the current period
+     */ 
+    public function periodeLabel(): string
+    {
+        if ($this->grouping === 'quarter') {
+            return "Quartal {$this->period}";
+        }
+
+        return "Semester {$this->period}";
+    }
 }

@@ -31,7 +31,7 @@ class LaporanInsidenFormSchema
 
             Step::make('Pasien')
                 ->icon('heroicon-o-identification')
-                ->hidden(fn(Get $get) => $get('insiden_terjadi_pada') !== 'Pasien')
+                // ->hidden(fn(Get $get) => $get('insiden_terjadi_pada') !== 'Pasien')
                 ->schema([
                     static::sectionPasien(collapsed: false),
                 ]),

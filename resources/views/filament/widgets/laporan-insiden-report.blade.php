@@ -38,7 +38,7 @@
 
                     <x-filament::input.wrapper>
                         <x-filament::input.select wire:model.live="grouping">
-                            <option value="quarter">Kuartal</option>
+                            <option value="quarter">Quartal</option>
                             <option value="semester">Semester</option>
                         </x-filament::input.select>
                     </x-filament::input.wrapper>
@@ -52,10 +52,10 @@
                     <x-filament::input.wrapper>
                         <x-filament::input.select wire:model.live="period">
                             @if($this->grouping === 'quarter')
-                            <option value="1">Kuartal 1</option>
-                            <option value="2">Kuartal 2</option>
-                            <option value="3">Kuartal 3</option>
-                            <option value="4">Kuartal 4</option>
+                            <option value="1">Quartal 1</option>
+                            <option value="2">Quartal 2</option>
+                            <option value="3">Quartal 3</option>
+                            <option value="4">Quartal 4</option>
                             @else
                             <option value="1">Semester 1</option>
                             <option value="2">Semester 2</option>
@@ -86,7 +86,7 @@
                 </div>
 
                 <div class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-                    {{ $this->grouping === 'quarter' ? 'Kuartal' : 'Semester' }}
+                    {{ $this->periodeLabel() }}
                 </div>
             </div>
 
@@ -103,86 +103,73 @@
         </div>
 
         <!-- Table -->
-        <div class="overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <x-report-table>
+            <x-slot:colgroup>
+                <colgroup>
+                    <col class="w-4/5">
+                    <col class="w-1/5">
+                </colgroup>
+            </x-slot:colgroup>
 
-            <div class="overflow-x-auto">
-                <table class="w-full border-collapse table-fixed">
+            <x-slot:header>
+                <tr>
 
-                    <!-- Column Width -->
-                    <colgroup>
-                        <col class="w-4/5">
-                        <col class="w-1/5">
-                    </colgroup>
+                    <th
+                        class="border-b border-r border-gray-300 px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-700 dark:border-gray-700 dark:text-gray-300">
+                        Bulan
+                    </th>
 
-                    <!-- Header -->
-                    <thead class="bg-gray-100 dark:bg-gray-800">
-                        <tr>
+                    <th
+                        class="border-b border-gray-300 px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-700 dark:border-gray-700 dark:text-gray-300">
+                        Jumlah Insiden
+                    </th>
 
-                            <th
-                                class="border-b border-r border-gray-300 px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-700 dark:border-gray-700 dark:text-gray-300">
-                                Bulan
-                            </th>
+                </tr>
+            </x-slot:header>
 
-                            <th
-                                class="border-b border-gray-300 px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-700 dark:border-gray-700 dark:text-gray-300">
-                                Jumlah Insiden
-                            </th>
+            @forelse($this->getReportData() as $row)
+            <tr class="bg-white dark:bg-gray-900">
 
-                        </tr>
-                    </thead>
+                <!-- Month -->
+                <td
+                    class="border-b border-r border-gray-200 px-5 py-3 text-sm font-medium text-gray-800 dark:border-gray-800 dark:text-gray-200">
+                    {{ $row['month_label'] ?? $row['month'] }}
+                </td>
 
-                    <!-- Body -->
-                    <tbody>
+                <!-- Count -->
+                <td
+                    class="border-b border-gray-200 px-5 py-3 text-center dark:border-gray-800">
 
-                        @forelse($this->getReportData() as $row)
-                        <tr class="bg-white dark:bg-gray-900">
+                    <span
+                        class="font-mono text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+                        {{ number_format($row['count']) }}
+                    </span>
 
-                            <!-- Month -->
-                            <td
-                                class="border-b border-r border-gray-200 px-5 py-3 text-sm font-medium text-gray-800 dark:border-gray-800 dark:text-gray-200">
-                                {{ $row['month_label'] ?? $row['month'] }}
-                            </td>
+                </td>
 
-                            <!-- Count -->
-                            <td
-                                class="border-b border-gray-200 px-5 py-3 text-center dark:border-gray-800">
+            </tr>
+            @empty
+            <tr>
 
-                                <span
-                                    class="font-mono text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-100">
-                                    {{ number_format($row['count']) }}
-                                </span>
+                <td colspan="2"
+                    class="border-b border-gray-200 px-5 py-10 text-center dark:border-gray-800">
 
-                            </td>
+                    <div class="space-y-1">
 
-                        </tr>
-                        @empty
-                        <tr>
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Data laporan tidak tersedia.
+                        </p>
 
-                            <td colspan="2"
-                                class="border-b border-gray-200 px-5 py-10 text-center dark:border-gray-800">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Belum terdapat data insiden pada periode yang dipilih.
+                        </p>
 
-                                <div class="space-y-1">
+                    </div>
 
-                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Data laporan tidak tersedia.
-                                    </p>
+                </td>
 
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                                        Belum terdapat data insiden pada periode yang dipilih.
-                                    </p>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-                        @endforelse
-
-                    </tbody>
-
-                </table>
-            </div>
-
-        </div>
+            </tr>
+            @endforelse
+        </x-report-table>
     </div>
 </x-filament-widgets::widget>
