@@ -1,30 +1,44 @@
 @props([
 'tableClass' => '',
 'wrapperClass' => '',
-'containerClass' => 'overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900',
-'scrollClass' => 'overflow-x-auto',
-'theadClass' => 'bg-gray-100 dark:bg-gray-800',
+'containerClass' => '',
+'scrollClass' => '',
+'theadClass' => '',
 'tbodyClass' => '',
 ])
 
-<div class="{{ $containerClass }} {{ $wrapperClass }}">
-    <div class="{{ $scrollClass }}">
-        <table {{ $attributes->merge(['class' => 'w-full border-collapse table-fixed ' . $tableClass]) }}>
+<div
+    class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xs dark:border-gray-800 dark:bg-gray-900 {{ $containerClass }} {{ $wrapperClass }}">
+
+    <div class="overflow-x-auto {{ $scrollClass }}">
+
+        <table
+            {{ $attributes->merge([
+                'class' => 'w-full border-collapse table-fixed text-sm ' . $tableClass
+            ]) }}>
 
             @isset($colgroup)
             {{ $colgroup }}
             @endisset
 
             @isset($header)
-            <thead class="{{ $theadClass }}">
+            <thead
+                class="bg-gray-50 dark:bg-gray-800/50 {{ $theadClass }}">
+
                 {{ $header }}
+
             </thead>
             @endisset
 
-            <tbody class="{{ $tbodyClass }}">
+            <tbody
+                class="divide-y divide-gray-200 dark:divide-gray-800 {{ $tbodyClass }}">
+
                 {{ $slot }}
+
             </tbody>
 
         </table>
+
     </div>
+
 </div>

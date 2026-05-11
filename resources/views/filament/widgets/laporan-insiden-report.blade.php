@@ -17,6 +17,8 @@
             <!-- Filters -->
             <div class="flex flex-wrap items-end gap-3">
 
+                <x-status-filter-modal :statuses="$statuses" />
+
                 <div class="min-w-[140px]">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                         Tahun
@@ -63,7 +65,6 @@
                         </x-filament::input.select>
                     </x-filament::input.wrapper>
                 </div>
-
             </div>
         </div>
 
@@ -76,7 +77,7 @@
                 </div>
 
                 <div class="mt-2 text-3xl font-bold">
-                    {{ collect($this->getReportData())->sum('count') }}
+                    {{ $this->getReportDataJenisInsiden()['summary']['total_count'] ?? 0 }}
                 </div>
             </div>
 
@@ -102,74 +103,61 @@
 
         </div>
 
-        <!-- Table -->
-        <x-report-table>
-            <x-slot:colgroup>
-                <colgroup>
-                    <col class="w-4/5">
-                    <col class="w-1/5">
-                </colgroup>
-            </x-slot:colgroup>
+        <!-- Table Jenis Insiden -->
+        <div class="space-y-3 mt-10">
 
-            <x-slot:header>
-                <tr>
+            <div class="flex items-center justify-between">
 
-                    <th
-                        class="border-b border-r border-gray-300 px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-700 dark:border-gray-700 dark:text-gray-300">
-                        Bulan
-                    </th>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                        Laporan Berdasarkan Jenis Insiden
+                    </h3>
 
-                    <th
-                        class="border-b border-gray-300 px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-700 dark:border-gray-700 dark:text-gray-300">
-                        Jumlah Insiden
-                    </th>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        Rekap jumlah insiden berdasarkan kategori insiden pada periode yang dipilih.
+                    </p>
+                </div>
 
-                </tr>
-            </x-slot:header>
+            </div>
 
-            @forelse($this->getReportData() as $row)
-            <tr class="bg-white dark:bg-gray-900">
+            @php
+            $reportData = $this->getReportDataJenisInsiden();
+            @endphp
 
-                <!-- Month -->
-                <td
-                    class="border-b border-r border-gray-200 px-5 py-3 text-sm font-medium text-gray-800 dark:border-gray-800 dark:text-gray-200">
-                    {{ $row['month_label'] ?? $row['month'] }}
-                </td>
+            @include('filament.widgets.table-data.jenis-insiden', [
+            'rows' => $reportData['rows'] ?? [],
+            'summary' => $reportData['summary'] ?? [],
+            ])
+        </div>
 
-                <!-- Count -->
-                <td
-                    class="border-b border-gray-200 px-5 py-3 text-center dark:border-gray-800">
 
-                    <span
-                        class="font-mono text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-100">
-                        {{ number_format($row['count']) }}
-                    </span>
+        <div class="space-y-3 mt-10">
 
-                </td>
+            <div class="flex items-center justify-between">
 
-            </tr>
-            @empty
-            <tr>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                        Laporan Berdasarkan Grading Risiko
+                    </h3>
 
-                <td colspan="2"
-                    class="border-b border-gray-200 px-5 py-10 text-center dark:border-gray-800">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        Rekap jumlah insiden berdasarkan grading risiko pada periode yang dipilih.
+                    </p>
+                </div>
 
-                    <div class="space-y-1">
+            </div>
 
-                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Data laporan tidak tersedia.
-                        </p>
+            @php
+            $reportDataGrading = $this->getReportDataGrading() ?? [];
+            @endphp
 
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                            Belum terdapat data insiden pada periode yang dipilih.
-                        </p>
+            @include('filament.widgets.table-data.grading', [
+            'rows' => $reportDataGrading['rows'] ?? [],
+            'summary' => $reportDataGrading['summary'] ?? [],
+            'gradings' => ['Biru','Hijau','Kuning','Merah','Hitam'],
+            ])
+        </div>
 
-                    </div>
 
-                </td>
-
-            </tr>
-            @endforelse
-        </x-report-table>
     </div>
 </x-filament-widgets::widget>
