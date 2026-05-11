@@ -217,10 +217,28 @@ class ShieldSeeder extends Seeder
 
         ]);
 
-        // Give widget access to roles that can view incidents
-        foreach ($roleInstances as $role) {
+        // Give widget access to roles that can view incidents.
+        // Special-case: restrict access to the TrendLaporanInsiden widget
+        // so only `super_admin` and `tim_mutu` receive its widget permissions.
+        $trendWidgetPermissions = $widgetPermissions->filter(
+            fn($p) =>
+            str_contains($p, 'TrendLaporanInsiden') ||
+                str_contains($p, 'trend-laporan-insiden') ||
+                str_contains($p, 'trend_laporan_insiden')
+        )->values();
+
+        foreach ($roleInstances as $roleName => $role) {
             if ($role->hasPermissionTo('ViewAny:LaporanInsiden') || $role->hasPermissionTo('ViewAllData:LaporanInsiden')) {
-                $role->givePermissionTo($widgetPermissions->toArray());
+                $permsToGive = $widgetPermissions->toArray();
+
+                // If role is not super_admin or tim_mutu, strip out Trend widget perms
+                if (! in_array($roleName, ['super_admin', 'tim_mutu'], true)) {
+                    $permsToGive = array_values(array_diff($permsToGive, $trendWidgetPermissions->toArray()));
+                }
+
+                if (! empty($permsToGive)) {
+                    $role->givePermissionTo($permsToGive);
+                }
             }
         }
     }
