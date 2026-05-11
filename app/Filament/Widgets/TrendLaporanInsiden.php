@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\LaporanInsiden;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -16,7 +17,7 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class TrendLaporanInsiden extends ApexChartWidget implements HasForms
 {
-    use InteractsWithForms, HasFiltersSchema;
+    use InteractsWithForms, HasFiltersSchema, HasWidgetShield;
 
     protected string $view = 'filament.widgets.trend-laporan-insiden';
 

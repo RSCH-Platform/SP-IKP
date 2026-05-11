@@ -16,10 +16,6 @@ return new class extends Migration
         }
 
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'iam_id')) {
-                $table->unsignedBigInteger('iam_id')->nullable()->index()->after('id');
-            }
-
             if (!Schema::hasColumn('users', 'status')) {
                 $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
             }
@@ -36,10 +32,6 @@ return new class extends Migration
         }
 
         Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'iam_id')) {
-                $table->dropColumn('iam_id');
-            }
-
             if (Schema::hasColumn('users', 'status')) {
                 $table->dropColumn('status');
             }

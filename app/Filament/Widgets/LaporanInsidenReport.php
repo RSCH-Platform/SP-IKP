@@ -5,10 +5,21 @@ namespace App\Filament\Widgets;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\Widget;
 use App\Models\LaporanInsiden;
+use Illuminate\Support\Facades\Auth;
 
 class LaporanInsidenReport extends Widget
 {
-    use HasWidgetShield;
+    public static function canView(): bool
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        // Allow access if user has permission to view incident reports
+        return $user->hasAnyPermission(['ForceEdit:LaporanInsiden']);
+    }
 
     protected array $jenisInsidenColumns = [
         'KPC' => 'KPC (Kondisi Potensial Cedera)',

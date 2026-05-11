@@ -40,8 +40,20 @@ class UnitKerjaInfo extends Widget
             ];
         }
 
+        // Get kepala unit (head of department)
+        $kepalauUnit = $unitKerja->users()
+            ->whereHas('roles', fn($q) => $q->where('name', 'kepala_unit'))
+            ->first();
+
+        // Count staff unit (excluding kepala_unit)
+        $totalStaffUnit = $unitKerja->users()
+            ->whereDoesntHave('roles', fn($q) => $q->where('name', 'kepala_unit'))
+            ->count();
+
         // Get additional statistics
         $stats = [
+            'kepala_unit_name' => $kepalauUnit?->name ?? '-',
+            'total_staff_unit' => $totalStaffUnit,
             'total_users' => $unitKerja->users()->count(),
         ];
 
