@@ -2,18 +2,18 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\LaporanInsiden;
-use App\Models\User;
+use App\Filament\Widgets\Helpers\ChartFilterProvider;
+use App\Filament\Widgets\Helpers\ChartQueryBuilder;
+use App\Filament\Widgets\Helpers\PieChartBuilder;
+use App\Filament\Widgets\Helpers\TrendChartBuilder;
+use App\Filament\Widgets\Helpers\TrendFooterGenerator;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Schema;
 use Filament\Widgets\ChartWidget\Concerns\HasFiltersSchema;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
+use Livewire\Attributes\On;
 
 class TrendLaporanInsiden extends ApexChartWidget implements HasForms
 {
@@ -35,27 +35,25 @@ class TrendLaporanInsiden extends ApexChartWidget implements HasForms
 
     public bool $showAverage = true;
 
+    /** @var array<string> */
+    public array $statusFilter = ['investigasi', 'selesai_investigasi'];
+
     protected static ?string $footer = null;
 
     protected int|string|array $columnSpan = 'full';
 
-    // Customizable parameters for easier tweaking
-    // Trend chart uses warning color (kuning)
-    public array $trendColors = ['#f59e0b'];
+    // Chart heights
+    public int $trendChartHeight = 350;
 
-    // Default palette for categorical/pie charts
-    public array $jenisColors = ['#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'];
+    public int $pieChartHeight = 260;
 
     // Grading colors map
-    public array $gradingColors = [
+    protected array $gradingColors = [
         'Biru' => '#3b82f6',
         'Hijau' => '#10b981',
         'Kuning' => '#f59e0b',
         'Merah' => '#ef4444',
     ];
-
-    public int $trendChartHeight = 350;
-    public int $pieChartHeight = 260;
 
     public function mount(): void
     {
@@ -66,21 +64,9 @@ class TrendLaporanInsiden extends ApexChartWidget implements HasForms
 
     public function filtersSchema(Schema $schema): Schema
     {
-        $currentYear = (string) now()->year;
-
-        return $schema->components([
-            Select::make('tahun')
-                ->label('Tahun Laporan')
-                ->native(false)
-                ->options([$currentYear => $currentYear])
-                ->default($currentYear)
-                ->live(),
-
-            Toggle::make('showAverage')
-                ->label('Tampilkan Garis Rata-rata')
-                ->default(true)
-                ->live(),
-        ]);
+        return $schema->components(
+            ChartFilterProvider::buildFilterComponents($this->statusFilter)
+        );
     }
 
     public function updatedInteractsWithSchemas(string $statePath): void
@@ -88,177 +74,67 @@ class TrendLaporanInsiden extends ApexChartWidget implements HasForms
         $this->updateOptions();
     }
 
-    protected function scopedQuery(): Builder
+    #[On('status-filter-changed')]
+    public function onStatusFilterChanged(array $statuses): void
     {
-        $query = LaporanInsiden::query();
-
-        /** @var User|null $user */
-        $user = Auth::user();
-
-        if (! $user) {
-            return $query->whereRaw('1 = 0');
-        }
-
-        if ($user->can('ViewAllData:LaporanInsiden')) {
-            return $query;
-        }
-
-        if ($user->can('ForceEdit:LaporanInsiden')) {
-            $unitIds = $user->unitKerjas()->pluck('id');
-
-            return $query->whereIn('unit_kerja_id', $unitIds);
-        }
-
-        if ($user->can('Submit:LaporanInsiden')) {
-            return $query->where('user_id', $user->getKey());
-        }
-
-        return $query->whereRaw('1 = 0');
+        $this->statusFilter = $statuses;
+        $this->updateOptions();
     }
 
-    protected function getMonthlySeries(int $year): array
+    public function updatedStatusFilter(): void
     {
-        $monthlyCounts = $this->scopedQuery()
-            ->whereYear('tanggal_insiden', $year)
-            ->whereNotNull('tanggal_insiden')
-            ->selectRaw('MONTH(tanggal_insiden) as month_number, COUNT(*) as total')
-            ->groupBy('month_number')
-            ->pluck('total', 'month_number');
-
-        $series = [];
-
-        for ($month = 1; $month <= 12; $month++) {
-            $series[] = (int) ($monthlyCounts[$month] ?? 0);
-        }
-
-        return $series;
+        $this->updateOptions();
     }
 
-    protected function getMonthCategories(): array
+    /**
+     * Get base query dengan permission dan status filter
+     */
+    protected function getBaseQuery()
     {
-        return ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        return (new ChartQueryBuilder())
+            ->withStatusFilter($this->statusFilter)
+            ->build();
     }
 
-    protected function getOptions(): array
+    protected function getTrendOptions(): array
     {
         $selectedYear = (int) ($this->tahun ?: now()->year);
-        $categories = $this->getMonthCategories();
-        $series = $this->getMonthlySeries($selectedYear);
+        $query = $this->getBaseQuery();
 
-        $average = round(collect($series)->avg(), 1);
-        $total = array_sum($series);
-        $peakValue = max($series);
-        $peakMonthIndex = array_search($peakValue, $series, true);
-        $peakMonthName = $peakMonthIndex === false ? '-' : $categories[$peakMonthIndex];
+        $trendBuilder = new TrendChartBuilder($query, $selectedYear, $this->showAverage);
+        $series = $trendBuilder->getMonthlySeries();
+        $stats = $trendBuilder->calculateStats($series);
 
-        static::$footer = "<div class='mt-3 text-xs text-gray-600'>" .
-            "<span>Total {$selectedYear}: <strong>{$total}</strong> laporan</span>" .
-            "<span class='mx-2'>|</span>" .
-            "<span>Rata-rata bulanan: <strong>{$average}</strong></span>" .
-            "<span class='mx-2'>|</span>" .
-            "<span>Puncak: <strong>{$peakMonthName}</strong> ({$peakValue})</span>" .
-            "</div>";
+        // Generate footer
+        static::$footer = TrendFooterGenerator::generate($stats);
 
-        return [
-            'chart' => [
-                'type' => 'line',
-                'height' => $this->trendChartHeight,
-                'toolbar' => ['show' => false],
-                'zoom' => ['enabled' => false],
-                'animations' => ['easing' => 'easeinout', 'speed' => 600],
-            ],
-
-            'series' => [['name' => 'Jumlah Insiden', 'data' => $series]],
-
-            'stroke' => ['curve' => 'smooth', 'width' => 3],
-
-            'markers' => ['size' => 5, 'hover' => ['sizeOffset' => 2]],
-
-            'dataLabels' => ['enabled' => false],
-
-            'grid' => ['borderColor' => '#e5e7eb', 'strokeDashArray' => 4],
-
-            'xaxis' => [
-                'categories' => $categories,
-                'labels' => ['style' => ['fontFamily' => 'inherit', 'fontSize' => '12px']],
-                'title' => ['text' => "Bulan ({$selectedYear})"],
-            ],
-
-            'yaxis' => [
-                'title' => ['text' => 'Jumlah Laporan'],
-                'labels' => ['style' => ['fontFamily' => 'inherit', 'fontSize' => '12px']],
-            ],
-
-            'tooltip' => ['theme' => 'dark', 'x' => ['show' => true]],
-
-            'colors' => $this->trendColors,
-
-            'annotations' => [
-                'yaxis' => $this->showAverage ? [[
-                    'y' => $average,
-                    'borderColor' => '#f59e0b',
-                    'label' => ['borderColor' => '#f59e0b', 'style' => ['color' => '#fff', 'background' => '#f59e0b'], 'text' => 'Rata-rata: ' . $average],
-                ]] : [],
-            ],
-        ];
+        return $trendBuilder->buildOptions(350);
     }
 
     protected function getJenisOptions(): array
     {
-        $rows = $this->scopedQuery()
-            ->whereNotNull('jenis_insiden')
-            ->selectRaw('jenis_insiden as label, COUNT(*) as total')
-            ->groupBy('jenis_insiden')
-            ->orderByDesc('total')
-            ->get();
+        $query = $this->getBaseQuery();
 
-        $labels = $rows->pluck('label')->map(fn($v) => $v ?: 'Lainnya')->toArray();
-        $series = $rows->pluck('total')->map(fn($v) => (int) $v)->toArray();
+        $pieBuilder = new PieChartBuilder(
+            $query,
+            'jenis_insiden',
+            ['#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6']
+        );
 
-        if (empty($labels)) {
-            $labels = ['Tidak ada data'];
-            $series = [0];
-        }
-
-        return [
-            'chart' => ['type' => 'pie', 'height' => $this->pieChartHeight],
-            'series' => $series,
-            'labels' => $labels,
-            'colors' => array_slice($this->jenisColors, 0, max(1, count($labels))),
-            'tooltip' => ['theme' => 'dark'],
-            'legend' => ['position' => 'bottom'],
-        ];
+        return $pieBuilder->buildOptions();
     }
 
     protected function getGradingOptions(): array
     {
-        $rows = $this->scopedQuery()
-            ->whereNotNull('grading_risiko')
-            ->selectRaw('grading_risiko as label, COUNT(*) as total')
-            ->groupBy('grading_risiko')
-            ->orderByDesc('total')
-            ->get();
+        $query = $this->getBaseQuery();
 
-        $labels = $rows->pluck('label')->map(fn($v) => $v ?: 'Tidak diketahui')->toArray();
-        $series = $rows->pluck('total')->map(fn($v) => (int) $v)->toArray();
+        $pieBuilder = new PieChartBuilder(
+            $query,
+            'grading_risiko',
+            ['#f59e0b', '#10b981', '#ef4444', '#3b82f6'],
+            $this->gradingColors
+        );
 
-        if (empty($labels)) {
-            $labels = ['Tidak ada data'];
-            $series = [0];
-        }
-
-        $colors = [];
-        foreach ($labels as $label) {
-            $colors[] = $this->gradingColors[$label] ?? '#9ca3af';
-        }
-
-        return [
-            'chart' => ['type' => 'pie', 'height' => $this->pieChartHeight],
-            'series' => $series,
-            'labels' => $labels,
-            'colors' => $colors,
-            'tooltip' => ['theme' => 'dark'],
-            'legend' => ['position' => 'bottom'],
-        ];
+        return $pieBuilder->buildOptions();
     }
 }

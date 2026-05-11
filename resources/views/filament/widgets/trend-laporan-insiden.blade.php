@@ -8,7 +8,7 @@ $darkMode = $this->getDarkMode();
 $width = $this->getFilterFormWidth();
 $pollingInterval = $this->getPollingInterval();
 $chartId = $this->getChartId();
-$chartOptions = $this->getOptions();
+$chartOptions = $this->getTrendOptions();
 $jenisOptions = $this->getJenisOptions();
 $gradingOptions = $this->getGradingOptions();
 $loadingIndicator = $this->getLoadingIndicator();
@@ -62,6 +62,12 @@ $extraJsOptions = $this->extraJsOptions();
                 @endif
             </x-slot>
             @endif
+
+            {{-- Status Filter Section --}}
+            <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800/30 rounded-lg border border-gray-200 dark:border-gray-700">
+                <livewire:widgets.status-filter
+                    :status-filter="$this->statusFilter" />
+            </div>
 
             <x-filament-apex-charts::chart
                 :chart-id="$chartId"
