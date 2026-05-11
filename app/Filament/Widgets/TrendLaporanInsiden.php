@@ -7,17 +7,29 @@ use App\Filament\Widgets\Helpers\ChartQueryBuilder;
 use App\Filament\Widgets\Helpers\PieChartBuilder;
 use App\Filament\Widgets\Helpers\TrendChartBuilder;
 use App\Filament\Widgets\Helpers\TrendFooterGenerator;
-use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Schema;
 use Filament\Widgets\ChartWidget\Concerns\HasFiltersSchema;
+use Illuminate\Support\Facades\Auth;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Livewire\Attributes\On;
 
 class TrendLaporanInsiden extends ApexChartWidget implements HasForms
 {
-    use InteractsWithForms, HasFiltersSchema, HasWidgetShield;
+    use InteractsWithForms, HasFiltersSchema;
+
+    public static function canView(): bool
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        // Allow access if user has permission to view incident reports
+        return $user->hasAnyPermission(['ForceEdit:LaporanInsiden']);
+    }
 
     protected string $view = 'filament.widgets.trend-laporan-insiden';
 
