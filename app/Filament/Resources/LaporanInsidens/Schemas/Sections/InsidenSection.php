@@ -21,11 +21,11 @@ class InsidenSection
         $schema = [
             Grid::make(2)->schema([
                 Textarea::make('deskripsi_kategori_insiden')
-                    ->label('Insiden')
+                    ->label('Judul Insiden')
                     ->required()
-                    ->rows(8)
-                    ->helperText('Jelaskan secara rinci kategori insiden yang dipilih, termasuk faktor penyebab dan kondisi yang berkontribusi.')
-                    ->placeholder('Contoh: Insiden terkait medication terjadi karena kesalahan pemberian obat oleh petugas, dimana pasien menerima obat yang salah dosisnya. Faktor penyebabnya adalah kurangnya komunikasi antara petugas dan kurang teliti dalam membaca label obat.')
+                    ->rows(3)
+                    ->helperText('Jelaskan secara singkat insiden yg terjadi')
+                    ->placeholder('Contoh: Insiden terkait medication terjadi karena kesalahan pemberian obat oleh petugas')
                     ->columnSpanFull(),
 
                 LaporanInsidenFormOptions::makeSelect('jenis_insiden', 'Jenis Insiden', LaporanInsidenFormOptions::JENIS_INSIDEN_OPTIONS)

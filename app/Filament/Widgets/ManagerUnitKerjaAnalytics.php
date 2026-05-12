@@ -75,6 +75,16 @@ class ManagerUnitKerjaAnalytics extends Widget
         ];
     }
 
+    protected function getTable4OverdueThresholds(): array
+    {
+        return [
+            'Biru' => 7,
+            'Hijau' => 14,
+            'Kuning' => 45,
+            'Merah' => 45,
+        ];
+    }
+
     public function mount(): void
     {
         $this->year = $this->year ?? (int)date('Y');
@@ -468,12 +478,19 @@ class ManagerUnitKerjaAnalytics extends Widget
                 ->value('avg_days') ?? 0;
             $avgResolveDays = round($avgResolveDays, 1);
 
-            // Count overdue (> 7 days without investigation completed)
-            $overdue = (clone $unitQuery)
-                ->whereNotNull('investigation_started_at')
-                ->whereNull('investigation_completed_at')
-                ->whereRaw('DATEDIFF(NOW(), investigation_started_at) > 7')
-                ->count();
+            // Count overdue with SLA per grading risk
+            // Biru: > 7 days, Hijau: > 14 days, Kuning/Merah: > 45 days
+            $overdueThresholds = $this->getTable4OverdueThresholds();
+            $overdueBreakdown = [];
+            foreach ($overdueThresholds as $grading => $thresholdDays) {
+                $overdueBreakdown[$grading] = (clone $unitQuery)
+                    ->whereNotNull('investigation_started_at')
+                    ->whereNull('investigation_completed_at')
+                    ->where('grading_risiko', 'like', $grading . '%')
+                    ->whereRaw('DATEDIFF(NOW(), investigation_started_at) > ?', [$thresholdDays])
+                    ->count();
+            }
+            $overdue = array_sum($overdueBreakdown);
 
             $sentinel = $jenisCounts['Sentinel'] ?? 0;
             $ktd = $jenisCounts['KTD'] ?? 0;
@@ -513,6 +530,7 @@ class ManagerUnitKerjaAnalytics extends Widget
                 'grading_counts' => $gradingCounts,
                 'severe_impact' => $severeImpact,
                 'overdue' => $overdue,
+                'overdue_breakdown' => $overdueBreakdown,
                 'avg_resolve_days' => $avgResolveDays,
                 'close_rate' => $closeRate,
                 'action' => $action,
