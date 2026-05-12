@@ -38,7 +38,7 @@ class ManagerUnitKerjaAnalytics extends Widget
 
     public ?int $period = null;
 
-    public ?int $month = null;
+    public string $breakdownMode = 'period';
 
     public ?array $statuses = null;
 
@@ -79,19 +79,22 @@ class ManagerUnitKerjaAnalytics extends Widget
     {
         $this->year = $this->year ?? (int)date('Y');
         $this->period = $this->getDefaultPeriodForGrouping();
-        $this->month = $this->month ?? null;
         $this->statuses = $this->statuses ?? $this->defaultStatuses;
     }
 
     public function updatedGrouping(): void
     {
         $this->period = $this->getDefaultPeriodForGrouping();
-        $this->month = null;
     }
 
     public function updatedPeriod(): void
     {
-        $this->month = null;
+        // Keep the selected breakdown mode; only the month range changes.
+    }
+
+    public function updatedBreakdownMode(): void
+    {
+        // No-op. Included so Livewire tracks the mode cleanly.
     }
 
     protected function getDefaultPeriodForGrouping(): int
@@ -109,7 +112,7 @@ class ManagerUnitKerjaAnalytics extends Widget
         return (int) ceil($month / 3);
     }
 
-    public function getAvailableMonthsForCurrentPeriod(): array
+    public function getTable4PeriodMonths(): array
     {
         if ($this->grouping === 'semester') {
             return $this->period === 2
@@ -155,7 +158,7 @@ class ManagerUnitKerjaAnalytics extends Widget
         };
     }
 
-    protected function applyPeriodFilter($query): void
+    protected function applyPeriodFilter($query, ?int $month = null): void
     {
         $query->whereNotNull('tanggal_insiden');
 
@@ -170,8 +173,8 @@ class ManagerUnitKerjaAnalytics extends Widget
         [$startMonth, $endMonth] = $this->resolveMonthRange();
         $query->whereRaw('MONTH(tanggal_insiden) BETWEEN ? AND ?', [$startMonth, $endMonth]);
 
-        if ($this->month) {
-            $query->whereMonth('tanggal_insiden', $this->month);
+        if ($month !== null) {
+            $query->whereMonth('tanggal_insiden', $month);
         }
     }
 
@@ -414,10 +417,10 @@ class ManagerUnitKerjaAnalytics extends Widget
     /**
      * Calculate risk score and return priority ranking
      */
-    public function getTable4PriorityRisk(): array
+    public function getTable4PriorityRisk(?int $month = null): array
     {
         $query = LaporanInsiden::query();
-        $this->applyPeriodFilter($query);
+        $this->applyPeriodFilter($query, $month);
 
         $units = UnitKerja::query()
             ->whereHas('laporanInsiden', function ($q) use ($query) {
@@ -432,7 +435,7 @@ class ManagerUnitKerjaAnalytics extends Widget
                 ->where('unit_kerja_id', $unit->id)
                 ->whereNotNull('tanggal_insiden');
 
-            $this->applyPeriodFilter($unitQuery);
+            $this->applyPeriodFilter($unitQuery, $month);
 
             $total = $unitQuery->count();
             if ($total === 0) continue;
@@ -534,5 +537,27 @@ class ManagerUnitKerjaAnalytics extends Widget
         }
 
         return $unitRisks;
+    }
+
+    public function getTable4PriorityRiskBreakdowns(): array
+    {
+        if ($this->breakdownMode !== 'monthly') {
+            return [[
+                'title' => 'Akumulasi Periode',
+                'month' => null,
+                'rows' => $this->getTable4PriorityRisk(),
+            ]];
+        }
+
+        $tables = [];
+        foreach ($this->getTable4PeriodMonths() as $monthValue => $monthLabel) {
+            $tables[] = [
+                'title' => $monthLabel,
+                'month' => $monthValue,
+                'rows' => $this->getTable4PriorityRisk($monthValue),
+            ];
+        }
+
+        return $tables;
     }
 }

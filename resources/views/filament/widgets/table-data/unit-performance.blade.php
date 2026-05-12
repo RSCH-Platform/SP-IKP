@@ -1,12 +1,16 @@
 <!-- TABLE 1: UNIT KERJA PERFORMANCE -->
 <div class="mt-10 space-y-3">
     <div class="border-b border-gray-200 pb-3 dark:border-gray-700">
+
         <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            📊 TABLE 1: Unit Kerja Performance (Monitoring)
+            📊 Kinerja Penanganan Insiden per Unit Kerja
         </h3>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Perbandingan efisiensi penyelesaian insiden per unit kerja
+
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Menampilkan perbandingan jumlah laporan, status penanganan,
+            dan efektivitas tindak lanjut insiden pada setiap unit kerja.
         </p>
+
     </div>
 
     <x-report-table>
