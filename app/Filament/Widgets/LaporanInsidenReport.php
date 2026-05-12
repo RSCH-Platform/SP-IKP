@@ -43,7 +43,7 @@ class LaporanInsidenReport extends Widget
 
     public string $grouping = 'quarter'; // 'quarter' or 'semester'
 
-    // selected quarter (1..4) or semester (1..2); null = all
+    // selected quarter (1..4) or semester (1..2); 0 = full year; null = default current period
     public ?int $period = null;
 
     // selected statuses for filtering; null or empty = all
@@ -58,12 +58,18 @@ class LaporanInsidenReport extends Widget
 
     public function updatedGrouping(): void
     {
-        $this->period = $this->getDefaultPeriodForGrouping();
+        if ($this->period !== 0) {
+            $this->period = $this->getDefaultPeriodForGrouping();
+        }
     }
 
     protected function getDefaultPeriodForGrouping(): int
     {
         $month = (int) date('n');
+
+        if ($this->grouping === 'none') {
+            return 0;
+        }
 
         if ($this->grouping === 'semester') {
             return (int) ceil($month / 6);
@@ -92,7 +98,7 @@ class LaporanInsidenReport extends Widget
     {
         $yearFilter = $this->year ? intval($this->year) : null;
         $grouping = $this->grouping === 'semester' ? 'semester' : 'quarter';
-        $periodFilter = $this->period ? intval($this->period) : $this->getDefaultPeriodForGrouping();
+        $periodFilter = $this->period !== null ? intval($this->period) : $this->getDefaultPeriodForGrouping();
 
         $query = LaporanInsiden::query()
             ->whereNotNull('tanggal_insiden');
@@ -144,14 +150,14 @@ class LaporanInsidenReport extends Widget
         });
 
         // Filter by selected period (quarter/semester) if provided
-        if ($periodFilter) {
+        if ($periodFilter !== 0) {
             $items = $items->filter(fn($it) => $it['period_num'] === $periodFilter);
         }
 
         $startMonth = 1;
         $endMonth = 12;
 
-        if ($periodFilter) {
+        if ($periodFilter !== 0) {
             if ($grouping === 'quarter') {
                 $startMonth = (($periodFilter - 1) * 3) + 1;
                 $endMonth = $startMonth + 2;
@@ -179,7 +185,6 @@ class LaporanInsidenReport extends Widget
                 $count = (int) ($countByMonthAndJenis[$countKey] ?? 0);
 
                 $row[$jenisKey] = $count;
-                $row['total_count'] += $count;
             }
 
             return $row;
@@ -232,7 +237,7 @@ class LaporanInsidenReport extends Widget
     {
         $yearFilter = $this->year ? intval($this->year) : null;
         $grouping = $this->grouping === 'semester' ? 'semester' : 'quarter';
-        $periodFilter = $this->period ? intval($this->period) : $this->getDefaultPeriodForGrouping();
+        $periodFilter = $this->period !== null ? intval($this->period) : $this->getDefaultPeriodForGrouping();
 
         $query = LaporanInsiden::query()
             ->whereNotNull('tanggal_insiden');
@@ -281,14 +286,14 @@ class LaporanInsidenReport extends Widget
             ];
         });
 
-        if ($periodFilter) {
+        if ($periodFilter !== 0) {
             $items = $items->filter(fn($it) => $it['period_num'] === $periodFilter);
         }
 
         $startMonth = 1;
         $endMonth = 12;
 
-        if ($periodFilter) {
+        if ($periodFilter !== 0) {
             if ($grouping === 'quarter') {
                 $startMonth = (($periodFilter - 1) * 3) + 1;
                 $endMonth = $startMonth + 2;
@@ -317,7 +322,6 @@ class LaporanInsidenReport extends Widget
                 $countKey = $month . '|' . $g;
                 $count = (int) ($countByMonthAndGrading[$countKey] ?? 0);
                 $row[$g] = $count;
-                $row['total_count'] += $count;
             }
 
             return $row;
@@ -359,6 +363,10 @@ class LaporanInsidenReport extends Widget
      */
     public function periodeLabel(): string
     {
+        if ($this->period === 0 || $this->grouping === 'none') {
+            return 'Tahun';
+        }
+
         if ($this->grouping === 'quarter') {
             return "Quartal {$this->period}";
         }

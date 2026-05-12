@@ -16,13 +16,24 @@ class TrendChartBuilder
 
     protected bool $showAverage;
 
+    protected int $startMonth;
+
+    protected int $endMonth;
+
     protected array $trendColors;
 
-    public function __construct(Builder $query, int $year, bool $showAverage = true)
-    {
+    public function __construct(
+        Builder $query,
+        int $year,
+        bool $showAverage = true,
+        int $startMonth = 1,
+        int $endMonth = 12
+    ) {
         $this->query = $query;
         $this->year = $year;
         $this->showAverage = $showAverage;
+        $this->startMonth = max(1, min(12, $startMonth));
+        $this->endMonth = max($this->startMonth, min(12, $endMonth));
         $this->trendColors = ['#f59e0b'];
     }
 
@@ -46,7 +57,6 @@ class TrendChartBuilder
     public function getMonthlySeries(): array
     {
         $monthlyCounts = $this->query
-            ->whereYear('tanggal_insiden', $this->year)
             ->whereNotNull('tanggal_insiden')
             ->selectRaw('MONTH(tanggal_insiden) as month_number, COUNT(*) as total')
             ->groupBy('month_number')
@@ -54,7 +64,7 @@ class TrendChartBuilder
 
         $series = [];
 
-        for ($month = 1; $month <= 12; $month++) {
+        for ($month = $this->startMonth; $month <= $this->endMonth; $month++) {
             $series[] = (int) ($monthlyCounts[$month] ?? 0);
         }
 
@@ -68,7 +78,9 @@ class TrendChartBuilder
      */
     public function getMonthCategories(): array
     {
-        return ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        return array_slice($labels, $this->startMonth - 1, $this->endMonth - $this->startMonth + 1);
     }
 
     /**
@@ -140,9 +152,13 @@ class TrendChartBuilder
      *
      * @return array<string, mixed>
      */
-    public function buildOptions(int $height = 350): array
+    /**
+     * @param array<int>|null $series
+     * @return array<string, mixed>
+     */
+    public function buildOptions(int $height = 350, ?array $series = null): array
     {
-        $series = $this->getMonthlySeries();
+        $series = $series ?? $this->getMonthlySeries();
         $categories = $this->getMonthCategories();
         $stats = $this->calculateStats($series);
         $annotations = $this->buildAverageAnnotation($stats['average']);
@@ -311,6 +327,28 @@ class TrendChartBuilder
             'annotations' => [
                 'yaxis' => $annotations,
             ],
+        ];
+    }
+
+    /**
+     * Get debug payload untuk menampilkan snapshot filter dan data.
+     *
+     * @return array<string, mixed>
+     */
+    /**
+     * @param array<int>|null $series
+     * @return array<string, mixed>
+     */
+    public function getDebugPayload(?array $series = null): array
+    {
+        $series = $series ?? $this->getMonthlySeries();
+
+        return [
+            'year' => $this->year,
+            'monthRange' => [$this->startMonth, $this->endMonth],
+            'categories' => $this->getMonthCategories(),
+            'series' => $series,
+            'stats' => $this->calculateStats($series),
         ];
     }
 }

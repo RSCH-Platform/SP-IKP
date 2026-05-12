@@ -40,6 +40,7 @@
 
                     <x-filament::input.wrapper>
                         <x-filament::input.select wire:model.live="grouping">
+                            <option value="none">none</option>
                             <option value="quarter">Quartal</option>
                             <option value="semester">Semester</option>
                         </x-filament::input.select>
@@ -53,6 +54,7 @@
 
                     <x-filament::input.wrapper>
                         <x-filament::input.select wire:model.live="period">
+                            <option value="0">none</option>
                             @if($this->grouping === 'quarter')
                             <option value="1">Quartal 1</option>
                             <option value="2">Quartal 2</option>

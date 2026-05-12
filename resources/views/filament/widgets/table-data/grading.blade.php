@@ -2,6 +2,14 @@
 $gradings = $gradings ?? ['Biru','Hijau','Kuning','Merah','Hitam'];
 $rows = $rows ?? [];
 $summary = $summary ?? [];
+
+$gradingHeaderClasses = [
+'Biru' => 'bg-sky-600 text-white dark:bg-sky-700',
+'Hijau' => 'bg-emerald-600 text-white dark:bg-emerald-700',
+'Kuning' => 'bg-amber-400 text-white dark:bg-amber-500',
+'Merah' => 'bg-rose-600 text-white dark:bg-rose-700',
+'Hitam' => 'bg-slate-700 text-white dark:bg-slate-800',
+];
 @endphp
 
 <x-report-table>
@@ -28,7 +36,8 @@ $summary = $summary ?? [];
 
             <x-report-table.th
                 :colspan="count($gradings)"
-                align="center">
+                align="center"
+                class="bg-slate-200 text-gray-900 dark:bg-slate-700 dark:text-white">
                 Grading
             </x-report-table.th>
 
@@ -44,7 +53,9 @@ $summary = $summary ?? [];
 
             @foreach($gradings as $g)
 
-            <x-report-table.th align="center">
+            <x-report-table.th
+                align="center"
+                :class="$gradingHeaderClasses[$g] ?? 'bg-slate-500 text-white dark:bg-slate-600 dark:text-white'">
                 {{ $g }}
             </x-report-table.th>
 

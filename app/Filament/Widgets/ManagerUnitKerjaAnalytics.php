@@ -38,29 +38,159 @@ class ManagerUnitKerjaAnalytics extends Widget
 
     public ?int $period = null;
 
+    public ?int $month = null;
+
     public ?array $statuses = null;
+
+    /**
+     * Default statuses mapping (label only, no icons)
+     * key => label
+     */
+    protected array $defaultStatuses = [
+        'draft' => 'Draft',
+        'dilaporkan' => 'Dilaporkan',
+        'diverifikasi' => 'Verifikasi',
+        'investigasi' => 'Investigasi',
+        'selesai_investigasi' => 'Selesai',
+    ];
+
+    public function getTable4JenisColumns(): array
+    {
+        return [
+            'KPC' => 'KPC',
+            'KNC' => 'KNC',
+            'KTC' => 'KTC',
+            'KTD' => 'KTD',
+            'Sentinel' => 'Sentinel',
+        ];
+    }
+
+    public function getTable4GradingColumns(): array
+    {
+        return [
+            'Biru' => 'Biru',
+            'Hijau' => 'Hijau',
+            'Kuning' => 'Kuning',
+            'Merah' => 'Merah',
+        ];
+    }
 
     public function mount(): void
     {
         $this->year = $this->year ?? (int)date('Y');
         $this->period = $this->getDefaultPeriodForGrouping();
-        $this->statuses = $this->statuses ?? [];
+        $this->month = $this->month ?? null;
+        $this->statuses = $this->statuses ?? $this->defaultStatuses;
     }
 
     public function updatedGrouping(): void
     {
         $this->period = $this->getDefaultPeriodForGrouping();
+        $this->month = null;
+    }
+
+    public function updatedPeriod(): void
+    {
+        $this->month = null;
     }
 
     protected function getDefaultPeriodForGrouping(): int
     {
         $month = (int) date('n');
 
+        if ($this->grouping === 'month') {
+            return $month;
+        }
+
         if ($this->grouping === 'semester') {
             return (int) ceil($month / 6);
         }
 
         return (int) ceil($month / 3);
+    }
+
+    public function getAvailableMonthsForCurrentPeriod(): array
+    {
+        if ($this->grouping === 'semester') {
+            return $this->period === 2
+                ? [
+                    7 => 'Juli',
+                    8 => 'Agustus',
+                    9 => 'September',
+                    10 => 'Oktober',
+                    11 => 'November',
+                    12 => 'Desember',
+                ]
+                : [
+                    1 => 'Januari',
+                    2 => 'Februari',
+                    3 => 'Maret',
+                    4 => 'April',
+                    5 => 'Mei',
+                    6 => 'Juni',
+                ];
+        }
+
+        return match ($this->period) {
+            2 => [
+                4 => 'April',
+                5 => 'Mei',
+                6 => 'Juni',
+            ],
+            3 => [
+                7 => 'Juli',
+                8 => 'Agustus',
+                9 => 'September',
+            ],
+            4 => [
+                10 => 'Oktober',
+                11 => 'November',
+                12 => 'Desember',
+            ],
+            default => [
+                1 => 'Januari',
+                2 => 'Februari',
+                3 => 'Maret',
+            ],
+        };
+    }
+
+    protected function applyPeriodFilter($query): void
+    {
+        $query->whereNotNull('tanggal_insiden');
+
+        if ($this->year) {
+            $query->whereYear('tanggal_insiden', $this->year);
+        }
+
+        if (!$this->period || $this->period <= 0) {
+            return;
+        }
+
+        [$startMonth, $endMonth] = $this->resolveMonthRange();
+        $query->whereRaw('MONTH(tanggal_insiden) BETWEEN ? AND ?', [$startMonth, $endMonth]);
+
+        if ($this->month) {
+            $query->whereMonth('tanggal_insiden', $this->month);
+        }
+    }
+
+    protected function resolveMonthRange(): array
+    {
+        if ($this->grouping === 'month') {
+            return [$this->period, $this->period];
+        }
+
+        if ($this->grouping === 'semester') {
+            return $this->period === 2 ? [7, 12] : [1, 6];
+        }
+
+        return match ($this->period) {
+            2 => [4, 6],
+            3 => [7, 9],
+            4 => [10, 12],
+            default => [1, 3],
+        };
     }
 
     public function getAvailableYears(): array
@@ -81,12 +211,8 @@ class ManagerUnitKerjaAnalytics extends Widget
      */
     public function getTable1UnitPerformance(): array
     {
-        $query = LaporanInsiden::query()
-            ->whereNotNull('tanggal_insiden');
-
-        if ($this->year) {
-            $query->whereYear('tanggal_insiden', $this->year);
-        }
+        $query = LaporanInsiden::query();
+        $this->applyPeriodFilter($query);
 
         // Get all units dengan data incidents
         $units = UnitKerja::query()
@@ -100,9 +226,7 @@ class ManagerUnitKerjaAnalytics extends Widget
                 ->where('unit_kerja_id', $unit->id)
                 ->whereNotNull('tanggal_insiden');
 
-            if ($this->year) {
-                $unitQuery->whereYear('tanggal_insiden', $this->year);
-            }
+            $this->applyPeriodFilter($unitQuery);
 
             $total = $unitQuery->count();
 
@@ -111,30 +235,37 @@ class ManagerUnitKerjaAnalytics extends Widget
                 return null;
             }
 
-            $draft = (clone $unitQuery)->where('status', 'draft')->count();
-            $proses = (clone $unitQuery)->whereIn('status', ['dilaporkan', 'diverifikasi', 'investigasi', 'revisi', 'revisi_unit'])->count();
-            $selesai = (clone $unitQuery)->where('status', 'selesai')->count();
+            // Calculate counts for each configured status key
+            $statusCounts = [];
+            foreach (array_keys($this->statuses) as $statusKey) {
+                if ($statusKey === 'investigasi') {
+                    $statusCounts[$statusKey] = (clone $unitQuery)
+                        ->whereNotNull('investigation_started_at')
+                        ->whereNull('investigation_completed_at')
+                        ->count();
+                    continue;
+                }
 
-            $closeRate = $total > 0 ? round(($selesai / $total) * 100, 0) : 0;
+                if ($statusKey === 'selesai_investigasi') {
+                    $statusCounts[$statusKey] = (clone $unitQuery)
+                        ->whereNotNull('investigation_completed_at')
+                        ->count();
+                    continue;
+                }
 
-            // Determine risk level
-            if ($closeRate >= 85) {
-                $riskLevel = '🟢 Low';
-            } elseif ($closeRate >= 70) {
-                $riskLevel = '🟡 Medium';
-            } else {
-                $riskLevel = '🔴 High';
+                $statusCounts[$statusKey] = (clone $unitQuery)->where('status', $statusKey)->count();
             }
 
-            return [
+            $selesaiCount = $statusCounts['selesai_investigasi'] ?? 0;
+            $closeRate = $total > 0 ? round(($selesaiCount / $total) * 100, 0) : 0;
+
+            $row = array_merge([
                 'unit_name' => $unit->unit_name,
                 'total' => $total,
-                'draft' => $draft,
-                'proses' => $proses,
-                'selesai' => $selesai,
-                'close_rate' => $closeRate,
-                'risk_level' => $riskLevel,
-            ];
+            ], $statusCounts);
+            $row['close_rate'] = $closeRate;
+
+            return $row;
         })->filter()->sortByDesc('total')->values()->toArray();
 
         return $rows;
@@ -146,12 +277,8 @@ class ManagerUnitKerjaAnalytics extends Widget
      */
     public function getTable2UnitJenisGrading(): array
     {
-        $query = LaporanInsiden::query()
-            ->whereNotNull('tanggal_insiden');
-
-        if ($this->year) {
-            $query->whereYear('tanggal_insiden', $this->year);
-        }
+        $query = LaporanInsiden::query();
+        $this->applyPeriodFilter($query);
 
         $gradingLevels = ['Biru', 'Hijau', 'Kuning', 'Merah'];
         $jenisTypes = ['KPC', 'KNC', 'KTC', 'KTD', 'Sentinel'];
@@ -169,9 +296,7 @@ class ManagerUnitKerjaAnalytics extends Widget
                 ->where('unit_kerja_id', $unit->id)
                 ->whereNotNull('tanggal_insiden');
 
-            if ($this->year) {
-                $unitQuery->whereYear('tanggal_insiden', $this->year);
-            }
+            $this->applyPeriodFilter($unitQuery);
 
             $unitData = [
                 'unit_name' => $unit->unit_name,
@@ -224,12 +349,8 @@ class ManagerUnitKerjaAnalytics extends Widget
      */
     public function getTable3JenisGradingAgregat(): array
     {
-        $query = LaporanInsiden::query()
-            ->whereNotNull('tanggal_insiden');
-
-        if ($this->year) {
-            $query->whereYear('tanggal_insiden', $this->year);
-        }
+        $query = LaporanInsiden::query();
+        $this->applyPeriodFilter($query);
 
         $gradingLevels = ['Biru', 'Hijau', 'Kuning', 'Merah'];
         $jenisTypes = ['KPC', 'KNC', 'KTC', 'KTD', 'Sentinel'];
@@ -295,12 +416,8 @@ class ManagerUnitKerjaAnalytics extends Widget
      */
     public function getTable4PriorityRisk(): array
     {
-        $query = LaporanInsiden::query()
-            ->whereNotNull('tanggal_insiden');
-
-        if ($this->year) {
-            $query->whereYear('tanggal_insiden', $this->year);
-        }
+        $query = LaporanInsiden::query();
+        $this->applyPeriodFilter($query);
 
         $units = UnitKerja::query()
             ->whereHas('laporanInsiden', function ($q) use ($query) {
@@ -315,35 +432,49 @@ class ManagerUnitKerjaAnalytics extends Widget
                 ->where('unit_kerja_id', $unit->id)
                 ->whereNotNull('tanggal_insiden');
 
-            if ($this->year) {
-                $unitQuery->whereYear('tanggal_insiden', $this->year);
-            }
+            $this->applyPeriodFilter($unitQuery);
 
             $total = $unitQuery->count();
             if ($total === 0) continue;
 
             // Calculate metrics
-            $sentinel = (clone $unitQuery)->where('jenis_insiden', 'like', 'Sentinel%')->count();
-            $ktd = (clone $unitQuery)->where('jenis_insiden', 'like', 'KTD%')->count();
-            $merah = (clone $unitQuery)->where('grading_risiko', 'like', 'Merah%')->count();
+            $jenisColumns = $this->getTable4JenisColumns();
+            $gradingColumns = $this->getTable4GradingColumns();
+
+            $jenisCounts = [];
+            foreach (array_keys($jenisColumns) as $jenisKey) {
+                $jenisCounts[$jenisKey] = (clone $unitQuery)->where('jenis_insiden', 'like', $jenisKey . '%')->count();
+            }
+
+            $gradingCounts = [];
+            foreach (array_keys($gradingColumns) as $gradingKey) {
+                $gradingCounts[$gradingKey] = (clone $unitQuery)->where('grading_risiko', 'like', $gradingKey . '%')->count();
+            }
+
             $severeImpact = (clone $unitQuery)
                 ->whereIn('dampak_insiden', ['Cedera berat', 'Meninggal'])
                 ->count();
-            $selesai = (clone $unitQuery)->where('status', 'selesai')->count();
+            $selesai = (clone $unitQuery)->whereNotNull('investigation_completed_at')->count();
             $closeRate = round(($selesai / $total) * 100, 0);
 
-            // Calculate average resolve days (simplified - using created/updated timestamps)
+            // Calculate average resolve days based on investigation timestamps
             $avgResolveDays = (clone $unitQuery)
-                ->where('status', 'selesai')
-                ->selectRaw('AVG(DATEDIFF(updated_at, created_at)) as avg_days')
+                ->whereNotNull('investigation_started_at')
+                ->whereNotNull('investigation_completed_at')
+                ->selectRaw('AVG(DATEDIFF(investigation_completed_at, investigation_started_at)) as avg_days')
                 ->value('avg_days') ?? 0;
             $avgResolveDays = round($avgResolveDays, 1);
 
-            // Count overdue (> 7 days without status selesai)
+            // Count overdue (> 7 days without investigation completed)
             $overdue = (clone $unitQuery)
-                ->where('status', '!=', 'selesai')
-                ->whereRaw('DATEDIFF(NOW(), created_at) > 7')
+                ->whereNotNull('investigation_started_at')
+                ->whereNull('investigation_completed_at')
+                ->whereRaw('DATEDIFF(NOW(), investigation_started_at) > 7')
                 ->count();
+
+            $sentinel = $jenisCounts['Sentinel'] ?? 0;
+            $ktd = $jenisCounts['KTD'] ?? 0;
+            $merah = $gradingCounts['Merah'] ?? 0;
 
             // Risk Score Formula
             // (Sentinel × 10) + (KTD × 6) + (Merah × 5) + (Dampak Berat/Meninggal × 8) + (Overdue × 4) + (Avg Resolve Days × 2) - (Close Rate % × 0.5)
@@ -375,9 +506,8 @@ class ManagerUnitKerjaAnalytics extends Widget
                 'unit_name' => $unit->unit_name,
                 'risk_score' => $riskScore,
                 'risk_level' => $riskLevel,
-                'sentinel' => $sentinel,
-                'ktd' => $ktd,
-                'merah' => $merah,
+                'jenis_counts' => $jenisCounts,
+                'grading_counts' => $gradingCounts,
                 'severe_impact' => $severeImpact,
                 'overdue' => $overdue,
                 'avg_resolve_days' => $avgResolveDays,

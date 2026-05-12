@@ -1,23 +1,8 @@
 @php
 $statusOptions = [
-'draft' => [
-'label' => 'Draft',
-'color' => 'gray',
-],
-
 'dilaporkan' => [
 'label' => 'Dilaporkan',
 'color' => 'sky',
-],
-
-'revisi' => [
-'label' => 'Perlu Revisi',
-'color' => 'red',
-],
-
-'revisi_unit' => [
-'label' => 'Revisi Unit',
-'color' => 'amber',
 ],
 
 'diverifikasi' => [
@@ -36,11 +21,13 @@ $statusOptions = [
 ],
 ];
 
+$defaultStatuses = array_keys($statusOptions);
+
 $allStatuses = array_keys($statusOptions);
 
 if (blank($statuses ?? [])) {
-$this->statuses = $allStatuses;
-$statuses = $allStatuses;
+$this->statuses = $defaultStatuses;
+$statuses = $defaultStatuses;
 }
 @endphp
 
@@ -70,11 +57,13 @@ $statuses = $allStatuses;
 
         </svg>
 
+        <span>Status Laporan</span>
+
         <!-- Counter -->
         @if(count($statuses ?? []))
 
         <span
-            class="inline-flex items-center justify-center rounded-full bg-primary-500/10 px-2 py-0.5 text-xs font-semibold text-primary-600 dark:text-primary-400">
+            class="inline-flex bg-blue-200 items-center justify-center rounded-full bg-primary-500/10 px-2 py-0.5 text-xs font-semibold text-primary-600 dark:text-primary-400">
 
             {{ count($statuses) }}
 

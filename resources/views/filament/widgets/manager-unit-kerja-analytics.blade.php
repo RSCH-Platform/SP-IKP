@@ -17,10 +17,6 @@
 
         @include('filament.widgets.table-data.unit-performance')
 
-        @include('filament.widgets.table-data.unit-jenis-grading')
-
-        @include('filament.widgets.table-data.jenis-grading-agregat')
-
         @include('filament.widgets.table-data.priority-risk')
 
     </div>

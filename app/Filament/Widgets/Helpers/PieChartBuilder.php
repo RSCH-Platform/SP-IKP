@@ -123,9 +123,13 @@ class PieChartBuilder
      *
      * @return array<string, mixed>
      */
-    public function buildOptions(): array
+    /**
+     * @param array{labels: array<string>, series: array<int>, colors: array<string>}|null $data
+     * @return array<string, mixed>
+     */
+    public function buildOptions(?array $data = null): array
     {
-        $data = $this->getData();
+        $data = $data ?? $this->getData();
 
         return [
             'chart' => [
