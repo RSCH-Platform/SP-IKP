@@ -324,7 +324,11 @@ class ManagerUnitKerjaAnalytics extends Widget
 
             // Calculate metrics
             $sentinel = (clone $unitQuery)->where('jenis_insiden', 'like', 'Sentinel%')->count();
+            $ktd = (clone $unitQuery)->where('jenis_insiden', 'like', 'KTD%')->count();
             $merah = (clone $unitQuery)->where('grading_risiko', 'like', 'Merah%')->count();
+            $severeImpact = (clone $unitQuery)
+                ->whereIn('dampak_insiden', ['Cedera berat', 'Meninggal'])
+                ->count();
             $selesai = (clone $unitQuery)->where('status', 'selesai')->count();
             $closeRate = round(($selesai / $total) * 100, 0);
 
@@ -342,8 +346,14 @@ class ManagerUnitKerjaAnalytics extends Widget
                 ->count();
 
             // Risk Score Formula
-            // (Sentinel × 10) + (Merah × 5) + (Overdue × 4) + (Avg Resolve Days × 2) - (Close Rate % × 0.5)
-            $riskScore = ($sentinel * 10) + ($merah * 5) + ($overdue * 4) + ($avgResolveDays * 2) - ($closeRate * 0.5);
+            // (Sentinel × 10) + (KTD × 6) + (Merah × 5) + (Dampak Berat/Meninggal × 8) + (Overdue × 4) + (Avg Resolve Days × 2) - (Close Rate % × 0.5)
+            $riskScore = ($sentinel * 10)
+                + ($ktd * 6)
+                + ($merah * 5)
+                + ($severeImpact * 8)
+                + ($overdue * 4)
+                + ($avgResolveDays * 2)
+                - ($closeRate * 0.5);
             $riskScore = max(0, round($riskScore, 0)); // Ensure non-negative
 
             // Determine risk level and action
@@ -366,7 +376,9 @@ class ManagerUnitKerjaAnalytics extends Widget
                 'risk_score' => $riskScore,
                 'risk_level' => $riskLevel,
                 'sentinel' => $sentinel,
+                'ktd' => $ktd,
                 'merah' => $merah,
+                'severe_impact' => $severeImpact,
                 'overdue' => $overdue,
                 'avg_resolve_days' => $avgResolveDays,
                 'close_rate' => $closeRate,
@@ -381,11 +393,11 @@ class ManagerUnitKerjaAnalytics extends Widget
         foreach ($unitRisks as $key => &$item) {
             $rank = $key + 1;
             if ($rank === 1) {
-                $item['rank'] = '🥇';
+                $item['rank'] = '1';
             } elseif ($rank === 2) {
-                $item['rank'] = '🥈';
+                $item['rank'] = '2';
             } elseif ($rank === 3) {
-                $item['rank'] = '🥉';
+                $item['rank'] = '3';
             } else {
                 $item['rank'] = $rank;
             }
