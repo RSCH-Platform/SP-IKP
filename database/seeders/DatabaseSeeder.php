@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             // ShieldSeeder::class,
             // UnitKerjaSeeder::class,
             // UserSeeder::class,
-            LaporanInsidenSeeder::class,
+            // LaporanInsidenSeeder::class,
             TimelineCategorySeeder::class,
             ProblemContributorSeeder::class,
         ]);

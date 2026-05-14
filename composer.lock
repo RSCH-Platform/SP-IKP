@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d63bf3476a1ecc114729c214c3e5df2c",
+    "content-hash": "1da6a9dfa13b74afc2462fedbd5d33a1",
     "packages": [
         {
             "name": "bezhansalleh/filament-plugin-essentials",
@@ -2389,16 +2389,16 @@
         },
         {
             "name": "juniyasyos/auth-bridge-client",
-            "version": "v1.2.11",
+            "version": "v1.2.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/juniyasyos/auth-bridge-client.git",
-                "reference": "1e38d3eb54cc0170ac24d741f72c38e633358ac0"
+                "reference": "5192851542759e21fabbd133c7de1d10eab45aa1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/juniyasyos/auth-bridge-client/zipball/1e38d3eb54cc0170ac24d741f72c38e633358ac0",
-                "reference": "1e38d3eb54cc0170ac24d741f72c38e633358ac0",
+                "url": "https://api.github.com/repos/juniyasyos/auth-bridge-client/zipball/5192851542759e21fabbd133c7de1d10eab45aa1",
+                "reference": "5192851542759e21fabbd133c7de1d10eab45aa1",
                 "shasum": ""
             },
             "require": {
@@ -2444,9 +2444,9 @@
             ],
             "support": {
                 "issues": "https://github.com/juniyasyos/auth-bridge-client/issues",
-                "source": "https://github.com/juniyasyos/auth-bridge-client/tree/v1.2.11"
+                "source": "https://github.com/juniyasyos/auth-bridge-client/tree/v1.2.14"
             },
-            "time": "2026-05-14T07:33:13+00:00"
+            "time": "2026-05-14T15:10:32+00:00"
         },
         {
             "name": "juniyasyos/filament-media-manager",
@@ -3269,16 +3269,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "3.33.0",
+            "version": "3.34.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "570b8871e0ce693764434b29154c54b434905350"
+                "reference": "2daaac3b0d4c83ea7ed5d8586e786f5d00f3540e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/570b8871e0ce693764434b29154c54b434905350",
-                "reference": "570b8871e0ce693764434b29154c54b434905350",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/2daaac3b0d4c83ea7ed5d8586e786f5d00f3540e",
+                "reference": "2daaac3b0d4c83ea7ed5d8586e786f5d00f3540e",
                 "shasum": ""
             },
             "require": {
@@ -3346,9 +3346,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.33.0"
+                "source": "https://github.com/thephpleague/flysystem/tree/3.34.0"
             },
-            "time": "2026-03-25T07:59:30+00:00"
+            "time": "2026-05-14T10:28:08+00:00"
         },
         {
             "name": "league/flysystem-local",
