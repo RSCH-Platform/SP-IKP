@@ -26,6 +26,7 @@ class LaporanInsiden extends Model implements HasMedia
     const STATUS_DIVERIFIKASI   = 'diverifikasi';   // kepala_unit selesai grading & analisis
     const STATUS_REVISI_UNIT    = 'revisi_unit';    // tim_mutu → kepala_unit
     const STATUS_INVESTIGASI    = 'investigasi';    // tim_mutu sedang investigasi sederhana
+    const STATUS_SELESAI        = 'selesai';        // investigasi selesai
 
     public const JENIS_INSIDEN_OPTIONS = [
         'KPC (Kondisi Potensial Cedera)' => 'KPC (Kondisi Potensial Cedera)',
@@ -333,6 +334,7 @@ class LaporanInsiden extends Model implements HasMedia
     public function selesaikanInvestigasi(int $userId): void
     {
         $this->update([
+            'status'                     => self::STATUS_SELESAI,
             'investigation_completed_by' => $userId,
             'investigation_completed_at' => now(),
         ]);
@@ -430,6 +432,28 @@ class LaporanInsiden extends Model implements HasMedia
                 }
                 if (empty($model->verified_by) && $currentUserId) {
                     $model->verified_by = $currentUserId;
+                }
+                break;
+
+            case self::STATUS_SELESAI:
+                // Pastikan semua workflow field terisi
+                if (empty($model->reported_at)) {
+                    $model->reported_at = now();
+                }
+                if (empty($model->reported_by) && $currentUserId) {
+                    $model->reported_by = $currentUserId;
+                }
+                if (empty($model->verified_at)) {
+                    $model->verified_at = now();
+                }
+                if (empty($model->verified_by) && $currentUserId) {
+                    $model->verified_by = $currentUserId;
+                }
+                if (empty($model->investigation_completed_at)) {
+                    $model->investigation_completed_at = now();
+                }
+                if (empty($model->investigation_completed_by) && $currentUserId) {
+                    $model->investigation_completed_by = $currentUserId;
                 }
                 break;
         }

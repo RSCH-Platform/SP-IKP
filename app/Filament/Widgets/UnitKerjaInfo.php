@@ -19,12 +19,14 @@ class UnitKerjaInfo extends Widget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 6;
 
     public static function canView(): bool
     {
         $user = auth()->user();
+
         return $user
+            && !$user->hasRole('tim_mutu')
             && $user->unitKerjas()->exists();
     }
 

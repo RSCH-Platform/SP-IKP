@@ -56,10 +56,11 @@ class ListLaporanInsidens extends ListRecords
         $statuses = [
             'draft' => ['label' => 'Draft', 'color' => 'gray'],
             'dilaporkan' => ['label' => 'Dilaporkan', 'color' => 'info'],
-            'revisi_unit' => ['label' => 'Revisi Unit', 'color' => 'danger'],
-            'revisi' => ['label' => 'Perlu Revisi', 'color' => 'warning'],
+            // 'revisi_unit' => ['label' => 'Revisi Unit', 'color' => 'danger'],
+            // 'revisi' => ['label' => 'Perlu Revisi', 'color' => 'warning'],
             'diverifikasi' => ['label' => 'Diverifikasi', 'color' => 'success'],
             'investigasi' => ['label' => 'Investigasi', 'color' => 'primary'],
+            'selesai' => ['label' => 'Selesai', 'color' => 'success'],
         ];
 
         $tabs = [];
