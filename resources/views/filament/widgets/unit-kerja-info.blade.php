@@ -31,14 +31,6 @@
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 dark:text-slate-400">
-
-                            <span class="inline-flex items-center gap-1">
-                                @svg('heroicon-m-hashtag', 'w-3.5 h-3.5')
-                                {{ $unitKerja->id }}
-                            </span>
-
-                            <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
-
                             <span class="inline-flex items-center gap-1">
                                 @svg('heroicon-m-calendar-days', 'w-3.5 h-3.5')
                                 Dibuat {{ $unitKerja->created_at->translatedFormat('d M Y') }}
@@ -54,24 +46,6 @@
 
                     </div>
                 </div>
-
-                {{-- Quick Action --}}
-                <div class="flex items-center gap-2">
-
-                    <button type="button"
-                        x-data="{ open: false }"
-                        @click="open = !open"
-                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-700">
-
-                        @svg('heroicon-o-users', 'w-4 h-4')
-
-                        <span>Lihat Semua User</span>
-
-                        @svg('heroicon-m-chevron-down', 'w-4 h-4 transition-transform')
-                    </button>
-
-                </div>
-
             </div>
 
             {{-- Divider --}}
@@ -259,8 +233,8 @@
                                 <div class="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
 
                                     <span class="inline-flex items-center gap-1 truncate">
-                                        @svg('heroicon-m-envelope', 'w-3.5 h-3.5')
-                                        {{ $user->email }}
+                                        @svg('heroicon-m-hashtag', 'w-3.5 h-3.5')
+                                        {{ $user->nip }}
                                     </span>
 
                                     @if ($user->phone ?? false)
@@ -273,15 +247,7 @@
                                 </div>
 
                             </div>
-
-                            {{-- Action --}}
-                            <button type="button"
-                                class="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-primary-200 hover:bg-primary-50 hover:text-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-primary-500/20 dark:hover:bg-primary-500/10 dark:hover:text-primary-400">
-
-                                @svg('heroicon-o-eye', 'w-4 h-4')
-
-                            </button>
-
+                            
                         </div>
 
                         @empty

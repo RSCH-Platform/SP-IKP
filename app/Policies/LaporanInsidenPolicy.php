@@ -16,6 +16,11 @@ class LaporanInsidenPolicy
     {
         return $authUser->can('ViewAllData:LaporanInsiden');
     }
+    
+    public function ForceEdit(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceEdit:LaporanInsiden');
+    }
 
     public function viewAny(AuthUser $authUser): bool
     {
@@ -30,22 +35,9 @@ class LaporanInsidenPolicy
             return true;
         }
 
-        // Super Admin dapat melihat semua laporan
-        if ($authUser->hasRole('super_admin')) {
-            return true;
-        }
-
         // Pembuat laporan (reporter) dapat melihat laporannya sendiri
         if ($laporanInsiden->reported_by === $authUser->id) {
             return true;
-        }
-
-        // Kepala Unit dapat melihat laporan dari unit mereka
-        if ($authUser->hasRole('kepala_unit')) {
-            $userUnitIds = $authUser->unitKerjas()->pluck('id');
-            if ($userUnitIds->contains($laporanInsiden->unit_kerja_id)) {
-                return true;
-            }
         }
 
         // Jika punya permission ViewAllData, bisa lihat semua laporan
@@ -83,7 +75,7 @@ class LaporanInsidenPolicy
         return $authUser->can('Delete:LaporanInsiden');
     }
 
-    
+
     public function restore(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
         return $authUser->can('Restore:LaporanInsiden');
@@ -113,7 +105,7 @@ class LaporanInsidenPolicy
     {
         return $authUser->can('Reorder:LaporanInsiden');
     }
-
+    
     // --- Workflow permissions ---
 
     public function submit(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool

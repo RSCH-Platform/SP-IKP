@@ -34,34 +34,10 @@ class LaporanInsidenResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'viewAny',
-            'view',
-            'create',
-            'update',
-            'restore',
-            'restoreAny',
-            'delete',
-            'deleteAny',
-            'forceDelete',
-            'forceDeleteAny',
-
-            // custom
-            'viewActivities',
-            'setRole',
-            'impersonate',
-            'export',
-        ];
-    }
-
-
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user() && Auth::user()->can('Verifikasi:LaporanInsiden');
+        return Auth::user()->can('ViewAny:LaporanInsiden');
     }
-
 
     public static function form(Schema $schema): Schema
     {

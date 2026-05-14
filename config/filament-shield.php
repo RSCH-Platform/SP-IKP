@@ -131,8 +131,8 @@ return [
             'forceDelete',
             'forceDeleteAny',
             'restoreAny',
-            'replicate',
-            'reorder',
+            // 'replicate',
+            // 'reorder',
         ],
         'single_parameter_methods' => [
             'viewAny',
@@ -174,6 +174,20 @@ return [
     'resources' => [
         'subject' => 'model',
         'manage' => [
+            \App\Filament\Resources\LaporanInsidens\LaporanInsidenResource::class => [
+                'viewAny',
+                'view',
+                'create',
+                'update',
+                'delete',
+                'submit',
+                'viewAllData',
+                'forceEdit',
+                'verifikasi',
+                'kembalikan',
+                'investigasi',
+                'kembalikanUnit',
+            ],
             \BezhanSalleh\FilamentShield\Resources\Roles\RoleResource::class => [
                 'viewAny',
                 'view',
@@ -238,13 +252,8 @@ return [
     */
 
     'custom_permissions' => [
-        'Submit:LaporanInsiden',
-        'Verifikasi:LaporanInsiden',
-        'Kembalikan:LaporanInsiden',
-        'Investigasi:LaporanInsiden',
-        'KembalikanUnit:LaporanInsiden',
-        'ForceEdit:LaporanInsiden',
-        'ViewAllData:LaporanInsiden',
+        // 'ForceEdit:LaporanInsiden',
+        // 'ViewAllData:LaporanInsiden',
     ],
 
     /*

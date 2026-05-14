@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Roles\Schemas;
 
+use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use BezhanSalleh\FilamentShield\Traits\HasShieldFormComponents;
 use Filament\Facades\Filament;
@@ -9,8 +10,12 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rules\Unique;
 
 class RolesForm
@@ -60,7 +65,70 @@ class RolesForm
                             ->columnSpanFull(),
                     ])
                     ->columnSpanFull(),
-                static::getShieldFormComponents(),
+                static::getShieldFormComponentsCustom(),
             ]);
+    }
+
+    public static function getShieldFormComponentsCustom(): Component
+    {
+        return Tabs::make('Permissions')
+            ->contained()
+            ->tabs([
+                static::getTabFormComponentForResourcesCustom(),
+                static::getTabFormComponentForPage(),
+                static::getTabFormComponentForWidget(),
+                static::getTabFormComponentForCustomPermissions(),
+            ])
+            ->columnSpan('full');
+    }
+
+    public static function getTabFormComponentForResourcesCustom(): Component
+    {
+        return static::shield()->hasSimpleResourcePermissionView()
+            ? static::getTabFormComponentForSimpleResourcePermissionsView()
+            : Tab::make('resources')
+            ->label(__('filament-shield::filament-shield.resources'))
+            ->visible(fn(): bool => Utils::isResourceTabEnabled())
+            ->badge(static::getResourceTabBadgeCount())
+            ->schema([
+                Grid::make()
+                    ->schema(static::getResourceEntitiesSchemaCustom())
+                    ->columns(1),
+            ]);
+    }
+
+    public static function getResourceEntitiesSchemaCustom(): ?array
+    {
+        return collect(FilamentShield::getResources())
+            ->map(function (array $entity): Section {
+                $sectionLabel = strval(
+                    static::shield()->hasLocalizedPermissionLabels()
+                        ? FilamentShield::getLocalizedResourceLabel($entity['resourceFqcn'])
+                        : $entity['model']
+                );
+
+                return Section::make($sectionLabel)
+                    ->description(fn(): HtmlString => new HtmlString('<span style="word-break: break-word;">' . Utils::showModelPath($entity['modelFqcn']) . '</span>'))
+                    ->compact()
+                    ->schema([
+                        static::getCheckBoxListComponentForResourceCustom($entity),
+                    ])
+                    ->columnSpan(static::shield()->getSectionColumnSpan())
+                    ->collapsible();
+            })
+            ->toArray();
+    }
+
+    public static function getCheckBoxListComponentForResourceCustom(array $entity): Component
+    {
+        $permissionsArray = static::getResourcePermissionOptions($entity);
+
+        return static::getCheckboxListFormComponent(
+            name: $entity['resourceFqcn'],
+            options: $permissionsArray,
+            searchable: true,
+            columns: 5,
+            columnSpan: static::shield()->getResourceCheckboxListColumnSpan()
+        );
     }
 }

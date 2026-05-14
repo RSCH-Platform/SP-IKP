@@ -354,7 +354,11 @@ class EditLaporanInsiden extends EditRecord
         // Submit button for draft/revisi
         if (in_array($this->record->status, [LaporanInsiden::STATUS_DRAFT, LaporanInsiden::STATUS_REVISI], true) && $user?->can('Submit:LaporanInsiden')) {
             $actions[] = Action::make('submitLaporan')
-                ->label($this->record->status === LaporanInsiden::STATUS_REVISI ? 'Kirim Ulang Laporan' : 'Kirim Laporan')
+                ->label(
+                    $this->record->status === LaporanInsiden::STATUS_REVISI
+                        ? 'Kirim Ulang Laporan'
+                        : 'Kirim Laporan'
+                )
                 ->color('warning')
                 ->icon('heroicon-o-paper-airplane')
                 ->requiresConfirmation()

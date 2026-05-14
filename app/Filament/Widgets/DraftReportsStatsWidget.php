@@ -102,14 +102,14 @@ class DraftReportsStatsWidget extends BaseWidget
                 ->color('warning'),
 
             Stat::make('Selesai', $verifiedCount + $investigationCount)
-                ->visible(!$user->can('Submit:LaporanInsiden') || $user->can('ForceEdit:LaporanInsiden'))
+                // ->visible(!$user->can('Submit:LaporanInsiden') || $user->can('ForceEdit:LaporanInsiden'))
                 ->description('Diverifikasi / Investigasi selesai')
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->color('primary'),
 
             Stat::make('Overdue > 7 hari', $overdueCount)
                 ->description('Pendekatan SLA, prioritaskan penyelesaian')
-                ->visible(!$user->can('Submit:LaporanInsiden') || $user->can('ForceEdit:LaporanInsiden'))
+                // ->visible(!$user->can('Submit:LaporanInsiden') || $user->can('ForceEdit:LaporanInsiden'))
                 ->descriptionIcon('heroicon-m-flag')
                 ->color('danger'),
         ];
