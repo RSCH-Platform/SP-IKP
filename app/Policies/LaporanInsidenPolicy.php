@@ -83,6 +83,7 @@ class LaporanInsidenPolicy
         return $authUser->can('Delete:LaporanInsiden');
     }
 
+    
     public function restore(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
         return $authUser->can('Restore:LaporanInsiden');

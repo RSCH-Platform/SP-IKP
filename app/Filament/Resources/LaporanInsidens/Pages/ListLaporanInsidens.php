@@ -6,6 +6,7 @@ use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 
 class ListLaporanInsidens extends ListRecords
 {
@@ -13,7 +14,68 @@ class ListLaporanInsidens extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [];
+        // Avoid calling model-bound abilities (like `view`, `update`, etc.)
+        // with the class string because that can route to the policy
+        // method that expects a model instance and cause an
+        // ArgumentCountError. Only check class-level abilities here.
+        $modelClass = \App\Models\LaporanInsiden::class;
+        $modelInstance = \App\Models\LaporanInsiden::first(); // atau dummy data
+        $user = auth()->user();
+
+        /**
+         * Class-level abilities (tanpa instance)
+         */
+        $classAbilities = collect([
+            'viewAny',
+            'create',
+            'deleteAny',
+            'restoreAny',
+            'forceDeleteAny',
+            'reorder',
+        ]);
+
+        /**
+         * Model-level abilities (butuh instance)
+         */
+        $modelAbilities = collect([
+            'view',
+            'update',
+            'delete',
+            'restore',
+            'forceDelete',
+            'replicate',
+
+            // custom workflow kamu
+            'submit',
+            'verifikasi',
+            'kembalikan',
+            'investigasi',
+            'kembalikanUnit',
+        ]);
+
+        $classResults = $classAbilities->mapWithKeys(fn($ability) => [
+            $ability => Gate::forUser($user)->allows($ability, $modelClass),
+        ]);
+
+        $modelResults = $modelAbilities->mapWithKeys(fn($ability) => [
+            $ability => $modelInstance
+                ? Gate::forUser($user)->allows($ability, $modelInstance)
+                : 'no_model_instance',
+        ]);
+
+        dd([
+            'user' => $user->name,
+            'model' => $modelClass,
+
+            'class_level' => $classResults,
+            'model_level' => $modelResults,
+
+            'user_permissions_db' => $user->getAllPermissions()->pluck('name'),
+        ]);
+
+        // Use $abilityMap for debugging or conditional header actions.
+        // For now, return the default header actions.
+        return parent::getHeaderActions();
     }
 
     protected function baseQuery(): Builder

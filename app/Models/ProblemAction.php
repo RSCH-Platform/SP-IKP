@@ -12,8 +12,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class ProblemAction extends Model implements HasMedia
 {
-    use HasFactory;
-    use InteractsWithMedia;
+    use HasFactory, InteractsWithMedia;
 
     protected $table = 'problem_actions';
 

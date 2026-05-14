@@ -34,6 +34,28 @@ class LaporanInsidenResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'viewAny',
+            'view',
+            'create',
+            'update',
+            'restore',
+            'restoreAny',
+            'delete',
+            'deleteAny',
+            'forceDelete',
+            'forceDeleteAny',
+
+            // custom
+            'viewActivities',
+            'setRole',
+            'impersonate',
+            'export',
+        ];
+    }
+
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -76,10 +98,10 @@ class LaporanInsidenResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        
+
         // Eager load unitKerjas to prevent N+1 queries
         $query->with('unitKerjas');
-        
+
         $user = Auth::user();
 
         if ($user->can('ForceEdit:LaporanInsiden') && $user->can('ViewAllData:LaporanInsiden')) {

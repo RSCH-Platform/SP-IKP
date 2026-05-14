@@ -13,9 +13,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class InvestigationData extends Model implements HasMedia
 {
-    use HasFactory;
-    use InteractsWithMediaFolders;
-    use InteractsWithMedia;
+    use HasFactory, InteractsWithMediaFolders, InteractsWithMedia;
 
     // Investigation category constants
     const KATEGORI_INTERVIEW = 'interview';
