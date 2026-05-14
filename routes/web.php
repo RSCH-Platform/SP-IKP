@@ -3,6 +3,7 @@
 use App\Http\Controllers\TimelineEntryController;
 use App\Http\Controllers\LaporanInsidenViewController;
 use App\Http\Controllers\InvestigasiLaporanInsidenViewController;
+use App\Http\Controllers\CustomLaporanInsidenDashboardController;
 use App\Http\Controllers\Auth\LogoutController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -26,6 +27,9 @@ Route::post('/ikp-application/logout', LogoutController::class)->name('filament.
 Route::get('/laporan-insiden/nomor/{nomor_laporan}', [LaporanInsidenViewController::class, 'show'])
     ->where('nomor_laporan', '.+')
     ->name('laporan-insiden.show');
+
+Route::get('/laporan-insiden/custom-dashboard', CustomLaporanInsidenDashboardController::class)
+    ->name('laporan-insiden.custom-dashboard');
 // PDF generation disabled
 // Route::get('/laporan-insiden/pdf/{nomor_laporan}', [LaporanInsidenViewController::class, 'pdf'])
 //     ->where('nomor_laporan', '.+')
