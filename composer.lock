@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1da6a9dfa13b74afc2462fedbd5d33a1",
+    "content-hash": "361dbfcfd6aa39b0bbfc49e739bcb857",
     "packages": [
         {
             "name": "bezhansalleh/filament-plugin-essentials",
@@ -2389,16 +2389,16 @@
         },
         {
             "name": "juniyasyos/auth-bridge-client",
-            "version": "v1.2.14",
+            "version": "v1.2.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/juniyasyos/auth-bridge-client.git",
-                "reference": "5192851542759e21fabbd133c7de1d10eab45aa1"
+                "reference": "106eb60ca7e368c678c213c35cd3a8c05452a37e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/juniyasyos/auth-bridge-client/zipball/5192851542759e21fabbd133c7de1d10eab45aa1",
-                "reference": "5192851542759e21fabbd133c7de1d10eab45aa1",
+                "url": "https://api.github.com/repos/juniyasyos/auth-bridge-client/zipball/106eb60ca7e368c678c213c35cd3a8c05452a37e",
+                "reference": "106eb60ca7e368c678c213c35cd3a8c05452a37e",
                 "shasum": ""
             },
             "require": {
@@ -2444,9 +2444,9 @@
             ],
             "support": {
                 "issues": "https://github.com/juniyasyos/auth-bridge-client/issues",
-                "source": "https://github.com/juniyasyos/auth-bridge-client/tree/v1.2.14"
+                "source": "https://github.com/juniyasyos/auth-bridge-client/tree/v1.2.15"
             },
-            "time": "2026-05-14T15:10:32+00:00"
+            "time": "2026-05-14T23:57:51+00:00"
         },
         {
             "name": "juniyasyos/filament-media-manager",
@@ -2581,16 +2581,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v12.58.0",
+            "version": "v12.59.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "6172ae1f44ba5d89e111057ee4a4e7c27f5a610d"
+                "reference": "70a838b1a6f12abaf5bebb76ea4f28fbd37451fa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/6172ae1f44ba5d89e111057ee4a4e7c27f5a610d",
-                "reference": "6172ae1f44ba5d89e111057ee4a4e7c27f5a610d",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/70a838b1a6f12abaf5bebb76ea4f28fbd37451fa",
+                "reference": "70a838b1a6f12abaf5bebb76ea4f28fbd37451fa",
                 "shasum": ""
             },
             "require": {
@@ -2799,7 +2799,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-04-26T16:42:04+00:00"
+            "time": "2026-05-14T15:31:40+00:00"
         },
         {
             "name": "laravel/prompts",
