@@ -463,7 +463,8 @@ class LaporanInsiden extends Model implements HasMedia
     {
         $year = date('Y');
         $month = date('m');
-        $lastReport = self::whereYear('created_at', $year)
+        $lastReport = self::withoutTrashed()
+            ->whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
             ->orderBy('id', 'desc')
             ->first();
