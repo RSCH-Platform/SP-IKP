@@ -275,7 +275,7 @@ $investigationDataGrouped = isset($investigationDataGrouped) ? $investigationDat
 
                                 <!-- DESC -->
                                 <p class="text-xs text-slate-600 mt-1 leading-snug">
-                                    {{ Str::limit($problem->problem_description, 70) }}
+                                    {{ $problem->problem_description }}
                                 </p>
 
                             </div>
