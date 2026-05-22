@@ -8,21 +8,21 @@
                 'label' => 'Ringkasan Umum',
                 'description' => 'Statistik utama, info akun, dan status operasional.',
                 'badge' => null,
-                'icon' => 'ti-layout-dashboard',
+                'icon' => 'heroicon-o-squares-2x2',
                 'color' => 'blue',
             ],
             'laporan_insiden' => [
                 'label' => 'Laporan Insiden',
                 'description' => 'Laporan terverifikasi yang belum masuk investigasi.',
                 'badge' => $incidentUninvestigatedCount,
-                'icon' => 'ti-clipboard-list',
+                'icon' => 'heroicon-o-clipboard-document-list',
                 'color' => 'amber',
             ],
             'investigasi' => [
                 'label' => 'Investigasi',
                 'description' => 'Kasus yang sedang aktif dikerjakan tim investigasi.',
                 'badge' => $investigationInProgressCount,
-                'icon' => 'ti-search',
+                'icon' => 'heroicon-o-magnifying-glass',
                 'color' => 'purple',
             ],
         ];
@@ -99,7 +99,7 @@
                                 {{-- ICON --}}
                                 <div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200
                                         {{ $isActive ? $c['active_icon_bg'] : $c['icon_bg'] }}">
-                                    <i class="ti {{ $tab['icon'] }} text-[18px] {{ $c['icon_text'] }}" aria-hidden="true"></i>
+                                    <x-dynamic-component :component="$tab['icon']" class="h-5 w-5 {{ $c['icon_text'] }}" />
                                 </div>
 
                                 {{-- LABEL + BADGE --}}

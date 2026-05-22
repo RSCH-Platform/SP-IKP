@@ -25,7 +25,7 @@ class Dashboard extends BaseDashboard
     #[Url(as: 'dashboard-tab')]
     public string $dashboardTab = 'umum';
 
-    public function getColumns(): int | array
+    public function getColumns(): int|array
     {
         return [
             'md' => 2,
@@ -38,7 +38,7 @@ class Dashboard extends BaseDashboard
         return Schema::make($this)
             ->components([
                 Grid::make($this->getColumns())
-                    ->schema(fn (): array => $this->getWidgetsSchemaComponents($this->getGeneralWidgets())),
+                    ->schema(fn(): array => $this->getWidgetsSchemaComponents($this->getGeneralWidgets())),
             ]);
     }
 
@@ -47,7 +47,7 @@ class Dashboard extends BaseDashboard
         return Schema::make($this)
             ->components([
                 Grid::make($this->getColumns())
-                    ->schema(fn (): array => $this->getWidgetsSchemaComponents($this->getIncidentWidgets())),
+                    ->schema(fn(): array => $this->getWidgetsSchemaComponents($this->getIncidentWidgets())),
             ]);
     }
 
@@ -56,7 +56,7 @@ class Dashboard extends BaseDashboard
         return Schema::make($this)
             ->components([
                 Grid::make($this->getColumns())
-                    ->schema(fn (): array => $this->getWidgetsSchemaComponents($this->getInvestigationWidgets())),
+                    ->schema(fn(): array => $this->getWidgetsSchemaComponents($this->getInvestigationWidgets())),
             ]);
     }
 
@@ -82,7 +82,7 @@ class Dashboard extends BaseDashboard
         $query = LaporanInsiden::query();
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             return $query->whereRaw('1 = 0');
         }
 
@@ -123,7 +123,6 @@ class Dashboard extends BaseDashboard
     {
         return [
             DraftReportsWidget::class,
-            IncidentProblemReportGroupsWidget::class,
             TrendLaporanInsiden::class,
         ];
     }
@@ -134,6 +133,7 @@ class Dashboard extends BaseDashboard
     protected function getInvestigationWidgets(): array
     {
         return [
+            IncidentProblemReportGroupsWidget::class,
             ManagerUnitKerjaAnalytics::class,
         ];
     }

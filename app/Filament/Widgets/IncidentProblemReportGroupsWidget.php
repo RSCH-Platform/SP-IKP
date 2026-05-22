@@ -4,7 +4,9 @@ namespace App\Filament\Widgets;
 
 use App\Models\IncidentProblem;
 use App\Models\LaporanInsiden;
+use App\Models\ProblemAction;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -49,9 +51,9 @@ class IncidentProblemReportGroupsWidget extends Widget
             return $query->whereIn('unit_kerja_id', $unitIds);
         }
 
-        if ($user->can('Submit:LaporanInsiden')) {
-            return $query->where('user_id', $user->getKey());
-        }
+        // if ($user->can('Submit:LaporanInsiden')) {
+        //     return $query->where('user_id', $user->getKey());
+        // }
 
         return $query->whereRaw('1 = 0');
     }
@@ -63,13 +65,18 @@ class IncidentProblemReportGroupsWidget extends Widget
                 'problems.whys',
                 'problems.recommendations',
                 'problems.actions.media',
+                'unitKerjas',
             ])
             ->orderByDesc('tanggal_lapor')
             ->orderByDesc('created_at')
             ->get();
 
-        $items = $reports->map(function (LaporanInsiden $report): array {
-            $problems = $report->problems->map(function (IncidentProblem $problem): array {
+        $items = $reports->map(function (LaporanInsiden $report) {
+            $problems = $report->problems
+                ->filter(fn (IncidentProblem $problem): bool =>
+                    $problem->recommendations->isNotEmpty() && $problem->actions->isNotEmpty()
+                )
+                ->map(function (IncidentProblem $problem): array {
                 $recommendations = $problem->recommendations->map(fn ($recommendation): array => [
                     'id' => $recommendation->id,
                     'text' => $recommendation->recommendation_text,
@@ -109,6 +116,10 @@ class IncidentProblemReportGroupsWidget extends Widget
                 ];
             })->values();
 
+            if ($problems->isEmpty()) {
+                return null;
+            }
+
             $totalActions = $problems->sum('actions_count');
             $completedActions = $problems->sum('completed_actions_count');
             $ongoingActions = $problems->sum('ongoing_actions_count');
@@ -121,7 +132,9 @@ class IncidentProblemReportGroupsWidget extends Widget
             return [
                 'id' => $report->id,
                 'nomor_laporan' => $report->nomor_laporan ?? '-',
-                'unit_kerja' => $report->unit_kerja ?? $report->unitKerjas?->unit_name ?? '-',
+                'deskripsi_kategori_insiden' => $report->deskripsi_kategori_insiden ?? '-',
+                'unit_kerja_name' => $report->unit_kerja ?? $report->unitKerjas?->unit_name ?? '-',
+                'unit_kerja_id' => $report->unit_kerja_id ?? $report->unitKerjas?->id,
                 'jenis_insiden' => $report->jenis_insiden ?? '-',
                 'tanggal_lapor' => optional($report->tanggal_lapor)->format('d M Y') ?? '-',
                 'status' => $report->status,
@@ -137,17 +150,48 @@ class IncidentProblemReportGroupsWidget extends Widget
                 'completion_percent' => $completionPercent,
                 'problems' => $problems->all(),
             ];
-        });
+        })->filter()->values();
+
+        // Group by unit kerja
+        $units = $items->groupBy('unit_kerja_id')->map(function ($reports) {
+            $unitName = $reports->first()['unit_kerja_name'] ?? '-';
+            $totalReports = $reports->count();
+            $totalProblems = $reports->sum('problem_count');
+            $totalActions = $reports->sum('actions_count');
+            $completedActions = $reports->sum('completed_actions_count');
+            $ongoingActions = $reports->sum('ongoing_actions_count');
+            $pendingActions = $reports->sum('pending_actions_count');
+            $totalRecommendations = $reports->sum('recommendations_count');
+            $completionPercent = $totalActions > 0
+                ? (int) round(($completedActions / $totalActions) * 100)
+                : 0;
+
+            return [
+                'unit_name' => $unitName,
+                'reports_count' => $totalReports,
+                'problem_count' => $totalProblems,
+                'recommendations_count' => $totalRecommendations,
+                'actions_count' => $totalActions,
+                'completed_actions_count' => $completedActions,
+                'ongoing_actions_count' => $ongoingActions,
+                'pending_actions_count' => $pendingActions,
+                'completion_percent' => $completionPercent,
+                'reports' => $reports->values()->all(),
+            ];
+        })->values();
+
+        $summary = [
+            'units_count' => $units->count(),
+            'reports_count' => $items->count(),
+            'problem_count' => $items->sum('problem_count'),
+            'recommendations_count' => $items->sum('recommendations_count'),
+            'completed_actions_count' => $items->sum('completed_actions_count'),
+            'pending_actions_count' => $items->sum('pending_actions_count'),
+        ];
 
         return [
-            'reports' => $items->all(),
-            'summary' => [
-                'reports_count' => $items->count(),
-                'problem_count' => $items->sum('problem_count'),
-                'recommendations_count' => $items->sum('recommendations_count'),
-                'completed_actions_count' => $items->sum('completed_actions_count'),
-                'pending_actions_count' => $items->sum('pending_actions_count'),
-            ],
+            'units' => $units->all(),
+            'summary' => $summary,
         ];
     }
 
@@ -168,7 +212,7 @@ class IncidentProblemReportGroupsWidget extends Widget
     protected function reportStatusColor(?string $status): string
     {
         return match ($status) {
-            LaporanInsiden::STATUS_SELESAI => 'emerald',
+            LaporanInsiden::STATUS_SELESAI => 'green',
             LaporanInsiden::STATUS_INVESTIGASI => 'blue',
             LaporanInsiden::STATUS_DIVERIFIKASI => 'cyan',
             LaporanInsiden::STATUS_REVISI, LaporanInsiden::STATUS_REVISI_UNIT => 'amber',
@@ -180,7 +224,7 @@ class IncidentProblemReportGroupsWidget extends Widget
     protected function reportStatusBadgeClasses(?string $status): string
     {
         return match ($status) {
-            LaporanInsiden::STATUS_SELESAI => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+            LaporanInsiden::STATUS_SELESAI => 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-300',
             LaporanInsiden::STATUS_INVESTIGASI => 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
             LaporanInsiden::STATUS_DIVERIFIKASI => 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300',
             LaporanInsiden::STATUS_REVISI, LaporanInsiden::STATUS_REVISI_UNIT => 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
@@ -192,9 +236,9 @@ class IncidentProblemReportGroupsWidget extends Widget
     protected function actionStatusLabel(?string $status): string
     {
         return match ($status) {
-            'completed' => 'Selesai',
-            'ongoing' => 'Berjalan',
-            'pending' => 'Belum',
+            'completed' => 'Completed',
+            'ongoing' => 'Ongoing',
+            'pending' => 'Pending',
             default => ucfirst((string) $status),
         };
     }
@@ -202,9 +246,9 @@ class IncidentProblemReportGroupsWidget extends Widget
     protected function actionStatusColor(?string $status): string
     {
         return match ($status) {
-            'completed' => 'emerald',
+            'completed' => 'green',
             'ongoing' => 'blue',
-            'pending' => 'slate',
+            'pending' => 'warning',
             default => 'gray',
         };
     }
@@ -212,10 +256,27 @@ class IncidentProblemReportGroupsWidget extends Widget
     protected function actionStatusBadgeClasses(?string $status): string
     {
         return match ($status) {
-            'completed' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
-            'ongoing' => 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
-            'pending' => 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+            'completed' => 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-200 dark:bg-green-950/30 dark:text-green-300 dark:ring-green-900/50',
+            'ongoing' => 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:ring-blue-900/50',
+            'pending' => 'bg-yellow-50 text-yellow-700 ring-1 ring-inset ring-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-300 dark:ring-yellow-900/50',
             default => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
         };
+    }
+
+    public function updateActionStatus(int $actionId, string $status): void
+    {
+        if (! in_array($status, ['pending', 'ongoing', 'completed'], true)) {
+            return;
+        }
+
+        $action = ProblemAction::query()->findOrFail($actionId);
+        $action->update([
+            'status' => $status,
+        ]);
+
+        Notification::make()
+            ->title('Status tindakan diperbarui')
+            ->success()
+            ->send();
     }
 }
