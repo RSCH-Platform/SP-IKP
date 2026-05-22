@@ -19,7 +19,7 @@ class ManagerUnitKerjaAnalytics extends Widget
         }
 
         // Allow access if user has permission and is manager/admin
-        return $user->hasAnyPermission(['ForceEdit:LaporanInsiden']);
+        return $user->hasAnyPermission(['ViewAllData:LaporanInsiden']);
     }
 
     protected static ?int $sort = 30;

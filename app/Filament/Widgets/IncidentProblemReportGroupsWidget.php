@@ -45,17 +45,14 @@ class IncidentProblemReportGroupsWidget extends Widget
             return $query;
         }
 
-        if ($user->can('ForceEdit:LaporanInsiden')) {
-            $unitIds = $user->unitKerjas()->pluck('id');
+        $unitIds = $user->unitKerjas()->pluck('unit_kerja.id')->filter()->values();
 
-            return $query->whereIn('unit_kerja_id', $unitIds);
+        if ($unitIds->isEmpty()) {
+            return $query->whereRaw('1 = 0');
         }
 
-        // if ($user->can('Submit:LaporanInsiden')) {
-        //     return $query->where('user_id', $user->getKey());
-        // }
+        return $query->whereIn('unit_kerja_id', $unitIds);
 
-        return $query->whereRaw('1 = 0');
     }
 
     protected function getViewData(): array
@@ -93,6 +90,8 @@ class IncidentProblemReportGroupsWidget extends Widget
                         'status_label' => $this->actionStatusLabel($action->status),
                         'status_color' => $this->actionStatusColor($action->status),
                         'status_badge_classes' => $this->actionStatusBadgeClasses($action->status),
+                        'status_dot_classes' => $this->actionStatusDotClasses($action->status),
+                        'status_panel_classes' => $this->actionStatusPanelClasses($action->status),
                         'media_count' => $action->getMedia('action_evidence')->count(),
                     ];
                 })->values();
@@ -104,6 +103,8 @@ class IncidentProblemReportGroupsWidget extends Widget
                 return [
                     'id' => $problem->id,
                     'problem_type' => $problem->problem_type,
+                    'problem_type_label' => $this->problemTypeLabel($problem->problem_type),
+                    'problem_type_caption' => $this->problemTypeCaption($problem->problem_type),
                     'problem_description' => $problem->problem_description,
                     'whys_count' => $problem->whys->count(),
                     'recommendations_count' => $recommendations->count(),
@@ -128,6 +129,10 @@ class IncidentProblemReportGroupsWidget extends Widget
             $completionPercent = $totalActions > 0
                 ? (int) round(($completedActions / $totalActions) * 100)
                 : 0;
+
+            if ($completionPercent === 100) {
+                return null;
+            }
 
             return [
                 'id' => $report->id,
@@ -155,6 +160,7 @@ class IncidentProblemReportGroupsWidget extends Widget
         // Group by unit kerja
         $units = $items->groupBy('unit_kerja_id')->map(function ($reports) {
             $unitName = $reports->first()['unit_kerja_name'] ?? '-';
+            $unitId = $reports->first()['unit_kerja_id'] ?? null;
             $totalReports = $reports->count();
             $totalProblems = $reports->sum('problem_count');
             $totalActions = $reports->sum('actions_count');
@@ -167,6 +173,7 @@ class IncidentProblemReportGroupsWidget extends Widget
                 : 0;
 
             return [
+                'id' => $unitId,
                 'unit_name' => $unitName,
                 'reports_count' => $totalReports,
                 'problem_count' => $totalProblems,
@@ -259,7 +266,52 @@ class IncidentProblemReportGroupsWidget extends Widget
             'completed' => 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-200 dark:bg-green-950/30 dark:text-green-300 dark:ring-green-900/50',
             'ongoing' => 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:ring-blue-900/50',
             'pending' => 'bg-yellow-50 text-yellow-700 ring-1 ring-inset ring-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-300 dark:ring-yellow-900/50',
-            default => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+            default => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:te xt-gray-300',
+        };
+    }
+
+    protected function actionStatusDotClasses(?string $status): string
+    {
+        return match ($status) {
+            'completed' => 'bg-green-500 dark:bg-green-400',
+            'ongoing' => 'bg-blue-500 dark:bg-blue-400',
+            'pending' => 'bg-yellow-500 dark:bg-yellow-400',
+            default => 'bg-gray-500 dark:bg-gray-400',
+        };
+    }
+
+    protected function actionStatusPanelClasses(?string $status): string
+    {
+        return match ($status) {
+            'completed' => 'border-green-200 bg-green-50 text-green-700 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-300',
+            'ongoing' => 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-300',
+            'pending' => 'border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/40 dark:bg-yellow-950/30 dark:text-yellow-300',
+            default => 'border-slate-200 bg-slate-50 text-slate-700 dark:border-white/10 dark:bg-slate-950 dark:text-slate-300',
+        };
+    }
+
+    protected function actionStatusDropdownItemClasses(bool $isActive): string
+    {
+        return $isActive
+            ? 'bg-slate-50 text-slate-900 dark:bg-white/5 dark:text-white'
+            : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5';
+    }
+
+    protected function problemTypeLabel(?string $problemType): string
+    {
+        return match ($problemType) {
+            'CMP' => 'CMP',
+            'SDP' => 'SDP',
+            default => (string) $problemType,
+        };
+    }
+
+    protected function problemTypeCaption(?string $problemType): string
+    {
+        return match ($problemType) {
+            'CMP' => 'Clinical Management Problem',
+            'SDP' => 'System Development Problem',
+            default => '',
         };
     }
 
@@ -278,5 +330,7 @@ class IncidentProblemReportGroupsWidget extends Widget
             ->title('Status tindakan diperbarui')
             ->success()
             ->send();
+
+        $this->skipRender();
     }
 }

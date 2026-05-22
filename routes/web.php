@@ -5,6 +5,8 @@ use App\Http\Controllers\LaporanInsidenViewController;
 use App\Http\Controllers\InvestigasiLaporanInsidenViewController;
 use App\Http\Controllers\CustomLaporanInsidenDashboardController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Models\ProblemAction;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +24,34 @@ Route::post('/logout', LogoutController::class)->name('logout');
 // Also handle Filament's default logout route and delegate to our LogoutController
 // Filament auto-generates this route, but we intercept it to use our custom logout logic
 Route::post('/ikp-application/logout', LogoutController::class)->name('filament.ikp-application.auth.logout');
+
+Route::post('/ikp-application/problem-actions/{action}/status', function (Request $request, ProblemAction $action) {
+    abort_unless(Auth::check(), 403);
+
+    $validated = $request->validate([
+        'status' => ['required', 'in:pending,ongoing,completed'],
+    ]);
+
+    $action->update([
+        'status' => $validated['status'],
+    ]);
+
+    $report = $action->problem?->incident;
+    $reportCompleted = false;
+
+    if ($report) {
+        $report->loadMissing('problems.actions');
+
+        $reportCompleted = $report->problems->isNotEmpty() && $report->problems->every(function ($problem): bool {
+            return $problem->actions->isNotEmpty() && $problem->actions->every(fn ($problemAction) => $problemAction->status === 'completed');
+        });
+    }
+
+    return response()->json([
+        'status' => $action->status,
+        'report_completed' => $reportCompleted,
+    ]);
+})->name('problem-actions.status.update');
 
 // Laporan Insiden Routes
 Route::get('/laporan-insiden/nomor/{nomor_laporan}', [LaporanInsidenViewController::class, 'show'])

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Widgets\AccountWidget;
 use App\Filament\Widgets\DraftReportsStatsWidget;
+use App\Filament\Widgets\DraftReportsInvestigatedWidget;
 use App\Filament\Widgets\DraftReportsWidget;
 use App\Filament\Widgets\FilamentInfoWidget;
 use App\Filament\Widgets\IncidentProblemReportGroupsWidget;
@@ -133,6 +134,7 @@ class Dashboard extends BaseDashboard
     protected function getInvestigationWidgets(): array
     {
         return [
+            DraftReportsInvestigatedWidget::class,
             IncidentProblemReportGroupsWidget::class,
             ManagerUnitKerjaAnalytics::class,
         ];

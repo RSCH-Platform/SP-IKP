@@ -32,29 +32,29 @@ class DraftReportsWidget extends BaseWidget implements HasTable
 {
     use InteractsWithTable, HasWidgetShield;
 
-    protected static ?string $heading = 'List Laporan Terbaru';
+    protected static ?string $heading = 'Laporan Belum Mulai Investigasi';
 
     protected static ?int $sort = 2;
 
     /**
      * @var int | string | array<string, int | null>
      */
-    protected int | string | array $columnSpan = 2;
+    protected int|string|array $columnSpan = 'full';
 
     protected function scopedQuery(): Builder
     {
         $query = LaporanInsiden::query();
         $user = auth()->user();
 
-        if (! $user) {
+        if (!$user) {
             return $query;
         }
 
         // submitter biasa
         if (
             $user->can('Submit:LaporanInsiden') &&
-            ! $user->can('ForceEdit:LaporanInsiden') &&
-            ! $user->can('ViewAllData:LaporanInsiden')
+            !$user->can('ForceEdit:LaporanInsiden') &&
+            !$user->can('ViewAllData:LaporanInsiden')
         ) {
             return $query
                 ->whereIn('status', [
@@ -67,7 +67,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
         // kepala unit
         if (
             $user->can('ForceEdit:LaporanInsiden') &&
-            ! $user->can('ViewAllData:LaporanInsiden')
+            !$user->can('ViewAllData:LaporanInsiden')
         ) {
             $unitIds = $user->unitKerjas()->pluck('id');
 
@@ -79,8 +79,10 @@ class DraftReportsWidget extends BaseWidget implements HasTable
 
     protected function getTableQuery(): Builder
     {
-        // start with scoped query, then order
-        return $this->scopedQuery()->latest('created_at');
+        return $this->scopedQuery()
+            ->whereNull('investigation_started_at')
+            ->whereNull('investigation_started_by')
+            ->latest('created_at');
     }
 
     public function table(Table $table): Table
@@ -98,7 +100,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                 ->label('Nomor Laporan')
                 ->sortable()
                 ->searchable()
-                ->toggleable()
+                ->toggleable(isToggledHiddenByDefault: false)
                 ->weight('medium'),
 
             Tables\Columns\TextColumn::make('deskripsi_kategori_insiden')
@@ -144,7 +146,24 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                 ->label('Status')
                 ->badge()
                 ->toggleable()
-                ->color('warning'),
+                ->color(fn(string $state): string => match ($state) {
+                    'draft' => 'gray',
+                    'dilaporkan' => 'warning',
+                    'revisi' => 'danger',
+                    'diverifikasi' => 'info',
+                    'revisi_unit' => 'danger',
+                    'investigasi' => 'success',
+                    default => 'gray',
+                })
+                ->formatStateUsing(fn(string $state): string => match ($state) {
+                    'draft' => 'Draft',
+                    'dilaporkan' => 'Dilaporkan',
+                    'revisi' => 'Perlu Revisi',
+                    'diverifikasi' => 'Diverifikasi',
+                    'revisi_unit' => 'Perlu Revisi (Unit)',
+                    'investigasi' => 'Investigasi',
+                    default => $state,
+                }),
         ];
     }
 
@@ -167,10 +186,10 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                     ->visible(
                         fn($record) =>
                         auth()->user()?->can('Update:LaporanInsiden') &&
-                            in_array($record->status, [
-                                LaporanInsiden::STATUS_DRAFT,
-                                LaporanInsiden::STATUS_REVISI,
-                            ], true)
+                        in_array($record->status, [
+                            LaporanInsiden::STATUS_DRAFT,
+                            LaporanInsiden::STATUS_REVISI,
+                        ], true)
                     ),
 
                 Action::make('submit_laporan')
@@ -181,10 +200,10 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                     ->visible(
                         fn($record) =>
                         auth()->user()?->can('Submit:LaporanInsiden') &&
-                            in_array($record->status, [
-                                LaporanInsiden::STATUS_DRAFT,
-                                LaporanInsiden::STATUS_REVISI,
-                            ], true)
+                        in_array($record->status, [
+                            LaporanInsiden::STATUS_DRAFT,
+                            LaporanInsiden::STATUS_REVISI,
+                        ], true)
                     )
                     ->requiresConfirmation()
                     ->modalHeading('Kirim Laporan Insiden?')
@@ -229,7 +248,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                     ->visible(
                         fn($record) =>
                         auth()->user()?->can('Verifikasi:LaporanInsiden') &&
-                            $record->status === LaporanInsiden::STATUS_DILAPORKAN
+                        $record->status === LaporanInsiden::STATUS_DILAPORKAN
                     )
                     ->requiresConfirmation()
                     ->modalHeading('Verifikasi Laporan?')
@@ -291,7 +310,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
                     ->visible(
                         fn($record) =>
                         auth()->user()?->can('Investigasi:LaporanInsiden') &&
-                            $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
+                        $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
                     )
                     ->requiresConfirmation()
                     ->modalHeading('Mulai Investigasi?')
@@ -344,7 +363,7 @@ class DraftReportsWidget extends BaseWidget implements HasTable
             ->values()
             ->all();
 
-        if (! $record->timelineEvents()->whereHas('entries')->exists()) {
+        if (!$record->timelineEvents()->whereHas('entries')->exists()) {
             $missingFields[] = 'Kronologi (Timeline)';
         }
 
@@ -514,9 +533,9 @@ class DraftReportsWidget extends BaseWidget implements HasTable
 
                                     'belum_lengkap' => $query
                                         ->where(function (Builder $query) {
-                                            $query->whereNull('nomor_laporan')
+                                                $query->whereNull('nomor_laporan')
                                                 ->orWhereDoesntHave('timelineEvents.entries');
-                                        }),
+                                            }),
 
                                     'timeline_missing' => $query
                                         ->whereDoesntHave('timelineEvents.entries'),
@@ -565,11 +584,11 @@ class DraftReportsWidget extends BaseWidget implements HasTable
 
     protected function getTableEmptyStateHeading(): ?string
     {
-        return 'Tidak ada laporan draft';
+        return 'Tidak ada laporan belum investigasi';
     }
 
     protected function getTableEmptyStateDescription(): ?string
     {
-        return 'Semua laporan dari unit kerja Anda sudah dilaporkan atau tidak ada laporan baru.';
+        return 'Tidak ada laporan dengan data mulai investigasi yang masih kosong.';
     }
 }
