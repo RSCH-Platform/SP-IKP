@@ -80,7 +80,7 @@ class InvestigationStatsWidget extends BaseWidget
             ->count();
 
         $actionRequiredCount = ProblemAction::query()
-            ->where('status', ['pending', 'ongoing'])
+            ->whereIn('status', ['pending', 'ongoing'])
             ->whereHas('problem.incident', function (Builder $query): void {
                 $this->applyAccessScope($query);
             })

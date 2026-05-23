@@ -3,10 +3,11 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\AccountWidget;
-use App\Filament\Widgets\InvestigationStatsWidget;
 use App\Filament\Widgets\DraftReportsStatsWidget;
 use App\Filament\Widgets\DraftReportsInvestigatedWidget;
 use App\Filament\Widgets\DraftReportsWidget;
+use App\Filament\Widgets\InvestigationStatsWidget;
+use App\Filament\Widgets\InvestigatedReportsTableWidget;
 use App\Filament\Widgets\FilamentInfoWidget;
 use App\Filament\Widgets\IncidentProblemReportGroupsWidget;
 use App\Filament\Widgets\ManagerUnitKerjaAnalytics;
@@ -155,6 +156,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             DraftReportsInvestigatedWidget::class,
+            InvestigatedReportsTableWidget::class,
             IncidentProblemReportGroupsWidget::class,
             ManagerUnitKerjaAnalytics::class,
         ];
