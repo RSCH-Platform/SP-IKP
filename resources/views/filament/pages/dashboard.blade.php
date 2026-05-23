@@ -80,9 +80,9 @@
                     @endphp
 
                     <button type="button" wire:click="$set('dashboardTab', '{{ $tabKey }}')" @class([
-                        'group relative overflow-hidden rounded-xl border p-4 text-left transition-all duration-200',
+                        'group relative overflow-hidden rounded-xl border border-gray-200 p-4 text-left transition-all duration-200',
                         'bg-white hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:bg-slate-800/80' => !$isActive,
-                        $tone['active'] . ' shadow-sm ring-1' => $isActive,
+                        $tone['active'] . '' => $isActive,
                     ])>
                         <span @class([
                             'absolute inset-x-4 top-0 h-0.5 rounded-b-full transition-all duration-200',

@@ -133,7 +133,7 @@ class InvestigatedReportsTableWidget extends Widget
                     ? (string) $record->deskripsi_kategori_insiden
                     : '-',
                 'jenis_insiden' => filled($record->jenis_insiden)
-                    ? (string) $record->jenis_insiden
+                    ? ($this->getIncidentTypeOptions()[(string) $record->jenis_insiden] ?? (string) $record->jenis_insiden)
                     : '-',
                 'unit_kerja' => $record->unit_kerja
                     ?? $record->unitKerjas?->unit_name
@@ -274,10 +274,10 @@ class InvestigatedReportsTableWidget extends Widget
     {
         return [
             '' => 'Semua jenis insiden',
-            'KPC (Kondisi Potensial Cedera)' => 'KPC (Kondisi Potensial Cedera)',
-            'KNC (Kejadian Nyaris Cedera)' => 'KNC (Kejadian Nyaris Cedera)',
-            'KTC (Kejadian Tidak Cedera)' => 'KTC (Kejadian Tidak Cedera)',
-            'KTD (Kejadian Tidak Diharapkan)' => 'KTD (Kejadian Tidak Diharapkan)',
+            'KPC (Kondisi Potensial Cedera)' => 'KPC',
+            'KNC (Kejadian Nyaris Cedera)' => 'KNC',
+            'KTC (Kejadian Tidak Cedera)' => 'KTC',
+            'KTD (Kejadian Tidak Diharapkan)' => 'KTD',
             'Sentinel' => 'Sentinel',
         ];
     }

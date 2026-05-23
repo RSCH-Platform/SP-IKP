@@ -74,10 +74,11 @@ class Dashboard extends BaseDashboard
 
     public function getIncidentUninvestigatedCount(): int
     {
-        return (clone $this->scopedQuery())
-            ->where('status', LaporanInsiden::STATUS_DIVERIFIKASI)
+        $count = (clone $this->scopedQuery())
             ->whereNull('investigation_started_at')
             ->count();
+            
+        return $count;
     }
 
     public function getInvestigationInProgressCount(): int
