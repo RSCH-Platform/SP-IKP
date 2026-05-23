@@ -1,4 +1,4 @@
-<div class="mt-8">
+<div class="mt-8 h-full mb-10">
     @php
         $incidentUninvestigatedCount = $this->getIncidentUninvestigatedCount();
         $investigationInProgressCount = $this->getInvestigationInProgressCount();

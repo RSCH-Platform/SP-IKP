@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\AccountWidget;
+use App\Filament\Widgets\InvestigationStatsWidget;
 use App\Filament\Widgets\DraftReportsStatsWidget;
 use App\Filament\Widgets\DraftReportsInvestigatedWidget;
 use App\Filament\Widgets\DraftReportsWidget;
@@ -131,6 +132,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             DraftReportsStatsWidget::class,
+            InvestigationStatsWidget::class,
             UnitKerjaInfo::class,
         ];
     }
