@@ -77,10 +77,14 @@ class InvestigatedReportsTableWidget extends Widget
             ->latest('tanggal_insiden')
             ->get();
 
+        $groups = $this->buildRows($reports);
+
+        $totalRows = array_sum(array_map(fn ($g) => count($g['problems'] ?? []), $groups));
+
         return [
-            'rows' => $this->buildRows($reports),
+            'rows' => $groups,
             'totalReports' => $reports->count(),
-            'totalRows' => count($this->buildRows($reports)),
+            'totalRows' => $totalRows,
         ];
     }
 
@@ -120,7 +124,7 @@ class InvestigatedReportsTableWidget extends Widget
      */
     protected function buildRows(Collection $reports): array
     {
-        $rows = [];
+        $groups = [];
 
         foreach ($reports as $record) {
             $baseRow = [
@@ -138,19 +142,22 @@ class InvestigatedReportsTableWidget extends Widget
 
             $problemRows = $this->buildProblemRows($record);
 
-            foreach ($problemRows as $problemRow) {
-                $rows[] = array_merge($baseRow, $problemRow);
+            if ($problemRows === []) {
+                $problemRows = [
+                    [
+                        'akar_masalah' => '',
+                        'rekomendasi' => '',
+                    ],
+                ];
             }
 
-            if ($problemRows === []) {
-                $rows[] = array_merge($baseRow, [
-                    'akar_masalah' => '-',
-                    'rekomendasi' => '-',
-                ]);
-            }
+            $groups[] = [
+                'base' => $baseRow,
+                'problems' => $problemRows,
+            ];
         }
 
-        return $rows;
+        return $groups;
     }
 
     protected function formatTanggalInsiden(mixed $tanggalInsiden): string
@@ -209,6 +216,13 @@ class InvestigatedReportsTableWidget extends Widget
 
         return $rows;
     }
+
+    /**
+     * Aggregate problem statements and recommendations into single strings.
+     *
+     * @return array{akar_masalah: string, rekomendasi: string}
+     */
+    
 
     public function getAvailableYears(): array
     {

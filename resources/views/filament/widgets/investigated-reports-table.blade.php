@@ -97,11 +97,11 @@
                 <x-slot:colgroup>
                     <colgroup>
                         <col class="w-[10%]">
-                        <col class="w-[18%]">
-                        <col class="w-[12%]">
+                        <col class="w-[26%]">
+                        <col class="w-[10%]">
                         <col class="w-[14%]">
-                        <col class="w-[23%]">
-                        <col class="w-[23%]">
+                        <col class="w-[20%]">
+                        <col class="w-[20%]">
                     </colgroup>
                 </x-slot:colgroup>
 
@@ -116,20 +116,30 @@
                     </tr>
                 </x-slot:header>
 
-                @forelse ($rows ?? [] as $row)
-                    <tr class="align-top transition hover:bg-slate-50/80 dark:hover:bg-white/[0.03]">
-                        <x-report-table.td class="px-3 py-2 align-top border border-slate-200 dark:border-white/10">{{ $row['tanggal_insiden'] }}</x-report-table.td>
+                @forelse ($rows ?? [] as $group)
+                    @php
+                        $base = $group['base'] ?? [];
+                        $problems = $group['problems'] ?? [];
+                        $rowspan = count($problems) ?: 1;
+                    @endphp
 
-                        <x-report-table.td class="px-3 py-2 font-medium leading-relaxed border border-slate-200 dark:border-white/10">{{ $row['deskripsi_kategori_insiden'] }}</x-report-table.td>
+                    @foreach ($problems as $i => $p)
+                        <tr class="align-top transition hover:bg-slate-50/80 dark:hover:bg-white/[0.03]">
+                            @if ($i === 0)
+                                <x-report-table.td rowspan="{{ $rowspan }}" class="px-3 py-2 align-top border border-slate-200 dark:border-white/10">{{ $base['tanggal_insiden'] ?? '-' }}</x-report-table.td>
 
-                        <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words border border-slate-200 dark:border-white/10">{{ $row['jenis_insiden'] }}</x-report-table.td>
+                                <x-report-table.td rowspan="{{ $rowspan }}" class="px-3 py-2 font-medium leading-relaxed border border-slate-200 dark:border-white/10">{{ $base['deskripsi_kategori_insiden'] ?? '-' }}</x-report-table.td>
 
-                        <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words border border-slate-200 dark:border-white/10">{{ $row['unit_kerja'] }}</x-report-table.td>
+                                <x-report-table.td rowspan="{{ $rowspan }}" class="px-3 py-2 whitespace-pre-line break-words border border-slate-200 dark:border-white/10">{{ $base['jenis_insiden'] ?? '-' }}</x-report-table.td>
 
-                        <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words leading-relaxed border border-slate-200 dark:border-white/10">{{ $row['akar_masalah'] }}</x-report-table.td>
+                                <x-report-table.td rowspan="{{ $rowspan }}" class="px-3 py-2 whitespace-pre-line break-words border border-slate-200 dark:border-white/10">{{ $base['unit_kerja'] ?? '-' }}</x-report-table.td>
+                            @endif
 
-                        <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words leading-relaxed border border-slate-200 dark:border-white/10">{{ $row['rekomendasi'] }}</x-report-table.td>
-                    </tr>
+                            <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words leading-relaxed border border-slate-200 dark:border-white/10">{{ $p['akar_masalah'] ?? '-' }}</x-report-table.td>
+
+                            <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words leading-relaxed border border-slate-200 dark:border-white/10">{{ $p['rekomendasi'] ?? '-' }}</x-report-table.td>
+                        </tr>
+                    @endforeach
                 @empty
                     <x-report-table.empty :colspan="6" title="Belum ada data investigasi"
                         description="Tidak ada laporan yang sesuai dengan filter yang dipilih." />
