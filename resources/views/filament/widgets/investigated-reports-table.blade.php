@@ -106,41 +106,29 @@
                 </x-slot:colgroup>
 
                 <x-slot:header>
-                    <tr class="bg-slate-50 dark:bg-white/[0.03]">
-                        <x-report-table.th>Tanggal</x-report-table.th>
-                        <x-report-table.th>Insiden</x-report-table.th>
-                        <x-report-table.th>Jenis</x-report-table.th>
-                        <x-report-table.th>Unit</x-report-table.th>
-                        <x-report-table.th>Akar Masalah</x-report-table.th>
-                        <x-report-table.th>Rekomendasi</x-report-table.th>
+                    <tr class="bg-yellow-300 text-black">
+                        <x-report-table.th class="px-3 py-2 text-left border border-slate-300">Tanggal</x-report-table.th>
+                        <x-report-table.th class="px-3 py-2 text-left border border-slate-300">Insiden</x-report-table.th>
+                        <x-report-table.th class="px-3 py-2 text-left border border-slate-300">Jenis Insiden</x-report-table.th>
+                        <x-report-table.th class="px-3 py-2 text-left border border-slate-300">Unit</x-report-table.th>
+                        <x-report-table.th class="px-3 py-2 text-left border border-slate-300">Akar Masalah</x-report-table.th>
+                        <x-report-table.th class="px-3 py-2 text-left border border-slate-300">Rekomendasi</x-report-table.th>
                     </tr>
                 </x-slot:header>
 
                 @forelse ($rows ?? [] as $row)
                     <tr class="align-top transition hover:bg-slate-50/80 dark:hover:bg-white/[0.03]">
-                        <x-report-table.td class="whitespace-nowrap">
-                            {{ $row['tanggal_insiden'] }}
-                        </x-report-table.td>
+                        <x-report-table.td class="px-3 py-2 align-top border border-slate-200 dark:border-white/10">{{ $row['tanggal_insiden'] }}</x-report-table.td>
 
-                        <x-report-table.td class="font-medium leading-relaxed">
-                            {{ $row['deskripsi_kategori_insiden'] }}
-                        </x-report-table.td>
+                        <x-report-table.td class="px-3 py-2 font-medium leading-relaxed border border-slate-200 dark:border-white/10">{{ $row['deskripsi_kategori_insiden'] }}</x-report-table.td>
 
-                        <x-report-table.td class="whitespace-pre-line break-words">
-                            {{ $row['jenis_insiden'] }}
-                        </x-report-table.td>
+                        <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words border border-slate-200 dark:border-white/10">{{ $row['jenis_insiden'] }}</x-report-table.td>
 
-                        <x-report-table.td class="whitespace-pre-line break-words">
-                            {{ $row['unit_kerja'] }}
-                        </x-report-table.td>
+                        <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words border border-slate-200 dark:border-white/10">{{ $row['unit_kerja'] }}</x-report-table.td>
 
-                        <x-report-table.td class="whitespace-pre-line break-words leading-relaxed">
-                            {{ $row['akar_masalah'] }}
-                        </x-report-table.td>
+                        <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words leading-relaxed border border-slate-200 dark:border-white/10">{{ $row['akar_masalah'] }}</x-report-table.td>
 
-                        <x-report-table.td class="whitespace-pre-line break-words leading-relaxed">
-                            {{ $row['rekomendasi'] }}
-                        </x-report-table.td>
+                        <x-report-table.td class="px-3 py-2 whitespace-pre-line break-words leading-relaxed border border-slate-200 dark:border-white/10">{{ $row['rekomendasi'] }}</x-report-table.td>
                     </tr>
                 @empty
                     <x-report-table.empty :colspan="6" title="Belum ada data investigasi"
