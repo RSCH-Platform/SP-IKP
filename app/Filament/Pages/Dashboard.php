@@ -34,6 +34,15 @@ class Dashboard extends BaseDashboard
         ];
     }
 
+    public function getGlobalWidgetsSchema(): Schema
+    {
+        return Schema::make($this)
+            ->components([
+                Grid::make($this->getColumns())
+                    ->schema(fn(): array => $this->getWidgetsSchemaComponents($this->getGlobalWidgets())),
+            ]);
+    }
+
     public function getGeneralWidgetsSchema(): Schema
     {
         return Schema::make($this)
@@ -107,11 +116,20 @@ class Dashboard extends BaseDashboard
     /** 
      * @return array<class-string>
      */
-    protected function getGeneralWidgets(): array
+    protected function getGlobalWidgets(): array
     {
         return [
             AccountWidget::class,
             FilamentInfoWidget::class,
+        ];
+    }
+
+    /** 
+     * @return array<class-string>
+     */
+    protected function getGeneralWidgets(): array
+    {
+        return [
             DraftReportsStatsWidget::class,
             UnitKerjaInfo::class,
         ];
