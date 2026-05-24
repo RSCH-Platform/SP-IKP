@@ -52,6 +52,7 @@ class DraftReportsInvestigatedWidget extends BaseDraftReportsWidget
     public function table(Table $table): Table
     {
         return $table
+            ->description('Laporan yang sudah mulai investigasi, namun belum selesai. Laporan dengan status ini biasanya masih dalam proses pengumpulan data dan analisis awal oleh tim investigasi.')
             ->headerActions([
                 Action::make('export')
                     ->label('Ekspor Excel')
@@ -79,7 +80,7 @@ class DraftReportsInvestigatedWidget extends BaseDraftReportsWidget
                             $labels = $this->exportFieldOptions();
 
                             $writer->addRow(Row::fromValues(array_map(
-                                fn (string $field): string => $labels[$field],
+                                fn(string $field): string => $labels[$field],
                                 $selectedFields,
                             )));
 
@@ -256,14 +257,14 @@ class DraftReportsInvestigatedWidget extends BaseDraftReportsWidget
     }
 
     /**
-    * @param array<int, string> $selectedFields
-    * @return array<int, array<int, string>>
+     * @param array<int, string> $selectedFields
+     * @return array<int, array<int, string>>
      */
     protected function mapExportRows(LaporanInsiden $record, array $selectedFields): array
     {
         if (
-            ! in_array('akar_masalah', $selectedFields, true)
-            && ! in_array('rekomendasi', $selectedFields, true)
+            !in_array('akar_masalah', $selectedFields, true)
+            && !in_array('rekomendasi', $selectedFields, true)
         ) {
             return [$this->formatRowBySelectedFields($this->buildBaseRow($record), $selectedFields)];
         }
@@ -271,10 +272,12 @@ class DraftReportsInvestigatedWidget extends BaseDraftReportsWidget
         $problemRows = $this->buildProblemRows($record);
 
         if ($problemRows === []) {
-            $problemRows = [[
-                'akar_masalah' => '-',
-                'rekomendasi' => '-',
-            ]];
+            $problemRows = [
+                [
+                    'akar_masalah' => '-',
+                    'rekomendasi' => '-',
+                ]
+            ];
         }
 
         $rows = [];
@@ -343,7 +346,7 @@ class DraftReportsInvestigatedWidget extends BaseDraftReportsWidget
             $akarMasalahItems = $problem->whys
                 ->when(
                     filled($latestWhyLevel),
-                    fn (Collection $whys): Collection => $whys->where('why_level', $latestWhyLevel),
+                    fn(Collection $whys): Collection => $whys->where('why_level', $latestWhyLevel),
                 )
                 ->pluck('problem_statement')
                 ->filter()
