@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a32215f6a3bf6b37c1c830621fae197",
+    "content-hash": "c9a01f7c7eee7f5f1f325e112f7eeefa",
     "packages": [
         {
             "name": "bezhansalleh/filament-plugin-essentials",
@@ -2390,11 +2390,17 @@
         },
         {
             "name": "juniyasyos/auth-bridge-client",
-            "version": "dev-master",
+            "version": "v1.2.18",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/juniyasyos/auth-bridge-client.git",
+                "reference": "671712058222b349f777a8fca061c94d1e669f46"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../plugin/auth-bridge-client",
-                "reference": "aab74c06bdf331120958e1a8f4b737eca48c22ed"
+                "type": "zip",
+                "url": "https://api.github.com/repos/juniyasyos/auth-bridge-client/zipball/671712058222b349f777a8fca061c94d1e669f46",
+                "reference": "671712058222b349f777a8fca061c94d1e669f46",
+                "shasum": ""
             },
             "require": {
                 "firebase/php-jwt": "^6.0",
@@ -2419,11 +2425,7 @@
                     "Juniyasyos\\IamClient\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Juniyasyos\\IamClient\\Tests\\": "tests/"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2435,16 +2437,17 @@
             ],
             "description": "Laravel package for IAM SSO integration with JIT user provisioning",
             "keywords": [
-                "authentication",
+                "Authentication",
+                "SSO",
                 "iam",
                 "jwt",
-                "laravel",
-                "sso"
+                "laravel"
             ],
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/juniyasyos/auth-bridge-client/issues",
+                "source": "https://github.com/juniyasyos/auth-bridge-client/tree/v1.2.18"
+            },
+            "time": "2026-05-24T16:25:55+00:00"
         },
         {
             "name": "juniyasyos/filament-media-manager",
