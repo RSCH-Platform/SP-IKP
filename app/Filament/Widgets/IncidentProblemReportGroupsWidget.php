@@ -17,7 +17,7 @@ class IncidentProblemReportGroupsWidget extends Widget
 
     protected static ?int $sort = 11;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected string $view = 'filament.widgets.incident-problem-report-groups';
 
@@ -26,9 +26,9 @@ class IncidentProblemReportGroupsWidget extends Widget
         $user = Auth::user();
 
         return $user !== null && (
-            $user->can('ViewAllData:LaporanInsiden')
-            || $user->can('ForceEdit:LaporanInsiden')
-            || $user->can('Submit:LaporanInsiden')
+            $user->can('Verifikasi:LaporanInsiden')
+            && !$user->hasRole('tim_mutu')
+            && $user->unitKerjas()->exists()
         );
     }
 
@@ -37,7 +37,7 @@ class IncidentProblemReportGroupsWidget extends Widget
         $query = LaporanInsiden::query();
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             return $query->whereRaw('1 = 0');
         }
 
@@ -70,52 +70,53 @@ class IncidentProblemReportGroupsWidget extends Widget
 
         $items = $reports->map(function (LaporanInsiden $report) {
             $problems = $report->problems
-                ->filter(fn (IncidentProblem $problem): bool =>
+                ->filter(
+                    fn(IncidentProblem $problem): bool =>
                     $problem->recommendations->isNotEmpty() && $problem->actions->isNotEmpty()
                 )
                 ->map(function (IncidentProblem $problem): array {
-                $recommendations = $problem->recommendations->map(fn ($recommendation): array => [
-                    'id' => $recommendation->id,
-                    'text' => $recommendation->recommendation_text,
-                    'priority' => $recommendation->priority ?: 'normal',
-                ])->values();
+                    $recommendations = $problem->recommendations->map(fn($recommendation): array => [
+                        'id' => $recommendation->id,
+                        'text' => $recommendation->recommendation_text,
+                        'priority' => $recommendation->priority ?: 'normal',
+                    ])->values();
 
-                $actions = $problem->actions->map(function ($action): array {
+                    $actions = $problem->actions->map(function ($action): array {
+                        return [
+                            'id' => $action->id,
+                            'text' => $action->action_text,
+                            'responsible_person' => $action->responsible_person,
+                            'deadline' => $action->deadline?->format('d M Y'),
+                            'status' => $action->status ?: 'pending',
+                            'status_label' => $this->actionStatusLabel($action->status),
+                            'status_color' => $this->actionStatusColor($action->status),
+                            'status_badge_classes' => $this->actionStatusBadgeClasses($action->status),
+                            'status_dot_classes' => $this->actionStatusDotClasses($action->status),
+                            'status_panel_classes' => $this->actionStatusPanelClasses($action->status),
+                            'media_count' => $action->getMedia('action_evidence')->count(),
+                        ];
+                    })->values();
+
+                    $completedActions = $actions->where('status', 'completed')->count();
+                    $ongoingActions = $actions->where('status', 'ongoing')->count();
+                    $pendingActions = $actions->where('status', 'pending')->count();
+
                     return [
-                        'id' => $action->id,
-                        'text' => $action->action_text,
-                        'responsible_person' => $action->responsible_person,
-                        'deadline' => $action->deadline?->format('d M Y'),
-                        'status' => $action->status ?: 'pending',
-                        'status_label' => $this->actionStatusLabel($action->status),
-                        'status_color' => $this->actionStatusColor($action->status),
-                        'status_badge_classes' => $this->actionStatusBadgeClasses($action->status),
-                        'status_dot_classes' => $this->actionStatusDotClasses($action->status),
-                        'status_panel_classes' => $this->actionStatusPanelClasses($action->status),
-                        'media_count' => $action->getMedia('action_evidence')->count(),
+                        'id' => $problem->id,
+                        'problem_type' => $problem->problem_type,
+                        'problem_type_label' => $this->problemTypeLabel($problem->problem_type),
+                        'problem_type_caption' => $this->problemTypeCaption($problem->problem_type),
+                        'problem_description' => $problem->problem_description,
+                        'whys_count' => $problem->whys->count(),
+                        'recommendations_count' => $recommendations->count(),
+                        'actions_count' => $actions->count(),
+                        'completed_actions_count' => $completedActions,
+                        'ongoing_actions_count' => $ongoingActions,
+                        'pending_actions_count' => $pendingActions,
+                        'recommendations' => $recommendations->all(),
+                        'actions' => $actions->all(),
                     ];
                 })->values();
-
-                $completedActions = $actions->where('status', 'completed')->count();
-                $ongoingActions = $actions->where('status', 'ongoing')->count();
-                $pendingActions = $actions->where('status', 'pending')->count();
-
-                return [
-                    'id' => $problem->id,
-                    'problem_type' => $problem->problem_type,
-                    'problem_type_label' => $this->problemTypeLabel($problem->problem_type),
-                    'problem_type_caption' => $this->problemTypeCaption($problem->problem_type),
-                    'problem_description' => $problem->problem_description,
-                    'whys_count' => $problem->whys->count(),
-                    'recommendations_count' => $recommendations->count(),
-                    'actions_count' => $actions->count(),
-                    'completed_actions_count' => $completedActions,
-                    'ongoing_actions_count' => $ongoingActions,
-                    'pending_actions_count' => $pendingActions,
-                    'recommendations' => $recommendations->all(),
-                    'actions' => $actions->all(),
-                ];
-            })->values();
 
             if ($problems->isEmpty()) {
                 return null;
@@ -317,7 +318,7 @@ class IncidentProblemReportGroupsWidget extends Widget
 
     public function updateActionStatus(int $actionId, string $status): void
     {
-        if (! in_array($status, ['pending', 'ongoing', 'completed'], true)) {
+        if (!in_array($status, ['pending', 'ongoing', 'completed'], true)) {
             return;
         }
 

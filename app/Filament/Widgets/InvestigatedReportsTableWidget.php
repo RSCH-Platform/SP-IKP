@@ -43,11 +43,7 @@ class InvestigatedReportsTableWidget extends Widget
     {
         $user = Auth::user();
 
-        return $user !== null && (
-            $user->can('ViewAllData:LaporanInsiden')
-            || $user->can('ForceEdit:LaporanInsiden')
-            || $user->can('Investigasi:LaporanInsiden')
-        );
+        return $user !== null && $user->can('ViewAllData:LaporanInsiden');
     }
 
     protected function getViewData(): array
@@ -55,19 +51,19 @@ class InvestigatedReportsTableWidget extends Widget
         $reports = $this->scopedQuery()
             ->when(
                 filled($this->selectedYear),
-                fn (Builder $query): Builder => $query->whereYear('tanggal_insiden', (int) $this->selectedYear),
+                fn(Builder $query): Builder => $query->whereYear('tanggal_insiden', (int) $this->selectedYear),
             )
             ->when(
                 filled($this->selectedMonth),
-                fn (Builder $query): Builder => $query->whereMonth('tanggal_insiden', (int) $this->selectedMonth),
+                fn(Builder $query): Builder => $query->whereMonth('tanggal_insiden', (int) $this->selectedMonth),
             )
             ->when(
                 filled($this->selectedJenisInsiden),
-                fn (Builder $query): Builder => $query->where('jenis_insiden', $this->selectedJenisInsiden),
+                fn(Builder $query): Builder => $query->where('jenis_insiden', $this->selectedJenisInsiden),
             )
             ->when(
                 filled($this->selectedStatus),
-                fn (Builder $query): Builder => $query->where('status', $this->selectedStatus),
+                fn(Builder $query): Builder => $query->where('status', $this->selectedStatus),
             )
             ->with([
                 'unitKerjas',
@@ -79,7 +75,7 @@ class InvestigatedReportsTableWidget extends Widget
 
         $groups = $this->buildRows($reports);
 
-        $totalRows = array_sum(array_map(fn ($g) => count($g['problems'] ?? []), $groups));
+        $totalRows = array_sum(array_map(fn($g) => count($g['problems'] ?? []), $groups));
 
         return [
             'rows' => $groups,
@@ -186,7 +182,7 @@ class InvestigatedReportsTableWidget extends Widget
             $akarMasalahItems = $problem->whys
                 ->when(
                     filled($latestWhyLevel),
-                    fn (Collection $whys): Collection => $whys->where('why_level', $latestWhyLevel),
+                    fn(Collection $whys): Collection => $whys->where('why_level', $latestWhyLevel),
                 )
                 ->pluck('problem_statement')
                 ->filter()
@@ -222,7 +218,7 @@ class InvestigatedReportsTableWidget extends Widget
      *
      * @return array{akar_masalah: string, rekomendasi: string}
      */
-    
+
 
     public function getAvailableYears(): array
     {
@@ -232,7 +228,7 @@ class InvestigatedReportsTableWidget extends Widget
             ->groupBy('year')
             ->orderByDesc('year')
             ->pluck('year')
-            ->map(fn ($year) => (int) $year)
+            ->map(fn($year) => (int) $year)
             ->all();
 
         return $years !== [] ? $years : [(int) now()->year];

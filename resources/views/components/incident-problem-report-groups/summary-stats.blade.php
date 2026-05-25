@@ -3,11 +3,13 @@
 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <div>
         <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Group Analisis per Laporan
+            Rekomendasi dan Tindak Lanjut Pelaporan Insiden
         </h2>
         <p class="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Setiap laporan ditampilkan sebagai satu grup agar status tindakan, rekomendasi, dan bukti tidak
-            tercampur.
+            Ringkasan statistik untuk rekomendasi dan tindak lanjut pelaporan insiden yang telah dilakukan. Data ini
+            mencakup jumlah laporan yang dibuat, tindakan yg harus dilakukan, serta status tindakan yang telah
+            diambil (ditunda atau selesai). Informasi ini dapat membantu dalam memantau efektivitas penanganan insiden
+            dan mengidentifikasi area yang memerlukan perhatian lebih lanjut.
         </p>
     </div>
 

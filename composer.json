@@ -8,12 +8,21 @@
         "framework"
     ],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../plugin/auth-bridge-client",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "require": {
         "php": "^8.2",
         "bezhansalleh/filament-shield": "^4.1",
         "filament/filament": "^4.0",
         "guava/filament-modal-relation-managers": "^2.0",
-        "juniyasyos/auth-bridge-client": "v1.2.17",
+        "juniyasyos/auth-bridge-client": "*",
         "juniyasyos/filament-media-manager": "v1.4.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
@@ -110,6 +119,6 @@
             ]
         }
     },
-    "minimum-stability": "beta",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
