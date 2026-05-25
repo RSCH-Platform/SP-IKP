@@ -102,7 +102,7 @@ class LaporanInsidenFormSchema
 
     public static function sectionInsiden(bool $withGrading = false, bool $collapsed = true): Section
     {
-        return InsidenSection::make($withGrading, $collapsed);
+        return InsidenSection::make( $collapsed);
     }
 
     public static function sectionPasien(bool $collapsed = true): Section

@@ -1,4 +1,14 @@
 <div wire:ignore.self class="space-y-6">
+    @php
+    $isReadOnly = (bool) ($isReadOnly ?? false);
+    @endphp
+
+    @if($isReadOnly)
+    <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+        Laporan berstatus selesai. Timeline dalam mode lihat saja.
+    </div>
+    @endif
+
     <!-- Debug Info (development only) -->
     @if(config('app.debug'))
     <div class="mb-4 p-2 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded text-xs text-yellow-800 dark:text-yellow-200">
@@ -61,6 +71,16 @@
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Timeline Insiden (Belum ada data)</h2>
             @endif
         </div>
+        @if($isReadOnly)
+        <button
+            type="button"
+            disabled
+            class="px-4 py-2 rounded-lg bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300 font-medium flex items-center gap-2 shadow-sm cursor-not-allowed"
+            title="Laporan selesai: tidak bisa tambah event">
+            <span>🔒</span>
+            <span>Tambah Event</span>
+        </button>
+        @else
         <button
             type="button"
             wire:click="openAddEventModal"
@@ -68,6 +88,7 @@
             <span>➕</span>
             <span>Tambah Event</span>
         </button>
+        @endif
     </div>
 
     <!-- Events by Date -->
@@ -93,6 +114,7 @@
                 <h3 class="font-semibold text-gray-900 dark:text-blue-100">{{ $formattedDate }}</h3>
                 <span class="text-xs bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 px-2 py-1 rounded-full font-medium">{{ $sortedEvents->count() }} event</span>
             </div>
+            @if(!$isReadOnly)
             <button
                 type="button"
                 @click.stop="$dispatch('add-timeline-event', { dateString: '{{ $date }}' })"
@@ -100,6 +122,7 @@
                 class="text-xs px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-150 font-medium shadow-sm dark:shadow-md">
                 + Tambah Event Jam
             </button>
+            @endif
         </div>
 
         <!-- Data Table - Accordion Content -->
@@ -118,7 +141,9 @@
                                 </div>
                             </th>
                             @endforeach
+                            @if(!$isReadOnly)
                             <th class="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-200 w-16 bg-gray-50 dark:bg-slate-800">Aksi</th>
+                            @endif
                         </tr>
                     </thead>
 
@@ -131,14 +156,16 @@
                         $isEven = $eventIndex % 2 === 0;
                         @endphp
 
-                        <tr class="border-b dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors duration-150 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }}" x-data="{ rowId: {{ $event['id'] }} }" @click="activeRow === rowId ? activeRow = null : activeRow = rowId">
+                        <tr class="border-b dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors duration-150 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }}" x-data="{ rowId: {{ $event['id'] }} }" @if(!$isReadOnly) @click="activeRow === rowId ? activeRow = null : activeRow = rowId" @endif>
                             <!-- Time Cell - Clickable to Edit -->
-                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100 sticky left-0 z-10 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }} hover:bg-blue-50 dark:hover:bg-slate-700 active:bg-blue-100 dark:active:bg-slate-600 cursor-pointer group relative transition-colors duration-150"
-                                wire:click="openEditTimeModal({{ $event['id'] }})"
-                                title="Klik untuk edit waktu">
+                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100 sticky left-0 z-10 {{ $isEven ? 'bg-white dark:bg-slate-900' : 'bg-gray-50 dark:bg-slate-800' }} hover:bg-blue-50 dark:hover:bg-slate-700 active:bg-blue-100 dark:active:bg-slate-600 {{ $isReadOnly ? 'cursor-default' : 'cursor-pointer group relative' }} transition-colors duration-150"
+                                @if(!$isReadOnly) wire:click="openEditTimeModal({{ $event['id'] }})" @endif
+                                title="{{ $isReadOnly ? 'Mode lihat saja' : 'Klik untuk edit waktu' }}">
                                 <div class="flex items-center justify-between">
                                     <span>{{ $timeFormatted }}</span>
+                                    @if(!$isReadOnly)
                                     <span class="opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity ml-2 text-xs text-blue-500">✎</span>
+                                    @endif
                                 </div>
                             </td>
 
@@ -159,6 +186,7 @@
                                     @endif
 
                                     <!-- Action Buttons - Show Only When Row is Active -->
+                                    @if(!$isReadOnly)
                                     <div x-show="activeRow === rowId" x-transition class="flex gap-1 flex-wrap">
                                         <button
                                             type="button"
@@ -183,10 +211,12 @@
                                             🗑 Hapus
                                         </button>
                                     </div>
+                                    @endif
                                 </div>
                             </td>
                             @endforeach
 
+                            @if(!$isReadOnly)
                             <!-- Event Actions -->
                             <td class="px-4 py-3 text-center">
                                 <button
@@ -197,6 +227,7 @@
                                     🗑
                                 </button>
                             </td>
+                            @endif
                         </tr>
                         @endforeach
                     </tbody>
@@ -209,7 +240,12 @@
     <div class="text-center py-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-lg border-2 border-dashed border-blue-200 dark:border-blue-800 shadow-sm dark:shadow-lg">
         <div class="text-4xl mb-3">📭</div>
         <p class="text-gray-600 dark:text-gray-300 mb-2 font-semibold">Belum ada Timeline Insiden</p>
+        @if($isReadOnly)
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Belum ada event timeline. Data hanya bisa dilihat karena laporan sudah selesai.</p>
+        @else
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Klik tombol <strong>"Tambah Event"</strong> di atas untuk membuat event pertama Anda</p>
+        @endif
+        @if(!$isReadOnly)
         <button
             type="button"
             wire:click="openAddEventModal"
@@ -217,6 +253,7 @@
             <span>➕</span>
             <span>Buat Event Pertama</span>
         </button>
+        @endif
     </div>
     @endforelse
 

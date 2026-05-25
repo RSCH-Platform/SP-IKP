@@ -15,6 +15,7 @@ class TimelineGridManager extends Component
     public $recordId;
     public $timelineEvents = [];
     public $categories = [];
+    public $isReadOnly = false;
 
     public $showModal = false;
     public $modalMode = 'edit'; // 'edit', 'add-event', or 'move'
@@ -38,6 +39,7 @@ class TimelineGridManager extends Component
     public function mount($recordId = null)
     {
         $this->recordId = $recordId ?? request()->route('record');
+        $this->syncReadOnlyState();
         $this->loadTimelineData();
         $this->loadCategories();
     }
@@ -53,6 +55,10 @@ class TimelineGridManager extends Component
         // Sync recordId from route in case URL changed
         if (!$this->recordId && ($recordId = request()->route('record'))) {
             $this->recordId = $recordId;
+        }
+
+        if ($this->recordId) {
+            $this->syncReadOnlyState();
         }
 
         // Docker safety: Clear data during save to prevent memory spike
@@ -138,6 +144,32 @@ class TimelineGridManager extends Component
         }
     }
 
+    private function syncReadOnlyState(): void
+    {
+        if (!$this->recordId) {
+            $this->isReadOnly = false;
+            return;
+        }
+
+        $status = LaporanInsiden::query()
+            ->whereKey($this->recordId)
+            ->value('status');
+
+        $this->isReadOnly = $status === LaporanInsiden::STATUS_SELESAI;
+    }
+
+    private function ensureEditable(): bool
+    {
+        $this->syncReadOnlyState();
+
+        if ($this->isReadOnly) {
+            $this->dispatch('notify-error', message: 'Laporan sudah selesai. Timeline hanya dapat dilihat.');
+            return false;
+        }
+
+        return true;
+    }
+
     public function loadCategories()
     {
         try {
@@ -165,6 +197,10 @@ class TimelineGridManager extends Component
      */
     public function openAddEventModal($date = null)
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         $this->modalMode = 'add-event';
 
         if ($date) {
@@ -198,6 +234,10 @@ class TimelineGridManager extends Component
      */
     public function addTimelineEvent()
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         if ($this->addEventDate) {
             $this->validate([
                 'addEventTime' => 'required|date_format:H:i',
@@ -258,6 +298,10 @@ class TimelineGridManager extends Component
      */
     public function openEditModal($eventId, $categoryId)
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         $event = $this->timelineEvents[array_search($eventId, array_column($this->timelineEvents, 'id'))] ?? null;
 
         if (!$event) {
@@ -276,6 +320,10 @@ class TimelineGridManager extends Component
 
     public function openMoveModal($eventId, $sourceCategoryId)
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         $event = $this->timelineEvents[array_search($eventId, array_column($this->timelineEvents, 'id'))] ?? null;
 
         if (!$event) {
@@ -296,6 +344,10 @@ class TimelineGridManager extends Component
      */
     public function saveEntry()
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         if (! $this->editingEventId || ! $this->editingCategoryId) {
             $this->dispatch('notify-error', message: 'Entry tidak valid');
             return;
@@ -333,6 +385,10 @@ class TimelineGridManager extends Component
      */
     public function deleteEntry($eventId, $categoryId)
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         try {
             $event = TimelineEvent::findOrFail($eventId);
             $laporanInsidenId = $event->laporan_insiden_id;
@@ -362,6 +418,10 @@ class TimelineGridManager extends Component
 
     public function moveEntry()
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         try {
             if (!$this->moveTargetCategoryId || $this->moveTargetCategoryId === $this->moveSourceCategoryId) {
                 $this->dispatch('notify-error', message: 'Pilih kategori tujuan yang berbeda');
@@ -416,6 +476,10 @@ class TimelineGridManager extends Component
      */
     public function deleteEvent($eventId)
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         try {
             $event = TimelineEvent::findOrFail($eventId);
             $laporanInsidenId = $event->laporan_insiden_id;
@@ -470,6 +534,10 @@ class TimelineGridManager extends Component
      */
     public function openEditTimeModal($eventId)
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         $event = collect($this->timelineEvents)->firstWhere('id', $eventId);
 
         if (!$event) {
@@ -491,6 +559,10 @@ class TimelineGridManager extends Component
      */
     public function saveEventTime()
     {
+        if (!$this->ensureEditable()) {
+            return;
+        }
+
         if (!$this->editingTimeEventId || !$this->editingTimeValue) {
             return;
         }
@@ -535,6 +607,7 @@ class TimelineGridManager extends Component
         return view('livewire.timeline-grid-manager', [
             'eventsByDate' => $this->eventsByDate(),
             'categories' => $this->categories,
+            'isReadOnly' => $this->isReadOnly,
         ]);
-    }
+    } 
 }

@@ -10,7 +10,6 @@ use App\Traits\HasWorkflowSteps;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
@@ -34,155 +33,177 @@ class ViewLaporanInsiden extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-
-            ActionGroup::make([
-
-                Action::make('submit_laporan')
-                    ->label('Kirim ke Verifikasi')
-                    ->icon('heroicon-o-paper-airplane')
-                    ->color('warning')
-                    ->visible(fn() => $this->canDo(
-                        'Submit:LaporanInsiden',
-                        [
-                            LaporanInsiden::STATUS_DRAFT,
-                            LaporanInsiden::STATUS_REVISI,
-                        ]
-                    ) && $this->canEdit())
-                    ->requiresConfirmation()
-                    ->modalHeading('Kirim Laporan Insiden')
-                    ->modalDescription('Laporan akan dikirim ke kepala unit untuk proses verifikasi. Pastikan seluruh data sudah lengkap.')
-                    ->modalSubmitActionLabel('Kirim Laporan')
-                    ->action(fn() => $this->submitLaporan()),
-
-
-                Action::make('verifikasi_laporan')
-                    ->label('Verifikasi & Teruskan')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('success')
-                    ->visible(fn() => $this->canDo(
-                        'Verifikasi:LaporanInsiden',
-                        LaporanInsiden::STATUS_DILAPORKAN
-                    ))
-                    ->schema([
-                        ToggleButtons::make('grading_risiko')
-                            ->label('Grading Risiko')
-                            ->required()
-                            ->options([
-                                'Biru'   => '🔵 Biru (Tidak signifikan)',
-                                'Hijau'  => '🟢 Hijau (Minor)',
-                                'Kuning' => '🟡 Kuning (Moderat)',
-                                'Merah'  => '🔴 Merah (Mayor)',
-                                'Hitam'  => '⚫ Hitam (Katastropik)',
-                            ])
-                            ->colors([
-                                'Biru'   => 'info',
-                                'Hijau'  => 'success',
-                                'Kuning' => 'warning',
-                                'Merah'  => 'danger',
-                                'Hitam'  => 'gray',
-                            ])
-                            ->inline()
-                            ->helperText('Hanya diisi oleh Validator / Tim IKP')
-                            ->default(fn() => $this->record->grading_risiko),
-                        Textarea::make('catatan_tambahan')
-                            ->label('Catatan Verifikasi')
-                            ->hidden()
-                            ->rows(3)
-                            ->default(fn() => $this->record->catatan_tambahan),
-                    ])
-                    ->requiresConfirmation()
-                    ->modalHeading('Verifikasi Laporan')
-                    ->modalDescription('Laporan akan diverifikasi dan diteruskan ke tim mutu untuk investigasi.')
-                    ->modalSubmitActionLabel('Verifikasi')
-                    ->action(fn(array $data) => $this->verifikasiLaporan($data)),
-
-
-                Action::make('kembalikan_laporan')
-                    ->label('Kembalikan ke Pelapor')
-                    ->icon('heroicon-o-arrow-uturn-left')
-                    ->color('danger')
-                    ->visible(fn() => $this->canDo(
-                        'Kembalikan:LaporanInsiden',
-                        LaporanInsiden::STATUS_DILAPORKAN
-                    ))
-                    ->schema([
-                        Textarea::make('rejection_reason')
-                            ->label('Alasan Pengembalian')
-                            ->placeholder('Tuliskan apa yang perlu diperbaiki oleh pelapor...')
-                            ->required()
-                            ->minLength(10)
-                            ->rows(4),
-                    ])
-                    ->modalHeading('Kembalikan Laporan')
-                    ->modalDescription('Laporan akan dikembalikan ke pelapor untuk diperbaiki.')
-                    ->modalSubmitActionLabel('Kembalikan')
-                    ->action(fn(array $data) => $this->kembalikanLaporan($data)),
-
-
-                Action::make('mulai_investigasi')
-                    ->label('Mulai Investigasi')
-                    ->icon('heroicon-o-magnifying-glass')
-                    ->color('info')
-                    ->visible(
-                        fn($record) =>
-                        auth()->user()?->can('Investigasi:LaporanInsiden') &&
-                            $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
-                    )
-                    ->requiresConfirmation()
-                    ->modalHeading('Mulai Investigasi')
-                    ->modalDescription('Laporan akan masuk ke tahap investigasi dan tim akan memulai proses investigasi laporan ini.')
-                    ->modalSubmitActionLabel('Mulai Investigasi')
-                    ->action(fn() => $this->mulaiInvestigasi()),
-            ])
-                ->label('Aksi Cepat')
-                ->icon('heroicon-o-bolt')
-                ->color('primary')
-                ->button(),
-
-
-
+            $this->getQuickActionGroup(),
 
             EditAction::make()
-                ->label(fn() => match ($this->record->status) {
-
-                    LaporanInsiden::STATUS_DRAFT => 'Lengkapi Laporan',
-
-                    LaporanInsiden::STATUS_REVISI => 'Perbaiki Laporan',
-
-                    LaporanInsiden::STATUS_DILAPORKAN => 'Lihat Laporan',
-
-                    LaporanInsiden::STATUS_DIVERIFIKASI => 'Tinjau Laporan',
-
-                    LaporanInsiden::STATUS_INVESTIGASI => 'Process Investigasi',
-
-                    default => 'Edit Laporan',
-                })
-                ->icon(fn() => match ($this->record->status) {
-
-                    LaporanInsiden::STATUS_DRAFT => 'heroicon-o-pencil',
-
-                    LaporanInsiden::STATUS_REVISI => 'heroicon-o-pencil-square',
-
-                    LaporanInsiden::STATUS_DILAPORKAN => 'heroicon-o-eye',
-
-                    LaporanInsiden::STATUS_DIVERIFIKASI => 'heroicon-o-document-text',
-
-                    LaporanInsiden::STATUS_INVESTIGASI => 'heroicon-o-folder-open',
-
-                    default => 'heroicon-o-pencil-square',
-                })
+                ->label(fn() => $this->getEditActionLabel())
+                ->icon(fn() => $this->getEditActionIcon())
                 ->visible(fn() => $this->canEdit()),
-
         ];
+    }
+
+    protected function getQuickActionGroup(): ActionGroup
+    {
+        return ActionGroup::make(array_filter([
+            $this->getSubmitAction(),
+            $this->getVerifyAction(),
+            $this->getReturnAction(),
+            $this->getStartInvestigationAction(),
+            $this->getReopenInvestigationAction(),
+        ]))
+            ->label('Aksi Cepat')
+            ->icon('heroicon-o-bolt')
+            ->color('primary')
+            ->button();
+    }
+
+    protected function getReopenInvestigationAction(): ?Action
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return null;
+        }
+
+        $visible = $user->can('Investigasi:LaporanInsiden')
+            && $this->record->status === LaporanInsiden::STATUS_SELESAI;
+
+        if (! $visible) {
+            return null;
+        }
+
+        return Action::make('reopen_investigation')
+            ->label('Buka Kembali Investigasi')
+            ->icon('heroicon-o-arrow-path')
+            ->color('primary')
+            ->requiresConfirmation()
+            ->modalHeading('Buka kembali investigasi?')
+            ->modalDescription('Mengembalikan laporan ke status Investigasi sehingga tim dapat melanjutkan investigasi.')
+            ->modalSubmitActionLabel('Buka Kembali')
+            ->action(fn() => $this->reopenInvestigasi());
+    }
+
+    protected function reopenInvestigasi(): void
+    {
+        try {
+            $this->record->reopenInvestigation(auth()->id());
+
+            Notification::make()
+                ->title('Investigasi dibuka kembali')
+                ->body('Laporan kembali ke status Investigasi dan dapat dilanjutkan oleh tim.')
+                ->success()
+                ->send();
+
+            $this->redirectToEditPage();
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Gagal membuka kembali investigasi')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    protected function getSubmitAction(): Action
+    {
+        return Action::make('submit_laporan')
+            ->label('Kirim ke Verifikasi')
+            ->icon('heroicon-o-paper-airplane')
+            ->color('warning')
+            ->visible(
+                fn() =>
+                $this->canDo('Submit:LaporanInsiden', [
+                    LaporanInsiden::STATUS_DRAFT,
+                    LaporanInsiden::STATUS_REVISI,
+                ])
+                && $this->canEdit()
+            )
+            ->requiresConfirmation()
+            ->modalHeading('Kirim Laporan Insiden')
+            ->modalDescription('Laporan akan dikirim ke kepala unit untuk proses verifikasi. Pastikan seluruh data sudah lengkap.')
+            ->modalSubmitActionLabel('Kirim Laporan')
+            ->action(fn() => $this->submitLaporan());
+    }
+
+    protected function getVerifyAction(): Action
+    {
+        return Action::make('verifikasi_laporan')
+            ->label('Verifikasi & Teruskan')
+            ->icon('heroicon-o-check-badge')
+            ->color('success')
+            ->visible(
+                fn() =>
+                $this->canDo(
+                    'Verifikasi:LaporanInsiden',
+                    LaporanInsiden::STATUS_DILAPORKAN,
+                )
+            )
+            ->schema([
+                $this->getGradingRisikoField(),
+
+                Textarea::make('catatan_tambahan')
+                    ->label('Catatan Verifikasi')
+                    ->hidden()
+                    ->rows(3)
+                    ->default(fn() => $this->record->catatan_tambahan),
+            ])
+            ->requiresConfirmation()
+            ->modalHeading('Verifikasi Laporan')
+            ->modalDescription('Laporan akan diverifikasi dan diteruskan ke tim mutu untuk investigasi.')
+            ->modalSubmitActionLabel('Verifikasi')
+            ->action(fn(array $data) => $this->verifikasiLaporan($data));
+    }
+
+    protected function getReturnAction(): Action
+    {
+        return Action::make('kembalikan_laporan')
+            ->label('Kembalikan ke Pelapor')
+            ->icon('heroicon-o-arrow-uturn-left')
+            ->color('danger')
+            ->visible(
+                fn() =>
+                $this->canDo(
+                    'Kembalikan:LaporanInsiden',
+                    LaporanInsiden::STATUS_DILAPORKAN,
+                )
+            )
+            ->requiresConfirmation()
+            ->schema([
+                Textarea::make('rejection_reason')
+                    ->label('Alasan Pengembalian')
+                    ->placeholder('Tuliskan apa yang perlu diperbaiki oleh pelapor...')
+                    ->required()
+                    ->minLength(10)
+                    ->rows(4),
+            ])
+            ->modalHeading('Kembalikan Laporan')
+            ->modalDescription('Laporan akan dikembalikan ke pelapor untuk diperbaiki.')
+            ->modalSubmitActionLabel('Kembalikan')
+            ->action(fn(array $data) => $this->kembalikanLaporan($data));
+    }
+
+    protected function getStartInvestigationAction(): Action
+    {
+        return Action::make('mulai_investigasi')
+            ->label('Mulai Investigasi')
+            ->icon('heroicon-o-magnifying-glass')
+            ->color('info')
+            ->visible(
+                fn($record) =>
+                auth()->user()?->can('Investigasi:LaporanInsiden')
+                && $record->status === LaporanInsiden::STATUS_DIVERIFIKASI
+            )
+            ->requiresConfirmation()
+            ->modalHeading('Mulai Investigasi')
+            ->modalDescription('Laporan akan masuk ke tahap investigasi dan tim akan memulai proses investigasi laporan ini.')
+            ->modalSubmitActionLabel('Mulai Investigasi')
+            ->action(fn() => $this->mulaiInvestigasi());
     }
 
     protected function canDo(string $permission, array|string $statuses): bool
     {
-        $user = auth()->user();
-        $statuses = (array) $statuses;
-
-        return $user?->can($permission)
-            && in_array($this->record->status, $statuses);
+        return auth()->user()?->can($permission)
+            && in_array($this->record->status, (array) $statuses, true);
     }
 
     protected function canEdit(): bool
@@ -194,30 +215,30 @@ class ViewLaporanInsiden extends ViewRecord
             return false;
         }
 
-        // Admin / super access
         if ($user->can('ViewAllData:LaporanInsiden')) {
             return true;
         }
 
-        // Pelapor boleh edit saat draft / revisi
-        if (in_array($status, [
-            LaporanInsiden::STATUS_DRAFT,
-            LaporanInsiden::STATUS_REVISI,
-        ])) {
+        if (
+            in_array($status, [
+                LaporanInsiden::STATUS_DRAFT,
+                LaporanInsiden::STATUS_REVISI,
+            ], true)
+        ) {
             return $user->id === $this->record->user_id;
         }
 
-        // Kepala unit boleh edit saat dilaporkan
         if ($status === LaporanInsiden::STATUS_DILAPORKAN) {
             return $user->can('Verifikasi:LaporanInsiden');
         }
 
-        // Tim mutu boleh edit saat diverifikasi / revisi unit
-        if (in_array($status, [
-            LaporanInsiden::STATUS_DIVERIFIKASI,
-            LaporanInsiden::STATUS_REVISI_UNIT,
-            LaporanInsiden::STATUS_INVESTIGASI,
-        ])) {
+        if (
+            in_array($status, [
+                LaporanInsiden::STATUS_DIVERIFIKASI,
+                LaporanInsiden::STATUS_REVISI_UNIT,
+                LaporanInsiden::STATUS_INVESTIGASI,
+            ], true)
+        ) {
             return $user->can('Investigasi:LaporanInsiden');
         }
 
@@ -228,88 +249,49 @@ class ViewLaporanInsiden extends ViewRecord
     {
         $this->record->submitLaporan();
 
-        $kepalaUnits = User::role('kepala_unit')->get();
+        $this->notifyKepalaUnit();
 
-        if ($kepalaUnits->isNotEmpty()) {
-            Notification::make()
-                ->title('Laporan Insiden Baru')
-                ->body("Ada laporan insiden baru dari {$this->record->nama_pelapor} yang perlu diverifikasi.")
-                ->warning()
-                ->sendToDatabase($kepalaUnits);
-        }
+        $this->notifySuccess('Laporan berhasil dikirim');
 
-        Notification::make()
-            ->title('Laporan berhasil dikirim')
-            ->success()
-            ->send();
-
-        $this->redirect(static::getResource()::getUrl('view', [
-            'record' => $this->record
-        ]));
+        $this->redirectToViewPage();
     }
 
     protected function verifikasiLaporan(array $data): void
     {
-        // Simpan grading risiko dan catatan terlebih dahulu
         $this->record->update([
             'grading_risiko' => $data['grading_risiko'] ?? null,
             'catatan_tambahan' => $data['catatan_tambahan'] ?? null,
         ]);
 
-        // Refresh instance untuk mendapatkan data terbaru
         $this->record->refresh();
 
-        // Sekarang verifikasi
         $this->record->verifikasiLaporan(auth()->id());
 
-        $notifyUsers = User::role(['tim_mutu', 'admin_ikp'])->get();
+        $this->notifyTimMutuAfterVerification();
 
-        if ($notifyUsers->isNotEmpty()) {
-            Notification::make()
-                ->title('Laporan Insiden Diverifikasi')
-                ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi oleh " . auth()->user()->name . '.')
-                ->success()
-                ->sendToDatabase($notifyUsers);
-        }
+        $this->notifySuccess('Laporan berhasil diverifikasi');
 
-        Notification::make()
-            ->title('Laporan berhasil diverifikasi')
-            ->success()
-            ->send();
-
-        $this->redirect(static::getResource()::getUrl('view', [
-            'record' => $this->record
-        ]));
+        $this->redirectToViewPage();
     }
 
     protected function kembalikanLaporan(array $data): void
     {
+        $reason = $data['rejection_reason'];
+
         $this->record->kembalikanKePelapor(
             auth()->id(),
-            $data['rejection_reason']
+            $reason,
         );
 
-        if ($this->record->user) {
-            Notification::make()
-                ->title('Laporan Perlu Diperbaiki')
-                ->body("Laporan insiden Anda perlu diperbaiki. Alasan: {$data['rejection_reason']}")
-                ->danger()
-                ->sendToDatabase([$this->record->user]);
-        }
+        $this->notifyPelaporForRevision($reason);
 
-        Notification::make()
-            ->title('Laporan dikembalikan ke pelapor')
-            ->success()
-            ->send();
+        $this->notifySuccess('Laporan dikembalikan ke pelapor');
 
-        $this->redirect(static::getResource()::getUrl('view', [
-            'record' => $this->record
-        ]));
+        $this->redirectToViewPage();
     }
 
     protected function mulaiInvestigasi(): void
     {
-        // Validasi grading risiko
         if (blank($this->record->grading_risiko)) {
             Notification::make()
                 ->title('Belum bisa investigasi')
@@ -320,7 +302,6 @@ class ViewLaporanInsiden extends ViewRecord
             return;
         }
 
-        // Mulai investigasi
         $this->record->mulaiInvestigasi(auth()->id());
 
         Notification::make()
@@ -329,54 +310,72 @@ class ViewLaporanInsiden extends ViewRecord
             ->success()
             ->send();
 
-        $this->redirect(static::getResource()::getUrl('edit', [
-            'record' => $this->record
-        ]));
+        $this->redirectToEditPage();
     }
 
     public function getGroupedInvestigationData(): array
     {
         $categories = [
-            'interview' => ['label' => '👤 Interview', 'items' => []],
-            'review_dokumen' => ['label' => '📄 Review Dokumen', 'items' => []],
-            'observasi' => ['label' => '👁️ Observasi', 'items' => []],
+            'interview' => [
+                'label' => '👤 Interview',
+                'items' => [],
+            ],
+            'review_dokumen' => [
+                'label' => '📄 Review Dokumen',
+                'items' => [],
+            ],
+            'observasi' => [
+                'label' => '👁️ Observasi',
+                'items' => [],
+            ],
         ];
 
-        $investigationData = $this->record->investigationData()
-            ->with(['creator'])
+        $investigationData = $this->record
+            ->investigationData()
+            ->with('creator')
             ->get();
 
         foreach ($investigationData as $item) {
-            $kategori = trim($item->kategori ?? 'interview');
-            if (isset($categories[$kategori])) {
-                $categories[$kategori]['items'][] = $item;
+            $category = trim($item->kategori ?? 'interview');
+
+            if (isset($categories[$category])) {
+                $categories[$category]['items'][] = $item;
             }
         }
 
-        return array_filter($categories, fn($cat) => !empty($cat['items']));
+        return array_filter(
+            $categories,
+            fn(array $category) => !empty($category['items']),
+        );
     }
 
-    public function getTimelineEventsForComponent()
+    public function getTimelineEventsForComponent(): array
     {
         $events = $this->record->relationLoaded('timelineEvents')
             ? $this->record->timelineEvents
-            : $this->record->timelineEvents()
-            ->with(['entries.category'])
-            ->orderBy('event_datetime', 'asc')
-            ->get();
+            : $this->record
+                ->timelineEvents()
+                ->with('entries.category')
+                ->orderBy('event_datetime', 'asc')
+                ->get();
 
         return $this->prepareTimelineData($events);
     }
 
     private function prepareTimelineData($events): array
     {
-        $eventsByDate = $events->groupBy(function ($event) {
-            return $event->event_datetime?->format('Y-m-d');
-        })->sortKeys();
+        $eventsByDate = $events
+            ->groupBy(
+                fn($event) =>
+                $event->event_datetime?->format('Y-m-d')
+            )
+            ->sortKeys();
 
         $dateCategories = [];
+
         foreach ($eventsByDate as $date => $dateEvents) {
-            $dateCategories[$date] = $dateEvents->flatMap(fn($event) => $event->entries ?? [])
+            $dateCategories[$date] = $dateEvents
+                ->flatMap(fn($event) => $event->entries ?? [])
                 ->pluck('category')
                 ->unique('id')
                 ->sortBy('sort_order')
@@ -392,6 +391,125 @@ class ViewLaporanInsiden extends ViewRecord
     public function infolist(Schema $schema): Schema
     {
         return $schema
-            ->components(LaporanInsidenInfolistSchema::sections())->columns(1);
+            ->components(LaporanInsidenInfolistSchema::sections())
+            ->columns(1);
+    }
+
+    private function getGradingRisikoField(): ToggleButtons
+    {
+        return ToggleButtons::make('grading_risiko')
+            ->label('Grading Risiko')
+            ->required()
+            ->options([
+                'Biru' => '🔵 Biru (Tidak signifikan)',
+                'Hijau' => '🟢 Hijau (Minor)',
+                'Kuning' => '🟡 Kuning (Moderat)',
+                'Merah' => '🔴 Merah (Mayor)',
+                'Hitam' => '⚫ Hitam (Katastropik)',
+            ])
+            ->colors([
+                'Biru' => 'info',
+                'Hijau' => 'success',
+                'Kuning' => 'warning',
+                'Merah' => 'danger',
+                'Hitam' => 'gray',
+            ])
+            ->inline()
+            ->helperText('Hanya diisi oleh Validator / Tim IKP')
+            ->default(fn() => $this->record->grading_risiko);
+    }
+
+    private function getEditActionLabel(): string
+    {
+        return match ($this->record->status) {
+            LaporanInsiden::STATUS_DRAFT => 'Lengkapi Laporan',
+            LaporanInsiden::STATUS_REVISI => 'Perbaiki Laporan',
+            LaporanInsiden::STATUS_DILAPORKAN => 'Lihat Laporan',
+            LaporanInsiden::STATUS_DIVERIFIKASI => 'Tinjau Laporan',
+            LaporanInsiden::STATUS_INVESTIGASI => 'Proses Investigasi',
+            LaporanInsiden::STATUS_SELESAI => 'Detail Kasus',
+            default => 'Edit Laporan',
+        };
+    }
+
+    private function getEditActionIcon(): string
+    {
+        return match ($this->record->status) {
+            LaporanInsiden::STATUS_DRAFT => 'heroicon-o-pencil',
+            LaporanInsiden::STATUS_REVISI => 'heroicon-o-pencil-square',
+            LaporanInsiden::STATUS_DILAPORKAN => 'heroicon-o-eye',
+            LaporanInsiden::STATUS_DIVERIFIKASI => 'heroicon-o-document-text',
+            LaporanInsiden::STATUS_INVESTIGASI => 'heroicon-o-folder-open',
+            default => 'heroicon-o-pencil-square',
+        };
+    }
+
+    private function notifyKepalaUnit(): void
+    {
+        $kepalaUnits = User::role('kepala_unit')->get();
+
+        if ($kepalaUnits->isEmpty()) {
+            return;
+        }
+
+        Notification::make()
+            ->title('Laporan Insiden Baru')
+            ->body("Ada laporan insiden baru dari {$this->record->nama_pelapor} yang perlu diverifikasi.")
+            ->warning()
+            ->sendToDatabase($kepalaUnits);
+    }
+
+    private function notifyTimMutuAfterVerification(): void
+    {
+        $users = User::role(['tim_mutu', 'admin_ikp'])->get();
+
+        if ($users->isEmpty()) {
+            return;
+        }
+
+        Notification::make()
+            ->title('Laporan Insiden Diverifikasi')
+            ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi oleh " . auth()->user()->name . '.')
+            ->success()
+            ->sendToDatabase($users);
+    }
+
+    private function notifyPelaporForRevision(string $reason): void
+    {
+        if (!$this->record->user) {
+            return;
+        }
+
+        Notification::make()
+            ->title('Laporan Perlu Diperbaiki')
+            ->body("Laporan insiden Anda perlu diperbaiki. Alasan: {$reason}")
+            ->danger()
+            ->sendToDatabase([$this->record->user]);
+    }
+
+    private function notifySuccess(string $title): void
+    {
+        Notification::make()
+            ->title($title)
+            ->success()
+            ->send();
+    }
+
+    private function redirectToViewPage(): void
+    {
+        $this->redirect(
+            static::getResource()::getUrl('view', [
+                'record' => $this->record,
+            ])
+        );
+    }
+
+    private function redirectToEditPage(): void
+    {
+        $this->redirect(
+            static::getResource()::getUrl('edit', [
+                'record' => $this->record,
+            ])
+        );
     }
 }

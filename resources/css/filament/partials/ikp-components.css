@@ -301,6 +301,11 @@
     color: #86efac;
 }
 
+.status-selesai {
+    background-color: #194cb9;
+    color: #dcfce7;
+}
+
 .ikp-notice {
     background-color: #fffbeb;
     border-left: 4px solid #f59e0b;

@@ -16,7 +16,7 @@ use Filament\Schemas\Components\Utilities\Get;
 
 class InsidenSection
 {
-    public static function make(bool $withGrading = false, bool $collapsed = false): Section
+    public static function make(bool $collapsed = false): Section
     {
         $schema = [
             Grid::make(2)->schema([
@@ -99,10 +99,6 @@ class InsidenSection
                 ->visible(fn(Get $get) => $get('insiden_terjadi_pada') === 'Lainnya')
                 ->required(fn(Get $get) => $get('insiden_terjadi_pada') === 'Lainnya'),
         ];
-
-        if ($withGrading) {
-            $schema[] = GradingResikoSection::make();
-        }
 
         return Section::make('BAGIAN C: RINCIAN KEJADIAN INSIDEN')
             ->description('Informasi lengkap tentang waktu dan tempat terjadinya insiden')

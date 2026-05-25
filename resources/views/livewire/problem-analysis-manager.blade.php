@@ -1,5 +1,13 @@
 <div wire:key="problem-analysis-manager" class="space-y-4">
 
+    @php $isReadOnly = (bool) ($isReadOnly ?? false); @endphp
+
+    @if($isReadOnly)
+    <div class="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-100">
+        Laporan berstatus selesai. Analisis masalah dalam mode lihat saja.
+    </div>
+    @endif
+
     @if(@env('app_debug'))
     <div
         class="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900
@@ -38,14 +46,17 @@
 
         <button
             type="button"
-            wire:click="syncTimelineEntryProblems"
-            wire:loading.attr="disabled"
-            wire:target="syncTimelineEntryProblems"
-            class="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 hover:border-blue-300 disabled:cursor-not-allowed disabled:opacity-60 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-900/50"
+            @if($isReadOnly) disabled @else wire:click="syncTimelineEntryProblems" wire:loading.attr="disabled" wire:target="syncTimelineEntryProblems" @endif
+            class="inline-flex items-center gap-2 rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 {{ $isReadOnly ? 'bg-slate-100 text-slate-500 dark:bg-slate-800/30 dark:text-slate-400' : 'bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-900/50' }}"
+            title="{{ $isReadOnly ? 'Laporan selesai: tidak dapat sinkronisasi' : 'Sync Timeline' }}"
         >
-            <span wire:loading.remove wire:target="syncTimelineEntryProblems">🔄</span>
-            <span wire:loading wire:target="syncTimelineEntryProblems">⏳</span>
-            Sync Timeline
+            @if(!$isReadOnly)
+                <span wire:loading.remove wire:target="syncTimelineEntryProblems">🔄</span>
+                <span wire:loading wire:target="syncTimelineEntryProblems">⏳</span>
+            @else
+                <span>🔒</span>
+            @endif
+            <span>Sync Timeline</span>
         </button>
     </div>
 

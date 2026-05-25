@@ -26,11 +26,42 @@
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Sistem Pelaporan Insiden Keselamatan Pasien (IKP)</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <div class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold                       @switch($record->status ?? 'draft')                           @case('draft')                               bg-gray-100 text-gray-700 dark:bg-gray-800/20 dark:text-gray-300                           @break                           @case('dilaporkan')                               bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300                           @break                           @case('revisi')                               bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300                           @break                           @case('diverifikasi')                               bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300                           @break                           @case('revisi_unit')                               bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300                           @break                           @case('investigasi')                               bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300                           @break                       @endswitch                   "> <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <div style="text-align: right;">
+                    <div class="ikp-status-badge status-{{ str_replace('_', '-', $record->status ?? 'draft') }}">
+                        <svg style="width: 1rem; height: 1rem;" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg> <span> @switch($record->status ?? 'draft') @case('draft') Draft @break @case('dilaporkan') Dilaporkan @break @case('revisi') Perlu Revisi @break @case('diverifikasi') Diverifikasi @break @case('revisi_unit') Revisi Unit @break @case('investigasi') Investigasi @break @default Draft @endswitch </span> </div>
-                    <p class="mt-2 text-xs text-gray-600 dark:text-gray-400"> Dibuat: {{ $record->created_at?->format('d F Y H:i') ?? 'N/A' }} </p>
+                        </svg>
+                        <span class="uppercase text-[1rem]">
+                            @switch($record->status ?? 'draft')
+                            @case('draft')
+                            Draft
+                            @break
+                            @case('dilaporkan')
+                            Dilaporkan
+                            @break
+                            @case('revisi')
+                            Perlu Revisi
+                            @break
+                            @case('diverifikasi')
+                            Diverifikasi
+                            @break
+                            @case('revisi_unit')
+                            Revisi Unit
+                            @break
+                            @case('investigasi')
+                            Investigasi
+                            @break
+                            @case('selesai')
+                            Kasus Selesai
+                            @break
+                            @default
+                            Draft
+                            @endswitch
+                        </span>
+                    </div>
+                    <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
+                        Dibuat: {{ $record->created_at?->format('d F Y H:i') ?? 'N/A' }}
+                    </p>
                 </div>
             </div>
 
@@ -247,27 +278,77 @@
         </div>
     </div>
     <div class="ikp-tab-content" :class="{ 'active': activeTab === 'preview' }">
-        <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
-            <a href="{{ action([\App\Http\Controllers\LaporanInsidenViewController::class, 'show'], $record->nomor_laporan) }}" target="_blank" rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-                <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Buka Laporan Penuh
+                <div class="mb-6">
+            <a
+                href="{{ action([\App\Http\Controllers\LaporanInsidenViewController::class, 'show'], $record->nomor_laporan) }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-center justify-start">
+                <div class="flex items-center gap-3 gap-4 p-4 rounded-xl 
+               bg-gradient-to-br from-blue-600 to-blue-700 text-white 
+               shadow-lg shadow-blue-600/30 
+               hover:shadow-xl hover:shadow-blue-600/40 
+               hover:-translate-y-0.5 
+               transition-all duration-200">
+                    <div class="p-2 rounded-lg bg-white/20 group-hover:bg-white/25 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <!-- icon print -->
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 9V4h12v5M6 18h12v2H6v-2M6 14h12a2 2 0 002-2v-3a2 2 0 00-2-2H6a2 2 0 00-2 2v3a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-semibold leading-tight">
+                            Cetak Laporan Insiden
+                        </p>
+                        <p class="text-xs text-blue-100">
+                            Buka & langsung print laporan ini
+                        </p>
+                    </div>
+                </div>
             </a>
         </div>
-        @include('filament.resources.laporan-insidens.pages.preview-laporan-insiden-content')
+        <div class="preview-container">
+            @include('filament.resources.laporan-insidens.pages.preview-laporan-insiden-content')
+        </div>
     </div>
     @if($record->investigation_started_at)
     <div class="ikp-tab-content" :class="{ 'active': activeTab === 'investigasi' }">
-        <a href="{{ route('investigasi-laporan-insiden.show', $record->nomor_laporan) }}" target="_blank" rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 px-4 py-2 mb-4 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-            Buka Laporan Investigasi
-        </a>
-        @include('filament.resources.laporan-insidens.pages.preview-investigasi-laporan-insiden-content')
+        <div class="mb-6">
+            <a
+                href="{{ route('investigasi-laporan-insiden.show', $record->nomor_laporan) }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-center justify-start">
+                <div class="flex items-center gap-3 gap-4 p-4 rounded-xl 
+               bg-gradient-to-br from-blue-600 to-blue-700 text-white 
+               shadow-lg shadow-blue-600/30 
+               hover:shadow-xl hover:shadow-blue-600/40 
+               hover:-translate-y-0.5 
+               transition-all duration-200">
+                    <div class="p-2 rounded-lg bg-white/20 group-hover:bg-white/25 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <!-- icon print -->
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 9V4h12v5M6 18h12v2H6v-2M6 14h12a2 2 0 002-2v-3a2 2 0 00-2-2H6a2 2 0 00-2 2v3a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-semibold leading-tight">
+                            Cetak Laporan Investigasi
+                        </p>
+                        <p class="text-xs text-blue-100">
+                            Buka & langsung print laporan ini
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="preview-container">
+            @include('filament.resources.laporan-insidens.pages.preview-investigasi-laporan-insiden-content')
+        </div>
     </div>
     @endif
 

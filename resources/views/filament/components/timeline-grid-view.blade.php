@@ -1,6 +1,9 @@
 @php
 use Illuminate\Support\Carbon;
 
+$recordStatus = data_get($record ?? null, 'status');
+$isReadOnly = (bool) ($isReadOnly ?? ($recordStatus === \App\Models\LaporanInsiden::STATUS_SELESAI));
+
 // Debug: Log what we received
 \Log::debug('TimelineGridView data:', [
 'timelineEventsCount' => count($timelineEvents ?? []),
@@ -26,7 +29,13 @@ $allCategories = $timelineCategories ?? [];
 </div>
 @endif
 
-<div class="space-y-6 dark:text-gray-100 dark:bg-slate-900 bg-white rounded-lg dark:rounded-lg" x-data="timelineGrid()">
+<div class="space-y-6 dark:text-gray-100 dark:bg-slate-900 bg-white rounded-lg dark:rounded-lg" x-data="timelineGrid({ isReadOnly: @js($isReadOnly) })">
+    @if($isReadOnly)
+    <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+        Laporan berstatus selesai. Timeline dalam mode lihat saja.
+    </div>
+    @endif
+
     @forelse($eventsByDate as $date => $dateEvents)
     @php
     $dateObj = Carbon::createFromFormat('Y-m-d', $date);
@@ -44,11 +53,19 @@ $allCategories = $timelineCategories ?? [];
                 <span class="text-xs bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 px-2 py-1 rounded-full font-medium">{{ $sortedEvents->count() }} event</span>
             </div>
             <div class="flex items-center gap-2">
-                @if($addEventModal)
+                @if($addEventModal && ! $isReadOnly)
                 <button
                     type="button"
                     @click.stop="$dispatch('add-timeline-event', { dateString: '{{ $date }}' })"
                     class="text-xs px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-150 font-medium shadow-sm dark:shadow-md">
+                    + Tambah Event
+                </button>
+                @elseif($addEventModal && $isReadOnly)
+                <button
+                    type="button"
+                    disabled
+                    class="text-xs px-3 py-1 bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300 rounded font-medium shadow-sm cursor-not-allowed"
+                    title="Laporan selesai: tidak bisa menambah event">
                     + Tambah Event
                 </button>
                 @endif
@@ -108,6 +125,7 @@ $allCategories = $timelineCategories ?? [];
                                     <p class="text-gray-400 dark:text-gray-500 text-sm italic">[Kosong]</p>
                                     @endif
                                 </div>
+                                @if(! $isReadOnly)
                                 <button
                                     type="button"
                                     class="flex-shrink-0 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-xs whitespace-nowrap edit-timeline-btn transition-colors duration-150 hover:underline"
@@ -121,6 +139,7 @@ $allCategories = $timelineCategories ?? [];
                                     @click.stop="editTimelineEntry($event)">
                                     ✎ Edit
                                 </button>
+                                @endif
                             </div>
                         </td>
                         @endforeach
@@ -141,7 +160,15 @@ $allCategories = $timelineCategories ?? [];
 <script>
     function timelineGrid() {
         return {
+            isReadOnly: false,
+            init(options = {}) {
+                this.isReadOnly = Boolean(options.isReadOnly);
+            },
             editTimelineEntry(event) {
+                if (this.isReadOnly) {
+                    return;
+                }
+
                 const btn = event.currentTarget;
                 const data = {
                     eventId: btn.dataset.eventId,

@@ -27,6 +27,7 @@ class ProblemAnalysisManager extends Component
     public $recordId;
     public $problems = [];
     public $expandedProblemId = null;
+    public $isReadOnly = false;
 
     // Modal and form state
     public $activeTab = 'whys'; // whys, contributors, recommendations, actions
@@ -52,6 +53,7 @@ class ProblemAnalysisManager extends Component
     public function mount($recordId = null)
     {
         $this->recordId = $recordId ?? request()->route('record');
+        $this->syncReadOnlyState();
         $this->loadProblems();
         $this->loadCategories();
     }
@@ -97,6 +99,35 @@ class ProblemAnalysisManager extends Component
         if (empty($this->contributor_categories)) {
             $this->loadCategories();
         }
+        if ($this->recordId) {
+            $this->syncReadOnlyState();
+        }
+    }
+
+    private function syncReadOnlyState(): void
+    {
+        if (!$this->recordId) {
+            $this->isReadOnly = false;
+            return;
+        }
+
+        $status = \App\Models\LaporanInsiden::query()
+            ->whereKey($this->recordId)
+            ->value('status');
+
+        $this->isReadOnly = $status === \App\Models\LaporanInsiden::STATUS_SELESAI;
+    }
+
+    private function ensureEditable(): bool
+    {
+        $this->syncReadOnlyState();
+
+        if ($this->isReadOnly) {
+            $this->dispatch('notify-error', message: 'Laporan sudah selesai. Analisis masalah hanya dalam mode lihat.');
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -130,6 +161,10 @@ class ProblemAnalysisManager extends Component
 
     public function syncTimelineEntryProblems(): void
     {
+        if (! $this->ensureEditable()) {
+            return;
+        }
+
         try {
             $syncedCount = $this->initializeProblemsFromTimeline();
 
@@ -268,6 +303,10 @@ class ProblemAnalysisManager extends Component
     public function initializeProblemsFromTimeline(): int
     {
         if (!$this->recordId) {
+            return 0;
+        }
+
+        if (! $this->ensureEditable()) {
             return 0;
         }
 
@@ -410,6 +449,7 @@ class ProblemAnalysisManager extends Component
             'recommendationFormData' => $this->recommendationFormData,
             'actionFormData' => $this->actionFormData,
             'uploadedFiles' => $this->uploadedFiles,
+            'isReadOnly' => $this->isReadOnly,
         ]);
     }
 }

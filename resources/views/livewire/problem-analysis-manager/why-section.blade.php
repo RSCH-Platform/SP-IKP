@@ -10,11 +10,15 @@
                 </p>
             </div>
 
+            @if(! ($isReadOnly ?? false))
             <button
                 @click="openWhyModal = true; $wire.addWhy({{ $problem['id'] }})"
                 class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">
                 + Tambah WHY
             </button>
+            @else
+            <button disabled class="px-3 py-1.5 text-sm rounded-md bg-slate-200 text-slate-500 cursor-not-allowed">🔒 Tambah WHY</button>
+            @endif
         </div>
 
         @if(count($problem['whys'] ?? []) > 0)
@@ -48,6 +52,7 @@
                             </div>
 
                             <div class="flex gap-1 flex-shrink-0">
+                                @if(! ($isReadOnly ?? false))
                                 <button
                                     @click="openWhyModal = true; $wire.editWhy({{ $why['id'] }})"
                                     class="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition font-bold">
@@ -59,6 +64,9 @@
                                     class="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition">
                                     🗑 DEL
                                 </button>
+                                @else
+                                <span class="text-xs text-slate-500">🔒</span>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -84,13 +92,17 @@
         placeholder="Jelaskan penyebab..."
         class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
 
-    <div class="flex gap-2 mt-3 justify-end">
+        <div class="flex gap-2 mt-3 justify-end">
+        @if(! ($isReadOnly ?? false))
         <button
             wire:click="saveWhy()"
             @click="openWhyModal = false"
             class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
             💾 Simpan WHY
         </button>
+        @else
+        <button disabled class="px-4 py-2 text-sm bg-slate-200 text-slate-500 rounded-lg cursor-not-allowed">🔒 Simpan</button>
+        @endif
         <button
             @click="openWhyModal = false; $wire.resetForm()"
             class="px-4 py-2 text-sm bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">

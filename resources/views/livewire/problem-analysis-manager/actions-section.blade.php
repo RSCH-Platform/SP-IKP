@@ -3,9 +3,13 @@
         <h4 class="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <span class="text-xl">✅</span> Tindakan Korektif & Preventif
         </h4>
+        @if(! ($isReadOnly ?? false))
         <button @click="openActionModal = true; $wire.addAction({{ $problem['id'] }})" class="px-3 py-1.5 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 transition font-medium">
             ➕ Tambah Tindakan
         </button>
+        @else
+        <button disabled class="px-3 py-1.5 text-sm rounded-md bg-slate-200 text-slate-500 cursor-not-allowed">🔒 Tambah Tindakan</button>
+        @endif
     </div>
 
     @if(count($problem['actions'] ?? []) > 0)
@@ -16,13 +20,17 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ Str::limit($action['action_text'] ?? '', 100) }}</p>
                 </div>
-                <div class="flex gap-1 flex-shrink-0">
+                    <div class="flex gap-1 flex-shrink-0">
+                    @if(! ($isReadOnly ?? false))
                     <button @click="openActionModal = true; $wire.editAction({{ $action['id'] }})" class="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition font-bold">
                         ✎ EDIT
                     </button>
                     <button wire:click="deleteAction({{ $action['id'] }})" wire:confirm="Hapus tindakan ini?" class="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition">
                         🗑 DEL
                     </button>
+                    @else
+                    <span class="text-xs text-slate-500">🔒</span>
+                    @endif
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
@@ -41,7 +49,7 @@
                 </div>
             </div>
 
-            @if(!empty($action['media']) && count($action['media']) > 0)
+                    @if(!empty($action['media']) && count($action['media']) > 0)
             <div class="mt-2 pt-2 border-t border-green-300">
                 <p class="text-xs font-medium text-gray-600 mb-1">📎 Bukti ({{ count($action['media']) }})</p>
                 <div class="flex flex-wrap gap-1">
@@ -121,7 +129,7 @@
                         @endif
                         <a href="{{ $media['url'] }}" target="_blank" class="text-sm text-gray-700 dark:text-gray-200 truncate">{{ $media['name'] }}</a>
                     </div>
-                    @if($editingItemId)
+                    @if($editingItemId && ! ($isReadOnly ?? false))
                     <button type="button" wire:click="deleteExistingFile({{ $editingItemId }}, {{ $media['id'] }})" class="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition flex-shrink-0">❌ Hapus</button>
                     @endif
                 </div>
@@ -143,7 +151,11 @@
                         <span class="text-sm text-gray-700">{{ $file['name'] }} ({{ $file['size'] }}KB)</span>
                         @endif
                     </div>
+                    @if(! ($isReadOnly ?? false))
                     <button type="button" wire:click="removeUploadedFile({{ $index }})" class="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition flex-shrink-0">❌</button>
+                    @else
+                    <button disabled class="text-xs bg-slate-200 text-slate-500 px-2 py-1 rounded">❌</button>
+                    @endif
                 </div>
                 @endforeach
             </div>
@@ -151,7 +163,11 @@
         </div>
     </div>
     <div class="flex gap-2 mt-4 justify-end">
+        @if(! ($isReadOnly ?? false))
         <button wire:click="saveAction()" class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">💾 Simpan Tindakan</button>
+        @else
+        <button disabled class="px-4 py-2 text-sm bg-slate-200 text-slate-500 rounded-lg cursor-not-allowed">🔒 Simpan</button>
+        @endif
         <button @click="openActionModal = false; $wire.resetForm()" class="px-4 py-2 text-sm bg-gray-300 text-gray-700 dark:text-gray-900 rounded-lg hover:bg-gray-400 transition">Batal</button>
     </div>
     @endcomponent

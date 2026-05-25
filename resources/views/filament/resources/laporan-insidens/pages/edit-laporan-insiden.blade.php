@@ -43,6 +43,9 @@
                             @case('investigasi')
                             Investigasi
                             @break
+                            @case('selesai')
+                            Kasus Selesai
+                            @break
                             @default
                             Draft
                             @endswitch

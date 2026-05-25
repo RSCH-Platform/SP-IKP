@@ -3,9 +3,13 @@
         <h4 class="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <span class="text-xl">🎯</span> Faktor Kontributor (5M Analysis)
         </h4>
+        @if(! ($isReadOnly ?? false))
         <button @click="openContributorModal = true; $wire.addContributor({{ $problem['id'] }})" class="px-3 py-1.5 text-sm bg-purple-500 text-white rounded-md hover:bg-purple-600 transition font-medium">
             ➕ Tambah Faktor
         </button>
+        @else
+        <button disabled class="px-3 py-1.5 text-sm rounded-md bg-slate-200 text-slate-500 cursor-not-allowed">🔒 Tambah Faktor</button>
+        @endif
     </div>
 
     @env('app_debug')
@@ -68,13 +72,17 @@
                         </p>
                     </div>
                 </div>
-                <div class="flex gap-1 flex-shrink-0 mt-1">
+                    <div class="flex gap-1 flex-shrink-0 mt-1">
+                    @if(! ($isReadOnly ?? false))
                     <button @click="openContributorModal = true; $wire.editContributor({{ $contrib['id'] }})" class="px-2 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700 transition font-bold">
                         ✎ EDIT
                     </button>
                     <button wire:click="deleteContributor({{ $contrib['id'] }})" wire:confirm="Hapus faktor ini?" class="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition">
                         🗑 DEL
                     </button>
+                    @else
+                    <span class="text-xs text-slate-500">🔒</span>
+                    @endif
                 </div>
             </div>
         </div>
@@ -130,7 +138,11 @@
         </div>
     </div>
     <div class="flex gap-2 mt-4 justify-end">
+        @if(! ($isReadOnly ?? false))
         <button wire:click="saveContributor()" class="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">💾 Simpan Faktor</button>
+        @else
+        <button disabled class="px-4 py-2 text-sm bg-slate-200 text-slate-500 rounded-lg cursor-not-allowed">🔒 Simpan</button>
+        @endif
         <button @click="openContributorModal = false; $wire.resetForm()" class="px-4 py-2 text-sm bg-gray-300 text-gray-700 dark:text-gray-900 rounded-lg hover:bg-gray-400 transition">Batal</button>
     </div>
     @endcomponent

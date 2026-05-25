@@ -340,6 +340,20 @@ class LaporanInsiden extends Model implements HasMedia
         ]);
     }
 
+    /**
+     * Buka kembali laporan yang sudah selesai menjadi status investigasi.
+     * Digunakan ketika perlu melanjutkan/meninjau ulang investigasi setelah ditandai selesai.
+     */
+    public function reopenInvestigation(int $userId): void
+    {
+        $this->update([
+            'status' => self::STATUS_INVESTIGASI,
+            // Clear completed metadata so investigation is considered active again
+            'investigation_completed_by' => null,
+            'investigation_completed_at' => null
+        ]);
+    }
+
     /** Check if investigation has started */
     public function hasInvestigationStarted(): bool
     {
