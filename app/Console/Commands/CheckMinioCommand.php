@@ -9,15 +9,17 @@ use Illuminate\Support\Facades\Storage;
 
 class CheckMinioCommand extends Command
 {
-    protected $signature = 'minio:check {disk=s3 : The filesystem disk to check} {--quick : Validate configuration only, do not attempt network connection}';
+    protected $signature = 'minio:check {disk? : The filesystem disk to check; defaults to the active filesystem disk} {--quick : Validate configuration only, do not attempt network connection}';
 
-    protected $description = 'Check whether MinIO / S3 storage is configured correctly and reachable.';
+    protected $description = 'Check whether the active storage disk is configured correctly and reachable.';
 
     public function handle(): int
     {
-        $disk = $this->argument('disk');
+        $environment = config('app.env', 'production');
+        $disk = $this->argument('disk') ?: config('filesystems.default');
         $quick = $this->option('quick');
 
+        $this->info("Environment: {$environment}");
         $this->info("Checking filesystem disk: {$disk}");
 
         $diskConfig = Config::get("filesystems.disks.{$disk}");
@@ -27,8 +29,21 @@ class CheckMinioCommand extends Command
             return self::FAILURE;
         }
 
-        if (($diskConfig['driver'] ?? null) !== 's3') {
-            $this->warn("The '{$disk}' disk is configured using driver '{$diskConfig['driver']}'. MinIO requires an S3-compatible disk.");
+        $driver = $diskConfig['driver'] ?? null;
+
+        if ($driver === 'local') {
+            $this->info("The '{$disk}' disk uses the local driver, which is expected outside production.");
+        } elseif ($driver !== 's3') {
+            $this->warn("The '{$disk}' disk is configured using driver '{$driver}'. MinIO requires an S3-compatible disk.");
+        }
+
+        $this->info('Configuration check passed.');
+
+        if ($driver === 'local') {
+            $this->line('Local storage path: ' . Storage::disk($disk)->path(''));
+            $this->line('Quick mode: ' . ($quick ? '<fg=yellow>enabled</>' : '<fg=green>disabled</>'));
+            $this->info('✅ Local storage is configured correctly.');
+            return self::SUCCESS;
         }
 
         $required = [
@@ -42,8 +57,7 @@ class CheckMinioCommand extends Command
         $missing = [];
 
         foreach ($required as $configKey => $envKey) {
-            $value = $diskConfig[$configKey] ?? Config::get('filesystems.disks.' . $disk . '.' . $configKey);
-            if (! $value) {
+            if (! ($diskConfig[$configKey] ?? null)) {
                 $missing[] = $envKey;
             }
         }
@@ -57,10 +71,9 @@ class CheckMinioCommand extends Command
             return self::FAILURE;
         }
 
-        $endpoint = $diskConfig['endpoint'] ?? Config::get("filesystems.disks.{$disk}.endpoint");
+        $endpoint = $diskConfig['endpoint'];
         $isMinio = str_contains($endpoint, 'minio') || str_contains($endpoint, 'localhost') || str_contains($endpoint, '127.0.0.1');
 
-        $this->info('Configuration check passed.');
         $this->line("Endpoint: {$endpoint}");
         $this->line('MinIO-style endpoint: ' . ($isMinio ? '<fg=green>yes</>' : '<fg=yellow>unknown</>'));
         $this->line('Quick mode: ' . ($quick ? '<fg=yellow>enabled</>' : '<fg=green>disabled</>'));

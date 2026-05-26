@@ -9,10 +9,12 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('minio:check {disk=s3} {--quick : Validate configuration only, do not attempt network connection}', function () {
-    $disk = $this->argument('disk');
+Artisan::command('minio:check {disk? : The filesystem disk to check; defaults to the active filesystem disk} {--quick : Validate configuration only, do not attempt network connection}', function () {
+    $environment = config('app.env', 'production');
+    $disk = $this->argument('disk') ?: config('filesystems.default');
     $quick = $this->option('quick');
 
+    $this->info("Environment: {$environment}");
     $this->info("Checking filesystem disk: {$disk}");
 
     $diskConfig = config("filesystems.disks.{$disk}");
@@ -22,8 +24,20 @@ Artisan::command('minio:check {disk=s3} {--quick : Validate configuration only, 
         return 1;
     }
 
-    if (($diskConfig['driver'] ?? null) !== 's3') {
-        $this->warn("The '{$disk}' disk is configured using driver '{$diskConfig['driver']}'. MinIO requires an S3-compatible disk.");
+    $driver = $diskConfig['driver'] ?? null;
+
+    if ($driver === 'local') {
+        $this->info("The '{$disk}' disk uses the local driver, which is expected outside production.");
+    } elseif ($driver !== 's3') {
+        $this->warn("The '{$disk}' disk is configured using driver '{$driver}'. MinIO requires an S3-compatible disk.");
+    }
+
+    if ($driver === 'local') {
+        $this->info('Configuration check passed.');
+        $this->line('Local storage path: ' . Storage::disk($disk)->path(''));
+        $this->line('Quick mode: ' . ($quick ? '<fg=yellow>enabled</>' : '<fg=green>disabled</>'));
+        $this->info('✅ Local storage is configured correctly.');
+        return 0;
     }
 
     $required = [
@@ -36,8 +50,7 @@ Artisan::command('minio:check {disk=s3} {--quick : Validate configuration only, 
 
     $missing = [];
     foreach ($required as $configKey => $envKey) {
-        $value = $diskConfig[$configKey] ?? config("filesystems.disks.{$disk}.{$configKey}");
-        if (! $value) {
+        if (! ($diskConfig[$configKey] ?? null)) {
             $missing[] = $envKey;
         }
     }
@@ -51,7 +64,7 @@ Artisan::command('minio:check {disk=s3} {--quick : Validate configuration only, 
         return 1;
     }
 
-    $endpoint = $diskConfig['endpoint'] ?? config("filesystems.disks.{$disk}.endpoint");
+    $endpoint = $diskConfig['endpoint'];
     $isMinio = str_contains($endpoint, 'minio') || str_contains($endpoint, 'localhost') || str_contains($endpoint, '127.0.0.1');
 
     $this->info('Configuration check passed.');

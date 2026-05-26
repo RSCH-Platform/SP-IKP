@@ -41,7 +41,7 @@ return [
     |
     */
 
-    'default_filesystem_disk' => env('FILESYSTEM_DISK', 'local'),
+    'default_filesystem_disk' => env('APP_ENV', 'production') === 'production' ? 's3' : 'local',
 
     /*
     |--------------------------------------------------------------------------

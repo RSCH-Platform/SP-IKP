@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DISK', 'local'),
+    'default' => env('APP_ENV', 'production') === 'production' ? 's3' : 'local',
 
     /*
     |--------------------------------------------------------------------------
