@@ -17,6 +17,7 @@
         "juniyasyos/filament-media-manager": "v1.4.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "league/flysystem-aws-s3-v3": "^3.25.1",
         "leandrocfe/filament-apex-charts": "^5.1",
         "livewire/livewire": "^3.0",
         "spykapps/theme-edinburgh": "^1.0",
