@@ -16,6 +16,25 @@ use Illuminate\Support\Facades\Cache;
 
 class DataCollectionSection
 {
+    private static function documentUpload(string $label, array $acceptedFileTypes, string $helperText): SpatieMediaLibraryFileUpload
+    {
+        return SpatieMediaLibraryFileUpload::make('document_upload')
+            ->label($label)
+            ->collection('investigation_documents')
+            ->disk(config('media-library.disk_name', 'public'))
+            ->directory(function (callable $get, $record) {
+                return $record?->laporanInsiden?->getMediaFolderPath() ?? '';
+            })
+            ->openable()
+            ->downloadable()
+            ->preserveFilenames()
+            ->previewable(false)
+            ->columnSpanFull()
+            ->maxSize(20480)
+            ->acceptedFileTypes($acceptedFileTypes)
+            ->helperText($helperText);
+    }
+
     public static function make(): Section
     {
         return Section::make('📊 Data Investigasi')
@@ -100,20 +119,9 @@ class DataCollectionSection
                                                 ->required()
                                                 ->placeholder('Contoh: SOP Keselamatan Pasien'),
 
-                                            SpatieMediaLibraryFileUpload::make('document_upload')
-                                                ->label('Unggah Dokumen Pendukung')
-                                                ->collection('investigation_documents')
-                                                ->disk(config('media-library.disk_name', 'public'))
-                                                ->directory(function (callable $get, $record) {
-                                                    return $record?->laporanInsiden?->getMediaFolderPath() ?? '';
-                                                })
-                                                ->openable()
-                                                ->downloadable()
-                                                ->preserveFilenames()
-                                                ->previewable(false)
-                                                ->columnSpanFull()
-                                                ->maxSize(20480)
-                                                ->acceptedFileTypes([
+                                            self::documentUpload(
+                                                'Unggah Dokumen Pendukung',
+                                                [
                                                     'application/pdf',
                                                     'image/jpeg',
                                                     'image/png',
@@ -121,8 +129,9 @@ class DataCollectionSection
                                                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                                                     'application/vnd.ms-excel',
                                                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                                ])
-                                                ->helperText('File yang didukung: PDF, Word, Excel, Gambar. Maks. 20MB'),
+                                                ],
+                                                'File yang didukung: PDF, Word, Excel, Gambar. Maks. 20MB',
+                                            ),
 
                                             Textarea::make('hasil')
                                                 ->label('Hasil Review')
@@ -163,25 +172,16 @@ class DataCollectionSection
                                                 ->required()
                                                 ->placeholder('Contoh: Ruang IGD'),
 
-                                            SpatieMediaLibraryFileUpload::make('document_upload')
-                                                ->label('Upload Foto / Bukti')
-                                                ->collection('investigation_documents')
-                                                ->disk(config('media-library.disk_name', 'public'))
-                                                ->directory(function (callable $get, $record) {
-                                                    return $record?->laporanInsiden?->getMediaFolderPath() ?? '';
-                                                })
-                                                ->openable()
-                                                ->downloadable()
-                                                ->preserveFilenames()
-                                                ->previewable(false)
-                                                ->columnSpanFull()
-                                                ->maxSize(20480)
-                                                ->acceptedFileTypes([
+                                            self::documentUpload(
+                                                'Upload Foto / Bukti',
+                                                [
                                                     'image/jpeg',
                                                     'image/png',
                                                     'image/gif',
                                                     'application/pdf',
-                                                ]),
+                                                ],
+                                                'File yang didukung: JPG, PNG, GIF, PDF. Maks. 20MB',
+                                            ),
 
                                             Textarea::make('hasil')
                                                 ->label('Hasil Observasi')
