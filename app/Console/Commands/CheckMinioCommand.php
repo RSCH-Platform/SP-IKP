@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Filesystem\FilesystemAdapter;
 
 class CheckMinioCommand extends Command
 {
@@ -91,11 +92,16 @@ class CheckMinioCommand extends Command
         $this->info('Testing connection to MinIO / S3...');
 
         try {
+            /** @var FilesystemAdapter $filesystem  */
             $filesystem = Storage::disk($disk);
             $driver = $filesystem->getDriver();
 
             if (method_exists($driver, 'listContents')) {
-                $driver->listContents('/', false);
+                // Flysystem/S3 can return a lazy listing, so force iteration to
+                // ensure the client actually performs a network request.
+                foreach ($driver->listContents('/', false) as $_item) {
+                    break;
+                }
             } else {
                 $filesystem->exists('');
             }
