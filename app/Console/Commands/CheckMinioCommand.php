@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Throwable;
 
 class CheckMinioCommand extends Command
 {
@@ -84,12 +85,18 @@ class CheckMinioCommand extends Command
             return self::SUCCESS;
         }
 
-        return $this->testConnection($disk);
+        return $this->testConnection($disk, $diskConfig['endpoint']);
     }
 
-    private function testConnection(string $disk): int
+    private function testConnection(string $disk, string $endpoint): int
     {
-        $this->info('Testing connection to MinIO / S3...');
+        $this->info('Testing network connectivity to the MinIO / S3 endpoint...');
+
+        if (! $this->probeEndpoint($endpoint)) {
+            return self::FAILURE;
+        }
+
+        $this->info('Testing filesystem driver access...');
 
         try {
             /** @var FilesystemAdapter $filesystem  */
@@ -108,11 +115,133 @@ class CheckMinioCommand extends Command
 
             $this->info('✅ MinIO / S3 connection is working.');
             return self::SUCCESS;
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             $this->error('❌ Failed to connect to MinIO / S3 storage.');
             $this->error($exception->getMessage());
             $this->line('Please verify AWS_* environment variables, endpoint URL, region, bucket name, and network access.');
             return self::FAILURE;
         }
+    }
+
+    private function probeEndpoint(string $endpoint): bool
+    {
+        $normalizedEndpoint = $this->normalizeEndpoint($endpoint);
+
+        if ($normalizedEndpoint === null) {
+            $this->error('The configured endpoint URL is invalid.');
+            return false;
+        }
+
+        $this->line('Endpoint URL: ' . $normalizedEndpoint);
+
+        if (function_exists('curl_init')) {
+            $curlSuccess = $this->probeWithCurl($normalizedEndpoint);
+
+            if ($curlSuccess) {
+                return true;
+            }
+
+            $this->warn('cURL probe failed, trying a raw TCP connection instead...');
+        } else {
+            $this->warn('cURL extension is not available, trying a raw TCP connection instead...');
+        }
+
+        return $this->probeWithSocket($normalizedEndpoint);
+    }
+
+    private function probeWithCurl(string $endpoint): bool
+    {
+        $this->line('Trying a cURL HEAD request...');
+
+        $handle = curl_init($endpoint);
+
+        if ($handle === false) {
+            $this->warn('Unable to initialize cURL.');
+            return false;
+        }
+
+        curl_setopt_array($handle, [
+            CURLOPT_NOBODY => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => true,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_USERAGENT => 'ikp-minio-check/1.0',
+        ]);
+
+        $response = curl_exec($handle);
+        $errorNumber = curl_errno($handle);
+        $errorMessage = curl_error($handle);
+        $statusCode = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+        curl_close($handle);
+
+        if ($errorNumber !== 0) {
+            $this->warn('cURL error: ' . $errorMessage);
+            return false;
+        }
+
+        $this->line('cURL HTTP status: ' . $statusCode);
+
+        if ($response === false || $statusCode === 0) {
+            $this->warn('The endpoint did not return a valid HTTP response.');
+            return false;
+        }
+
+        $this->info('✅ Endpoint responded to the cURL request.');
+        return true;
+    }
+
+    private function probeWithSocket(string $endpoint): bool
+    {
+        $parts = parse_url($endpoint);
+        $host = $parts['host'] ?? null;
+
+        if (! is_string($host) || $host === '') {
+            $this->error('The endpoint host could not be determined.');
+            return false;
+        }
+
+        $scheme = strtolower($parts['scheme'] ?? 'http');
+        $port = $parts['port'] ?? ($scheme === 'https' ? 443 : 80);
+        $transport = $scheme === 'https' ? 'ssl' : 'tcp';
+
+        $this->line("Trying a {$transport} connection to {$host}:{$port}...");
+
+        $errorNumber = 0;
+        $errorMessage = '';
+        $socket = @stream_socket_client(
+            "{$transport}://{$host}:{$port}",
+            $errorNumber,
+            $errorMessage,
+            5
+        );
+
+        if (! is_resource($socket)) {
+            $this->error('Socket connection failed: ' . trim($errorMessage) . " ({$errorNumber})");
+            return false;
+        }
+
+        fclose($socket);
+
+        $this->info('✅ TCP connection to the endpoint succeeded.');
+        return true;
+    }
+
+    private function normalizeEndpoint(string $endpoint): ?string
+    {
+        $endpoint = trim($endpoint);
+
+        if ($endpoint === '') {
+            return null;
+        }
+
+        if (! preg_match('/^[a-z][a-z0-9+\-.]*:\/\//i', $endpoint)) {
+            $endpoint = 'http://' . $endpoint;
+        }
+
+        return filter_var($endpoint, FILTER_VALIDATE_URL) ? $endpoint : null;
     }
 }

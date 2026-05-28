@@ -77,6 +77,99 @@ Artisan::command('minio:check {disk? : The filesystem disk to check; defaults to
         return 0;
     }
 
+    $normalizedEndpoint = trim($endpoint);
+
+    if ($normalizedEndpoint === '') {
+        $this->error('The configured endpoint URL is invalid.');
+        return 1;
+    }
+
+    if (! preg_match('/^[a-z][a-z0-9+\-.]*:\/\//i', $normalizedEndpoint)) {
+        $normalizedEndpoint = 'http://' . $normalizedEndpoint;
+    }
+
+    if (! filter_var($normalizedEndpoint, FILTER_VALIDATE_URL)) {
+        $this->error('The configured endpoint URL is invalid.');
+        return 1;
+    }
+
+    $this->info('Testing network connectivity to the MinIO / S3 endpoint...');
+    $this->line('Endpoint URL: ' . $normalizedEndpoint);
+
+    $endpointReachable = false;
+
+    if (function_exists('curl_init')) {
+        $this->line('Trying a cURL HEAD request...');
+        $handle = curl_init($normalizedEndpoint);
+
+        if ($handle !== false) {
+            curl_setopt_array($handle, [
+                CURLOPT_NOBODY => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HEADER => true,
+                CURLOPT_FOLLOWLOCATION => false,
+                CURLOPT_CONNECTTIMEOUT => 5,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_USERAGENT => 'ikp-minio-check/1.0',
+            ]);
+
+            $response = curl_exec($handle);
+            $errorNumber = curl_errno($handle);
+            $errorMessage = curl_error($handle);
+            $statusCode = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+            curl_close($handle);
+
+            if ($errorNumber === 0 && $response !== false && $statusCode > 0) {
+                $this->line('cURL HTTP status: ' . $statusCode);
+                $this->info('✅ Endpoint responded to the cURL request.');
+                $endpointReachable = true;
+            } elseif ($errorNumber !== 0) {
+                $this->warn('cURL error: ' . $errorMessage);
+            } else {
+                $this->warn('The endpoint did not return a valid HTTP response.');
+            }
+        } else {
+            $this->warn('Unable to initialize cURL.');
+        }
+    } else {
+        $this->warn('cURL extension is not available, trying a raw TCP connection instead...');
+    }
+
+    if (! $endpointReachable) {
+        $parts = parse_url($normalizedEndpoint);
+        $host = $parts['host'] ?? null;
+
+        if (! is_string($host) || $host === '') {
+            $this->error('The endpoint host could not be determined.');
+            return 1;
+        }
+
+        $scheme = strtolower($parts['scheme'] ?? 'http');
+        $port = $parts['port'] ?? ($scheme === 'https' ? 443 : 80);
+        $transport = $scheme === 'https' ? 'ssl' : 'tcp';
+
+        $this->line("Trying a {$transport} connection to {$host}:{$port}...");
+
+        $errorNumber = 0;
+        $errorMessage = '';
+        $socket = @stream_socket_client(
+            "{$transport}://{$host}:{$port}",
+            $errorNumber,
+            $errorMessage,
+            5
+        );
+
+        if (! is_resource($socket)) {
+            $this->error('Socket connection failed: ' . trim($errorMessage) . " ({$errorNumber})");
+            return 1;
+        }
+
+        fclose($socket);
+        $this->info('✅ TCP connection to the endpoint succeeded.');
+    }
+
     $filesystem = Storage::disk($disk);
     $testFileName = 'minio-check-' . uniqid() . '.txt';
     $copyFileName = 'minio-check-copy-' . uniqid() . '.txt';
