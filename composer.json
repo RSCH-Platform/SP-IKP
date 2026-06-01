@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "siimut/sp-ikp",
+    "name": "juniyasyos/sp-ikp",
     "type": "project",
     "description": "A comprehensive Patient Safety Incident Reporting System designed to support incident management, investigation, corrective actions, and healthcare quality improvement.",
     "keywords": [
@@ -17,7 +17,7 @@
         "laravel",
         "filament"
     ],
-    "license": "MIT",
+    "license": "proprietary",
     "require": {
         "php": "^8.2",
         "bezhansalleh/filament-shield": "^4.1",
