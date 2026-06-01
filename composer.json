@@ -1,11 +1,21 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "siimut/sp-ikp",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "A comprehensive Patient Safety Incident Reporting System designed to support incident management, investigation, corrective actions, and healthcare quality improvement.",
     "keywords": [
+        "patient-safety",
+        "incident-reporting",
+        "incident-management",
+        "risk-management",
+        "healthcare",
+        "hospital",
+        "quality-improvement",
+        "quality-management",
+        "patient-safety-incident",
+        "healthcare-compliance",
         "laravel",
-        "framework"
+        "filament"
     ],
     "license": "MIT",
     "require": {
