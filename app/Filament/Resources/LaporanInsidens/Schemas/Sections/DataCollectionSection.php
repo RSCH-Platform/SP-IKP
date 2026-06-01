@@ -25,10 +25,8 @@ class DataCollectionSection
             ->directory(function (callable $get, $record) {
                 return $record?->laporanInsiden?->getMediaFolderPath() ?? '';
             })
-            ->openable()
             ->downloadable()
             ->preserveFilenames()
-            ->previewable(false)
             ->columnSpanFull()
             ->maxSize(20480)
             ->acceptedFileTypes($acceptedFileTypes)
