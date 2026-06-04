@@ -25,7 +25,7 @@ class TimelineGridSection
             ->description('Berisi rangkaian kejadian insiden yang disusun berdasarkan waktu')
             ->icon('heroicon-o-clock')
             ->schema([
-                // Livewire Timeline Grid Manager Component
+                // Livewire Timeline Grid Manager Component (with Export button)
                 View::make('filament.components.timeline-grid-livewire-wrapper'),
             ])
             ->collapsed($collapsed)

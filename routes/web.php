@@ -6,6 +6,8 @@ use App\Http\Controllers\InvestigasiLaporanInsidenViewController;
 use App\Http\Controllers\CustomLaporanInsidenDashboardController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Models\ProblemAction;
+use App\Models\LaporanInsiden;
+use App\Exports\TimelineGridExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -24,6 +26,19 @@ Route::post('/logout', LogoutController::class)->name('logout');
 // Also handle Filament's default logout route and delegate to our LogoutController
 // Filament auto-generates this route, but we intercept it to use our custom logout logic
 Route::post('/ikp-application/logout', LogoutController::class)->name('filament.ikp-application.auth.logout');
+
+// Export Timeline route
+Route::post('/export/timeline', function (Request $request) {
+    abort_unless(Auth::check(), 403);
+
+    $recordId = $request->input('record_id');
+    $record = LaporanInsiden::findOrFail($recordId);
+
+    // Check authorization - user must be able to view this record
+    abort_unless(\Gate::allows('view', $record), 403);
+
+    return (new TimelineGridExport($record))->download();
+})->name('export.timeline');
 
 Route::post('/ikp-application/problem-actions/{action}/status', function (Request $request, ProblemAction $action) {
     abort_unless(Auth::check(), 403);
