@@ -8,7 +8,7 @@
 ])
 
 <div
-    class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xs dark:border-gray-800 dark:bg-gray-900 {{ $containerClass }} {{ $wrapperClass }}">
+    class="overflow-hidden bg-transparent {{ $containerClass }} {{ $wrapperClass }}">
 
     <div class="overflow-x-auto {{ $scrollClass }}">
 
@@ -23,7 +23,7 @@
 
             @isset($header)
             <thead
-                class="bg-gray-50 dark:bg-gray-800/50 {{ $theadClass }}">
+                class="{{ $theadClass }}">
 
                 {{ $header }}
 

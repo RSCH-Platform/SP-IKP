@@ -333,4 +333,40 @@ class TrendLaporanInsiden extends ApexChartWidget implements HasForms
             'stats' => $trendStats,
         ];
     }
+
+    public function getMonthlyBreakdowns(string $column): array
+    {
+        $baseQuery = clone $this->getBaseQuery();
+        
+        $data = $baseQuery
+            ->whereNotNull('tanggal_insiden')
+            ->selectRaw('MONTH(tanggal_insiden) as month_number, ' . $column . ' as category, COUNT(*) as total')
+            ->groupBy('month_number', 'category')
+            ->orderBy('month_number')
+            ->get();
+            
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        $result = [];
+        
+        foreach ($data as $row) {
+            $monthName = $months[$row->month_number] ?? 'Unknown';
+            $category = $row->category ?: '-';
+            
+            if (!isset($result[$monthName])) {
+                $result[$monthName] = [];
+            }
+            
+            $result[$monthName][$category] = $row->total;
+        }
+        
+        // Sort months chronologically based on their integer value if needed, 
+        // but $data is already ordered by month_number from query.
+        
+        return $result;
+    }
 }

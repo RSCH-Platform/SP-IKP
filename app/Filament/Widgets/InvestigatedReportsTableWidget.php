@@ -8,10 +8,12 @@ use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithPagination;
 
 class InvestigatedReportsTableWidget extends Widget
 {
     use HasWidgetShield;
+    use WithPagination;
 
     protected static ?int $sort = 2;
 
@@ -71,15 +73,16 @@ class InvestigatedReportsTableWidget extends Widget
                 'problems.recommendations',
             ])
             ->latest('tanggal_insiden')
-            ->get();
+            ->paginate(10);
 
-        $groups = $this->buildRows($reports);
+        $groups = $this->buildRows(collect($reports->items()));
 
         $totalRows = array_sum(array_map(fn($g) => count($g['problems'] ?? []), $groups));
 
         return [
             'rows' => $groups,
-            'totalReports' => $reports->count(),
+            'paginator' => $reports,
+            'totalReports' => $reports->total(),
             'totalRows' => $totalRows,
         ];
     }
@@ -219,6 +222,26 @@ class InvestigatedReportsTableWidget extends Widget
      * @return array{akar_masalah: string, rekomendasi: string}
      */
 
+
+    public function updatedSelectedYear(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectedMonth(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectedJenisInsiden(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectedStatus(): void
+    {
+        $this->resetPage();
+    }
 
     public function getAvailableYears(): array
     {
