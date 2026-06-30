@@ -36,7 +36,7 @@ class LaporanInsidenPolicy
         }
 
         // Pembuat laporan (reporter) dapat melihat laporannya sendiri
-        if ($laporanInsiden->reported_by === $authUser->id) {
+        if ($laporanInsiden->reported_by === $authUser->id || $laporanInsiden->user_id === $authUser->id) {
             return true;
         }
 

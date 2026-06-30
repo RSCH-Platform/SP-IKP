@@ -2,6 +2,12 @@
 
 namespace App\Filament\Resources\LaporanInsidens\Pages;
 
+use App\Actions\LaporanInsiden\SubmitLaporanAction;
+use App\Actions\LaporanInsiden\VerifikasiLaporanAction;
+use App\Actions\LaporanInsiden\KembalikanLaporanAction;
+use App\Actions\LaporanInsiden\MulaiInvestigasiAction;
+use App\Actions\LaporanInsiden\SelesaikanInvestigasiAction;
+use App\Actions\LaporanInsiden\ReopenInvestigasiAction;
 use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use App\Models\LaporanInsiden;
 use App\Models\User;
@@ -56,12 +62,14 @@ class EditLaporanInsiden extends EditRecord
 
     public function submitLaporan(): void
     {
+
         try {
-            $this->save();
+            $this->save(false); // Do not redirect yet!
 
             $missingFields = $this->getMissingSubmitFields();
 
             if (!empty($missingFields)) {
+                dd($missingFields);
                 $this->notifyDanger(
                     title: 'Laporan belum bisa dikirim',
                     body: 'Lengkapi field wajib berikut: ' . implode(', ', $missingFields),
@@ -71,14 +79,16 @@ class EditLaporanInsiden extends EditRecord
             }
 
             $this->record->refresh();
-            $this->record->submitLaporan();
-
-            $this->notifyKepalaUnitForNewReport();
+            app(SubmitLaporanAction::class)->execute($this->record, Auth::id());
 
             $this->notifySuccess('Laporan berhasil dikirim');
 
             $this->redirectToViewPage();
-        } catch (\Exception $e) {
+        } catch (\Filament\Support\Exceptions\Halt $e) {
+            throw $e;
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
             $this->notifyDanger(
                 title: 'Gagal mengirim laporan',
                 body: $e->getMessage(),
@@ -91,12 +101,12 @@ class EditLaporanInsiden extends EditRecord
         try {
             $this->save();
 
-            $this->record->kembalikanKePelapor(
+            app(KembalikanLaporanAction::class)->execute(
+                $this->record,
                 Auth::id(),
                 $data['alasan_pengembalian'],
+                false // not to kepala unit
             );
-
-            $this->notifyPelaporForRevision($data['alasan_pengembalian']);
 
             $this->notifySuccess('Laporan dikembalikan untuk revisi');
 
@@ -120,11 +130,13 @@ class EditLaporanInsiden extends EditRecord
                 return;
             }
 
-            $this->record->verifikasiLaporan(Auth::id());
+            app(VerifikasiLaporanAction::class)->execute(
+                $this->record,
+                Auth::id(),
+                $this->record->grading_risiko
+            );
 
             $this->notifySuccess('Laporan berhasil diverifikasi');
-
-            $this->notifyTimMutuForInvestigation();
 
             $this->redirectToViewPage();
         } catch (\Exception $e) {
@@ -137,16 +149,14 @@ class EditLaporanInsiden extends EditRecord
         try {
             $this->save();
 
-            $this->record->update([
-                'grading_risiko' => $data['grading_risiko'],
-                'catatan_tambahan' => $data['catatan_tambahan'] ?? $this->record->catatan_tambahan,
-            ]);
-
-            $this->record->verifikasiLaporan(Auth::id());
+            app(VerifikasiLaporanAction::class)->execute(
+                $this->record,
+                Auth::id(),
+                $data['grading_risiko'],
+                $data['catatan_tambahan'] ?? $this->record->catatan_tambahan
+            );
 
             $this->notifySuccess('Laporan diverifikasi ulang');
-
-            $this->notifyTimMutuForReverification();
 
             $this->redirectToViewPage();
         } catch (\Exception $e) {
@@ -159,7 +169,7 @@ class EditLaporanInsiden extends EditRecord
         try {
             $this->save();
 
-            $this->record->mulaiInvestigasi(Auth::id());
+            app(MulaiInvestigasiAction::class)->execute($this->record, Auth::id());
 
             Notification::make()
                 ->title('Investigasi dimulai')
@@ -189,7 +199,7 @@ class EditLaporanInsiden extends EditRecord
         try {
             $this->save();
 
-            $this->record->selesaikanInvestigasi(Auth::id());
+            app(SelesaikanInvestigasiAction::class)->execute($this->record, Auth::id());
 
             Notification::make()
                 ->title('Investigasi selesai')
@@ -211,7 +221,7 @@ class EditLaporanInsiden extends EditRecord
         try {
             $this->save();
 
-            $this->record->reopenInvestigation(Auth::id());
+            app(ReopenInvestigasiAction::class)->execute($this->record, Auth::id());
 
             Notification::make()
                 ->title('Investigasi dibuka kembali')
@@ -405,7 +415,7 @@ class EditLaporanInsiden extends EditRecord
                 LaporanInsiden::STATUS_INVESTIGASI,
                 LaporanInsiden::STATUS_DIVERIFIKASI,
             ], true)
-            && !$this->record->investigation_started_at;
+            && !$this->record->investigation?->investigation_started_at;
 
         if (!$canStartInvestigation) {
             return [];
@@ -429,8 +439,8 @@ class EditLaporanInsiden extends EditRecord
 
         $canCompleteInvestigation = $user?->can('Investigasi:LaporanInsiden')
             && $this->record->status === LaporanInsiden::STATUS_INVESTIGASI
-            && $this->record->investigation_started_at
-            && !$this->record->investigation_completed_at;
+            && $this->record->investigation?->investigation_started_at
+            && !$this->record->investigation?->investigation_completed_at;
 
         if (!$canCompleteInvestigation) {
             return [];
@@ -576,66 +586,7 @@ class EditLaporanInsiden extends EditRecord
             ->default(fn() => $this->record->grading_risiko);
     }
 
-    private function notifyKepalaUnitForNewReport(): void
-    {
-        // TODO: Optimize notification to not load all users globally
-        // $kepalaUnits = User::role('kepala_unit')->get();
 
-        // if ($kepalaUnits->isEmpty()) {
-        //     return;
-        // }
-
-        // Notification::make()
-        //     ->title('Laporan Insiden Baru')
-        //     ->body("Ada laporan insiden baru dari {$this->record->nama_pelapor} yang perlu diverifikasi.")
-        //     ->warning()
-        //     ->sendToDatabase($kepalaUnits);
-    }
-
-    private function notifyPelaporForRevision(string $reason): void
-    {
-        $pelapor = User::find($this->record->created_by);
-
-        if (!$pelapor) {
-            return;
-        }
-
-        Notification::make()
-            ->title('Laporan Dikembalikan untuk Revisi')
-            ->body("Laporan Anda perlu diperbaiki. Alasan: {$reason}")
-            ->warning()
-            ->sendToDatabase($pelapor);
-    }
-
-    private function notifyTimMutuForInvestigation(): void
-    {
-        // TODO: Optimize notification to not load all users globally
-        // $timMutu = User::role(['tim_mutu', 'admin_ikp'])->get();
-
-        // if ($timMutu->isEmpty()) {
-        //     return;
-        // }
-
-        // Notification::make()
-        //     ->title('Laporan Siap Investigasi')
-        //     ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi dan siap untuk investigasi.")
-        //     ->info()
-        //     ->sendToDatabase($timMutu);
-    }
-
-    private function notifyTimMutuForReverification(): void
-    {
-        // TODO: Optimize notification to not load all users globally
-        // $timMutu = User::role(['tim_mutu', 'admin_ikp'])->get();
-
-        // if ($timMutu->isEmpty()) {
-        //     return;
-        // }
-
-        // Notification::make()
-        //     ->title('Laporan siap investigasi')
-        //     ->sendToDatabase($timMutu);
-    }
 
     private function handleStartInvestigationValidationException(ValidationException $e): void
     {

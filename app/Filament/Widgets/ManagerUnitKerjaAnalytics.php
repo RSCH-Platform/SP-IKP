@@ -253,15 +253,19 @@ class ManagerUnitKerjaAnalytics extends Widget
             foreach (array_keys($this->statuses) as $statusKey) {
                 if ($statusKey === 'investigasi') {
                     $statusCounts[$statusKey] = (clone $unitQuery)
-                        ->whereNotNull('investigation_started_at')
-                        ->whereNull('investigation_completed_at')
+                        ->whereHas('investigation', function ($q) {
+                            $q->whereNotNull('investigation_started_at')
+                              ->whereNull('investigation_completed_at');
+                        })
                         ->count();
                     continue;
                 }
 
                 if ($statusKey === 'selesai_investigasi') {
                     $statusCounts[$statusKey] = (clone $unitQuery)
-                        ->whereNotNull('investigation_completed_at')
+                        ->whereHas('investigation', function ($q) {
+                            $q->whereNotNull('investigation_completed_at');
+                        })
                         ->count();
                     continue;
                 }
@@ -467,14 +471,17 @@ class ManagerUnitKerjaAnalytics extends Widget
             $severeImpact = (clone $unitQuery)
                 ->whereIn('dampak_insiden', ['Cedera berat', 'Meninggal'])
                 ->count();
-            $selesai = (clone $unitQuery)->whereNotNull('investigation_completed_at')->count();
+            $selesai = (clone $unitQuery)->whereHas('investigation', function ($q) {
+                $q->whereNotNull('investigation_completed_at');
+            })->count();
             $closeRate = round(($selesai / $total) * 100, 0);
 
             // Calculate average resolve days based on investigation timestamps
             $avgResolveDays = (clone $unitQuery)
-                ->whereNotNull('investigation_started_at')
-                ->whereNotNull('investigation_completed_at')
-                ->selectRaw('AVG(DATEDIFF(investigation_completed_at, investigation_started_at)) as avg_days')
+                ->join('investigations', 'laporan_insidens.id', '=', 'investigations.laporan_insiden_id')
+                ->whereNotNull('investigations.investigation_started_at')
+                ->whereNotNull('investigations.investigation_completed_at')
+                ->selectRaw('AVG(DATEDIFF(investigations.investigation_completed_at, investigations.investigation_started_at)) as avg_days')
                 ->value('avg_days') ?? 0;
             $avgResolveDays = round($avgResolveDays, 1);
 
@@ -484,10 +491,12 @@ class ManagerUnitKerjaAnalytics extends Widget
             $overdueBreakdown = [];
             foreach ($overdueThresholds as $grading => $thresholdDays) {
                 $overdueBreakdown[$grading] = (clone $unitQuery)
-                    ->whereNotNull('investigation_started_at')
-                    ->whereNull('investigation_completed_at')
+                    ->whereHas('investigation', function ($q) use ($thresholdDays) {
+                        $q->whereNotNull('investigation_started_at')
+                          ->whereNull('investigation_completed_at')
+                          ->whereRaw('DATEDIFF(NOW(), investigation_started_at) > ?', [$thresholdDays]);
+                    })
                     ->where('grading_risiko', 'like', $grading . '%')
-                    ->whereRaw('DATEDIFF(NOW(), investigation_started_at) > ?', [$thresholdDays])
                     ->count();
             }
             $overdue = array_sum($overdueBreakdown);

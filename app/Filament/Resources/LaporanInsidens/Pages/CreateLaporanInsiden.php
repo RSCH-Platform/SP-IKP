@@ -11,6 +11,21 @@ class CreateLaporanInsiden extends CreateRecord
 {
     protected static string $resource = LaporanInsidenResource::class;
 
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['user_id'] = $data['user_id'] ?? auth()->id();
+        
+        if (isset($data['user_id'])) {
+            $user = \App\Models\User::find($data['user_id']);
+            $data['nama_pelapor'] = $user?->name;
+            $data['unit_kerja'] = \App\Models\UnitKerja::find($data['unit_kerja_id'] ?? null)?->unit_name;
+        }
+        
+        $data['tanggal_lapor'] = $data['tanggal_lapor'] ?? now()->toDateString();
+
+        return $data;
+    }
+
     protected function getFormActions(): array
     {
         return [

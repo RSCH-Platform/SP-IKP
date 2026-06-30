@@ -71,7 +71,7 @@ class UnitKerjaResource extends Resource implements HasShieldPermissions
         return 'Administration';
     }
 
-    public static function schema(Schema $form): Schema
+    public static function form(Schema $form): Schema
     {
         return UnitKerjaForm::configure($form);
     }

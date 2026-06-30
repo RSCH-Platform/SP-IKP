@@ -42,8 +42,8 @@ trait HasWorkflowSteps
                 'desc' => 'Investigasi dimulai oleh tim mutu & kepala unit',
                 'icon' => 'heroicon-o-play-circle',
                 'message' => 'Tim mutu mulai melakukan pengumpulan data investigasi.',
-                'by_key' => 'investigation_started_by',
-                'date_key' => 'investigation_started_at',
+                'by_key' => 'investigation.investigation_started_by',
+                'date_key' => 'investigation.investigation_started_at',
             ],
             [
                 'key' => 'investigasi_complete',
@@ -51,8 +51,8 @@ trait HasWorkflowSteps
                 'desc' => 'Investigasi selesai oleh tim mutu & kepala unit',
                 'icon' => 'heroicon-o-check-circle',
                 'message' => 'Tim mutu telah menyelesaikan investigasi dan menentukan akar penyebab serta rekomendasi perbaikan.',
-                'by_key' => 'investigation_completed_by',
-                'date_key' => 'investigation_completed_at',
+                'by_key' => 'investigation.investigation_completed_by',
+                'date_key' => 'investigation.investigation_completed_at',
             ],
         ];
     }
@@ -68,18 +68,18 @@ trait HasWorkflowSteps
             $detail .= "\n\n👤 Pelapor: {$userName}\n⏰ Tanggal: {$dateFormatted}";
         } elseif ($step['key'] === 'investigasi_start') {
             // Show investigation start details
-            if ($this->record->investigation_started_by && $this->record->investigation_started_at) {
-                $user = $this->record->investigationStarter ?? clone User::find($this->record->investigation_started_by);
+            if ($this->record->investigation?->investigation_started_by && $this->record->investigation?->investigation_started_at) {
+                $user = User::find($this->record->investigation->investigation_started_by);
                 $userName = $user ? $user->name : 'Tidak diketahui';
-                $dateFormatted = $this->record->investigation_started_at->format('d F Y H:i');
+                $dateFormatted = $this->record->investigation->investigation_started_at->format('d F Y H:i');
                 $detail .= "\n\n👤 Oleh: {$userName}\n⏰ Tanggal: {$dateFormatted}";
             }
         } elseif ($step['key'] === 'investigasi_complete') {
             // Show investigation complete details
-            if ($this->record->investigation_completed_by && $this->record->investigation_completed_at) {
-                $user = $this->record->investigationCompleter ?? clone User::find($this->record->investigation_completed_by);
+            if ($this->record->investigation?->investigation_completed_by && $this->record->investigation?->investigation_completed_at) {
+                $user = User::find($this->record->investigation->investigation_completed_by);
                 $userName = $user ? $user->name : 'Tidak diketahui';
-                $dateFormatted = $this->record->investigation_completed_at->format('d F Y H:i');
+                $dateFormatted = $this->record->investigation->investigation_completed_at->format('d F Y H:i');
                 $detail .= "\n\n👤 Oleh: {$userName}\n⏰ Tanggal: {$dateFormatted}";
             }
         } elseif ($step['by_key'] && $step['date_key']) {
@@ -132,14 +132,14 @@ trait HasWorkflowSteps
 
             case 'investigasi_start':
                 // Step becomes current once investigation has started but not yet completed
-                if ($this->record->investigation_started_at && !$this->record->investigation_completed_at) {
+                if ($this->record->investigation?->investigation_started_at && !$this->record->investigation?->investigation_completed_at) {
                     return 'current';
                 }
-                return $this->record->investigation_started_at ? 'done' : 'pending';
+                return $this->record->investigation?->investigation_started_at ? 'done' : 'pending';
 
             case 'investigasi_complete':
                 // Completed step is considered done once timestamp exists
-                return $this->record->investigation_completed_at ? 'done' : 'pending';
+                return $this->record->investigation?->investigation_completed_at ? 'done' : 'pending';
 
             default:
                 return 'pending';

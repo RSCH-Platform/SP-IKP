@@ -21,7 +21,7 @@ class DataCollectionSection
         return SpatieMediaLibraryFileUpload::make('document_upload')
             ->label($label)
             ->collection('investigation_documents')
-            ->disk(config('media-library.disk_name', 'public'))
+            ->disk(config('media-library.disk_name'))
             ->directory(function (callable $get, $record) {
                 return $record?->laporanInsiden?->getMediaFolderPath() ?? '';
             })
@@ -46,7 +46,7 @@ class DataCollectionSection
                                 Tab::make('setup')
                                     ->label('⚙️ Setup')
                                     ->schema([
-                                        TextEntry::make('info')
+                                        \Filament\Forms\Components\Placeholder::make('info')
                                             ->content('Simpan laporan terlebih dahulu untuk menambahkan investigasi.'),
                                     ]),
                             ];

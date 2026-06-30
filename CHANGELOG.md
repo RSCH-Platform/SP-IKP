@@ -4,6 +4,27 @@ Semua perubahan yang signifikan pada proyek **SP-IKP** (Sistem Pelaporan Insiden
 
 Format changelog ini berdasarkan [Keep a Changelog](https://keepachangelog.com/id/1.0.0/), dan proyek ini mematuhi [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-07-01
+
+### Added / Features
+- **Database Schema Normalization**: Pemisahan data investigasi ke dalam tabel baru `investigations` untuk menormalkan struktur database (menghapus kolom terkait investigasi dari `laporan_insidens`).
+- **State Transitions**: Penambahan tabel `laporan_insiden_transitions` untuk melacak status dan alur kerja (workflow steps) laporan insiden dengan lebih handal.
+- **Data Migration Command**: Penambahan command artisan `app:migrate-legacy-laporan-insiden-data` untuk migrasi data laporan lama secara aman ke skema database baru yang sudah dipisahkan.
+- **Peningkatan Arsitektur**: Implementasi folder/layer `Actions` dan `Jobs` untuk pemisahan logika yang lebih bersih serta mendukung pemrosesan *background/asinkron*.
+- **Testing Suite Baru**: Pembuatan struktur test untuk Filament, Actions, Models, beserta `SuperAdminAccessTest` guna menunjang arsitektur Pest.
+- **Development Tooling**: Penambahan perintah `wipe-db` dan `safe-migrate` pada bagian scripts `composer.json` untuk mempermudah operasional database reset selama proses development.
+
+### Changed
+- **Pembaruan Filament Resources & Form**:
+  - Pembaruan pada `LaporanInsidenResource` termasuk memisahkan komponen form (seperti `DataCollectionSection` dan `PelaporSection`) agar modular dan lebih mudah dipelihara.
+  - Penyempurnaan berbagai widget panel termasuk `InvestigationStatsWidget`, `DraftReportsWidget`, dan `ManagerUnitKerjaAnalytics`.
+- **Konsolidasi Dokumentasi**: Menggabungkan file dokumentasi usang (seperti penghapusan `CHANGE_LOG.md` dan `TIMELINE_EXPORT_README.md`) untuk disatukan dalam standar `CHANGELOG.md` ini.
+
+### Performance (Optimized)
+- **Optimasi N+1 Queries**: Menerapkan *eager loading* untuk relasi berlapis di `LaporanInsidenResource` dan refaktorisasi `HasWorkflowSteps` dengan menghapus iterasi `User::find`, sehingga mengatasi *bottleneck* performa saat halaman preview dimuat.
+- **Optimasi Index (Sargable Query)**: Perbaikan query pembuatan nomor laporan pada `generateNomorLaporan` yang kini menggunakan `whereBetween` untuk mengaktifkan index pada database dan mencegah operasi *full table scan*.
+- **Pencegahan Bottleneck Transaksi**: Menonaktifkan sementara pengiriman notifikasi ke semua pengguna (global user notifications) di dalam siklus edit (`EditLaporanInsiden`) untuk mencegah proses lambat yang memblokir (*blocking*) operasional simpan.
+
 ## [1.0.0]
 
 ### Added / Features

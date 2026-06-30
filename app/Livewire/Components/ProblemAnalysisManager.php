@@ -415,7 +415,7 @@ class ProblemAnalysisManager extends Component
             $record = \App\Models\LaporanInsiden::with([
                 'user',
                 'creator',
-                'unitKerjas',
+                'unitKerja',
                 'reporter',
                 'verifier',
                 'rejecter',

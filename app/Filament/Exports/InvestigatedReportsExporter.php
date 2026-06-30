@@ -110,7 +110,7 @@ class InvestigatedReportsExporter extends Exporter
                 ->label('Unit Kerja')
                 ->enabledByDefault(fn (): bool => static::isFieldSelected('unit_kerja'))
                 ->formatStateUsing(fn (mixed $state, LaporanInsiden $record): string => $record->unit_kerja
-                    ?? $record->unitKerjas?->unit_name
+                    ?? $record->unitKerja?->unit_name
                     ?? '-'),
 
             ExportColumn::make('akar_masalah')
@@ -133,7 +133,7 @@ class InvestigatedReportsExporter extends Exporter
     public static function modifyQuery(Builder $query): Builder
     {
         return $query->with([
-            'unitKerjas',
+            'unitKerja',
             'problems.recommendations',
         ]);
     }

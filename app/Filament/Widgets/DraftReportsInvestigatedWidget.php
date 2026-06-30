@@ -44,8 +44,10 @@ class DraftReportsInvestigatedWidget extends BaseDraftReportsWidget
     protected function getTableQuery(): Builder
     {
         return $this->scopedQuery()
-            ->whereNotNull('investigation_started_at')
-            ->whereNotNull('investigation_started_by')
+            ->whereHas('investigation', function ($query) {
+                $query->whereNotNull('investigation_started_at')
+                      ->whereNotNull('investigation_started_by');
+            })
             ->latest('created_at');
     }
 
@@ -87,7 +89,7 @@ class DraftReportsInvestigatedWidget extends BaseDraftReportsWidget
                             $query = $this->getTableQueryForExport();
 
                             if (in_array('unit_kerja', $selectedFields, true)) {
-                                $query->with('unitKerjas');
+                                $query->with('unitKerja');
                             }
 
                             if (
@@ -311,7 +313,7 @@ class DraftReportsInvestigatedWidget extends BaseDraftReportsWidget
             'tanggal_insiden' => $formattedTanggalInsiden,
             'deskripsi_kategori_insiden' => $record->deskripsi_kategori_insiden ?: '-',
             'jenis_insiden' => $record->jenis_insiden ?: '-',
-            'unit_kerja' => $record->unit_kerja ?? $record->unitKerjas?->unit_name ?? '-',
+            'unit_kerja' => $record->unit_kerja ?? $record->unitKerja?->unit_name ?? '-',
             'akar_masalah' => '-',
             'rekomendasi' => '-',
         ];

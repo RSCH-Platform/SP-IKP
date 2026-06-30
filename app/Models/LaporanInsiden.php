@@ -159,22 +159,15 @@ class LaporanInsiden extends Model implements HasMedia
         'rejected_by',
         'rejected_at',
         'rejection_reason',
-        // Investigation flow columns
-        'investigation_started_by',
-        'investigation_started_at',
-        'investigation_completed_by',
-        'investigation_completed_at',
     ];
 
     protected $casts = [
-        'tanggal_lapor'   => 'date',
+        'tanggal_lapor' => 'date',
         'tanggal_insiden' => 'date',
         'tanggal_masuk_rs' => 'datetime',
         'reported_at'     => 'datetime',
         'verified_at'     => 'datetime',
         'rejected_at'     => 'datetime',
-        'investigation_started_at' => 'datetime',
-        'investigation_completed_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -187,9 +180,9 @@ class LaporanInsiden extends Model implements HasMedia
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function unitKerjas(): BelongsTo
+    public function unitKerja(): BelongsTo
     {
-        return $this->belongsTo(UnitKerja::class);
+        return $this->belongsTo(UnitKerja::class, 'unit_kerja_id');
     }
 
     public function reporter(): BelongsTo
@@ -207,19 +200,53 @@ class LaporanInsiden extends Model implements HasMedia
         return $this->belongsTo(User::class, 'rejected_by');
     }
 
+    public function investigation()
+    {
+        return $this->hasOne(Investigation::class);
+    }
+
+    public function investigationStarter()
+    {
+        return $this->hasOneThrough(
+            User::class,
+            Investigation::class,
+            'laporan_insiden_id',
+            'id',
+            'id',
+            'investigation_started_by'
+        );
+    }
+
+    public function investigationCompleter()
+    {
+        return $this->hasOneThrough(
+            User::class,
+            Investigation::class,
+            'laporan_insiden_id',
+            'id',
+            'id',
+            'investigation_completed_by'
+        );
+    }
+
+    public function getInvestigationStartedAtAttribute()
+    {
+        return $this->investigation?->investigation_started_at;
+    }
+
+    public function getInvestigationEndedAtAttribute()
+    {
+        return $this->investigation?->investigation_completed_at;
+    }
+
+    public function transitions()
+    {
+        return $this->hasMany(LaporanInsidenTransition::class);
+    }
+
     public function investigationData(): HasMany
     {
         return $this->hasMany(InvestigationData::class);
-    }
-
-    public function investigationStarter(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'investigation_started_by');
-    }
-
-    public function investigationCompleter(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'investigation_completed_by');
     }
 
     /**
@@ -298,46 +325,25 @@ class LaporanInsiden extends Model implements HasMedia
     /** Kepala unit mengembalikan laporan ke pelapor untuk diperbaiki */
     public function kembalikanKePelapor(int $userId, string $reason): void
     {
-        $this->update([
-            'status'           => self::STATUS_REVISI,
-            'rejected_by'      => $userId,
-            'rejected_at'      => now(),
-            'rejection_reason' => $reason,
-        ]);
+        app(\App\Actions\LaporanInsiden\KembalikanLaporanAction::class)->execute($this, $userId, $reason, false);
     }
 
     /** Tim mutu memulai investigasi sederhana */
     public function mulaiInvestigasi(int $userId): void
     {
-        $this->update([
-            'status'                    => self::STATUS_INVESTIGASI,
-            'investigation_started_by'  => $userId,
-            'investigation_started_at'  => now(),
-            // Ensure reported_by and reported_at are set if not already (defensive)
-            'reported_by' => $this->reported_by ?? auth()->id(),
-            'reported_at' => $this->reported_at ?? now(),
-        ]);
+        app(\App\Actions\LaporanInsiden\MulaiInvestigasiAction::class)->execute($this, $userId);
     }
 
     /** Tim mutu mengembalikan laporan ke kepala unit untuk diperbaiki */
     public function kembalikanKeKepalaUnit(int $userId, string $reason): void
     {
-        $this->update([
-            'status'           => self::STATUS_REVISI_UNIT,
-            'rejected_by'      => $userId,
-            'rejected_at'      => now(),
-            'rejection_reason' => $reason,
-        ]);
+        app(\App\Actions\LaporanInsiden\KembalikanLaporanAction::class)->execute($this, $userId, $reason, true);
     }
 
     /** Tim mutu menyelesaikan investigasi */
     public function selesaikanInvestigasi(int $userId): void
     {
-        $this->update([
-            'status'                     => self::STATUS_SELESAI,
-            'investigation_completed_by' => $userId,
-            'investigation_completed_at' => now(),
-        ]);
+        app(\App\Actions\LaporanInsiden\SelesaikanInvestigasiAction::class)->execute($this, $userId);
     }
 
     /**
@@ -346,24 +352,19 @@ class LaporanInsiden extends Model implements HasMedia
      */
     public function reopenInvestigation(int $userId): void
     {
-        $this->update([
-            'status' => self::STATUS_INVESTIGASI,
-            // Clear completed metadata so investigation is considered active again
-            'investigation_completed_by' => null,
-            'investigation_completed_at' => null
-        ]);
+        app(\App\Actions\LaporanInsiden\ReopenInvestigasiAction::class)->execute($this, $userId);
     }
 
     /** Check if investigation has started */
     public function hasInvestigationStarted(): bool
     {
-        return !empty($this->investigation_started_at);
+        return !empty($this->investigation?->investigation_started_at);
     }
 
     /** Check if investigation is completed */
     public function isInvestigationCompleted(): bool
     {
-        return !empty($this->investigation_completed_at);
+        return !empty($this->investigation?->investigation_completed_at);
     }
 
     protected static function boot()
@@ -462,12 +463,6 @@ class LaporanInsiden extends Model implements HasMedia
                 }
                 if (empty($model->verified_by) && $currentUserId) {
                     $model->verified_by = $currentUserId;
-                }
-                if (empty($model->investigation_completed_at)) {
-                    $model->investigation_completed_at = now();
-                }
-                if (empty($model->investigation_completed_by) && $currentUserId) {
-                    $model->investigation_completed_by = $currentUserId;
                 }
                 break;
         }

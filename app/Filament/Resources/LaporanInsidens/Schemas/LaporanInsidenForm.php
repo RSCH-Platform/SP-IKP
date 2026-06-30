@@ -30,13 +30,17 @@ class LaporanInsidenForm
                          * dan ketika laporan sudah Selesai, step tetap bisa dilihat tapi tidak diedit, untuk menjaga integritas data laporan yang sudah final.
                          */
                         ->disabled(
-                            fn($record) =>
-                            $record->status === LaporanInsiden::STATUS_SELESAI
-                            ? true
+                            fn($record, string $context) =>
+                            $context === 'create'
+                            ? false
                             : (
-                                $record->status === LaporanInsiden::STATUS_DRAFT
-                                ? false
-                                : !Auth::user()?->can('ForceEdit:LaporanInsiden')
+                                $record?->status === LaporanInsiden::STATUS_SELESAI
+                                ? true
+                                : (
+                                    $record?->status === LaporanInsiden::STATUS_DRAFT
+                                    ? false
+                                    : !Auth::user()?->can('ForceEdit:LaporanInsiden')
+                                )
                             )
                         )
                         ->schema([
@@ -48,9 +52,11 @@ class LaporanInsidenForm
                              */
                             LaporanInsidenFormSchema::sectionPelapor()
                                 ->disabled(
-                                    fn($record) =>
-                                    !Auth::user()?->can('ForceEdit:LaporanInsiden')
-                                    || Auth::id() !== $record->pelapor_id
+                                    fn($record, string $context) =>
+                                    $context !== 'create' && (
+                                        !Auth::user()?->can('ForceEdit:LaporanInsiden')
+                                        || Auth::id() !== $record?->user_id
+                                    )
                                 ),
 
                             LaporanInsidenFormSchema::sectionPasien(),
@@ -64,8 +70,8 @@ class LaporanInsidenForm
                              */
                             LaporanInsidenFormSchema::sectionInsiden(true)
                                 ->visible(
-                                    fn($record) =>
-                                    !in_array($record->status, [
+                                    fn($record, string $context) =>
+                                    $context !== 'create' && !in_array($record?->status, [
                                         LaporanInsiden::STATUS_DRAFT,
                                         LaporanInsiden::STATUS_DILAPORKAN,
                                     ])
@@ -73,8 +79,8 @@ class LaporanInsidenForm
 
                             LaporanInsidenFormSchema::sectionInsiden(false)
                                 ->visible(
-                                    fn($record) =>
-                                    in_array($record->status, [
+                                    fn($record, string $context) =>
+                                    $context === 'create' || in_array($record?->status, [
                                         LaporanInsiden::STATUS_DRAFT,
                                         LaporanInsiden::STATUS_DILAPORKAN,
                                     ])
@@ -94,7 +100,7 @@ class LaporanInsidenForm
                             LaporanInsidenFormSchema::sectionGradingResiko()
                                 ->visible(
                                     fn($record) =>
-                                    !in_array($record->status, [
+                                    !in_array($record?->status, [
                                         LaporanInsiden::STATUS_DRAFT,
                                         LaporanInsiden::STATUS_DILAPORKAN,
                                         LaporanInsiden::STATUS_DIVERIFIKASI,
@@ -102,7 +108,7 @@ class LaporanInsidenForm
                                 ),
 
                             // LaporanInsidenFormSchema::sectionCatatanTambahan()
-                            //     ->hidden(fn ($record) => ! ($record->status !== LaporanInsiden::STATUS_DRAFT)),
+                            //     ->hidden(fn ($record) => ! ($record?->status !== LaporanInsiden::STATUS_DRAFT)),
                         ]),
 
                     Step::make('Grading Resiko & Catatan Tambahan')
@@ -116,7 +122,7 @@ class LaporanInsidenForm
                          */
                         ->hidden(
                             fn($record) =>
-                            !in_array($record->status, [
+                            !in_array($record?->status, [
                                 LaporanInsiden::STATUS_DILAPORKAN,
                             ])
                         )
@@ -129,7 +135,7 @@ class LaporanInsidenForm
                          */
                         ->disabled(
                             fn($record) =>
-                            $record->status !== LaporanInsiden::STATUS_DILAPORKAN
+                            $record?->status !== LaporanInsiden::STATUS_DILAPORKAN
                         )
                         ->schema([
                             LaporanInsidenFormSchema::sectionGradingResiko(),
@@ -151,7 +157,7 @@ class LaporanInsidenForm
                             fn($record) =>
                             !(
                                 Auth::user()?->can('Investigasi:LaporanInsiden')
-                                && in_array($record->status, [
+                                && in_array($record?->status, [
                                     LaporanInsiden::STATUS_INVESTIGASI,
                                     LaporanInsiden::STATUS_SELESAI,
                                 ])
@@ -165,7 +171,7 @@ class LaporanInsidenForm
                          */
                         ->disabled(
                             fn($record) =>
-                            $record->status !== LaporanInsiden::STATUS_INVESTIGASI
+                            $record?->status !== LaporanInsiden::STATUS_INVESTIGASI
                         )
                         ->schema([
                             LaporanInsidenFormSchema::getFieldDataCollection(),
@@ -183,7 +189,7 @@ class LaporanInsidenForm
                             fn($record) =>
                             !(
                                 Auth::user()?->can('Investigasi:LaporanInsiden')
-                                && in_array($record->status, [
+                                && in_array($record?->status, [
                                     LaporanInsiden::STATUS_INVESTIGASI,
                                     LaporanInsiden::STATUS_SELESAI,
                                 ])
@@ -197,7 +203,7 @@ class LaporanInsidenForm
                          */
                         ->disabled(
                             fn($record) =>
-                            $record->status !== LaporanInsiden::STATUS_INVESTIGASI
+                            $record?->status !== LaporanInsiden::STATUS_INVESTIGASI
                         )
                         ->schema([
                             LaporanInsidenFormSchema::getFieldTimelineGrid(collapsed: false),
@@ -217,7 +223,7 @@ class LaporanInsidenForm
                             fn($record) =>
                             !(
                                 Auth::user()?->can('Investigasi:LaporanInsiden')
-                                && in_array($record->status, [
+                                && in_array($record?->status, [
                                     LaporanInsiden::STATUS_INVESTIGASI,
                                     LaporanInsiden::STATUS_SELESAI,
                                 ])
@@ -231,7 +237,7 @@ class LaporanInsidenForm
                          */
                         ->disabled(
                             fn($record) =>
-                            $record->status !== LaporanInsiden::STATUS_INVESTIGASI
+                            $record?->status !== LaporanInsiden::STATUS_INVESTIGASI
                         )
                         ->schema([
                             LaporanInsidenFormSchema::getFieldProblemAnalysisOptimize(),

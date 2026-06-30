@@ -62,7 +62,7 @@ class IncidentProblemReportGroupsWidget extends Widget
                 'problems.whys',
                 'problems.recommendations',
                 'problems.actions.media',
-                'unitKerjas',
+                'unitKerja',
             ])
             ->orderByDesc('tanggal_lapor')
             ->orderByDesc('created_at')
@@ -139,8 +139,8 @@ class IncidentProblemReportGroupsWidget extends Widget
                 'id' => $report->id,
                 'nomor_laporan' => $report->nomor_laporan ?? '-',
                 'deskripsi_kategori_insiden' => $report->deskripsi_kategori_insiden ?? '-',
-                'unit_kerja_name' => $report->unit_kerja ?? $report->unitKerjas?->unit_name ?? '-',
-                'unit_kerja_id' => $report->unit_kerja_id ?? $report->unitKerjas?->id,
+                'unit_kerja_name' => $report->unit_kerja ?? $report->unitKerja?->unit_name ?? '-',
+                'unit_kerja_id' => $report->unit_kerja_id ?? $report->unitKerja?->id,
                 'jenis_insiden' => $report->jenis_insiden ?? '-',
                 'tanggal_lapor' => optional($report->tanggal_lapor)->format('d M Y') ?? '-',
                 'status' => $report->status,

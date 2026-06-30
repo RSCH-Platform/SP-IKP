@@ -99,6 +99,18 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "wipe-db": [
+            "mysql -h 127.0.0.1 -u juni -ppassword -e \"DROP DATABASE IF EXISTS ikp; CREATE DATABASE ikp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\"",
+            "mysql -h 127.0.0.1 -u juni -ppassword --max_allowed_packet=512M --net_buffer_length=16384 ikp < ./database/schema/ikp_db_new.sql"
+        ],
+        "safe-migrate": [
+            "@composer run wipe-db",
+            "@php artisan tinker --execute=\"(require 'database/migrations/0001_01_01_000001_create_cache_table.php')->up();\"",
+            "mv database/migrations/2026_06_30_085238_drop_investigation_columns_from_laporan_insidens.php database/migrations/2026_06_30_085238_drop_investigation_columns_from_laporan_insidens.php.bak || true",
+            "@php artisan migrate --force",
+            "@php artisan app:migrate-legacy-laporan-insiden-data",
+            "mv database/migrations/2026_06_30_085238_drop_investigation_columns_from_laporan_insidens.php.bak database/migrations/2026_06_30_085238_drop_investigation_columns_from_laporan_insidens.php || true"
         ]
     },
     "extra": {

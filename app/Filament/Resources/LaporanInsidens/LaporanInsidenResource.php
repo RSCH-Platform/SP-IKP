@@ -83,12 +83,10 @@ class LaporanInsidenResource extends Resource
                 'timelineEvents',
                 'timelineEvents.entries',
                 'timelineEvents.entries.category',
-                'investigationStarter',
-                'investigationCompleter',
                 'reporter',
                 'verifier',
                 'user',
-                'unitKerjas',
+                'unitKerja',
             ]);
     }
 
@@ -96,8 +94,8 @@ class LaporanInsidenResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        // Eager load unitKerjas to prevent N+1 queries
-        $query->with('unitKerjas');
+        // Eager load unitKerja to prevent N+1 queries
+        $query->with('unitKerja');
 
         $user = Auth::user();
 

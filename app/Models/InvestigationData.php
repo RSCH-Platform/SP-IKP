@@ -69,7 +69,7 @@ class InvestigationData extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('investigation_documents')
-            ->useDisk(config('media-library.disk_name', 'public'))
+            ->useDisk(config('media-library.disk_name'))
             ->acceptsMimeTypes([
                 'application/pdf',
                 'image/jpeg',

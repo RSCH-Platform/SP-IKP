@@ -27,7 +27,7 @@ class PreviewLaporanInsiden extends Page
                 $query->orderBy('event_datetime', 'asc');
             },
             'timelineEvents.entries.category',
-            'unitKerjas',
+            'unitKerja',
             'reporter',
             'verifier',
             'rejecter'

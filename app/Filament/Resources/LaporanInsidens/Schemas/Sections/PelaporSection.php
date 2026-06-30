@@ -74,7 +74,7 @@ class PelaporSection
 
                     Forms\Components\Select::make('unit_kerja_id')
                         ->label('Unit Kerja / Departemen')
-                        ->relationship('unitKerjas', 'unit_name', fn($query) => $query->orderBy('unit_name'))
+                        ->relationship('unitKerja', 'unit_name', fn($query) => $query->orderBy('unit_name'))
                         ->searchable()
                         ->preload()
                         ->native(false)

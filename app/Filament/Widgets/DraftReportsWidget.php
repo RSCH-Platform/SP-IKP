@@ -28,8 +28,10 @@ class DraftReportsWidget extends BaseDraftReportsWidget
     protected function getTableQuery(): Builder
     {
         return $this->scopedQuery()
-            ->whereNull('investigation_started_at')
-            ->whereNull('investigation_started_by')
+            ->whereDoesntHave('investigation', function ($query) {
+                $query->whereNotNull('investigation_started_at')
+                      ->whereNotNull('investigation_started_by');
+            })
             ->latest('created_at');
     }
 

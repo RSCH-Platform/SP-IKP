@@ -68,7 +68,7 @@ class InvestigatedReportsTableWidget extends Widget
                 fn(Builder $query): Builder => $query->where('status', $this->selectedStatus),
             )
             ->with([
-                'unitKerjas',
+                'unitKerja',
                 'problems.whys',
                 'problems.recommendations',
             ])
@@ -135,7 +135,7 @@ class InvestigatedReportsTableWidget extends Widget
                     ? ($this->getIncidentTypeOptions()[(string) $record->jenis_insiden] ?? (string) $record->jenis_insiden)
                     : '-',
                 'unit_kerja' => $record->unit_kerja
-                    ?? $record->unitKerjas?->unit_name
+                    ?? $record->unitKerja?->unit_name
                     ?? '-',
             ];
 

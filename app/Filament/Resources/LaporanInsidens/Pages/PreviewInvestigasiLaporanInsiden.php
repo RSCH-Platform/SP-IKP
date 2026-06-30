@@ -33,8 +33,10 @@ class PreviewInvestigasiLaporanInsiden extends Page
                 $query->orderBy('event_datetime', 'asc');
             },
             'timelineEvents.entries.category',
-            'unitKerjas',
+            'unitKerja',
             'reporter',
+            'verifier',
+            'user',
         ]);
 
         // Group investigation data by category
