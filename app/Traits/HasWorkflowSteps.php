@@ -69,7 +69,7 @@ trait HasWorkflowSteps
         } elseif ($step['key'] === 'investigasi_start') {
             // Show investigation start details
             if ($this->record->investigation_started_by && $this->record->investigation_started_at) {
-                $user = User::find($this->record->investigation_started_by);
+                $user = $this->record->investigationStarter ?? clone User::find($this->record->investigation_started_by);
                 $userName = $user ? $user->name : 'Tidak diketahui';
                 $dateFormatted = $this->record->investigation_started_at->format('d F Y H:i');
                 $detail .= "\n\n👤 Oleh: {$userName}\n⏰ Tanggal: {$dateFormatted}";
@@ -77,7 +77,7 @@ trait HasWorkflowSteps
         } elseif ($step['key'] === 'investigasi_complete') {
             // Show investigation complete details
             if ($this->record->investigation_completed_by && $this->record->investigation_completed_at) {
-                $user = User::find($this->record->investigation_completed_by);
+                $user = $this->record->investigationCompleter ?? clone User::find($this->record->investigation_completed_by);
                 $userName = $user ? $user->name : 'Tidak diketahui';
                 $dateFormatted = $this->record->investigation_completed_at->format('d F Y H:i');
                 $detail .= "\n\n👤 Oleh: {$userName}\n⏰ Tanggal: {$dateFormatted}";
@@ -87,7 +87,16 @@ trait HasWorkflowSteps
             $date = $this->record->{$step['date_key']};
 
             if ($byId && $date) {
-                $user = User::find($byId);
+                $user = null;
+                if ($step['by_key'] === 'reported_by') {
+                    $user = $this->record->reporter;
+                } elseif ($step['by_key'] === 'verified_by') {
+                    $user = $this->record->verifier;
+                } elseif ($step['by_key'] === 'rejected_by') {
+                    $user = $this->record->rejecter;
+                }
+                
+                $user = $user ?? User::find($byId);
                 $userName = $user ? $user->name : 'Tidak diketahui';
                 $dateFormatted = $date->format('d F Y H:i');
 

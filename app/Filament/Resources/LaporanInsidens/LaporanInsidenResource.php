@@ -68,7 +68,28 @@ class LaporanInsidenResource extends Resource
                 SoftDeletingScope::class,
             ])
             // Eager load investigation data untuk reduce N+1 queries
-            ->with('investigationData');
+            ->with([
+                'investigationData',
+                'investigationData.creator',
+                'problems',
+                'problems.whys',
+                'problems.contributors',
+                'problems.contributors.category',
+                'problems.contributors.component',
+                'problems.contributors.subComponent',
+                'problems.recommendations',
+                'problems.actions',
+                'problems.actions.media',
+                'timelineEvents',
+                'timelineEvents.entries',
+                'timelineEvents.entries.category',
+                'investigationStarter',
+                'investigationCompleter',
+                'reporter',
+                'verifier',
+                'user',
+                'unitKerjas',
+            ]);
     }
 
     public static function getEloquentQuery(): Builder

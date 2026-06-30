@@ -578,17 +578,18 @@ class EditLaporanInsiden extends EditRecord
 
     private function notifyKepalaUnitForNewReport(): void
     {
-        $kepalaUnits = User::role('kepala_unit')->get();
+        // TODO: Optimize notification to not load all users globally
+        // $kepalaUnits = User::role('kepala_unit')->get();
 
-        if ($kepalaUnits->isEmpty()) {
-            return;
-        }
+        // if ($kepalaUnits->isEmpty()) {
+        //     return;
+        // }
 
-        Notification::make()
-            ->title('Laporan Insiden Baru')
-            ->body("Ada laporan insiden baru dari {$this->record->nama_pelapor} yang perlu diverifikasi.")
-            ->warning()
-            ->sendToDatabase($kepalaUnits);
+        // Notification::make()
+        //     ->title('Laporan Insiden Baru')
+        //     ->body("Ada laporan insiden baru dari {$this->record->nama_pelapor} yang perlu diverifikasi.")
+        //     ->warning()
+        //     ->sendToDatabase($kepalaUnits);
     }
 
     private function notifyPelaporForRevision(string $reason): void
@@ -608,30 +609,32 @@ class EditLaporanInsiden extends EditRecord
 
     private function notifyTimMutuForInvestigation(): void
     {
-        $timMutu = User::role(['tim_mutu', 'admin_ikp'])->get();
+        // TODO: Optimize notification to not load all users globally
+        // $timMutu = User::role(['tim_mutu', 'admin_ikp'])->get();
 
-        if ($timMutu->isEmpty()) {
-            return;
-        }
+        // if ($timMutu->isEmpty()) {
+        //     return;
+        // }
 
-        Notification::make()
-            ->title('Laporan Siap Investigasi')
-            ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi dan siap untuk investigasi.")
-            ->info()
-            ->sendToDatabase($timMutu);
+        // Notification::make()
+        //     ->title('Laporan Siap Investigasi')
+        //     ->body("Laporan dari {$this->record->nama_pelapor} telah diverifikasi dan siap untuk investigasi.")
+        //     ->info()
+        //     ->sendToDatabase($timMutu);
     }
 
     private function notifyTimMutuForReverification(): void
     {
-        $timMutu = User::role(['tim_mutu', 'admin_ikp'])->get();
+        // TODO: Optimize notification to not load all users globally
+        // $timMutu = User::role(['tim_mutu', 'admin_ikp'])->get();
 
-        if ($timMutu->isEmpty()) {
-            return;
-        }
+        // if ($timMutu->isEmpty()) {
+        //     return;
+        // }
 
-        Notification::make()
-            ->title('Laporan siap investigasi')
-            ->sendToDatabase($timMutu);
+        // Notification::make()
+        //     ->title('Laporan siap investigasi')
+        //     ->sendToDatabase($timMutu);
     }
 
     private function handleStartInvestigationValidationException(ValidationException $e): void
