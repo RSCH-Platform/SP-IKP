@@ -87,7 +87,7 @@ class ManagerUnitKerjaAnalytics extends Widget
 
     public function mount(): void
     {
-        $this->year = $this->year ?? (int)date('Y');
+        $this->year = $this->year ?? (int) date('Y');
         $this->period = $this->getDefaultPeriodForGrouping();
         $this->statuses = $this->statuses ?? $this->defaultStatuses;
     }
@@ -125,7 +125,7 @@ class ManagerUnitKerjaAnalytics extends Widget
     public function getTable4PeriodMonths(): array
     {
         if ($this->grouping === 'semester') {
-            return $this->period === 2
+            return (int) $this->period === 2
                 ? [
                     7 => 'Juli',
                     8 => 'Agustus',
@@ -144,7 +144,7 @@ class ManagerUnitKerjaAnalytics extends Widget
                 ];
         }
 
-        return match ($this->period) {
+        return match ((int) $this->period) {
             2 => [
                 4 => 'April',
                 5 => 'Mei',
@@ -170,8 +170,6 @@ class ManagerUnitKerjaAnalytics extends Widget
 
     protected function applyPeriodFilter($query, ?int $month = null): void
     {
-        $query->whereNotNull('tanggal_insiden');
-
         if ($this->year) {
             $query->whereYear('tanggal_insiden', $this->year);
         }
@@ -181,7 +179,12 @@ class ManagerUnitKerjaAnalytics extends Widget
         }
 
         [$startMonth, $endMonth] = $this->resolveMonthRange();
-        $query->whereRaw('MONTH(tanggal_insiden) BETWEEN ? AND ?', [$startMonth, $endMonth]);
+        
+        $query->where(function ($q) use ($startMonth, $endMonth) {
+            for ($m = $startMonth; $m <= $endMonth; $m++) {
+                $q->orWhereMonth('tanggal_insiden', $m);
+            }
+        });
 
         if ($month !== null) {
             $query->whereMonth('tanggal_insiden', $month);
@@ -191,14 +194,14 @@ class ManagerUnitKerjaAnalytics extends Widget
     protected function resolveMonthRange(): array
     {
         if ($this->grouping === 'month') {
-            return [$this->period, $this->period];
+            return [(int) $this->period, (int) $this->period];
         }
 
         if ($this->grouping === 'semester') {
-            return $this->period === 2 ? [7, 12] : [1, 6];
+            return (int) $this->period === 2 ? [7, 12] : [1, 6];
         }
 
-        return match ($this->period) {
+        return match ((int) $this->period) {
             2 => [4, 6],
             3 => [7, 9],
             4 => [10, 12],
@@ -252,21 +255,12 @@ class ManagerUnitKerjaAnalytics extends Widget
             $statusCounts = [];
             foreach (array_keys($this->statuses) as $statusKey) {
                 if ($statusKey === 'investigasi') {
-                    $statusCounts[$statusKey] = (clone $unitQuery)
-                        ->whereHas('investigation', function ($q) {
-                            $q->whereNotNull('investigation_started_at')
-                              ->whereNull('investigation_completed_at');
-                        })
-                        ->count();
+                    $statusCounts[$statusKey] = (clone $unitQuery)->where('status', LaporanInsiden::STATUS_INVESTIGASI)->count();
                     continue;
                 }
 
                 if ($statusKey === 'selesai_investigasi') {
-                    $statusCounts[$statusKey] = (clone $unitQuery)
-                        ->whereHas('investigation', function ($q) {
-                            $q->whereNotNull('investigation_completed_at');
-                        })
-                        ->count();
+                    $statusCounts[$statusKey] = (clone $unitQuery)->where('status', LaporanInsiden::STATUS_SELESAI)->count();
                     continue;
                 }
 
@@ -452,7 +446,8 @@ class ManagerUnitKerjaAnalytics extends Widget
             $this->applyPeriodFilter($unitQuery, $month);
 
             $total = $unitQuery->count();
-            if ($total === 0) continue;
+            if ($total === 0)
+                continue;
 
             // Calculate metrics
             $jenisColumns = $this->getTable4JenisColumns();
@@ -471,9 +466,7 @@ class ManagerUnitKerjaAnalytics extends Widget
             $severeImpact = (clone $unitQuery)
                 ->whereIn('dampak_insiden', ['Cedera berat', 'Meninggal'])
                 ->count();
-            $selesai = (clone $unitQuery)->whereHas('investigation', function ($q) {
-                $q->whereNotNull('investigation_completed_at');
-            })->count();
+            $selesai = (clone $unitQuery)->where('status', LaporanInsiden::STATUS_SELESAI)->count();
             $closeRate = round(($selesai / $total) * 100, 0);
 
             // Calculate average resolve days based on investigation timestamps
@@ -493,8 +486,8 @@ class ManagerUnitKerjaAnalytics extends Widget
                 $overdueBreakdown[$grading] = (clone $unitQuery)
                     ->whereHas('investigation', function ($q) use ($thresholdDays) {
                         $q->whereNotNull('investigation_started_at')
-                          ->whereNull('investigation_completed_at')
-                          ->whereRaw('DATEDIFF(NOW(), investigation_started_at) > ?', [$thresholdDays]);
+                            ->whereNull('investigation_completed_at')
+                            ->whereRaw('DATEDIFF(NOW(), investigation_started_at) > ?', [$thresholdDays]);
                     })
                     ->where('grading_risiko', 'like', $grading . '%')
                     ->count();
@@ -569,11 +562,13 @@ class ManagerUnitKerjaAnalytics extends Widget
     public function getTable4PriorityRiskBreakdowns(): array
     {
         if ($this->breakdownMode !== 'monthly') {
-            return [[
-                'title' => 'Akumulasi Periode',
-                'month' => null,
-                'rows' => $this->getTable4PriorityRisk(),
-            ]];
+            return [
+                [
+                    'title' => 'Akumulasi Periode',
+                    'month' => null,
+                    'rows' => $this->getTable4PriorityRisk(),
+                ]
+            ];
         }
 
         $tables = [];
