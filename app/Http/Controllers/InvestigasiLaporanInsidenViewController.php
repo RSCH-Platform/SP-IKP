@@ -38,7 +38,7 @@ class InvestigasiLaporanInsidenViewController extends Controller
                 $query->orderBy('event_datetime', 'asc');
             },
             'timelineEvents.entries.category',
-            'unitKerjas',
+            'unitKerja',
             'reporter',
             'problems.whys',
             'problems.contributors.category',

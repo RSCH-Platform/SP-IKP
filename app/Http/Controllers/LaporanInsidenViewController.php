@@ -24,7 +24,7 @@ class LaporanInsidenViewController extends Controller
                 $query->orderBy('event_datetime', 'asc');
             },
             'timelineEvents.entries.category',
-            'unitKerjas',
+            'unitKerja',
             'reporter',
             'verifier',
             'rejecter'
