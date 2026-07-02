@@ -4,6 +4,24 @@ Semua perubahan yang signifikan pada proyek **SP-IKP** (Sistem Pelaporan Insiden
 
 Format changelog ini berdasarkan [Keep a Changelog](https://keepachangelog.com/id/1.0.0/), dan proyek ini mematuhi [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-07-03
+
+### Added / Features
+- **Sistem Pembaruan Aplikasi (Updater)**: Penambahan arsitektur sistem *updater* terpusat (folder `app/Updates/`) beserta perintah artisan `AppUpdateCommand` untuk menstandardisasi pengelolaan dan eksekusi rilis fitur baru.
+- **Dokumentasi Sistem**: Menambahkan dokumen khusus `analisis_css_dan_performa_ikp.md` yang merangkum panduan arsitektur CSS dan rekam jejak analisis performa.
+
+### Fixed / Patched
+- **Bug Filter Analitik Unit Kerja**: Memperbaiki isu pada *widget* `ManagerUnitKerjaAnalytics` di mana data tidak muncul (bernilai `null`) karena kegagalan *strict type checking* pada variabel periode dari *Livewire*.
+- **Kompatibilitas Lintas Database**: Memperbaiki *bug SQL* pada fungsi filter bulan yang menggunakan sintaks baku `whereRaw('MONTH...')` menjadi implementasi bawaan Eloquent (`whereMonth`), sehingga sistem aman digunakan pada *database* apa pun (MySQL, PostgreSQL, maupun SQLite).
+- **Fatal Error pada Widget**: Menghapus sisa *debug code* `dd()` pada tabel unit performa yang sempat menyebabkan berhentinya proses *render* komponen di *dashboard*.
+
+### Changed / Improved
+- **Optimalisasi UI/UX Tabel Risiko**: Merombak tampilan tabel `priority-risk.blade.php` dengan menyembunyikan kolom yang kurang relevan, menyeragamkan jenis *font* dengan `tabular-nums`, membenahi *badge* warna grading, serta menambahkan baris kalkulasi "Total" dan "Jumlah Insiden" di bagian terbawah.
+- **Desain UI Komponen (Filament)**: Memperkecil jarak *padding* tombol (*button*) bawaan Filament secara global via *CSS overrides* (`theme.css`) untuk tampilan layar yang lebih lega, serta melakukan penyesuaian pada CSS komponen *wizard*.
+- **Refaktorisasi Sistem Pelaporan**: Melakukan pembersihan (*refactoring*) pada *Controllers* `InvestigasiLaporanInsidenViewController` & `LaporanInsidenViewController`.
+- **Pembaruan Skrip Migrasi**: Penyesuaian perintah migrasi otomatis untuk rekaman data lawas (`MigrateLegacyLaporanInsidenData`).
+- **Dependensi Composer**: Pembaruan rutin untuk paket-paket dependen di `composer.json`.
+
 ## [1.1.0] - 2026-07-01
 
 ### Added / Features
