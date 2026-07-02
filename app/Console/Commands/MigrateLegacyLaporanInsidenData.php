@@ -36,11 +36,21 @@ class MigrateLegacyLaporanInsidenData extends Command
 
         foreach ($laporans as $laporan) {
             // 1. Migrate Investigation Data
-            if ($laporan->grading_risiko || $laporan->investigation_started_at || $laporan->investigation_completed_at) {
+            if ($laporan->grading_risiko || $laporan->investigation_started_at || $laporan->investigation_completed_at || in_array($laporan->status, [LaporanInsiden::STATUS_INVESTIGASI, LaporanInsiden::STATUS_SELESAI])) {
+                $startedAt = $laporan->investigation_started_at;
+                if (!$startedAt && in_array($laporan->status, [LaporanInsiden::STATUS_INVESTIGASI, LaporanInsiden::STATUS_SELESAI])) {
+                    $startedAt = $laporan->updated_at;
+                }
+                
+                $completedAt = $laporan->investigation_completed_at;
+                if (!$completedAt && $laporan->status === LaporanInsiden::STATUS_SELESAI) {
+                    $completedAt = $laporan->updated_at;
+                }
+
                 $status = 'pending';
-                if ($laporan->investigation_completed_at) {
+                if ($completedAt || $laporan->status === LaporanInsiden::STATUS_SELESAI) {
                     $status = 'completed';
-                } elseif ($laporan->investigation_started_at) {
+                } elseif ($startedAt || $laporan->status === LaporanInsiden::STATUS_INVESTIGASI) {
                     $status = 'in_progress';
                 }
 
@@ -50,9 +60,9 @@ class MigrateLegacyLaporanInsidenData extends Command
                         'grading_risiko' => $laporan->grading_risiko,
                         'status' => $status,
                         'investigation_started_by' => $laporan->investigation_started_by,
-                        'investigation_started_at' => $laporan->investigation_started_at,
+                        'investigation_started_at' => $startedAt,
                         'investigation_completed_by' => $laporan->investigation_completed_by,
-                        'investigation_completed_at' => $laporan->investigation_completed_at,
+                        'investigation_completed_at' => $completedAt,
                     ]
                 );
                 $countInvestigations++;
