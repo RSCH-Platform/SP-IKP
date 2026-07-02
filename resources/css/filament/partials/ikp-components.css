@@ -50,7 +50,7 @@
     --theme-surface-card: #ffffff;
     --theme-surface-inset: #eef2f7;
     --theme-surface-deep: #e2e8f0;
-    --theme-primary: #2563eb;
+    --theme-primary: #3b82f6;
     --theme-primary-hover: #1d4ed8;
     --theme-primary-light: #60a5fa;
     --theme-primary-dim: rgba(37, 99, 235, 0.08);
@@ -157,8 +157,8 @@
 }
 
 .dark .ikp-header.status-revisi-unit {
-    background-color: rgba(217, 119, 6, 0.15);
-    border-color: rgba(217, 119, 6, 0.4);
+    background-color: rgba(253, 186, 116, 0.15);
+    border-color: rgba(253, 186, 116, 0.4);
 }
 
 .dark .ikp-header.status-investigasi {
@@ -282,13 +282,13 @@
 }
 
 .status-revisi-unit {
-    background-color: #fee2e2;
-    color: #991b1b;
+    background-color: #ffedd5;
+    color: #c2410c;
 }
 
 .dark .status-revisi-unit {
-    background-color: rgba(220, 38, 38, 0.2);
-    color: #fca5a5;
+    background-color: rgba(249, 115, 22, 0.2);
+    color: #fdba74;
 }
 
 .status-investigasi {
@@ -303,7 +303,12 @@
 
 .status-selesai {
     background-color: #194cb9;
-    color: #dcfce7;
+    color: #ffffff;
+}
+
+.dark .status-selesai {
+    background-color: rgba(25, 76, 185, 0.6);
+    color: #bfdbfe;
 }
 
 .ikp-notice {
