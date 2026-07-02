@@ -70,17 +70,10 @@ class InvestigationStatsWidget extends BaseWidget
 
         $ongoingCount = (clone $this->scopedQuery())
             ->where('status', LaporanInsiden::STATUS_INVESTIGASI)
-            ->whereHas('investigation', function ($query) {
-                $query->whereNotNull('investigation_started_at')
-                      ->whereNull('investigation_completed_at');
-            })
             ->count();
 
         $completedCount = (clone $this->scopedQuery())
             ->where('status', LaporanInsiden::STATUS_SELESAI)
-            ->whereHas('investigation', function ($query) {
-                $query->whereNotNull('investigation_completed_at');
-            })
             ->count();
 
         $actionRequiredCount = ProblemAction::query()

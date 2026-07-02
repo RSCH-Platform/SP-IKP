@@ -27,6 +27,7 @@ class AdminPanelProvider extends PanelProvider
         $panel = $panel
             ->default()
             ->id('ikp-application')
+            ->spa()
             ->path('ikp-application')
             ->colors([
                 'primary' => Color::Blue,

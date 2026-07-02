@@ -31,7 +31,7 @@ class InvestigatedReportsTableWidget extends Widget
 
     public string $selectedJenisInsiden = '';
 
-    public string $selectedStatus = LaporanInsiden::STATUS_INVESTIGASI;
+    public string $selectedStatus = LaporanInsiden::STATUS_SELESAI;
 
     public function mount(): void
     {
@@ -89,7 +89,7 @@ class InvestigatedReportsTableWidget extends Widget
 
     protected function scopedQuery(): Builder
     {
-        $query = LaporanInsiden::query();
+        $query = LaporanInsiden::query()->where('status', LaporanInsiden::STATUS_SELESAI);
         $user = Auth::user();
 
         if (!$user) {

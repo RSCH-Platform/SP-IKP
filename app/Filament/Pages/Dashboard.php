@@ -74,23 +74,15 @@ class Dashboard extends BaseDashboard
 
     public function getIncidentUninvestigatedCount(): int
     {
-        $count = (clone $this->scopedQuery())
-            ->whereDoesntHave('investigation', function ($query) {
-                $query->whereNotNull('investigation_started_at');
-            })
+        return (clone $this->scopedQuery())
+            ->whereNotIn('status', [LaporanInsiden::STATUS_INVESTIGASI, LaporanInsiden::STATUS_SELESAI])
             ->count();
-            
-        return $count;
     }
 
     public function getInvestigationInProgressCount(): int
     {
         return (clone $this->scopedQuery())
             ->where('status', LaporanInsiden::STATUS_INVESTIGASI)
-            ->whereHas('investigation', function ($query) {
-                $query->whereNotNull('investigation_started_at')
-                      ->whereNull('investigation_completed_at');
-            })
             ->count();
     }
 

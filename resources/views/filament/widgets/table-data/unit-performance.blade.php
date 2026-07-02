@@ -51,10 +51,16 @@
             @foreach($statuses as $k => $label)
             <x-report-table.td align="center">{{ $row[$k] ?? 0 }}</x-report-table.td>
             @endforeach
-            <x-report-table.td align="center"
-                style="background-color: {{ ($row['close_rate'] ?? 0) >= 85 ? '#d1fae5' : (($row['close_rate'] ?? 0) >= 70 ? '#fef3c7' : '#fee2e2') }}"
-                class="font-semibold">
-                {{ $row['close_rate'] ?? 0 }}%
+            @php
+                $closeRate = $row['close_rate'] ?? 0;
+                $closeClass = $closeRate >= 85 
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' 
+                    : ($closeRate >= 70 
+                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' 
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300');
+            @endphp
+            <x-report-table.td align="center" class="font-bold {{ $closeClass }}">
+                {{ $closeRate }}%
             </x-report-table.td>
         </tr>
         @empty
