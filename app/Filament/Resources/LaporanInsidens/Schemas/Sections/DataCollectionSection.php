@@ -21,17 +21,12 @@ class DataCollectionSection
         return SpatieMediaLibraryFileUpload::make('document_upload')
             ->label($label)
             ->collection('investigation_documents')
-            ->disk(config('media-library.disk_name'))
-            ->directory(function (callable $get, $record) {
-                return $record?->laporanInsiden?->getMediaFolderPath() ?? '';
-            })
             ->downloadable()
             ->preserveFilenames()
             ->columnSpanFull()
             ->maxSize(20480)
             ->acceptedFileTypes($acceptedFileTypes)
-            ->helperText($helperText)
-            ->visibility('public');
+            ->helperText($helperText);
     }
 
     public static function make(): Section
