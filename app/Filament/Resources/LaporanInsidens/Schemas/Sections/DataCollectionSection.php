@@ -26,7 +26,16 @@ class DataCollectionSection
             ->columnSpanFull()
             ->maxSize(20480)
             ->acceptedFileTypes($acceptedFileTypes)
-            ->helperText($helperText);
+            ->helperText($helperText)
+            ->getUploadedFileUrlUsing(function ($file) {
+                if (is_string($file)) {
+                    $media = \Spatie\MediaLibrary\MediaCollections\Models\Media::findByUuid($file);
+                    if ($media) {
+                        return $media->getUrl();
+                    }
+                }
+                return '';
+            });
     }
 
     public static function make(): Section
