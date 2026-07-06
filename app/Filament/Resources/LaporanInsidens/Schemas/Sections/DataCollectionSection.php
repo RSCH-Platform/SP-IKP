@@ -26,8 +26,7 @@ class DataCollectionSection
             ->columnSpanFull()
             ->maxSize(20480)
             ->acceptedFileTypes($acceptedFileTypes)
-            ->helperText($helperText)
-            ->visibility('public');
+            ->helperText($helperText);
     }
 
     public static function make(): Section
