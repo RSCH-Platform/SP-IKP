@@ -197,7 +197,7 @@ class EditLaporanInsiden extends EditRecord
     public function selesaikanInvestigasi(): void
     {
         try {
-            $this->save();
+            // $this->save(); // Dicomment sementara untuk mengatasi performa load lambat saat submit
 
             app(SelesaikanInvestigasiAction::class)->execute($this->record, Auth::id());
 

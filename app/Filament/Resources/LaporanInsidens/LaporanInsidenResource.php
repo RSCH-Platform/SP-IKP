@@ -67,22 +67,7 @@ class LaporanInsidenResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            // Eager load investigation data untuk reduce N+1 queries
             ->with([
-                'investigationData',
-                'investigationData.creator',
-                'problems',
-                'problems.whys',
-                'problems.contributors',
-                'problems.contributors.category',
-                'problems.contributors.component',
-                'problems.contributors.subComponent',
-                'problems.recommendations',
-                'problems.actions',
-                'problems.actions.media',
-                'timelineEvents',
-                'timelineEvents.entries',
-                'timelineEvents.entries.category',
                 'reporter',
                 'verifier',
                 'user',
