@@ -214,18 +214,22 @@
                                 @if($actionMedia->isNotEmpty())
                                 <div class="mt-3 border-t border-slate-200 pt-3">
                                     <p class="text-xs font-semibold text-slate-700 mb-2">Bukti</p>
-                                    <div class="flex flex-wrap gap-2">
+                                    <div class="flex flex-wrap gap-3">
                                         @foreach($actionMedia as $media)
-                                        <a href="{{ $media->getUrl() }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded border border-slate-200 hover:bg-slate-200 transition">
                                             @if(str_contains($media->mime_type, 'image'))
-                                            🖼️
-                                            @elseif($media->mime_type === 'application/pdf')
-                                            📄
+                                                <div class="border border-slate-200 rounded p-1 bg-slate-50">
+                                                    <img src="{{ $media->getUrl() }}" alt="{{ $media->name ?? basename($media->file_name ?? '') }}" class="max-h-48 object-contain rounded">
+                                                </div>
                                             @else
-                                            📎
+                                                <a href="{{ $media->getUrl() }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded border border-slate-200 hover:bg-slate-200 transition h-fit">
+                                                    @if($media->mime_type === 'application/pdf')
+                                                    📄
+                                                    @else
+                                                    📎
+                                                    @endif
+                                                    {{ $media->name ?? basename($media->file_name ?? '') }}
+                                                </a>
                                             @endif
-                                            {{ $media->name ?? basename($media->file_name ?? '') }}
-                                        </a>
                                         @endforeach
                                     </div>
                                 </div>
