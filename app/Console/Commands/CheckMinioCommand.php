@@ -114,11 +114,83 @@ class CheckMinioCommand extends Command
             }
 
             $this->info('✅ MinIO / S3 connection is working.');
-            return self::SUCCESS;
+            
+            return $this->testFileOperations($filesystem, $disk);
         } catch (Throwable $exception) {
             $this->error('❌ Failed to connect to MinIO / S3 storage.');
             $this->error($exception->getMessage());
             $this->line('Please verify AWS_* environment variables, endpoint URL, region, bucket name, and network access.');
+            return self::FAILURE;
+        }
+    }
+
+    private function testFileOperations(FilesystemAdapter $filesystem, string $disk): int
+    {
+        $this->info("\n--- Testing File Operations ---");
+        
+        $testFile = 'ikp-minio-test-' . time() . '.txt';
+        $content = 'MinIO / S3 test file created at ' . now()->toDateTimeString();
+
+        try {
+            $this->line("1. Uploading test file [{$testFile}]...");
+            $filesystem->put($testFile, $content);
+            
+            $this->line("2. Verifying file exists...");
+            if (!$filesystem->exists($testFile)) {
+                $this->error("❌ File was not found after upload.");
+                return self::FAILURE;
+            }
+            
+            $this->line("3. Reading file content...");
+            $readContent = $filesystem->get($testFile);
+            if ($readContent !== $content) {
+                $this->error("❌ File content mismatch.");
+            }
+            
+            $this->line("4. Testing URL generation...");
+            try {
+                $publicUrl = $filesystem->url($testFile);
+                $this->line("   - Public URL: <fg=cyan>{$publicUrl}</>");
+            } catch (Throwable $e) {
+                $this->warn("   - Public URL failed: " . $e->getMessage());
+            }
+
+            try {
+                $tempUrl = $filesystem->temporaryUrl($testFile, now()->addMinutes(5));
+                $this->line("   - Temporary URL: <fg=cyan>{$tempUrl}</>");
+                
+                $parsedTemp = parse_url($tempUrl);
+                $tempHost = $parsedTemp['host'] ?? '';
+                
+                if (in_array(strtolower($tempHost), ['127.0.0.1', 'localhost', 'minio'])) {
+                    $this->warn("   ⚠️  WARNING: Temporary URL uses internal hostname ('{$tempHost}').");
+                    $this->warn("   ⚠️  If accessed from outside Docker/Server, previews will fail!");
+                    $this->warn("   ⚠️  Fix by setting 'temporary_url' => env('AWS_URL') in filesystems.php.");
+                }
+            } catch (Throwable $e) {
+                $this->warn("   - Temporary URL generation failed: " . $e->getMessage());
+            }
+
+            $this->line("5. Deleting test file...");
+            $filesystem->delete($testFile);
+            
+            if ($filesystem->exists($testFile)) {
+                $this->warn("⚠️  Test file was not deleted successfully.");
+            }
+            
+            $this->info("\n✅ All file operations completed successfully.");
+            return self::SUCCESS;
+            
+        } catch (Throwable $exception) {
+            $this->error('❌ File operations failed.');
+            $this->error($exception->getMessage());
+            
+            try {
+                if ($filesystem->exists($testFile)) {
+                    $filesystem->delete($testFile);
+                }
+            } catch (Throwable $e) {}
+            
             return self::FAILURE;
         }
     }

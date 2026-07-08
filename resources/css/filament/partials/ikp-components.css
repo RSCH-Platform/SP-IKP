@@ -32,6 +32,13 @@
     padding-bottom: 0rem;
 }
 
+/* Fix for TextColumn where merged fi-ta-text overrides fi-ta-text-item flex layout */
+.fi-ta-text.fi-ta-text-item {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.375rem !important;
+}
+
 :root {
     --theme-radius: 8px;
     --theme-radius-sm: 6px;
