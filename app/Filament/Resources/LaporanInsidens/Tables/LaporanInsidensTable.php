@@ -4,6 +4,7 @@ namespace App\Filament\Resources\LaporanInsidens\Tables;
 
 use App\Filament\Resources\LaporanInsidens\LaporanInsidenResource;
 use App\Models\LaporanInsiden;
+use App\Models\UnitKerja;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -21,6 +22,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class LaporanInsidensTable
 {
@@ -149,6 +151,7 @@ class LaporanInsidensTable
             ])
             ->filters([
                 SelectFilter::make('status')
+                    ->multiple()
                     ->options([
                         'draft'        => 'Draft',
                         'dilaporkan'   => 'Dilaporkan',
@@ -160,7 +163,9 @@ class LaporanInsidensTable
 
                 SelectFilter::make('jenis_insiden')
                     ->label('Jenis Insiden')
+                    ->multiple()
                     ->options([
+                        'KPC (Kondisi Potensial Cedera)' => 'KPC',
                         'KNC (Kejadian Nyaris Cedera)' => 'KNC',
                         'KTD (Kejadian Tidak Diharapkan)' => 'KTD',
                         'KTC (Kejadian Tidak Cedera)' => 'KTC',
@@ -169,6 +174,7 @@ class LaporanInsidensTable
 
                 SelectFilter::make('dampak_insiden')
                     ->label('Dampak')
+                    ->multiple()
                     ->options([
                         'Tidak ada cedera' => 'Tidak ada cedera',
                         'Cedera ringan' => 'Cedera ringan',
@@ -176,6 +182,24 @@ class LaporanInsidensTable
                         'Cedera berat' => 'Cedera berat',
                         'Meninggal' => 'Meninggal',
                     ]),
+
+                SelectFilter::make('unit_kerja_id')
+                    ->label('Unit Kerja')
+                    ->multiple()
+                    ->searchable()
+                    ->options(
+                        fn () => UnitKerja::query()
+                            ->orderBy('unit_name')
+                            ->pluck('unit_name', 'id')
+                            ->toArray()
+                    )
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+
+                        return $query->whereIn('unit_kerja_id', $data['values']);
+                    }),
 
                 TrashedFilter::make(),
             ])
@@ -525,6 +549,7 @@ class LaporanInsidensTable
                     ->button()
                     ->label('Aksi')
             ])
+            ->selectable()
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

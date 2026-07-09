@@ -18,7 +18,7 @@ class DataCollectionSection
 {
     private static function documentUpload(string $label, array $acceptedFileTypes, string $helperText): SpatieMediaLibraryFileUpload
     {
-        return SpatieMediaLibraryFileUpload::make('document_upload')
+        return SpatieMediaLibraryFileUpload::make('investigation_documents')
             ->label($label)
             ->collection('investigation_documents')
             ->downloadable()
