@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('APP_ENV', 'production') === 'production' ? 's3' : 'local',
+    'default' => env('FILESYSTEM_DISK', env('APP_ENV', 'production') === 'production' ? 's3' : 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -70,6 +70,22 @@ return [
             'options' => [
                 'CacheControl' => 'max-age=31536000, public',
             ],
+        ],
+
+        'minio_tmp' => [
+            'driver' => env('MINIO_TMP_DRIVER', 's3'),
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'url' => env('AWS_URL').'/livewire-tmp',
+            'endpoint' => env('AWS_ENDPOINT'),
+            'temporary_url' => env('AWS_URL').'/livewire-tmp',
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => true,
+            'report' => false,
+            'visibility' => 'public',
+            'root' => 'livewire-tmp',
         ],
 
     ],
