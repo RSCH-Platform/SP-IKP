@@ -54,6 +54,10 @@ class PublicS3UrlGenerator extends DefaultUrlGenerator
      */
     public function getTemporaryUrl(DateTimeInterface $expiration, array $options = []): string
     {
-        return parent::getTemporaryUrl($expiration, $options);
+        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'media.stream',
+            $expiration,
+            ['media' => $this->media->id]
+        );
     }
 }

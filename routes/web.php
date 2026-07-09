@@ -138,3 +138,9 @@ Route::get('/investigasi-file/{encryptedPath}', function (string $encryptedPath)
 // Route::get('/investigasi-laporan-insiden/pdf/{nomor_laporan}', [InvestigasiLaporanInsidenViewController::class, 'pdf'])
 //     ->where('nomor_laporan', '.*')
 //     ->name('investigasi-laporan-insiden.pdf');
+
+Route::get('/media/{media}/stream', function (\Spatie\MediaLibrary\MediaCollections\Models\Media $media) {
+    abort_unless(request()->hasValidSignature(), 403, 'Invalid or expired signature.');
+    return $media->toResponse(request());
+})->name('media.stream');
+
