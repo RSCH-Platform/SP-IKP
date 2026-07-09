@@ -79,19 +79,28 @@ trait HandlesActions
             }
 
             if (!empty($this->uploadedFiles)) {
+                Log::info('ProblemAnalysisManager: Processing ' . count($this->uploadedFiles) . ' files for permanent storage');
                 foreach ($this->uploadedFiles as $file) {
                     try {
-                        $mediaItem = $action->addMedia($file['path'])
+                        Log::debug('ProblemAnalysisManager: Media persistence details', [
+                            'original_file_name' => $file['name'],
+                            'temp_path' => $file['storagePath'],
+                        ]);
+
+                        $mediaItem = $action->addMediaFromDisk($file['storagePath'], $file['storageDisk'])
+                            ->usingName(pathinfo($file['name'], PATHINFO_FILENAME))
+                            ->usingFileName($file['name'])
                             ->preservingOriginal()
                             ->toMediaCollection('action_evidence');
 
-                        Log::info('ProblemAnalysisManager: File persisted to media library', [
+                        Log::info('ProblemAnalysisManager: Successfully saved ' . $file['name'] . ' to media library');
+                        Log::debug('ProblemAnalysisManager: Spatie Media Library final details', [
                             'action_id' => $action->id,
                             'media_id' => $mediaItem->id ?? null,
                             'collection_name' => 'action_evidence',
                             'original_file_name' => $file['name'],
                             'mime_type' => $file['type'],
-                            'source_temp_path' => $file['path'],
+                            'source_temp_path' => $file['storagePath'],
                             'storage_disk' => $mediaItem->disk ?? null,
                             'storage_path' => $mediaItem->getPath() ?? null,
                         ]);

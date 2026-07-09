@@ -59,25 +59,24 @@ trait HandlesActionFileUploads
                         continue;
                     }
 
-                    $path = $file->store('temp/action-evidence', 'local');
-                    $fullPath = Storage::disk('local')->path($path);
+                    $disk = config('filesystems.default');
+                    $path = $file->store('temp/action-evidence', $disk);
 
                     $this->uploadedFiles[] = [
-                        'path' => $fullPath,
                         'name' => $file->getClientOriginalName(),
                         'size' => round($fileSizeKB, 2),
                         'type' => $mimeType,
                         'storagePath' => $path,
-                        'storageDisk' => 'local',
+                        'storageDisk' => $disk,
                     ];
 
-                    Log::info('ProblemAnalysisManager: Temporary upload saved', [
+                    Log::info('ProblemAnalysisManager: Temporary file uploaded: ' . $file->getClientOriginalName());
+                    Log::debug('ProblemAnalysisManager: Temporary upload details', [
                         'original_file_name' => $file->getClientOriginalName(),
                         'mime_type' => $mimeType,
                         'size_kb' => round($fileSizeKB, 2),
-                        'temp_storage_disk' => 'local',
+                        'temp_storage_disk' => $disk,
                         'temp_storage_path' => $path,
-                        'temp_full_path' => $fullPath,
                     ]);
                 } elseif (is_array($file) && isset($file['name'])) {
                     Log::warning('ProblemAnalysisManager: Skipping unsupported raw file array upload', [
@@ -106,8 +105,8 @@ trait HandlesActionFileUploads
             if (isset($this->uploadedFiles[$index])) {
                 $file = $this->uploadedFiles[$index];
 
-                if (file_exists($file['path'])) {
-                    unlink($file['path']);
+                if (Storage::disk($file['storageDisk'] ?? config('filesystems.default'))->exists($file['storagePath'])) {
+                    Storage::disk($file['storageDisk'] ?? config('filesystems.default'))->delete($file['storagePath']);
                 }
 
                 unset($this->uploadedFiles[$index]);
@@ -115,7 +114,7 @@ trait HandlesActionFileUploads
 
                 Log::info('ProblemAnalysisManager: Uploaded file removed from staging', [
                     'file_name' => $file['name'],
-                    'storage_path' => $file['path'],
+                    'storage_path' => $file['storagePath'],
                 ]);
 
                 $this->dispatch('notify', message: '✅ File dihapus dari antrian upload');
