@@ -59,7 +59,7 @@ trait HandlesActionFileUploads
                         continue;
                     }
 
-                    $disk = config('filesystems.default');
+                    $disk = config('livewire.temporary_file_upload.disk', config('filesystems.default'));
                     $path = $file->store('temp/action-evidence', $disk);
 
                     $this->uploadedFiles[] = [

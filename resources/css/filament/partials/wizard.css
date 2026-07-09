@@ -210,3 +210,121 @@
 .dark .fi-sc-wizard .fi-sc-wizard-header-step.fi-completed~.fi-sc-wizard-header-step .fi-sc-wizard-header-step-separator .separator-stroke {
     stroke: #334155;
 }
+
+/* ==================================================== */
+/* 📱 MOBILE RESPONSIVE                                  */
+/* ==================================================== */
+
+/* --- Breakpoint: ≤ 640px (mobile) --- */
+@media (max-width: 640px) {
+
+    /* Header: horizontal scroll so steps don't wrap/collapse */
+    .fi-sc-wizard .fi-sc-wizard-header {
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;       /* Firefox */
+        -ms-overflow-style: none;    /* IE/Edge */
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .fi-sc-wizard .fi-sc-wizard-header::-webkit-scrollbar {
+        display: none;               /* Chrome/Safari */
+    }
+
+    /* Each step: shrink and snap */
+    .fi-sc-wizard .fi-sc-wizard-header-step {
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        min-width: 0;
+    }
+
+    /* Button: tighter gap, less padding */
+    .fi-sc-wizard .fi-sc-wizard-header-step-btn {
+        gap: 0.5rem;
+        padding-inline: 0.75rem;
+        padding-block: 0.75rem;
+    }
+
+    /* Icon container: smaller on mobile */
+    .fi-sc-wizard .fi-sc-wizard-header-step-btn .fi-sc-wizard-header-step-icon-ctn {
+        width: 2rem !important;
+        height: 2rem !important;
+        min-width: 2rem !important;
+        min-height: 2rem !important;
+        flex-shrink: 0;
+    }
+
+    /* Step number: smaller font */
+    .fi-sc-wizard .fi-sc-wizard-header-step-number {
+        font-size: 0.75rem;
+    }
+
+    /* Hide label & description for non-active, non-completed steps */
+    .fi-sc-wizard .fi-sc-wizard-header-step:not(.fi-active) .fi-sc-wizard-header-step-text {
+        display: none;
+    }
+
+    /* Show label only for active step, hide description */
+    .fi-sc-wizard .fi-sc-wizard-header-step.fi-active .fi-sc-wizard-header-step-label {
+        font-size: 0.8rem;
+        white-space: nowrap;
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .fi-sc-wizard .fi-sc-wizard-header-step.fi-active .fi-sc-wizard-header-step-description {
+        display: none;
+    }
+
+    /* Separator: narrower on mobile */
+    .fi-sc-wizard .fi-sc-wizard-header-step-separator {
+        width: 0.875rem !important;
+    }
+
+    /* Footer: stack buttons vertically on very small screens */
+    .fi-sc-wizard .fi-sc-wizard-footer {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+/* --- Breakpoint: 641px–768px (small tablet) --- */
+@media (min-width: 641px) and (max-width: 768px) {
+
+    .fi-sc-wizard .fi-sc-wizard-header-step-btn {
+        gap: 0.625rem;
+        padding-inline: 0.875rem;
+    }
+
+    .fi-sc-wizard .fi-sc-wizard-header-step-btn .fi-sc-wizard-header-step-icon-ctn {
+        width: 2.25rem !important;
+        height: 2.25rem !important;
+        min-width: 2.25rem !important;
+        min-height: 2.25rem !important;
+    }
+
+    .fi-sc-wizard .fi-sc-wizard-header-step-label {
+        font-size: 0.85rem !important;
+    }
+
+    .fi-sc-wizard .fi-sc-wizard-header-step-description {
+        font-size: 0.8rem !important;
+    }
+
+    .fi-sc-wizard .fi-sc-wizard-header-step-separator {
+        width: 1.125rem !important;
+    }
+}
+
+/* ==================================================== */
+/* 🌙 DARK MODE – MOBILE (combined)                     */
+/* ==================================================== */
+
+@media (max-width: 640px) {
+    .dark .fi-sc-wizard .fi-sc-wizard-header {
+        background-color: transparent;
+    }
+}
