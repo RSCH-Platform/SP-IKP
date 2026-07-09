@@ -47,6 +47,22 @@ class AppServiceProvider extends ServiceProvider
         $this->registerModelPolicies();
         $this->registerMediaLibraryConfig();
         $this->registerObservers();
+        $this->registerCustomStorageDrivers();
+    }
+
+    /**
+     * =========================================================
+     * CUSTOM STORAGE DRIVERS
+     * =========================================================
+     */
+    protected function registerCustomStorageDrivers(): void
+    {
+        \Illuminate\Support\Facades\Storage::extend('minio_tmp', function ($app, $config) {
+            // Force the driver to be 's3' so Flysystem uses the S3 adapter, 
+            // but the disk name remains 'minio_tmp' to bypass Livewire's hardcoded 's3' check.
+            $config['driver'] = 's3';
+            return \Illuminate\Support\Facades\Storage::build($config);
+        });
     }
 
     /**
