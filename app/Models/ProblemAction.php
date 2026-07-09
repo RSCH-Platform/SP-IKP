@@ -39,7 +39,7 @@ class ProblemAction extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('action_evidence')
-            ->useDisk('public')
+            ->useDisk(config('media-library.disk_name'))
             ->acceptsMimeTypes([
                 'image/jpeg',
                 'image/png',

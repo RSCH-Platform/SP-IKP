@@ -29,11 +29,12 @@ class ProblemActionObserver
 
         $path = trim("{$unitFolder}/Laporan Insiden/{$month}/{$reportSegment}", '/');
 
-        $existsBefore = Storage::disk('public')->exists($path);
+        $diskName = config('media-library.disk_name');
+        $existsBefore = Storage::disk($diskName)->exists($path);
         $diskFolderCreated = false;
 
         if (! $existsBefore) {
-            $diskFolderCreated = Storage::disk('public')->makeDirectory($path);
+            $diskFolderCreated = Storage::disk($diskName)->makeDirectory($path);
         }
 
         $folder = Folder::firstOrCreate(

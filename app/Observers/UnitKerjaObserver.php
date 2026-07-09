@@ -48,8 +48,9 @@ class UnitKerjaObserver
 
         $diskPath = "{$unitSlug}/Laporan Insiden";
         $diskCreated = false;
-        if (! Storage::disk('public')->exists($diskPath)) {
-            $diskCreated = Storage::disk('public')->makeDirectory($diskPath);
+        $diskName = config('media-library.disk_name');
+        if (! Storage::disk($diskName)->exists($diskPath)) {
+            $diskCreated = Storage::disk($diskName)->makeDirectory($diskPath);
         }
 
         Notification::make()
