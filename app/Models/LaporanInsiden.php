@@ -28,6 +28,35 @@ class LaporanInsiden extends Model implements HasMedia
     const STATUS_INVESTIGASI    = 'investigasi';    // tim_mutu sedang investigasi sederhana
     const STATUS_SELESAI        = 'selesai';        // investigasi selesai
 
+    // Group status berdasarkan tahap aktif
+    public const TAHAP_AWAL = [
+        self::STATUS_DRAFT,
+        self::STATUS_REVISI,
+    ];
+
+    public const TAHAP_GRADING = [
+        self::STATUS_DILAPORKAN,
+        self::STATUS_REVISI_UNIT,
+    ];
+
+    public const TAHAP_INVESTIGASI = [
+        self::STATUS_INVESTIGASI,
+    ];
+
+    // Group status berlanjut (untuk visibilitas komponen agar tidak hilang)
+    public const FLOW_PASCA_AWAL = [
+        self::STATUS_DILAPORKAN,
+        self::STATUS_DIVERIFIKASI,
+        self::STATUS_REVISI_UNIT,
+        self::STATUS_INVESTIGASI,
+        self::STATUS_SELESAI,
+    ];
+
+    public const FLOW_INVESTIGASI_DAN_SELESAI = [
+        self::STATUS_INVESTIGASI,
+        self::STATUS_SELESAI,
+    ];
+
     public const JENIS_INSIDEN_OPTIONS = [
         'KPC (Kondisi Potensial Cedera)' => 'KPC (Kondisi Potensial Cedera)',
         'KNC (Kejadian Nyaris Cedera)' => 'KNC (Kejadian Nyaris Cedera)',

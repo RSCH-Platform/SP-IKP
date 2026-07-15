@@ -70,42 +70,26 @@ class LaporanInsidenForm
                              */
                             LaporanInsidenFormSchema::sectionInsiden(true)
                                 ->visible(
-                                    fn($record, string $context) =>
-                                    $context !== 'create' && !in_array($record?->status, [
-                                        LaporanInsiden::STATUS_DRAFT,
-                                        LaporanInsiden::STATUS_DILAPORKAN,
-                                    ])
+                                    fn($record) =>
+                                    $record !== null && !in_array($record?->status, array_merge(
+                                        LaporanInsiden::TAHAP_AWAL,
+                                        LaporanInsiden::TAHAP_GRADING
+                                    ))
                                 ),
 
                             LaporanInsidenFormSchema::sectionInsiden(false)
                                 ->visible(
-                                    fn($record, string $context) =>
-                                    $context === 'create' || in_array($record?->status, [
-                                        LaporanInsiden::STATUS_DRAFT,
-                                        LaporanInsiden::STATUS_DILAPORKAN,
-                                    ])
+                                    fn($record) =>
+                                    $record === null || in_array($record?->status, array_merge(
+                                        LaporanInsiden::TAHAP_AWAL,
+                                        LaporanInsiden::TAHAP_GRADING
+                                    ))
                                 ),
 
                             LaporanInsidenFormSchema::sectionKronologi(collapsed: false),
 
                             LaporanInsidenFormSchema::sectionTindakan(collapsed: false),
-
-                            /*
-                             * Grading risiko di halaman review baru ditampilkan setelah laporan
-                             * melewati status Draft, Dilaporkan, dan Diverifikasi.
-                             *
-                             * Artinya grading ini ditampilkan untuk tahap lanjutan,
-                             * bukan saat laporan masih awal atau baru diverifikasi.
-                             */
-                            LaporanInsidenFormSchema::sectionGradingResiko()
-                                ->visible(
-                                    fn($record) =>
-                                    !in_array($record?->status, [
-                                        LaporanInsiden::STATUS_DRAFT,
-                                        LaporanInsiden::STATUS_DILAPORKAN,
-                                        LaporanInsiden::STATUS_DIVERIFIKASI,
-                                    ])
-                                ),
+                            // (sectionGradingResiko dihapus dari sini karena sekarang akan selalu ada di Step 2 secara berkesinambungan)
 
                             // LaporanInsidenFormSchema::sectionCatatanTambahan()
                             //     ->hidden(fn ($record) => ! ($record?->status !== LaporanInsiden::STATUS_DRAFT)),
@@ -115,27 +99,22 @@ class LaporanInsidenForm
                         ->key('grading-resiko-catatan-tambahan')
 
                         /*
-                         * Step ini khusus untuk laporan berstatus Dilaporkan.
-                         *
-                         * Pada tahap ini Validator / Tim IKP dapat memberi grading risiko
-                         * dan catatan tambahan sebelum laporan naik ke proses berikutnya.
+                         * Step grading risiko akan muncul setelah tahap awal lewat.
+                         * Tetap dimunculkan di tahap verifikasi & investigasi sebagai read-only history.
                          */
-                        ->hidden(
+                        ->visible(
                             fn($record) =>
-                            !in_array($record?->status, [
-                                LaporanInsiden::STATUS_DILAPORKAN,
-                            ])
+                            $record !== null && in_array($record?->status, LaporanInsiden::FLOW_PASCA_AWAL)
                         )
 
                         /*
-                         * Step dikunci jika status bukan Dilaporkan.
-                         *
-                         * Walaupun secara hidden sudah dibatasi, disabled tetap dipakai
+                         * Step hanya bisa diedit di tahap grading (Dilaporkan, Revisi Unit).
+                         * Walaupun secara visible sudah dibatasi, disabled tetap dipakai
                          * sebagai pengaman agar step tidak bisa diedit di status lain.
                          */
                         ->disabled(
                             fn($record) =>
-                            $record?->status !== LaporanInsiden::STATUS_DILAPORKAN
+                            $record?->status === LaporanInsiden::STATUS_SELESAI
                         )
                         ->schema([
                             LaporanInsidenFormSchema::sectionGradingResiko(),
@@ -153,16 +132,11 @@ class LaporanInsidenForm
                          *
                          * Ini mencegah form investigasi muncul sebelum proses investigasi dimulai.
                          */
-                        ->hidden(
+                        ->visible(
                             fn($record) =>
-                            !(
-                                Auth::user()?->can('Investigasi:LaporanInsiden')
-                                && in_array($record?->status, [
-                                    LaporanInsiden::STATUS_INVESTIGASI,
-                                    LaporanInsiden::STATUS_SELESAI,
-                                ])
-                                && $record->investigation_started_by !== null
-                            )
+                            Auth::user()?->can('Investigasi:LaporanInsiden')
+                            && $record !== null && in_array($record?->status, LaporanInsiden::FLOW_INVESTIGASI_DAN_SELESAI)
+                            && $record->hasInvestigationStarted()
                         )
 
                         /*
@@ -171,7 +145,7 @@ class LaporanInsidenForm
                          */
                         ->disabled(
                             fn($record) =>
-                            $record?->status !== LaporanInsiden::STATUS_INVESTIGASI
+                            $record?->status === LaporanInsiden::STATUS_SELESAI
                         )
                         ->schema([
                             LaporanInsidenFormSchema::getFieldDataCollection(),
@@ -185,16 +159,11 @@ class LaporanInsidenForm
                          * hanya muncul untuk user investigasi, status investigasi/selesai,
                          * dan investigasi sudah dimulai.
                          */
-                        ->hidden(
+                        ->visible(
                             fn($record) =>
-                            !(
-                                Auth::user()?->can('Investigasi:LaporanInsiden')
-                                && in_array($record?->status, [
-                                    LaporanInsiden::STATUS_INVESTIGASI,
-                                    LaporanInsiden::STATUS_SELESAI,
-                                ])
-                                && $record->investigation_started_by !== null
-                            )
+                            Auth::user()?->can('Investigasi:LaporanInsiden')
+                            && $record !== null && in_array($record?->status, LaporanInsiden::FLOW_INVESTIGASI_DAN_SELESAI)
+                            && $record->hasInvestigationStarted()
                         )
 
                         /*
@@ -203,7 +172,7 @@ class LaporanInsidenForm
                          */
                         ->disabled(
                             fn($record) =>
-                            $record?->status !== LaporanInsiden::STATUS_INVESTIGASI
+                            $record?->status === LaporanInsiden::STATUS_SELESAI
                         )
                         ->schema([
                             LaporanInsidenFormSchema::getFieldTimelineGrid(collapsed: false),
@@ -219,16 +188,11 @@ class LaporanInsidenForm
                          * Analisa masalah hanya relevan setelah investigasi dimulai.
                          * Karena itu, syarat tampilnya sama dengan step investigasi lainnya.
                          */
-                        ->hidden(
+                        ->visible(
                             fn($record) =>
-                            !(
-                                Auth::user()?->can('Investigasi:LaporanInsiden')
-                                && in_array($record?->status, [
-                                    LaporanInsiden::STATUS_INVESTIGASI,
-                                    LaporanInsiden::STATUS_SELESAI,
-                                ])
-                                && $record->investigation_started_by !== null
-                            )
+                            Auth::user()?->can('Investigasi:LaporanInsiden')
+                            && $record !== null && in_array($record?->status, LaporanInsiden::FLOW_INVESTIGASI_DAN_SELESAI)
+                            && $record->hasInvestigationStarted()
                         )
 
                         /*
@@ -237,7 +201,7 @@ class LaporanInsidenForm
                          */
                         ->disabled(
                             fn($record) =>
-                            $record?->status !== LaporanInsiden::STATUS_INVESTIGASI
+                            $record?->status === LaporanInsiden::STATUS_SELESAI
                         )
                         ->schema([
                             LaporanInsidenFormSchema::getFieldProblemAnalysisOptimize(),
