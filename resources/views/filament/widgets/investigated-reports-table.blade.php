@@ -7,11 +7,11 @@
             <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h3 class="text-sm font-semibold leading-5 text-slate-900 dark:text-white">
-                        Investigasi Selesai
+                        Pemantauan Investigasi
                     </h3>
 
                     <p class="mt-0.5 text-[11px] leading-4 text-slate-500 dark:text-slate-400">
-                        Rekap laporan investigasi yang telah selesai diproses.
+                        Pantau status laporan insiden dalam proses investigasi.
                     </p>
                 </div>
             </div>
@@ -45,6 +45,7 @@
 
                             <x-filament::input.wrapper>
                                 <x-filament::input.select wire:model.live="selectedYear">
+                                    <option value="">Semua tahun</option>
                                     @foreach ($this->getAvailableYears() as $year)
                                         <option value="{{ $year }}">{{ $year }}</option>
                                     @endforeach

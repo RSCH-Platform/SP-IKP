@@ -17,9 +17,9 @@ class InvestigatedReportsTableWidget extends Widget
 
     protected static ?int $sort = 2;
 
-    protected static ?string $heading = 'Daftar Investigasi Selesai';
+    protected static ?string $heading = 'Pemantauan Investigasi';
 
-    protected static ?string $description = 'Tabel laporan yang sudah selesai diinvestigasi, ditampilkan tanpa aksi perubahan data.';
+    protected static ?string $description = 'Tabel laporan untuk memantau workflow investigasi insiden.';
 
     protected string $view = 'filament.widgets.investigated-reports-table';
 
@@ -31,7 +31,7 @@ class InvestigatedReportsTableWidget extends Widget
 
     public string $selectedJenisInsiden = '';
 
-    public string $selectedStatus = LaporanInsiden::STATUS_SELESAI;
+    public string $selectedStatus = '';
 
     public function mount(): void
     {
@@ -89,7 +89,7 @@ class InvestigatedReportsTableWidget extends Widget
 
     protected function scopedQuery(): Builder
     {
-        $query = LaporanInsiden::query()->where('status', LaporanInsiden::STATUS_SELESAI);
+        $query = LaporanInsiden::query();
         $user = Auth::user();
 
         if (!$user) {
