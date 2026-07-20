@@ -238,11 +238,93 @@
                 @endforelse
             </x-report-table>
 
-            @if ($paginator->hasPages())
-                <div class="mt-3">
-                    {{ $paginator->links() }}
+
+            {{-- Pagination Footer --}}
+            @if ($paginator->total() > 0)
+                <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
+                    {{-- Per-page selector --}}
+                    <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                        <span>Tampilkan</span>
+                        <x-filament::input.wrapper>
+                            <x-filament::input.select wire:model.live="perPage">
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                            </x-filament::input.select>
+                        </x-filament::input.wrapper>
+                        <span>item per halaman</span>
+                    </div>
+
+                    {{-- Info + Nav --}}
+                    <div class="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+
+                        {{-- Info --}}
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">
+                            Menampilkan
+                            <span class="font-medium text-slate-700 dark:text-slate-200">{{ $paginator->firstItem() }}</span>–<span class="font-medium text-slate-700 dark:text-slate-200">{{ $paginator->lastItem() }}</span>
+                            dari
+                            <span class="font-medium text-slate-700 dark:text-slate-200">{{ $paginator->total() }}</span>
+                            laporan
+                        </span>
+
+                        {{-- Prev / Page Numbers / Next --}}
+                        @if ($paginator->hasPages())
+                            <nav class="flex items-center gap-1" aria-label="Pagination">
+
+                                {{-- Prev --}}
+                                <button
+                                    wire:click="previousPage"
+                                    wire:loading.attr="disabled"
+                                    @disabled($paginator->onFirstPage())
+                                    class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06]"
+                                >
+                                    <x-filament::icon icon="heroicon-o-chevron-left" class="h-3 w-3" />
+                                    Prev
+                                </button>
+
+                                {{-- Page Numbers (window ±2) --}}
+                                @foreach (
+                                    $paginator->getUrlRange(
+                                        max($paginator->currentPage() - 2, 1),
+                                        min($paginator->currentPage() + 2, $paginator->lastPage()),
+                                    )
+                                    as $page => $url
+                                )
+                                    @if ($page === $paginator->currentPage())
+                                        <span
+                                            class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-[11px] font-semibold text-white"
+                                        >
+                                            {{ $page }}
+                                        </span>
+                                    @else
+                                        <button
+                                            wire:click="gotoPage({{ $page }})"
+                                            class="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-[11px] font-medium text-slate-600 transition hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06]"
+                                        >
+                                            {{ $page }}
+                                        </button>
+                                    @endif
+                                @endforeach
+
+                                {{-- Next --}}
+                                <button
+                                    wire:click="nextPage"
+                                    wire:loading.attr="disabled"
+                                    @disabled($paginator->onLastPage())
+                                    class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06]"
+                                >
+                                    Next
+                                    <x-filament::icon icon="heroicon-o-chevron-right" class="h-3 w-3" />
+                                </button>
+
+                            </nav>
+                        @endif
+
+                    </div>
                 </div>
             @endif
+
         </div>
     </div>
 </x-filament-widgets::widget>

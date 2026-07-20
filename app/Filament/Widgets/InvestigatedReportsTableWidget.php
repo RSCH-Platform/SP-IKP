@@ -25,6 +25,8 @@ class InvestigatedReportsTableWidget extends Widget
 
     protected int|string|array $columnSpan = 'full';
 
+    public int $perPage = 10;
+
     public ?string $selectedYear = null;
 
     public ?string $selectedMonth = null;
@@ -73,7 +75,7 @@ class InvestigatedReportsTableWidget extends Widget
                 'problems.recommendations',
             ])
             ->latest('tanggal_insiden')
-            ->paginate(10);
+            ->paginate($this->perPage);
 
         $groups = $this->buildRows(collect($reports->items()));
 
@@ -222,6 +224,11 @@ class InvestigatedReportsTableWidget extends Widget
      * @return array{akar_masalah: string, rekomendasi: string}
      */
 
+
+    public function updatedPerPage(): void
+    {
+        $this->resetPage();
+    }
 
     public function updatedSelectedYear(): void
     {
