@@ -1,7 +1,6 @@
 <div class="mt-8 h-full mb-10">
     @php
         $incidentUninvestigatedCount = $this->getIncidentUninvestigatedCount();
-        $investigationInProgressCount = $this->getInvestigationInProgressCount();
 
         $tabs = [
             'umum' => [
@@ -17,13 +16,6 @@
                 'badge' => $incidentUninvestigatedCount,
                 'icon' => 'heroicon-o-clipboard-document-list',
                 'tone' => 'amber',
-            ],
-            'investigasi' => [
-                'label' => 'Investigasi',
-                'description' => 'Kasus aktif yang sedang ditangani tim.',
-                'badge' => $investigationInProgressCount,
-                'icon' => 'heroicon-o-magnifying-glass',
-                'tone' => 'violet',
             ],
         ];
 
@@ -48,7 +40,8 @@
             ],
         ];
 
-        $activeTab = $tabs[$dashboardTab] ?? $tabs['umum'];
+        $activeTabKey = array_key_exists($dashboardTab, $tabs) ? $dashboardTab : 'umum';
+        $activeTab = $tabs[$activeTabKey];
     @endphp
 
     <div class="space-y-6">
@@ -72,11 +65,11 @@
         {{-- TABS --}}
         <section
             class="rounded-2xl border border-slate-200 bg-slate-50 p-2 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-            <div class="grid grid-cols-1 gap-2 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
                 @foreach ($tabs as $tabKey => $tab)
                     @php
                         $tone = $toneMap[$tab['tone']];
-                        $isActive = $dashboardTab === $tabKey;
+                        $isActive = $activeTabKey === $tabKey;
                     @endphp
 
                     <button type="button" wire:click="$set('dashboardTab', '{{ $tabKey }}')" @class([
@@ -134,16 +127,12 @@
 
         {{-- CONTENT --}}
         <section class="space-y-6">
-            @if ($dashboardTab === 'umum')
+            @if ($activeTabKey === 'umum')
                 {!! $this->getGeneralWidgetsSchema()->toEmbeddedHtml() !!}
             @endif
 
-            @if ($dashboardTab === 'laporan_insiden')
+            @if ($activeTabKey === 'laporan_insiden')
                 {!! $this->getIncidentWidgetsSchema()->toEmbeddedHtml() !!}
-            @endif
-
-            @if ($dashboardTab === 'investigasi')
-                {!! $this->getInvestigationWidgetsSchema()->toEmbeddedHtml() !!}
             @endif
         </section>
     </div>

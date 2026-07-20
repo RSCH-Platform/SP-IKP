@@ -31,6 +31,8 @@ class PelaporanInsiden extends Page implements Forms\Contracts\HasForms
     protected static ?string $navigationLabel = 'Pelaporan Insiden';
 
     protected static ?string $title = null;
+    
+    protected static ?int $navigationSort = 1;
 
     public ?array $data = [];
 

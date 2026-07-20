@@ -4,13 +4,9 @@ namespace App\Filament\Pages;
 
 use App\Filament\Widgets\AccountWidget;
 use App\Filament\Widgets\DraftReportsStatsWidget;
-use App\Filament\Widgets\DraftReportsInvestigatedWidget;
 use App\Filament\Widgets\DraftReportsWidget;
 use App\Filament\Widgets\InvestigationStatsWidget;
-use App\Filament\Widgets\InvestigatedReportsTableWidget;
 use App\Filament\Widgets\FilamentInfoWidget;
-use App\Filament\Widgets\IncidentProblemReportGroupsWidget;
-use App\Filament\Widgets\ManagerUnitKerjaAnalytics;
 use App\Filament\Widgets\TrendLaporanInsiden;
 use App\Filament\Widgets\UnitKerjaInfo;
 use App\Models\LaporanInsiden;
@@ -25,7 +21,7 @@ class Dashboard extends BaseDashboard
 {
     protected string $view = 'filament.pages.dashboard';
 
-    #[Url(as: 'dashboard-tab')]
+    #[Url(as: 'dashboard-tab', except: 'umum')]
     public string $dashboardTab = 'umum';
 
     public function getColumns(): int|array
@@ -63,26 +59,10 @@ class Dashboard extends BaseDashboard
             ]);
     }
 
-    public function getInvestigationWidgetsSchema(): Schema
-    {
-        return Schema::make($this)
-            ->components([
-                Grid::make($this->getColumns())
-                    ->schema(fn(): array => $this->getWidgetsSchemaComponents($this->getInvestigationWidgets())),
-            ]);
-    }
-
     public function getIncidentUninvestigatedCount(): int
     {
         return (clone $this->scopedQuery())
             ->whereNotIn('status', [LaporanInsiden::STATUS_INVESTIGASI, LaporanInsiden::STATUS_SELESAI])
-            ->count();
-    }
-
-    public function getInvestigationInProgressCount(): int
-    {
-        return (clone $this->scopedQuery())
-            ->where('status', LaporanInsiden::STATUS_INVESTIGASI)
             ->count();
     }
 
@@ -146,16 +126,4 @@ class Dashboard extends BaseDashboard
         ];
     }
 
-    /**
-     * @return array<class-string>
-     */
-    protected function getInvestigationWidgets(): array
-    {
-        return [
-            DraftReportsInvestigatedWidget::class,
-            InvestigatedReportsTableWidget::class,
-            IncidentProblemReportGroupsWidget::class,
-            ManagerUnitKerjaAnalytics::class,
-        ];
-    }
 }
