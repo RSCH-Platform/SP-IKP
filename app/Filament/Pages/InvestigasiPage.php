@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\DraftReportsInvestigatedWidget;
+use App\Filament\Widgets\IncidentCategoryMonitoringWidget;
 use App\Filament\Widgets\IncidentProblemReportGroupsWidget;
 use App\Filament\Widgets\InvestigatedReportsTableWidget;
 use App\Filament\Widgets\ManagerUnitKerjaAnalytics;
@@ -53,7 +54,10 @@ class InvestigasiPage extends Page
                 'description' => 'Tabel investigasi beserta akar masalah dan rekomendasi.',
                 'icon'        => 'heroicon-o-table-cells',
                 'tone'        => 'violet',
-                'widget'      => InvestigatedReportsTableWidget::class,
+                'widgets'     => [
+                    InvestigatedReportsTableWidget::class,
+                    IncidentCategoryMonitoringWidget::class,
+                ],
                 'visible'     => InvestigatedReportsTableWidget::canView(),
             ],
             'kelompok_masalah' => [

@@ -110,7 +110,7 @@
         @if ($activeTab)
             <x-filament-widgets::widgets
                 :columns="1"
-                :widgets="[$activeTab['widget']]"
+                :widgets="$activeTab['widgets'] ?? (isset($activeTab['widget']) ? [$activeTab['widget']] : [])"
             />
         @endif
 

@@ -87,6 +87,16 @@ class LaporanInsiden extends Model implements HasMedia
         'Administrasi / Proses Pelayanan' => 'Administrasi / Proses Pelayanan',
         'Lingkungan / Fasilitas' => 'Lingkungan / Fasilitas',
         'Faktor Manusia' => 'Faktor Manusia',
+        'Administrasi Klinis' => 'Administrasi Klinis',
+        'Proses / Prosedur Klinis' => 'Proses / Prosedur Klinis',
+        'Dokumentasi Klinis' => 'Dokumentasi Klinis',
+        'Infeksi Terkait Pelayanan Kesehatan (HAIs)' => 'Infeksi Terkait Pelayanan Kesehatan (HAIs)',
+        'Obat / Cairan Infus' => 'Obat / Cairan Infus',
+        'Darah / Produk Darah' => 'Darah / Produk Darah',
+        'Peralatan Medis' => 'Peralatan Medis',
+        'Perilaku Pasien' => 'Perilaku Pasien',
+        'Jatuh' => 'Jatuh',
+        'Infrastruktur / Fasilitas' => 'Infrastruktur / Fasilitas',
         'Lainnya' => 'Lainnya',
     ];
 
