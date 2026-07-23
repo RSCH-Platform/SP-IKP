@@ -7,6 +7,7 @@ use App\Http\Controllers\CustomLaporanInsidenDashboardController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Models\ProblemAction;
 use App\Models\LaporanInsiden;
+use App\Exports\InvestigatedReportsExport;
 use App\Exports\TimelineGridExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,20 @@ Route::post('/export/timeline', function (Request $request) {
 
     return (new TimelineGridExport($record))->download();
 })->name('export.timeline');
+
+// Export Investigated Reports route (filter-aware, column picker)
+Route::post('/export/investigated-reports', function (Request $request) {
+    abort_unless(Auth::check(), 403);
+    abort_unless(Auth::user()->can('ViewAllData:LaporanInsiden'), 403);
+
+    return (new InvestigatedReportsExport(
+        selectedYear:         $request->input('year'),
+        selectedMonth:        $request->input('month'),
+        selectedJenisInsiden: $request->input('jenis_insiden', ''),
+        selectedStatus:       $request->input('status', ''),
+        selectedColumns:      $request->input('columns', []),
+    ))->download();
+})->name('export.investigated-reports');
 
 Route::post('/ikp-application/problem-actions/{action}/status', function (Request $request, ProblemAction $action) {
     abort_unless(Auth::check(), 403);

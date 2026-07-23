@@ -14,6 +14,20 @@
                         Pantau status laporan insiden dalam proses investigasi.
                     </p>
                 </div>
+
+                {{-- Export Excel Button --}}
+                <button
+                    type="button"
+                    x-data
+                    @click="$dispatch('open-export-modal')"
+                    class="inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg border border-emerald-300
+                           bg-emerald-50 px-3 py-1.5 text-[11px] font-medium text-emerald-700 transition
+                           hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-900/20
+                           dark:text-emerald-400 dark:hover:bg-emerald-900/40"
+                >
+                    <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-3.5 w-3.5" />
+                    Export Excel
+                </button>
             </div>
 
             {{-- Accordion Filter --}}
@@ -325,6 +339,194 @@
                 </div>
             @endif
 
+        </div>
+    </div>
+
+    {{-- ============================================================ --}}
+    {{-- Export Column Picker Modal (Alpine.js)                       --}}
+    {{-- ============================================================ --}}
+    <div
+        x-data="{
+            open: false,
+            columns: {
+                tanggal_insiden:            { label: 'Tanggal Insiden',  checked: true },
+                deskripsi_kategori_insiden: { label: 'Judul Insiden',    checked: true },
+                jenis_insiden:              { label: 'Jenis Insiden',    checked: true },
+                unit_kerja:                 { label: 'Unit Kerja',       checked: true },
+                status:                     { label: 'Status',           checked: true },
+                akar_masalah:               { label: 'Akar Masalah',     checked: true },
+                rekomendasi:                { label: 'Rekomendasi',      checked: true },
+            },
+            get anyChecked() {
+                return Object.values(this.columns).some(c => c.checked);
+            },
+            toggleAll(value) {
+                Object.values(this.columns).forEach(c => c.checked = value);
+            }
+        }"
+        @open-export-modal.window="open = true"
+        x-show="open"
+        x-transition.opacity
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style="display: none;"
+    >
+        {{-- Backdrop --}}
+        <div
+            class="absolute inset-0 bg-black/40 dark:bg-black/60"
+            @click="open = false"
+        ></div>
+
+        {{-- Modal Box --}}
+        <div class="relative w-full max-w-sm rounded-xl border border-slate-200 bg-white
+                    p-5 shadow-xl dark:border-white/10 dark:bg-slate-900">
+
+            {{-- Modal Header --}}
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-900 dark:text-white">
+                        Pilih Kolom yang Diekspor
+                    </h3>
+                    <p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                        Filter aktif akan diterapkan otomatis pada hasil export.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    @click="open = false"
+                    class="mt-0.5 rounded p-0.5 text-slate-400 transition hover:bg-slate-100
+                           hover:text-slate-600 dark:hover:bg-white/[0.06] dark:hover:text-slate-300"
+                >
+                    <x-filament::icon icon="heroicon-o-x-mark" class="h-4 w-4" />
+                </button>
+            </div>
+
+            {{-- Select All / Deselect All --}}
+            <div class="mt-3 flex items-center gap-3 border-b border-slate-100 pb-3 dark:border-white/10">
+                <button
+                    type="button"
+                    @click="toggleAll(true)"
+                    class="text-[11px] font-medium text-primary-600 hover:underline dark:text-primary-400"
+                >
+                    Pilih semua
+                </button>
+                <span class="text-slate-300 dark:text-slate-600">|</span>
+                <button
+                    type="button"
+                    @click="toggleAll(false)"
+                    class="text-[11px] font-medium text-slate-500 hover:underline dark:text-slate-400"
+                >
+                    Hapus semua
+                </button>
+            </div>
+
+            {{-- Checkbox List --}}
+            <div class="mt-3 space-y-1">
+                <template x-for="(col, key) in columns" :key="key">
+                    <label class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5
+                                  transition hover:bg-slate-50 dark:hover:bg-white/[0.04]">
+                        <input
+                            type="checkbox"
+                            x-model="col.checked"
+                            class="h-4 w-4 rounded border-slate-300 text-primary-600
+                                   focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800"
+                        >
+                        <span
+                            class="select-none text-[12px] text-slate-700 dark:text-slate-200"
+                            x-text="col.label"
+                        ></span>
+                    </label>
+                </template>
+            </div>
+
+            {{-- Filter info badge --}}
+            @if ($this->selectedYear || $this->selectedMonth || $this->selectedJenisInsiden || $this->selectedStatus)
+                <div class="mt-3 flex flex-wrap gap-1.5 rounded-lg border border-amber-200 bg-amber-50
+                            p-2 dark:border-amber-800/50 dark:bg-amber-900/20">
+                    <span class="text-[10px] font-medium text-amber-700 dark:text-amber-400">
+                        Filter aktif:
+                    </span>
+                    @if ($this->selectedYear)
+                        <span class="inline-flex rounded bg-amber-100 px-1.5 py-0.5 text-[10px]
+                                     font-medium text-amber-800 dark:bg-amber-800/40 dark:text-amber-300">
+                            {{ $this->selectedYear }}
+                        </span>
+                    @endif
+                    @if ($this->selectedMonth)
+                        <span class="inline-flex rounded bg-amber-100 px-1.5 py-0.5 text-[10px]
+                                     font-medium text-amber-800 dark:bg-amber-800/40 dark:text-amber-300">
+                            {{ $this->getMonthOptions()[(int) $this->selectedMonth] ?? $this->selectedMonth }}
+                        </span>
+                    @endif
+                    @if ($this->selectedJenisInsiden)
+                        <span class="inline-flex rounded bg-amber-100 px-1.5 py-0.5 text-[10px]
+                                     font-medium text-amber-800 dark:bg-amber-800/40 dark:text-amber-300">
+                            {{ $this->getIncidentTypeOptions()[$this->selectedJenisInsiden] ?? $this->selectedJenisInsiden }}
+                        </span>
+                    @endif
+                    @if ($this->selectedStatus)
+                        <span class="inline-flex rounded bg-amber-100 px-1.5 py-0.5 text-[10px]
+                                     font-medium text-amber-800 dark:bg-amber-800/40 dark:text-amber-300">
+                            {{ $this->getStatusOptions()[$this->selectedStatus] ?? $this->selectedStatus }}
+                        </span>
+                    @endif
+                </div>
+            @endif
+
+            {{-- Action Buttons --}}
+            <div class="mt-4 flex items-center justify-end gap-2">
+                <button
+                    type="button"
+                    @click="open = false"
+                    class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px]
+                           font-medium text-slate-700 transition hover:bg-slate-50
+                           dark:border-white/10 dark:bg-slate-800 dark:text-slate-300
+                           dark:hover:bg-white/[0.06]"
+                >
+                    Batal
+                </button>
+
+                {{-- Form POST: filter sebagai hidden input, kolom di-inject Alpine sebelum submit --}}
+                <form
+                    method="POST"
+                    action="{{ route('export.investigated-reports') }}"
+                    x-ref="exportForm"
+                >
+                    @csrf
+                    <input type="hidden" name="year"          value="{{ $this->selectedYear }}">
+                    <input type="hidden" name="month"         value="{{ $this->selectedMonth }}">
+                    <input type="hidden" name="jenis_insiden" value="{{ $this->selectedJenisInsiden }}">
+                    <input type="hidden" name="status"        value="{{ $this->selectedStatus }}">
+
+                    {{-- Placeholder untuk kolom terpilih (di-inject Alpine saat submit) --}}
+                    <div x-ref="columnsContainer"></div>
+
+                    <button
+                        type="button"
+                        :disabled="!anyChecked"
+                        @click="
+                            $refs.columnsContainer.innerHTML = '';
+                            Object.entries(columns).forEach(([key, col]) => {
+                                if (col.checked) {
+                                    const inp = document.createElement('input');
+                                    inp.type  = 'hidden';
+                                    inp.name  = 'columns[]';
+                                    inp.value = key;
+                                    $refs.columnsContainer.appendChild(inp);
+                                }
+                            });
+                            $refs.exportForm.submit();
+                            open = false;
+                        "
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5
+                               text-[11px] font-medium text-white transition hover:bg-emerald-700
+                               disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-3.5 w-3.5" />
+                        Download
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </x-filament-widgets::widget>
