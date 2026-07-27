@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\TimelineEvent;
 use App\Models\TimelineEntry;
@@ -507,14 +508,17 @@ class LaporanInsiden extends Model implements HasMedia
 
     public static function generateNomorLaporan(): string
     {
-        return \Illuminate\Support\Facades\DB::transaction(function () {
+        return DB::transaction(function () {
             $year  = date('Y');
             $month = date('m');
             $prefix = sprintf('IKP/%s/%s/', $year, $month);
 
-            // lockForUpdate() mencegah race condition: request lain akan menunggu
-            // hingga transaksi ini selesai commit sebelum bisa membaca baris ini.
-            $lastReport = self::withoutTrashed()
+            // PENTING: gunakan withTrashed() bukan withoutTrashed().
+            // Unique constraint di database berlaku untuk SEMUA baris termasuk
+            // yang sudah soft-deleted. Jika pakai withoutTrashed(), record
+            // soft-deleted tidak terlihat, sehingga nomor yang sama di-generate
+            // ulang dan menyebabkan Duplicate Entry error.
+            $lastReport = self::withTrashed()
                 ->where('nomor_laporan', 'like', $prefix . '%')
                 ->orderBy('nomor_laporan', 'desc')
                 ->lockForUpdate()
