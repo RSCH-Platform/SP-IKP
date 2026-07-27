@@ -507,18 +507,24 @@ class LaporanInsiden extends Model implements HasMedia
 
     public static function generateNomorLaporan(): string
     {
-        $year = date('Y');
-        $month = date('m');
-        $startDate = "$year-$month-01 00:00:00";
-        $endDate = date('Y-m-t 23:59:59', strtotime($startDate));
+        return \Illuminate\Support\Facades\DB::transaction(function () {
+            $year  = date('Y');
+            $month = date('m');
+            $prefix = sprintf('IKP/%s/%s/', $year, $month);
 
-        $lastReport = self::withoutTrashed()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->orderBy('id', 'desc')
-            ->first();
+            // lockForUpdate() mencegah race condition: request lain akan menunggu
+            // hingga transaksi ini selesai commit sebelum bisa membaca baris ini.
+            $lastReport = self::withoutTrashed()
+                ->where('nomor_laporan', 'like', $prefix . '%')
+                ->orderBy('nomor_laporan', 'desc')
+                ->lockForUpdate()
+                ->first();
 
-        $sequence = $lastReport ? intval(substr($lastReport->nomor_laporan, -4)) + 1 : 1;
+            $sequence = $lastReport
+                ? intval(substr($lastReport->nomor_laporan, -4)) + 1
+                : 1;
 
-        return sprintf('IKP/%s/%s/%04d', $year, $month, $sequence);
+            return sprintf('IKP/%s/%s/%04d', $year, $month, $sequence);
+        });
     }
 }
