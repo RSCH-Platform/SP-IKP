@@ -29,6 +29,16 @@ class LaporanInsidenObserver
             $reportTitle = "laporan-{$laporan->id}";
         }
 
+        // Buat versi aman dari reportTitle untuk digunakan sebagai filesystem path.
+        // nomor_laporan sering mengandung '/' (misal: IKP/2026/07/0006) dan ':' yang
+        // tidak valid di Flysystem (S3/MinIO) sehingga menyebabkan UnableToCheckFileExistence.
+        $nomorSafe = str_replace('/', '-', $laporan->nomor_laporan ?? "laporan-{$laporan->id}");
+        $deskripsiSafe = Str::limit($laporan->deskripsi_kategori_insiden ?? '', 80);
+        $diskSafeTitle = Str::slug($nomorSafe . '-' . $deskripsiSafe, '-');
+        if (empty($diskSafeTitle)) {
+            $diskSafeTitle = "laporan-{$laporan->id}";
+        }
+
         $rootFolder = Folder::firstOrCreate(
             [
                 'name' => $unitName,
@@ -82,7 +92,7 @@ class LaporanInsidenObserver
             ]);
         }
 
-        $diskPath = "{$unitSlug}/Laporan Insiden/{$month}/{$reportTitle}";
+        $diskPath = "{$unitSlug}/Laporan Insiden/{$month}/{$diskSafeTitle}";
         $diskCreated = false;
         $diskName = config('media-library.disk_name');
         if (! Storage::disk($diskName)->exists($diskPath)) {

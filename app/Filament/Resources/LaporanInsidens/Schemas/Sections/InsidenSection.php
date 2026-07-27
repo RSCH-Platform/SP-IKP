@@ -13,6 +13,7 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use App\Models\LaporanInsiden;
 
 class InsidenSection
 {
@@ -59,7 +60,7 @@ class InsidenSection
             ]),
 
             Grid::make(2)->schema([
-                LaporanInsidenFormOptions::makeSelect('kategori_insiden', 'Kategori Insiden', LaporanInsidenFormOptions::KATEGORI_INSIDEN_OPTIONS)
+                LaporanInsidenFormOptions::makeSelect('kategori_insiden', 'Kategori Insiden', LaporanInsiden::KATEGORI_INSIDEN_OPTIONS)
                     ->required()
                     ->searchable(),
 
