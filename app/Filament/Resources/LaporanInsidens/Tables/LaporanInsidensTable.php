@@ -365,42 +365,159 @@ class LaporanInsidensTable
                     )
                     ->requiresConfirmation()
                     ->modalHeading('Verifikasi Laporan')
+                    ->modalWidth('4xl')
                     ->schema([
-                        ToggleButtons::make('grading_risiko')
-                            ->label('Grading Risiko')
-                            ->required()
+                        Select::make('severity_score')
+                            ->label('Penilaian Dampak (Severity)')
                             ->options([
-                                'Biru'   => '🔵 Biru (Tidak signifikan)',
-                                'Hijau'  => '🟢 Hijau (Minor)',
-                                'Kuning' => '🟡 Kuning (Moderat)',
-                                'Merah'  => '🔴 Merah (Mayor)',
-                                'Hitam'  => '⚫ Hitam (Katastropik)',
+                                1 => '1 — Tidak signifikan (Tidak ada cidera)',
+                                2 => '2 — Minor (Cidera ringan / dapat diatasi dengan pertolongan pertama)',
+                                3 => '3 — Moderat (Cedera sedang / gangguan fungsi reversibel / memperpanjang perawatan)',
+                                4 => '4 — Mayor (Cedera luas / kehilangan fungsi irreversibel)',
+                                5 => '5 — Katastropik (Kematian yang tidak berhubungan dengan perjalanan penyakit)',
                             ])
-                            ->colors([
-                                'Biru'   => 'info',
-                                'Hijau'  => 'success',
-                                'Kuning' => 'warning',
-                                'Merah'  => 'danger',
-                                'Hitam'  => 'gray',
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function ($set, $get) {
+                                $severity = (int)$get('severity_score');
+                                $probability = (int)$get('probability_score');
+                                if ($severity && $probability) {
+                                    $result = \App\Services\RiskGradingEngine::calculate($severity, $probability);
+                                    $set('grading_risiko', $result['risk_band']);
+                                } else {
+                                    $set('grading_risiko', null);
+                                }
+                            }),
+
+                        Select::make('probability_score')
+                            ->label('Penilaian Probabilitas (Probability)')
+                            ->options([
+                                1 => '1 — Sangat jarang / Rare (> 5 tahun/kali)',
+                                2 => '2 — Jarang / Unlikely (> 2–5 tahun/kali)',
+                                3 => '3 — Mungkin / Possible (1–2 tahun/kali)',
+                                4 => '4 — Sering / Likely (Beberapa kali/tahun)',
+                                5 => '5 — Sangat sering / Almost Certain (Tiap minggu/bulan)',
                             ])
-                            ->inline()
-                            ->helperText('Hanya diisi oleh Validator / Tim IKP')
-                            ->default(fn($record) => $record->grading_risiko),
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function ($set, $get) {
+                                $severity = (int)$get('severity_score');
+                                $probability = (int)$get('probability_score');
+                                if ($severity && $probability) {
+                                    $result = \App\Services\RiskGradingEngine::calculate($severity, $probability);
+                                    $set('grading_risiko', $result['risk_band']);
+                                } else {
+                                    $set('grading_risiko', null);
+                                }
+                            }),
+
+                        \Filament\Forms\Components\Placeholder::make('hasil_grading')
+                            ->label('Hasil Grading')
+                            ->content(function ($get) {
+                                $severity = $get('severity_score');
+                                $probability = $get('probability_score');
+
+                                if (!$severity || !$probability) {
+                                    return new \Illuminate\Support\HtmlString("
+                                        <div class='p-4 border border-dashed rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-500 text-center italic'>
+                                            Silakan lengkapi Penilaian Dampak dan Probabilitas terlebih dahulu.
+                                        </div>
+                                    ");
+                                }
+
+                                $result = \App\Services\RiskGradingEngine::calculate((int)$severity, (int)$probability);
+                                
+                                $theme = match($result['risk_band']) {
+                                    'Merah' => [
+                                        'bg' => 'bg-red-100 dark:bg-red-950/30',
+                                        'border' => 'border-red-500 dark:border-red-600',
+                                        'text' => 'text-red-900 dark:text-red-300',
+                                        'icon' => '🔴',
+                                    ],
+                                    'Kuning' => [
+                                        'bg' => 'bg-yellow-100 dark:bg-yellow-950/30',
+                                        'border' => 'border-yellow-500 dark:border-yellow-600',
+                                        'text' => 'text-yellow-900 dark:text-yellow-300',
+                                        'icon' => '🟡',
+                                    ],
+                                    'Hijau' => [
+                                        'bg' => 'bg-green-100 dark:bg-green-950/30',
+                                        'border' => 'border-green-500 dark:border-green-600',
+                                        'text' => 'text-green-900 dark:text-green-300',
+                                        'icon' => '🟢',
+                                    ],
+                                    'Biru' => [
+                                        'bg' => 'bg-blue-100 dark:bg-blue-950/30',
+                                        'border' => 'border-blue-500 dark:border-blue-600',
+                                        'text' => 'text-blue-900 dark:text-blue-300',
+                                        'icon' => '🔵',
+                                    ],
+                                    default => [
+                                        'bg' => 'bg-gray-100 dark:bg-gray-800',
+                                        'border' => 'border-gray-500',
+                                        'text' => 'text-gray-900 dark:text-gray-300',
+                                        'icon' => '⚫',
+                                    ],
+                                };
+
+                                return new \Illuminate\Support\HtmlString("
+                                    <div class='p-5 border-2 rounded-xl {$theme['bg']} {$theme['border']} {$theme['text']} transition-all duration-300 ease-in-out shadow-sm'>
+                                        <div class='flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4'>
+                                            <div class='flex items-center gap-3'>
+                                                <div class='text-4xl'>{$theme['icon']}</div>
+                                                <div>
+                                                    <div class='text-sm opacity-80 uppercase tracking-wider font-bold'>Risk Band</div>
+                                                    <div class='text-2xl font-black'>{$result['risk_band']} ({$result['risk_level']})</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class='mt-4 pt-4 border-t {$theme['border']} border-opacity-30'>
+                                            <div class='font-bold uppercase tracking-wider text-xs mb-2 opacity-80'>Tindakan yang Diperlukan:</div>
+                                            <div class='whitespace-pre-wrap font-medium leading-relaxed bg-white/50 dark:bg-black/30 p-4 rounded-lg border {$theme['border']} border-opacity-20'>{$result['required_action']}</div>
+                                        </div>
+                                    </div>
+                                ");
+                            }),
+                            
+                        \Filament\Forms\Components\Hidden::make('grading_risiko'),
+
                         Textarea::make('catatan_tambahan')
                             ->label('Catatan Verifikasi')
-                            ->hidden()
                             ->rows(3)
                             ->default(fn($record) => $record->catatan_tambahan),
                     ])
                     ->action(function ($record, array $data) {
+                        $severity = (int) $data['severity_score'];
+                        $probability = (int) $data['probability_score'];
+                        $engineResult = \App\Services\RiskGradingEngine::calculate($severity, $probability);
+
+                        // Simpan atau perbarui RiskAssessment
+                        $record->riskAssessment()->updateOrCreate(
+                            ['laporan_insiden_id' => $record->id],
+                            [
+                                'severity_score' => $engineResult['severity_score'],
+                                'severity_level' => $engineResult['severity_level'],
+                                'probability_score' => $engineResult['probability_score'],
+                                'probability_level' => $engineResult['probability_level'],
+                                'risk_score' => $engineResult['risk_score'],
+                                'risk_level' => $engineResult['risk_level'],
+                                'risk_band' => $engineResult['risk_band'],
+                                'required_action' => $engineResult['required_action'],
+                                'assessed_by' => auth()->id(),
+                                'assessed_at' => now(),
+                            ]
+                        );
+
+                        // Perbarui catatan dan kolom fallback
                         $record->update([
-                            'grading_risiko' => $data['grading_risiko'],
-                            // 'catatan_tambahan' => $data['catatan_tambahan'],
+                            'grading_risiko' => $engineResult['risk_band'],
+                            'catatan_tambahan' => $data['catatan_tambahan'] ?? $record->catatan_tambahan,
                         ]);
+                        
                         $record->verifikasiLaporan(auth()->id());
 
                         Notification::make()
-                            ->title('Laporan diverifikasi')
+                            ->title('Laporan diverifikasi & dinilai')
                             ->success()
                             ->send();
                     }),

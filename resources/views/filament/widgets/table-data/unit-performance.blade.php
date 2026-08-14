@@ -16,6 +16,8 @@
     <x-report-table>
         @php
         $statuses = $this->statuses ?? [];
+        // Hide investigasi selesai column as requested, using variable manipulation
+        unset($statuses['selesai_investigasi']);
         $colspan = 2 + count($statuses) + 1; // Unit, Total, statuses..., Close%
         @endphp
 

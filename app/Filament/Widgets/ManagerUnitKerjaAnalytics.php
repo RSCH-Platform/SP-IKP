@@ -49,7 +49,7 @@ class ManagerUnitKerjaAnalytics extends Widget
     protected array $defaultStatuses = [
         'draft' => 'Draft',
         'dilaporkan' => 'Dilaporkan',
-        'diverifikasi' => 'Verifikasi',
+        'diverifikasi' => 'Grading',
         'investigasi' => 'Investigasi',
         'selesai_investigasi' => 'Selesai',
     ];
@@ -267,8 +267,8 @@ class ManagerUnitKerjaAnalytics extends Widget
                 $statusCounts[$statusKey] = (clone $unitQuery)->where('status', $statusKey)->count();
             }
 
-            $selesaiCount = $statusCounts['selesai_investigasi'] ?? 0;
-            $closeRate = $total > 0 ? round(($selesaiCount / $total) * 100, 0) : 0;
+            $investigasiCount = $statusCounts['investigasi'] ?? 0;
+            $closeRate = $total > 0 ? round(($investigasiCount / $total) * 100, 0) : 0;
 
             $row = array_merge([
                 'unit_name' => $unit->unit_name,

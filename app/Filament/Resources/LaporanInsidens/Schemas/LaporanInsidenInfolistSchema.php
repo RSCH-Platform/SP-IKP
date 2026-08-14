@@ -198,44 +198,44 @@ class LaporanInsidenInfolistSchema
                         default            => 'secondary',
                     }),
 
+                Infolists\Components\TextEntry::make('riskAssessment.severity_level')
+                    ->label('Dampak (Severity)')
+                    ->placeholder('Belum dinilai'),
+
+                Infolists\Components\TextEntry::make('riskAssessment.probability_level')
+                    ->label('Probabilitas (Probability)')
+                    ->placeholder('Belum dinilai'),
+
+                Infolists\Components\TextEntry::make('riskAssessment.risk_score')
+                    ->label('Risk Score')
+                    ->badge()
+                    ->placeholder('Belum dinilai'),
+
                 Infolists\Components\TextEntry::make('grading_risiko')
-                    ->label('Grading Risiko')
+                    ->label('Risk Band')
                     ->badge()
                     ->icon(fn($record) => match ($record->grading_risiko) {
                         'Biru'   => 'heroicon-m-information-circle',
                         'Hijau'  => 'heroicon-m-check-circle',
                         'Kuning' => 'heroicon-m-exclamation-triangle',
                         'Merah'  => 'heroicon-m-x-circle',
-                        'Hitam'  => 'heroicon-m-fire',
                         default  => 'heroicon-m-question-mark-circle',
-                    })
-                    ->formatStateUsing(fn($state) => match ($state) {
-                        'Biru'   => 'Biru — Tidak signifikan',
-                        'Hijau'  => 'Hijau — Minor',
-                        'Kuning' => 'Kuning — Moderat',
-                        'Merah'  => 'Merah — Mayor',
-                        'Hitam'  => 'Hitam — Katastropik',
-                        default  => $state,
                     })
                     ->color(fn($record) => match ($record->grading_risiko) {
                         'Biru'   => 'info',
                         'Hijau'  => 'success',
                         'Kuning' => 'warning',
                         'Merah'  => 'danger',
-                        'Hitam'  => 'gray',
                         default  => 'secondary',
                     })
-                    ->tooltip(fn($record) => match ($record->grading_risiko) {
-                        'Biru'   => 'Risiko tidak signifikan terhadap sistem',
-                        'Hijau'  => 'Risiko kecil / minor',
-                        'Kuning' => 'Risiko sedang yang perlu perhatian',
-                        'Merah'  => 'Risiko besar yang perlu penanganan segera',
-                        'Hitam'  => 'Risiko kritis / katastropik',
-                        default  => null,
-                    })
-                    ->placeholder('Belum ditentukan'),
+                    ->placeholder('Belum dinilai'),
+
+                Infolists\Components\TextEntry::make('riskAssessment.required_action')
+                    ->label('Tindakan yang Diperlukan')
+                    ->columnSpanFull()
+                    ->placeholder('Belum dinilai'),
             ])
-            ->columns(3)
+            ->columns(4)
             ->collapsible()
             ->compact();
     }
