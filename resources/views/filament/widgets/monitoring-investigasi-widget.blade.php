@@ -1,7 +1,7 @@
 <x-filament-widgets::widget>
     <x-filament::card class="p-0">
         {{-- Header & Filters --}}
-        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="border-b border-gray-200 px-4 py-2 dark:border-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h2 class="text-lg font-bold tracking-tight text-gray-950 dark:text-white">
                     Monitoring Investigasi Insiden
@@ -11,7 +11,20 @@
                 </p>
             </div>
             
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
+                <form action="{{ route('print.monitoring-investigasi') }}" method="POST" target="_blank">
+                    @csrf
+                    <input type="hidden" name="unit_id" :value="$wire.unit_id">
+                    <input type="hidden" name="quarter" :value="$wire.quarter">
+                    <input type="hidden" name="compliance_status" :value="$wire.compliance_status">
+                    <input type="hidden" name="month" :value="$wire.month">
+                    <input type="hidden" name="year" :value="$wire.year">
+                    <input type="hidden" name="sortColumn" :value="$wire.sortColumn">
+                    <input type="hidden" name="sortDirection" :value="$wire.sortDirection">
+                    <x-filament::button type="submit" color="gray" icon="heroicon-o-printer">
+                        Print Laporan
+                    </x-filament::button>
+                </form>
                 <x-filament::input.wrapper>
                     <x-filament::input.select wire:model.live="unit_id">
                         <option value="">Semua Unit</option>
