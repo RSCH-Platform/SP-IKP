@@ -65,7 +65,29 @@
 
                     <button
                         type="button"
-                        onclick="window.printThisWidget(this)"
+                        x-data
+                        @click="
+                            const widget = $el.closest('.printable-widget');
+                            if (widget) {
+                                const originalParent = widget.parentNode;
+                                const originalNextSibling = widget.nextSibling;
+                                const appLayout = document.querySelector('.fi-layout');
+                                const oldDisplay = appLayout ? appLayout.style.display : '';
+                                
+                                if (appLayout) appLayout.style.display = 'none';
+                                document.body.appendChild(widget);
+                                window.print();
+                                
+                                if (originalNextSibling) {
+                                    originalParent.insertBefore(widget, originalNextSibling);
+                                } else {
+                                    originalParent.appendChild(widget);
+                                }
+                                if (appLayout) appLayout.style.display = oldDisplay;
+                            } else {
+                                window.print();
+                            }
+                        "
                         class="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-300
                                bg-slate-50 px-3 py-1.5 text-[11px] font-medium text-slate-700 transition
                                hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/20

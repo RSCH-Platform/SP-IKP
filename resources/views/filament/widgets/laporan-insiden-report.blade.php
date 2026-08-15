@@ -107,9 +107,31 @@
                         Export CSV
                     </x-filament::button>
                     <x-filament::button
+                        x-data
+                        @click="
+                            const widget = $el.closest('.printable-widget');
+                            if (widget) {
+                                const originalParent = widget.parentNode;
+                                const originalNextSibling = widget.nextSibling;
+                                const appLayout = document.querySelector('.fi-layout');
+                                const oldDisplay = appLayout ? appLayout.style.display : '';
+                                
+                                if (appLayout) appLayout.style.display = 'none';
+                                document.body.appendChild(widget);
+                                window.print();
+                                
+                                if (originalNextSibling) {
+                                    originalParent.insertBefore(widget, originalNextSibling);
+                                } else {
+                                    originalParent.appendChild(widget);
+                                }
+                                if (appLayout) appLayout.style.display = oldDisplay;
+                            } else {
+                                window.print();
+                            }
+                        "
                         color="gray"
                         icon="heroicon-o-printer"
-                        onclick="window.printThisWidget(this)"
                         size="sm"
                     >
                         Print PDF
