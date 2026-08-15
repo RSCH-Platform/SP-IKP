@@ -45,7 +45,10 @@ class IncidentCategoryMonitoringWidget extends ApexChartWidget implements HasFor
     public static function canView(): bool
     {
         $user = Auth::user();
-        return $user !== null && $user->can('ViewAllData:LaporanInsiden');
+        return $user !== null && (
+            $user->can('ViewAllData:LaporanInsiden') ||
+            $user->can('ForceEdit:LaporanInsiden')
+        );
     }
 
     public function updatedSelectedYear(): void
@@ -81,7 +84,10 @@ class IncidentCategoryMonitoringWidget extends ApexChartWidget implements HasFor
 
         if ($user->can('ForceEdit:LaporanInsiden')) {
             $unitIds = $user->unitKerjas()->pluck('id');
-            return $query->whereIn('unit_kerja_id', $unitIds);
+            return $query->where(function (Builder $q) use ($unitIds) {
+                $q->whereIn('unit_kerja_id', $unitIds)
+                  ->orWhere('status', LaporanInsiden::STATUS_SELESAI);
+            });
         }
 
         if ($user->can('Investigasi:LaporanInsiden')) {
