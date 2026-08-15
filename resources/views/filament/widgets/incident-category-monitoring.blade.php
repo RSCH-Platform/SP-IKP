@@ -26,7 +26,16 @@
         <div x-data="{ dropdownOpen: false }" @apexhcharts-dropdown.window="dropdownOpen = $event.detail.open">
 
             {{-- Filter Panel --}}
-            <div class="mb-5 flex justify-end">
+            <div class="mb-5 flex justify-between items-end">
+                <form action="{{ route('export.incident-category-pdf') }}" method="POST" target="_blank" class="self-end">
+                    @csrf
+                    <input type="hidden" name="year" :value="$wire.selectedYear">
+                    <input type="hidden" name="month" :value="$wire.selectedMonth">
+                    <x-filament::button type="submit" color="gray" icon="heroicon-o-printer" size="sm">
+                        Print Laporan
+                    </x-filament::button>
+                </form>
+
                 <div class="flex flex-wrap items-end gap-3">
                     <div class="min-w-[120px]">
                         <label
