@@ -373,4 +373,41 @@ class LaporanInsidenReport extends Widget
 
         return "Semester {$this->period}";
     }
+
+    public function exportCSV()
+    {
+        $fileName = 'laporan_insiden_' . date('Ymd_His') . '.csv';
+        $reportData = $this->getReportDataJenisInsiden();
+        $rows = $reportData['rows'] ?? [];
+        
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+        
+        $columns = ['Bulan', 'KPC', 'KNC', 'KTC', 'KTD', 'Sentinel', 'Total'];
+
+        $callback = function() use($rows, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($rows as $row) {
+                fputcsv($file, [
+                    $row['month_label'] ?? '',
+                    $row['KPC'] ?? 0,
+                    $row['KNC'] ?? 0,
+                    $row['KTC'] ?? 0,
+                    $row['KTD'] ?? 0,
+                    $row['Sentinel'] ?? 0,
+                    $row['total_count'] ?? 0
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

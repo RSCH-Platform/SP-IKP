@@ -1,4 +1,37 @@
-<x-filament-widgets::widget>
+<x-filament-widgets::widget class="printable-widget">
+    <style>
+        @media print {
+            body, html { background: white !important; margin: 0 !important; padding: 0 !important; }
+            .printable-widget { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
+            .printable-widget button, .printable-widget .no-print, details { display: none !important; }
+            table { page-break-inside: auto !important; width: 100% !important; border-collapse: collapse !important; }
+            tr { page-break-inside: avoid !important; page-break-after: auto !important; }
+            thead { display: table-header-group !important; }
+            .printable-widget .overflow-x-auto, .printable-widget .overflow-y-auto, .printable-widget .overflow-hidden { overflow: visible !important; }
+        }
+    </style>
+    <script>
+        if (typeof window.printThisWidget !== 'function') {
+            window.printThisWidget = function(btn) {
+                const widget = btn.closest('.printable-widget');
+                const originalParent = widget.parentNode;
+                const originalNextSibling = widget.nextSibling;
+                const appLayout = document.querySelector('.fi-layout');
+                const oldDisplay = appLayout ? appLayout.style.display : '';
+                
+                if (appLayout) appLayout.style.display = 'none';
+                document.body.appendChild(widget);
+                window.print();
+                
+                if (originalNextSibling) {
+                    originalParent.insertBefore(widget, originalNextSibling);
+                } else {
+                    originalParent.appendChild(widget);
+                }
+                if (appLayout) appLayout.style.display = oldDisplay;
+            };
+        }
+    </script>
     <div
         class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-950">
 
@@ -15,19 +48,33 @@
                     </p>
                 </div>
 
-                {{-- Export Excel Button --}}
-                <button
-                    type="button"
-                    x-data
-                    @click="$dispatch('open-export-modal')"
-                    class="inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg border border-emerald-300
-                           bg-emerald-50 px-3 py-1.5 text-[11px] font-medium text-emerald-700 transition
-                           hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-900/20
-                           dark:text-emerald-400 dark:hover:bg-emerald-900/40"
-                >
-                    <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-3.5 w-3.5" />
-                    Export Excel
-                </button>
+                {{-- Export Actions --}}
+                <div class="flex items-center gap-2 self-start no-print">
+                    <button
+                        type="button"
+                        x-data
+                        @click="$dispatch('open-export-modal')"
+                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-emerald-300
+                               bg-emerald-50 px-3 py-1.5 text-[11px] font-medium text-emerald-700 transition
+                               hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-900/20
+                               dark:text-emerald-400 dark:hover:bg-emerald-900/40"
+                    >
+                        <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-3.5 w-3.5" />
+                        Export Excel
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="window.printThisWidget(this)"
+                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-300
+                               bg-slate-50 px-3 py-1.5 text-[11px] font-medium text-slate-700 transition
+                               hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/20
+                               dark:text-slate-400 dark:hover:bg-slate-900/40"
+                    >
+                        <x-filament::icon icon="heroicon-o-printer" class="h-3.5 w-3.5" />
+                        Print PDF
+                    </button>
+                </div>
             </div>
 
             {{-- Accordion Filter --}}

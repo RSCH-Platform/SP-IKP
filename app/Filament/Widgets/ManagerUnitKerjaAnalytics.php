@@ -7,9 +7,11 @@ use Filament\Widgets\Widget;
 use App\Models\LaporanInsiden;
 use App\Models\UnitKerja;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithPagination;
 
 class ManagerUnitKerjaAnalytics extends Widget
 {
+    use WithPagination;
     public static function canView(): bool
     {
         $user = Auth::user();
@@ -41,6 +43,9 @@ class ManagerUnitKerjaAnalytics extends Widget
     public string $breakdownMode = 'period';
 
     public ?array $statuses = null;
+
+    public int $unitPerPage = 10;
+    public bool $showEmptyUnits = true;
 
     /**
      * Default statuses mapping (label only, no icons)
@@ -95,16 +100,27 @@ class ManagerUnitKerjaAnalytics extends Widget
     public function updatedGrouping(): void
     {
         $this->period = $this->getDefaultPeriodForGrouping();
+        $this->resetPage('unitPage');
     }
 
     public function updatedPeriod(): void
     {
-        // Keep the selected breakdown mode; only the month range changes.
+        $this->resetPage('unitPage');
     }
 
     public function updatedBreakdownMode(): void
     {
         // No-op. Included so Livewire tracks the mode cleanly.
+    }
+
+    public function updatedUnitPerPage(): void
+    {
+        $this->resetPage('unitPage');
+    }
+
+    public function updatedShowEmptyUnits(): void
+    {
+        $this->resetPage('unitPage');
     }
 
     protected function getDefaultPeriodForGrouping(): int
@@ -230,41 +246,42 @@ class ManagerUnitKerjaAnalytics extends Widget
         $query = LaporanInsiden::query();
         $this->applyPeriodFilter($query);
 
-        // Get all units dengan data incidents
-        $units = UnitKerja::query()
-            ->whereHas('laporanInsiden', function ($q) use ($query) {
-                $q->whereIn('id', $query->pluck('id'));
-            })
-            ->get();
+        $unitQuery = UnitKerja::query()
+            ->withCount(['laporanInsiden as total_insiden' => function ($q) {
+                $q->whereNotNull('tanggal_insiden');
+                $this->applyPeriodFilter($q);
+            }])
+            ->orderByDesc('total_insiden')
+            ->orderBy('unit_name');
 
-        $rows = $units->map(function ($unit) {
-            $unitQuery = LaporanInsiden::query()
+        if (!$this->showEmptyUnits) {
+            $unitQuery->having('total_insiden', '>', 0);
+        }
+
+        $paginator = $unitQuery->paginate($this->unitPerPage, ['*'], 'unitPage');
+
+        $rows = collect($paginator->items())->map(function ($unit) {
+            $incidentsQuery = LaporanInsiden::query()
                 ->where('unit_kerja_id', $unit->id)
                 ->whereNotNull('tanggal_insiden');
 
-            $this->applyPeriodFilter($unitQuery);
-
-            $total = $unitQuery->count();
-
-            // Skip units with no data
-            if ($total === 0) {
-                return null;
-            }
+            $this->applyPeriodFilter($incidentsQuery);
+            $total = $incidentsQuery->count();
 
             // Calculate counts for each configured status key
             $statusCounts = [];
             foreach (array_keys($this->statuses) as $statusKey) {
                 if ($statusKey === 'investigasi') {
-                    $statusCounts[$statusKey] = (clone $unitQuery)->where('status', LaporanInsiden::STATUS_INVESTIGASI)->count();
+                    $statusCounts[$statusKey] = (clone $incidentsQuery)->where('status', LaporanInsiden::STATUS_INVESTIGASI)->count();
                     continue;
                 }
 
                 if ($statusKey === 'selesai_investigasi') {
-                    $statusCounts[$statusKey] = (clone $unitQuery)->where('status', LaporanInsiden::STATUS_SELESAI)->count();
+                    $statusCounts[$statusKey] = (clone $incidentsQuery)->where('status', LaporanInsiden::STATUS_SELESAI)->count();
                     continue;
                 }
 
-                $statusCounts[$statusKey] = (clone $unitQuery)->where('status', $statusKey)->count();
+                $statusCounts[$statusKey] = (clone $incidentsQuery)->where('status', $statusKey)->count();
             }
 
             $selesaiCount = $statusCounts['selesai_investigasi'] ?? 0;
@@ -277,9 +294,12 @@ class ManagerUnitKerjaAnalytics extends Widget
             $row['close_rate'] = $closeRate;
 
             return $row;
-        })->filter()->sortByDesc('total')->values()->toArray();
+        })->toArray();
 
-        return $rows;
+        return [
+            'rows' => $rows,
+            'paginator' => $paginator,
+        ];
     }
 
     // ===== TABLE 2: UNIT KERJA x JENIS INSIDEN (By Grading) =====
@@ -581,5 +601,92 @@ class ManagerUnitKerjaAnalytics extends Widget
         }
 
         return $tables;
+    }
+
+    public function exportCSV()
+    {
+        $fileName = 'unit_performance_' . date('Ymd_His') . '.csv';
+        
+        $query = LaporanInsiden::query();
+        $this->applyPeriodFilter($query);
+
+        $unitQuery = UnitKerja::query()
+            ->withCount(['laporanInsiden as total_insiden' => function ($q) {
+                $q->whereNotNull('tanggal_insiden');
+                $this->applyPeriodFilter($q);
+            }])
+            ->orderByDesc('total_insiden')
+            ->orderBy('unit_name');
+
+        if (!$this->showEmptyUnits) {
+            $unitQuery->having('total_insiden', '>', 0);
+        }
+
+        $units = $unitQuery->get();
+        
+        $data = $units->map(function ($unit) {
+            $incidentsQuery = LaporanInsiden::query()
+                ->where('unit_kerja_id', $unit->id)
+                ->whereNotNull('tanggal_insiden');
+
+            $this->applyPeriodFilter($incidentsQuery);
+            $total = $incidentsQuery->count();
+
+            // Calculate counts for each configured status key
+            $statusCounts = [];
+            foreach (array_keys($this->statuses) as $statusKey) {
+                if ($statusKey === 'investigasi') {
+                    $statusCounts[$statusKey] = (clone $incidentsQuery)->where('status', LaporanInsiden::STATUS_INVESTIGASI)->count();
+                    continue;
+                }
+                if ($statusKey === 'selesai_investigasi') {
+                    $statusCounts[$statusKey] = (clone $incidentsQuery)->where('status', LaporanInsiden::STATUS_SELESAI)->count();
+                    continue;
+                }
+                $statusCounts[$statusKey] = (clone $incidentsQuery)->where('status', $statusKey)->count();
+            }
+
+            $investigasiCount = $statusCounts['investigasi'] ?? 0;
+            $closeRate = $total > 0 ? round(($investigasiCount / $total) * 100, 0) : 0;
+
+            $row = array_merge([
+                'unit_name' => $unit->unit_name,
+                'total' => $total,
+            ], $statusCounts);
+            $row['close_rate'] = $closeRate;
+
+            return $row;
+        })->toArray();
+        
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+        
+        $columns = ['Unit Kerja', 'Total Laporan', 'Draft', 'Dilaporkan', 'Grading', 'Investigasi', 'Selesai', 'Close Rate %'];
+
+        $callback = function() use($data, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($data as $row) {
+                fputcsv($file, [
+                    $row['unit_name'] ?? '',
+                    $row['total'] ?? 0,
+                    $row['draft'] ?? 0,
+                    $row['dilaporkan'] ?? 0,
+                    $row['diverifikasi'] ?? 0,
+                    $row['investigasi'] ?? 0,
+                    $row['selesai_investigasi'] ?? 0,
+                    $row['close_rate'] ?? 0
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

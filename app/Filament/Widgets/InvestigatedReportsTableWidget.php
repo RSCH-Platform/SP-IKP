@@ -307,4 +307,52 @@ class InvestigatedReportsTableWidget extends Widget
             'Sentinel' => 'Sentinel',
         ];
     }
+
+    public function exportCSV()
+    {
+        $fileName = 'investigated_reports_' . date('Ymd_His') . '.csv';
+        
+        $reports = collect($this->scopedQuery()
+            ->when(filled($this->selectedYear), fn(Builder $query): Builder => $query->whereYear('tanggal_insiden', (int) $this->selectedYear))
+            ->when(filled($this->selectedMonth), fn(Builder $query): Builder => $query->whereMonth('tanggal_insiden', (int) $this->selectedMonth))
+            ->when(filled($this->selectedJenisInsiden), fn(Builder $query): Builder => $query->where('jenis_insiden', $this->selectedJenisInsiden))
+            ->when(filled($this->selectedStatus), fn(Builder $query): Builder => $query->where('status', $this->selectedStatus))
+            ->with(['unitKerja', 'problems.whys', 'problems.recommendations'])
+            ->latest('tanggal_insiden')
+            ->get());
+            
+        $groups = $this->buildRows($reports);
+        
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+        
+        $columns = ['Tanggal Insiden', 'Unit Kerja', 'Jenis Insiden', 'Kategori', 'Akar Masalah', 'Rekomendasi'];
+
+        $callback = function() use($groups, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($groups as $group) {
+                $base = $group['base'];
+                foreach ($group['problems'] as $problem) {
+                    fputcsv($file, [
+                        $base['tanggal_insiden'] ?? '-',
+                        $base['unit_kerja'] ?? '-',
+                        $base['jenis_insiden'] ?? '-',
+                        $base['deskripsi_kategori_insiden'] ?? '-',
+                        $problem['akar_masalah'] ?? '-',
+                        $problem['rekomendasi'] ?? '-'
+                    ]);
+                }
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

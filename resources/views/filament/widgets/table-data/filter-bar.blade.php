@@ -55,4 +55,14 @@
             </x-filament::input.select>
         </x-filament::input.wrapper>
     </div>
+
+    <!-- Export Actions -->
+    <div class="flex items-center gap-2 ml-auto">
+        <x-filament::button wire:click="exportCSV" color="gray" icon="heroicon-o-document-arrow-down">
+            Export CSV
+        </x-filament::button>
+        <x-filament::button onclick="window.printThisWidget(this)" color="gray" icon="heroicon-o-printer">
+            Print PDF
+        </x-filament::button>
+    </div>
 </div>
