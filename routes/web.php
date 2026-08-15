@@ -55,6 +55,14 @@ Route::post('/export/investigated-reports', function (Request $request) {
     ))->download();
 })->name('export.investigated-reports');
 
+use App\Http\Controllers\ReportExportController;
+
+Route::post('/export/incident-category-pdf', [ReportExportController::class, 'exportIncidentCategoryPdf'])
+    ->name('export.incident-category-pdf');
+
+Route::post('/export/monitoring-investigasi-print', [ReportExportController::class, 'printMonitoringInvestigasi'])
+    ->name('print.monitoring-investigasi');
+
 Route::post('/ikp-application/problem-actions/{action}/status', function (Request $request, ProblemAction $action) {
     abort_unless(Auth::check(), 403);
 
