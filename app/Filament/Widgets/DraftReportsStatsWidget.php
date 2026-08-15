@@ -72,10 +72,11 @@ class DraftReportsStatsWidget extends BaseWidget
             ->count();
 
         $avgResolutionDays = (clone $baseQuery)
-            ->whereNotNull('reported_at')
-            ->whereNotNull('investigation_completed_at')
-            ->where('investigation_completed_at', '>', 'reported_at')
-            ->selectRaw('AVG(TIMESTAMPDIFF(DAY, reported_at, investigation_completed_at)) AS avg_days')
+            ->join('investigations', 'laporan_insidens.id', '=', 'investigations.laporan_insiden_id')
+            ->whereNotNull('laporan_insidens.reported_at')
+            ->whereNotNull('investigations.investigation_completed_at')
+            ->whereRaw('investigations.investigation_completed_at > laporan_insidens.reported_at')
+            ->selectRaw('AVG(TIMESTAMPDIFF(DAY, laporan_insidens.reported_at, investigations.investigation_completed_at)) AS avg_days')
             ->value('avg_days');
 
         $stats = [
