@@ -54,7 +54,7 @@ class ManagerUnitKerjaAnalytics extends Widget
     protected array $defaultStatuses = [
         'draft' => 'Draft',
         'dilaporkan' => 'Dilaporkan',
-        'diverifikasi' => 'Verifikasi',
+        'diverifikasi' => 'Grading',
         'investigasi' => 'Investigasi',
         'selesai_investigasi' => 'Selesai',
     ];
@@ -284,8 +284,10 @@ class ManagerUnitKerjaAnalytics extends Widget
                 $statusCounts[$statusKey] = (clone $incidentsQuery)->where('status', $statusKey)->count();
             }
 
+            $investigasiCount = $statusCounts['investigasi'] ?? 0;
             $selesaiCount = $statusCounts['selesai_investigasi'] ?? 0;
-            $closeRate = $total > 0 ? round(($selesaiCount / $total) * 100, 0) : 0;
+            $resolvedCount = $investigasiCount + $selesaiCount;
+            $closeRate = $total > 0 ? round(($resolvedCount / $total) * 100, 0) : 0;
 
             $row = array_merge([
                 'unit_name' => $unit->unit_name,
@@ -486,8 +488,10 @@ class ManagerUnitKerjaAnalytics extends Widget
             $severeImpact = (clone $unitQuery)
                 ->whereIn('dampak_insiden', ['Cedera berat', 'Meninggal'])
                 ->count();
+            $investigasi = (clone $unitQuery)->where('status', LaporanInsiden::STATUS_INVESTIGASI)->count();
             $selesai = (clone $unitQuery)->where('status', LaporanInsiden::STATUS_SELESAI)->count();
-            $closeRate = round(($selesai / $total) * 100, 0);
+            $resolvedCount = $investigasi + $selesai;
+            $closeRate = $total > 0 ? round(($resolvedCount / $total) * 100, 0) : 0;
 
             // Calculate average resolve days based on investigation timestamps
             $avgResolveDays = (clone $unitQuery)
@@ -647,7 +651,9 @@ class ManagerUnitKerjaAnalytics extends Widget
             }
 
             $investigasiCount = $statusCounts['investigasi'] ?? 0;
-            $closeRate = $total > 0 ? round(($investigasiCount / $total) * 100, 0) : 0;
+            $selesaiCount = $statusCounts['selesai_investigasi'] ?? 0;
+            $resolvedCount = $investigasiCount + $selesaiCount;
+            $closeRate = $total > 0 ? round(($resolvedCount / $total) * 100, 0) : 0;
 
             $row = array_merge([
                 'unit_name' => $unit->unit_name,

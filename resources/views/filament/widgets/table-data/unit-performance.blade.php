@@ -26,6 +26,7 @@
         $paginator = $table1Data['paginator'];
         
         $statuses = $this->statuses ?? [];
+        unset($statuses['selesai_investigasi']);
         $colspan = 2 + count($statuses) + 1; // Unit, Total, statuses..., Close%
     @endphp
 
@@ -57,8 +58,8 @@
 
         @forelse($rows as $row)
         <tr class="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/40">
-            <x-report-table.td>{{ $row['unit_name'] }}</x-report-table.td>
-            <x-report-table.td align="center">{{ $row['total'] }}</x-report-table.td>
+            <x-report-table.td class="font-medium uppercase">{{ $row['unit_name'] }}</x-report-table.td>
+            <x-report-table.td align="center" class="font-bold">{{ $row['total'] }}</x-report-table.td>
             @foreach($statuses as $k => $label)
             <x-report-table.td align="center">{{ $row[$k] ?? 0 }}</x-report-table.td>
             @endforeach

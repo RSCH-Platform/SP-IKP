@@ -1,68 +1,103 @@
-<!-- FILTERS -->
-<div class="flex flex-wrap items-end gap-3">
-    <div class="min-w-[140px]">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+<!-- FILTER TOOLBAR -->
+<div class="flex flex-wrap items-end gap-2">
+
+    <!-- Tahun -->
+    <div class="w-28">
+        <label class="mb-1 block text-[11px] font-medium text-gray-500 dark:text-gray-400">
             Tahun
         </label>
+
         <x-filament::input.wrapper>
-            <x-filament::input.select wire:model.live="year">
+            <x-filament::input.select
+                wire:model.live="year"
+                class="!text-sm"
+            >
                 @foreach($this->getAvailableYears() as $y)
-                <option value="{{ $y }}">{{ $y }}</option>
+                    <option value="{{ $y }}">{{ $y }}</option>
                 @endforeach
             </x-filament::input.select>
         </x-filament::input.wrapper>
     </div>
 
-    <div class="min-w-[160px]">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+    <!-- Grouping -->
+    <div class="w-32">
+        <label class="mb-1 block text-[11px] font-medium text-gray-500 dark:text-gray-400">
             Grouping
         </label>
+
         <x-filament::input.wrapper>
-            <x-filament::input.select wire:model.live="grouping">
+            <x-filament::input.select
+                wire:model.live="grouping"
+                class="!text-sm"
+            >
                 <option value="quarter">Quarterly</option>
                 <option value="semester">Semester</option>
             </x-filament::input.select>
         </x-filament::input.wrapper>
     </div>
 
-    <div class="min-w-[140px]">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+    <!-- Periode -->
+    <div class="w-24">
+        <label class="mb-1 block text-[11px] font-medium text-gray-500 dark:text-gray-400">
             Periode
         </label>
+
         <x-filament::input.wrapper>
-            <x-filament::input.select wire:model.live="period">
+            <x-filament::input.select
+                wire:model.live="period"
+                class="!text-sm"
+            >
                 @if($this->grouping === 'quarter')
-                @for($i = 1; $i <= 4; $i++)
-                    <option value="{{ $i }}">Q{{ $i }}</option>
+                    @for($i = 1; $i <= 4; $i++)
+                        <option value="{{ $i }}">Q{{ $i }}</option>
                     @endfor
-                    @else
+                @else
                     @for($i = 1; $i <= 2; $i++)
                         <option value="{{ $i }}">S{{ $i }}</option>
-                        @endfor
-                        @endif
+                    @endfor
+                @endif
             </x-filament::input.select>
         </x-filament::input.wrapper>
     </div>
 
-    <div class="min-w-[180px]">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+    <!-- Tampilan -->
+    <div class="w-36">
+        <label class="mb-1 block text-[11px] font-medium text-gray-500 dark:text-gray-400">
             Tampilan
         </label>
+
         <x-filament::input.wrapper>
-            <x-filament::input.select wire:model.live="breakdownMode">
+            <x-filament::input.select
+                wire:model.live="breakdownMode"
+                class="!text-sm"
+            >
                 <option value="period">Akumulasi Periode</option>
                 <option value="monthly">Per Bulan</option>
             </x-filament::input.select>
         </x-filament::input.wrapper>
     </div>
 
-    <!-- Export Actions -->
-    <div class="flex items-center gap-2 ml-auto">
-        <x-filament::button wire:click="exportCSV" color="gray" icon="heroicon-o-document-arrow-down">
-            Export CSV
+    <!-- Actions -->
+    <div class="ml-auto flex items-center gap-1 border-l border-gray-200 pl-2 dark:border-gray-700">
+        <x-filament::button
+            wire:click="exportCSV"
+            color="gray"
+            size="sm"
+            icon="heroicon-o-arrow-down-tray"
+            tooltip="Export CSV"
+        >
+            Export
         </x-filament::button>
-        <x-filament::button onclick="window.printThisWidget(this)" color="gray" icon="heroicon-o-printer">
-            Print PDF
+
+        <x-filament::button
+            onclick="window.printThisWidget(this)"
+            color="gray"
+            size="sm"
+            icon="heroicon-o-printer"
+            tooltip="Print PDF"
+        >
+            Print
         </x-filament::button>
     </div>
+
 </div>
