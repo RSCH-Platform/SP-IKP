@@ -57,6 +57,7 @@ class InvestigasiPage extends Page
                 'widgets'     => [
                     InvestigatedReportsTableWidget::class,
                     IncidentCategoryMonitoringWidget::class,
+                    \App\Filament\Widgets\MonitoringInvestigasiWidget::class,
                 ],
                 'visible'     => InvestigatedReportsTableWidget::canView(),
             ],
