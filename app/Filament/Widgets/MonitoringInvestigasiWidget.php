@@ -106,6 +106,19 @@ class MonitoringInvestigasiWidget extends Widget
             ->whereYear('tanggal_insiden', $this->year)
             ->orderBy('tanggal_insiden', 'asc');
 
+        $user = auth()->user();
+        if ($user && !$user->can('ViewAllData:LaporanInsiden')) {
+            if ($user->can('ForceEdit:LaporanInsiden')) {
+                $unitIds = $user->unitKerjas()->pluck('id');
+                $query->where(function ($q) use ($unitIds) {
+                    $q->whereIn('unit_kerja_id', $unitIds)
+                      ->orWhere('status', LaporanInsiden::STATUS_SELESAI);
+                });
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        }
+
         if ($this->month) {
             $query->whereMonth('tanggal_insiden', $this->month);
         } elseif ($this->quarter) {
