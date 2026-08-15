@@ -47,7 +47,10 @@ class InvestigatedReportsTableWidget extends Widget
     {
         $user = Auth::user();
 
-        return $user !== null && $user->can('ViewAllData:LaporanInsiden');
+        return $user !== null && (
+            $user->can('ViewAllData:LaporanInsiden')
+            || $user->can('ForceEdit:LaporanInsiden')
+        );
     }
 
     protected function getViewData(): array
@@ -105,7 +108,10 @@ class InvestigatedReportsTableWidget extends Widget
         if ($user->can('ForceEdit:LaporanInsiden')) {
             $unitIds = $user->unitKerjas()->pluck('id');
 
-            return $query->whereIn('unit_kerja_id', $unitIds);
+            return $query->where(function (Builder $q) use ($unitIds) {
+                $q->whereIn('unit_kerja_id', $unitIds)
+                  ->orWhere('status', LaporanInsiden::STATUS_SELESAI);
+            });
         }
 
         if ($user->can('Investigasi:LaporanInsiden')) {
