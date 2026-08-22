@@ -198,8 +198,8 @@
                             <tr>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 whitespace-nowrap">Unit Kerja</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Total Insiden</th>
-                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Selesai Investigasi</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Sedang Berjalan</th>
+                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Selesai Investigasi</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Tepat Waktu (Sesuai SLA)</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">% Kepatuhan SLA</th>
                             </tr>
@@ -211,12 +211,12 @@
                                     <td class="px-4 py-3 text-center font-bold text-gray-700 dark:text-gray-300">{{ $row->total }}</td>
                                     <td class="px-4 py-3 text-center">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                            {{ $row->sudah }}
+                                            {{ $row->belum }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                            {{ $row->belum }}
+                                            {{ $row->sudah }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-center">
