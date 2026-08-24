@@ -198,10 +198,11 @@
                             <tr>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 whitespace-nowrap">Unit</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Jumlah Insiden</th>
-                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Sudah Di Investigasi</th>
+                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Selesai Investigasi</th>
+                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Sedang Proses Investigasi</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Belum Di Investigasi</th>
-                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Kesesuaian Waktu Pelaporan</th>
-                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Persentase Kesesuaian Laporan</th>
+                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Kesesuaian Waktu Investigasi</th>
+                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Persentase Kesesuaian Waktu</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -212,6 +213,11 @@
                                     <td class="px-4 py-3 text-center">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                                             {{ $row->sudah }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                            {{ $row->sedang }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-center">
@@ -236,7 +242,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                                    <td colspan="7" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
                                         Belum ada data rekapitulasi.
                                     </td>
                                 </tr>
@@ -248,6 +254,7 @@
                                     <td class="px-4 py-3 text-right text-gray-700 dark:text-gray-300">TOTAL</td>
                                     <td class="px-4 py-3 text-center text-gray-900 dark:text-white">{{ $this->summaryData->sum('total') }}</td>
                                     <td class="px-4 py-3 text-center text-gray-900 dark:text-white">{{ $this->summaryData->sum('sudah') }}</td>
+                                    <td class="px-4 py-3 text-center text-gray-900 dark:text-white">{{ $this->summaryData->sum('sedang') }}</td>
                                     <td class="px-4 py-3 text-center text-gray-900 dark:text-white">{{ $this->summaryData->sum('belum') }}</td>
                                     <td class="px-4 py-3 text-center text-indigo-600 dark:text-indigo-400">{{ $this->summaryData->sum('sesuai') }}</td>
                                     <td class="px-4 py-3 text-center">

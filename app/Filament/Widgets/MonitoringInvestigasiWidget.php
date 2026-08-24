@@ -99,7 +99,7 @@ class MonitoringInvestigasiWidget extends Widget
         ];
     }
 
-    public function getIncidentsDataProperty(): Collection
+    public function getBaseIncidentsProperty(): Collection
     {
         $query = LaporanInsiden::with(['unitKerja', 'investigation'])
             ->whereIn('status', [LaporanInsiden::STATUS_INVESTIGASI, LaporanInsiden::STATUS_SELESAI])
@@ -134,7 +134,7 @@ class MonitoringInvestigasiWidget extends Widget
 
         $incidents = $query->get();
 
-        $mapped = $incidents->map(function ($incident) {
+        return $incidents->map(function ($incident) {
             $gradingLabel = $incident->grading_risiko ?? 'Belum ada';
             $gradingColor = 'gray';
             $targetHari = 14; // Default untuk Biru/Hijau
@@ -188,6 +188,11 @@ class MonitoringInvestigasiWidget extends Widget
                 'unit_id' => $incident->unit_kerja_id ?? $incident->unit_kerja,
             ];
         });
+    }
+
+    public function getIncidentsDataProperty(): Collection
+    {
+        $mapped = $this->baseIncidents;
 
         if ($this->compliance_status === 'sesuai') {
             $mapped = $mapped->filter(fn($item) => $item->is_sesuai_target === true && $item->has_started);
@@ -206,7 +211,7 @@ class MonitoringInvestigasiWidget extends Widget
 
     public function getSummaryDataProperty(): Collection
     {
-        $incidents = $this->incidentsData;
+        $incidents = $this->baseIncidents;
         
         $summary = [];
         foreach ($incidents as $inc) {
@@ -217,6 +222,7 @@ class MonitoringInvestigasiWidget extends Widget
                     'unit' => $inc->unit,
                     'total' => 0,
                     'sudah' => 0,
+                    'sedang' => 0,
                     'belum' => 0,
                     'sesuai' => 0,
                 ];
@@ -226,6 +232,8 @@ class MonitoringInvestigasiWidget extends Widget
             
             if ($inc->is_selesai) {
                 $summary[$unitKey]['sudah']++;
+            } elseif ($inc->has_started) {
+                $summary[$unitKey]['sedang']++;
             } else {
                 $summary[$unitKey]['belum']++;
             }
@@ -244,6 +252,7 @@ class MonitoringInvestigasiWidget extends Widget
                 'unit' => $data['unit'],
                 'total' => $data['total'],
                 'sudah' => $data['sudah'],
+                'sedang' => $data['sedang'],
                 'belum' => $data['belum'],
                 'sesuai' => $data['sesuai'],
                 'persentase' => $percentage,
