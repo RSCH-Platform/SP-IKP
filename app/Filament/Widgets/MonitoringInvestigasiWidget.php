@@ -101,7 +101,7 @@ class MonitoringInvestigasiWidget extends Widget
 
     public function getBaseIncidentsProperty(): Collection
     {
-        $query = LaporanInsiden::with(['unitKerja', 'investigation'])
+        $query = LaporanInsiden::with(['unitKerja', 'investigation', 'problems.recommendations'])
             ->whereIn('status', [LaporanInsiden::STATUS_INVESTIGASI, LaporanInsiden::STATUS_SELESAI])
             ->whereYear('tanggal_insiden', $this->year)
             ->orderBy('tanggal_insiden', 'asc');
@@ -153,7 +153,8 @@ class MonitoringInvestigasiWidget extends Widget
                 $targetHari = 45;
             }
 
-            $selesai = $incident->status === LaporanInsiden::STATUS_SELESAI || $incident->isInvestigationCompleted();
+            $hasRecommendation = $incident->problems->flatMap->recommendations->isNotEmpty();
+            $selesai = $incident->status === LaporanInsiden::STATUS_SELESAI || $incident->isInvestigationCompleted() || $hasRecommendation;
             
             $startedAt = $incident->investigation?->investigation_started_at ? Carbon::parse($incident->investigation->investigation_started_at) : null;
             $completedAt = $incident->investigation?->investigation_completed_at ? Carbon::parse($incident->investigation->investigation_completed_at) : null;
