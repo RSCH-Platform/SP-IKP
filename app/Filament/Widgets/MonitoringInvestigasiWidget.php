@@ -141,7 +141,7 @@ class MonitoringInvestigasiWidget extends Widget
             
             if (stripos($gradingLabel, 'Biru') !== false) {
                 $gradingColor = 'blue';
-                $targetHari = 7;
+                $targetHari = 14;
             } elseif (stripos($gradingLabel, 'Hijau') !== false) {
                 $gradingColor = 'green';
                 $targetHari = 14;
