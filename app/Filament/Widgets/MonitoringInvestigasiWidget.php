@@ -159,6 +159,18 @@ class MonitoringInvestigasiWidget extends Widget
             $startedAt = $incident->investigation?->investigation_started_at ? Carbon::parse($incident->investigation->investigation_started_at) : null;
             $completedAt = $incident->investigation?->investigation_completed_at ? Carbon::parse($incident->investigation->investigation_completed_at) : null;
             
+            // Jika sudah dianggap selesai, tapi waktu selesai di investigasi belum tercatat
+            if ($selesai && !$completedAt) {
+                if ($hasRecommendation) {
+                    $latestRecommendation = $incident->problems->flatMap->recommendations->sortByDesc('created_at')->first();
+                    $completedAt = $latestRecommendation && $latestRecommendation->created_at 
+                        ? Carbon::parse($latestRecommendation->created_at) 
+                        : Carbon::parse($incident->updated_at);
+                } else {
+                    $completedAt = Carbon::parse($incident->updated_at);
+                }
+            }
+            
             $lamaInvestigasi = null;
             if ($startedAt && $completedAt) {
                 $lama = (int) $startedAt->startOfDay()->diffInDays($completedAt->startOfDay(), false);
