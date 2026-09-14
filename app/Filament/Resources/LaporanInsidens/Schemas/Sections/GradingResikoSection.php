@@ -28,6 +28,7 @@ class GradingResikoSection
                         5 => '5 — Katastropik (Kematian yang tidak berhubungan dengan perjalanan penyakit)',
                     ])
                     ->required()
+                    ->dehydrated(false)
                     ->live()
                     ->afterStateUpdated(fn ($set, $get) => self::calculateRisk($set, $get)),
 
@@ -41,6 +42,7 @@ class GradingResikoSection
                         5 => '5 — Sangat sering / Almost Certain (Tiap minggu/bulan)',
                     ])
                     ->required()
+                    ->dehydrated(false)
                     ->live()
                     ->afterStateUpdated(fn ($set, $get) => self::calculateRisk($set, $get)),
 
@@ -122,12 +124,7 @@ class GradingResikoSection
                     })
                     ->columnSpanFull(),
                     
-                // Hidden fields to store calculated values so we can easily access them in mutateFormDataBeforeSave
-                \Filament\Forms\Components\Hidden::make('risk_score'),
-                \Filament\Forms\Components\Hidden::make('risk_level'),
-                \Filament\Forms\Components\Hidden::make('risk_band'),
-                \Filament\Forms\Components\Hidden::make('required_action'),
-                \Filament\Forms\Components\Hidden::make('grading_risiko'), // Keep for backward compatibility
+                \Filament\Forms\Components\Hidden::make('grading_risiko'),
             ])
             ->columns(1)
             ->collapsible()
@@ -142,18 +139,8 @@ class GradingResikoSection
 
         if ($severity && $probability) {
             $result = RiskGradingEngine::calculate($severity, $probability);
-            $set('risk_score', $result['risk_score']);
-            $set('risk_level', $result['risk_level']);
-            $set('risk_band', $result['risk_band']);
-            $set('required_action', $result['required_action']);
-            
-            // Sync with legacy column
             $set('grading_risiko', $result['risk_band']);
         } else {
-            $set('risk_score', null);
-            $set('risk_level', null);
-            $set('risk_band', null);
-            $set('required_action', null);
             $set('grading_risiko', null);
         }
     }

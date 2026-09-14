@@ -198,21 +198,8 @@ class LaporanInsidenInfolistSchema
                         default            => 'secondary',
                     }),
 
-                Infolists\Components\TextEntry::make('riskAssessment.severity_level')
-                    ->label('Dampak (Severity)')
-                    ->placeholder('Belum dinilai'),
-
-                Infolists\Components\TextEntry::make('riskAssessment.probability_level')
-                    ->label('Probabilitas (Probability)')
-                    ->placeholder('Belum dinilai'),
-
-                Infolists\Components\TextEntry::make('riskAssessment.risk_score')
-                    ->label('Risk Score')
-                    ->badge()
-                    ->placeholder('Belum dinilai'),
-
                 Infolists\Components\TextEntry::make('grading_risiko')
-                    ->label('Risk Band')
+                    ->label('Grading Risiko')
                     ->badge()
                     ->icon(fn($record) => match ($record->grading_risiko) {
                         'Biru'   => 'heroicon-m-information-circle',
@@ -229,13 +216,8 @@ class LaporanInsidenInfolistSchema
                         default  => 'secondary',
                     })
                     ->placeholder('Belum dinilai'),
-
-                Infolists\Components\TextEntry::make('riskAssessment.required_action')
-                    ->label('Tindakan yang Diperlukan')
-                    ->columnSpanFull()
-                    ->placeholder('Belum dinilai'),
             ])
-            ->columns(4)
+            ->columns(3)
             ->collapsible()
             ->compact();
     }

@@ -46,17 +46,7 @@ class EditLaporanInsiden extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $this->record->load('investigationData', 'riskAssessment');
-
-        // Load risk assessment into form fields so it displays correctly
-        if ($this->record->riskAssessment) {
-            $data['severity_score'] = $this->record->riskAssessment->severity_score;
-            $data['probability_score'] = $this->record->riskAssessment->probability_score;
-            $data['risk_score'] = $this->record->riskAssessment->risk_score;
-            $data['risk_level'] = $this->record->riskAssessment->risk_level;
-            $data['risk_band'] = $this->record->riskAssessment->risk_band;
-            $data['required_action'] = $this->record->riskAssessment->required_action;
-        }
+        $this->record->load('investigationData');
 
         $this->forgetInvestigationCountsCache();
 
@@ -67,54 +57,7 @@ class EditLaporanInsiden extends EditRecord
     {
         $this->forgetInvestigationCountsCache();
 
-        // Extract risk assessment data before saving to laporan_insidens
-        // We temporarily store it in a property or we can handle it in afterSave
-        // Wait, Filament removes fields that are not in the main model's fillable automatically if they are just in the form schema.
-        // Actually, it tries to fill them. So we should unset them if they are not in laporan_insidens fillable!
-        // But let's check if severity_score is in fillable of LaporanInsiden? No.
-        // It's safer to store it in a temporary array on the class, but we can also just use the form state in afterSave.
-        // Let's unset them from $data so they don't break the main model save.
-        
-        $this->tempRiskAssessmentData = [
-            'severity_score' => $data['severity_score'] ?? null,
-            'probability_score' => $data['probability_score'] ?? null,
-            'risk_score' => $data['risk_score'] ?? null,
-            'risk_level' => $data['risk_level'] ?? null,
-            'risk_band' => $data['risk_band'] ?? null,
-            'required_action' => $data['required_action'] ?? null,
-        ];
-        
-        unset($data['severity_score'], $data['probability_score'], $data['risk_score'], $data['risk_level'], $data['risk_band'], $data['required_action']);
-
         return $data;
-    }
-
-    public array $tempRiskAssessmentData = [];
-
-    protected function afterSave(): void
-    {
-        if (!empty($this->tempRiskAssessmentData['severity_score']) && !empty($this->tempRiskAssessmentData['probability_score'])) {
-            $engineResult = \App\Services\RiskGradingEngine::calculate(
-                (int)$this->tempRiskAssessmentData['severity_score'], 
-                (int)$this->tempRiskAssessmentData['probability_score']
-            );
-
-            $this->record->riskAssessment()->updateOrCreate(
-                ['laporan_insiden_id' => $this->record->id],
-                [
-                    'severity_score' => $engineResult['severity_score'],
-                    'severity_level' => $engineResult['severity_level'],
-                    'probability_score' => $engineResult['probability_score'],
-                    'probability_level' => $engineResult['probability_level'],
-                    'risk_score' => $engineResult['risk_score'],
-                    'risk_level' => $engineResult['risk_level'],
-                    'risk_band' => $engineResult['risk_band'],
-                    'required_action' => $engineResult['required_action'],
-                    'assessed_by' => Auth::id(),
-                    'assessed_at' => now(),
-                ]
-            );
-        }
     }
 
     public function submitLaporan(): void
