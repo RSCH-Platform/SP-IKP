@@ -69,7 +69,6 @@ class EditLaporanInsiden extends EditRecord
             $missingFields = $this->getMissingSubmitFields();
 
             if (!empty($missingFields)) {
-                dd($missingFields);
                 $this->notifyDanger(
                     title: 'Laporan belum bisa dikirim',
                     body: 'Lengkapi field wajib berikut: ' . implode(', ', $missingFields),
