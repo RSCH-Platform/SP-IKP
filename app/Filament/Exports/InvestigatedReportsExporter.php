@@ -29,6 +29,7 @@ class InvestigatedReportsExporter extends Exporter
             'deskripsi_kategori_insiden' => 'Judul Insiden',
             'jenis_insiden' => 'Jenis Insiden',
             'unit_kerja' => 'Unit Kerja',
+            'penyebab_langsung' => 'Penyebab Langsung',
             'akar_masalah' => 'Akar Masalah',
             'rekomendasi' => 'Rekomendasi',
         ];
@@ -113,6 +114,11 @@ class InvestigatedReportsExporter extends Exporter
                     ?? $record->unitKerja?->unit_name
                     ?? '-'),
 
+            ExportColumn::make('penyebab_langsung')
+                ->label('Penyebab Langsung')
+                ->enabledByDefault(fn (): bool => static::isFieldSelected('penyebab_langsung'))
+                ->formatStateUsing(fn (mixed $state, LaporanInsiden $record): string => self::concatenatePenyebabLangsung($record)),
+
             ExportColumn::make('akar_masalah')
                 ->label('Akar Masalah')
                 ->enabledByDefault(fn (): bool => static::isFieldSelected('akar_masalah'))
@@ -134,8 +140,23 @@ class InvestigatedReportsExporter extends Exporter
     {
         return $query->with([
             'unitKerja',
+            'problems.whys',
             'problems.recommendations',
         ]);
+    }
+
+    protected static function concatenatePenyebabLangsung(LaporanInsiden $record): string
+    {
+        $items = $record->problems
+            ->flatMap(fn ($problem) => $problem->whys->where('why_level', 1)->pluck('problem_statement'))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return $items === []
+            ? '-'
+            : implode("\n", $items);
     }
 
     protected static function concatenateProblemDescriptions(LaporanInsiden $record): string

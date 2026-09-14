@@ -152,6 +152,7 @@ class InvestigatedReportsTableWidget extends Widget
             if ($problemRows === []) {
                 $problemRows = [
                     [
+                        'penyebab_langsung' => '',
                         'akar_masalah' => '',
                         'rekomendasi' => '',
                     ],
@@ -181,7 +182,7 @@ class InvestigatedReportsTableWidget extends Widget
     }
 
     /**
-     * @return array<int, array{akar_masalah: string, rekomendasi: string}>
+     * @return array<int, array{penyebab_langsung: string, akar_masalah: string, rekomendasi: string}>
      */
     protected function buildProblemRows(LaporanInsiden $record): array
     {
@@ -189,6 +190,14 @@ class InvestigatedReportsTableWidget extends Widget
 
         foreach ($record->problems as $problem) {
             $latestWhyLevel = $problem->whys->max('why_level');
+
+            $penyebabLangsungItems = $problem->whys
+                ->where('why_level', 1)
+                ->pluck('problem_statement')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
 
             $akarMasalahItems = $problem->whys
                 ->when(
@@ -208,13 +217,15 @@ class InvestigatedReportsTableWidget extends Widget
                 ->values()
                 ->all();
 
+            $penyebabLangsungItems = $penyebabLangsungItems !== [] ? $penyebabLangsungItems : ['-'];
             $akarMasalahItems = $akarMasalahItems !== [] ? $akarMasalahItems : ['-'];
             $recommendationItems = $recommendationItems !== [] ? $recommendationItems : ['-'];
 
-            $maxRows = max(count($akarMasalahItems), count($recommendationItems));
+            $maxRows = max(count($penyebabLangsungItems), count($akarMasalahItems), count($recommendationItems));
 
             for ($index = 0; $index < $maxRows; $index++) {
                 $rows[] = [
+                    'penyebab_langsung' => $penyebabLangsungItems[$index] ?? '-',
                     'akar_masalah' => $akarMasalahItems[$index] ?? '-',
                     'rekomendasi' => $recommendationItems[$index] ?? '-',
                 ];
@@ -337,7 +348,7 @@ class InvestigatedReportsTableWidget extends Widget
             "Expires"             => "0"
         ];
         
-        $columns = ['Tanggal Insiden', 'Unit Kerja', 'Jenis Insiden', 'Kategori', 'Akar Masalah', 'Rekomendasi'];
+        $columns = ['Tanggal Insiden', 'Unit Kerja', 'Jenis Insiden', 'Kategori', 'Penyebab Langsung', 'Akar Masalah', 'Rekomendasi'];
 
         $callback = function() use($groups, $columns) {
             $file = fopen('php://output', 'w');
@@ -351,6 +362,7 @@ class InvestigatedReportsTableWidget extends Widget
                         $base['unit_kerja'] ?? '-',
                         $base['jenis_insiden'] ?? '-',
                         $base['deskripsi_kategori_insiden'] ?? '-',
+                        $problem['penyebab_langsung'] ?? '-',
                         $problem['akar_masalah'] ?? '-',
                         $problem['rekomendasi'] ?? '-'
                     ]);

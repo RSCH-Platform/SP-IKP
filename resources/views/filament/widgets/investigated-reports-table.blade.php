@@ -199,11 +199,12 @@
                 <x-slot:colgroup>
                     <colgroup>
                         <col class="w-[8%]">
-                        <col class="w-[27%]">
-                        <col class="w-[11%]">
-                        <col class="w-[13%]">
-                        <col class="w-[20.5%]">
-                        <col class="w-[20.5%]">
+                        <col class="w-[22%]">
+                        <col class="w-[10%]">
+                        <col class="w-[12%]">
+                        <col class="w-[16%]">
+                        <col class="w-[16%]">
+                        <col class="w-[16%]">
                     </colgroup>
                 </x-slot:colgroup>
 
@@ -223,6 +224,10 @@
 
                         <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
                             Unit
+                        </x-report-table.th>
+
+                        <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                            Penyebab Langsung
                         </x-report-table.th>
 
                         <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
@@ -294,6 +299,17 @@
                             >
                                 <div
                                     class="line-clamp-3 break-words"
+                                    title="{{ $p['penyebab_langsung'] ?? '-' }}"
+                                >
+                                    {{ $p['penyebab_langsung'] ?? '-' }}
+                                </div>
+                            </x-report-table.td>
+
+                            <x-report-table.td
+                                class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                            >
+                                <div
+                                    class="line-clamp-3 break-words"
                                     title="{{ $p['akar_masalah'] ?? '-' }}"
                                 >
                                     {{ $p['akar_masalah'] ?? '-' }}
@@ -314,7 +330,7 @@
                     @endforeach
                 @empty
                     <x-report-table.empty
-                        :colspan="6"
+                        :colspan="7"
                         title="Belum ada data investigasi"
                         description="Tidak ada laporan yang sesuai dengan filter yang dipilih."
                     />
@@ -418,13 +434,14 @@
         x-data="{
             open: false,
             columns: {
-                tanggal_insiden:            { label: 'Tanggal Insiden',  checked: true },
-                deskripsi_kategori_insiden: { label: 'Judul Insiden',    checked: true },
-                jenis_insiden:              { label: 'Jenis Insiden',    checked: true },
-                unit_kerja:                 { label: 'Unit Kerja',       checked: true },
-                status:                     { label: 'Status',           checked: true },
-                akar_masalah:               { label: 'Akar Masalah',     checked: true },
-                rekomendasi:                { label: 'Rekomendasi',      checked: true },
+                tanggal_insiden:            { label: 'Tanggal Insiden',   checked: true },
+                deskripsi_kategori_insiden: { label: 'Judul Insiden',     checked: true },
+                jenis_insiden:              { label: 'Jenis Insiden',     checked: true },
+                unit_kerja:                 { label: 'Unit Kerja',        checked: true },
+                status:                     { label: 'Status',            checked: true },
+                penyebab_langsung:          { label: 'Penyebab Langsung', checked: true },
+                akar_masalah:               { label: 'Akar Masalah',      checked: true },
+                rekomendasi:                { label: 'Rekomendasi',       checked: true },
             },
             get anyChecked() {
                 return Object.values(this.columns).some(c => c.checked);
