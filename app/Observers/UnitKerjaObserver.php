@@ -49,8 +49,13 @@ class UnitKerjaObserver
         $diskPath = "{$unitSlug}/Laporan Insiden";
         $diskCreated = false;
         $diskName = config('media-library.disk_name');
-        if (! Storage::disk($diskName)->exists($diskPath)) {
-            $diskCreated = Storage::disk($diskName)->makeDirectory($diskPath);
+
+        try {
+            if (! Storage::disk($diskName)->exists($diskPath)) {
+                $diskCreated = Storage::disk($diskName)->makeDirectory($diskPath);
+            }
+        } catch (\Throwable $e) {
+            logger()->warning("Tidak dapat membuat/mengecek folder disk '{$diskPath}' pada disk '{$diskName}': " . $e->getMessage());
         }
 
         Notification::make()
