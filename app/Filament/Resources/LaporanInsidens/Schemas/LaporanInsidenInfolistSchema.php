@@ -206,34 +206,16 @@ class LaporanInsidenInfolistSchema
                         'Hijau'  => 'heroicon-m-check-circle',
                         'Kuning' => 'heroicon-m-exclamation-triangle',
                         'Merah'  => 'heroicon-m-x-circle',
-                        'Hitam'  => 'heroicon-m-fire',
                         default  => 'heroicon-m-question-mark-circle',
-                    })
-                    ->formatStateUsing(fn($state) => match ($state) {
-                        'Biru'   => 'Biru — Tidak signifikan',
-                        'Hijau'  => 'Hijau — Minor',
-                        'Kuning' => 'Kuning — Moderat',
-                        'Merah'  => 'Merah — Mayor',
-                        'Hitam'  => 'Hitam — Katastropik',
-                        default  => $state,
                     })
                     ->color(fn($record) => match ($record->grading_risiko) {
                         'Biru'   => 'info',
                         'Hijau'  => 'success',
                         'Kuning' => 'warning',
                         'Merah'  => 'danger',
-                        'Hitam'  => 'gray',
                         default  => 'secondary',
                     })
-                    ->tooltip(fn($record) => match ($record->grading_risiko) {
-                        'Biru'   => 'Risiko tidak signifikan terhadap sistem',
-                        'Hijau'  => 'Risiko kecil / minor',
-                        'Kuning' => 'Risiko sedang yang perlu perhatian',
-                        'Merah'  => 'Risiko besar yang perlu penanganan segera',
-                        'Hitam'  => 'Risiko kritis / katastropik',
-                        default  => null,
-                    })
-                    ->placeholder('Belum ditentukan'),
+                    ->placeholder('Belum dinilai'),
             ])
             ->columns(3)
             ->collapsible()

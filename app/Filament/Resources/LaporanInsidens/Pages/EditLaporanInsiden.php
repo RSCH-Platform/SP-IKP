@@ -152,7 +152,7 @@ class EditLaporanInsiden extends EditRecord
             app(VerifikasiLaporanAction::class)->execute(
                 $this->record,
                 Auth::id(),
-                $data['grading_risiko'],
+                $this->record->grading_risiko,
                 $data['catatan_tambahan'] ?? $this->record->catatan_tambahan
             );
 
@@ -363,8 +363,6 @@ class EditLaporanInsiden extends EditRecord
                 ->requiresConfirmation()
                 ->modalHeading('Verifikasi Ulang Laporan?')
                 ->schema([
-                    $this->getGradingRisikoField(),
-
                     Textarea::make('catatan_tambahan')
                         ->label('Catatan Verifikasi')
                         ->rows(3)
