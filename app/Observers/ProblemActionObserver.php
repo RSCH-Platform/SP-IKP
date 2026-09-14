@@ -30,11 +30,16 @@ class ProblemActionObserver
         $path = trim("{$unitFolder}/Laporan Insiden/{$month}/{$reportSegment}", '/');
 
         $diskName = config('media-library.disk_name');
-        $existsBefore = Storage::disk($diskName)->exists($path);
+        $existsBefore = false;
         $diskFolderCreated = false;
 
-        if (! $existsBefore) {
-            $diskFolderCreated = Storage::disk($diskName)->makeDirectory($path);
+        try {
+            $existsBefore = Storage::disk($diskName)->exists($path);
+            if (! $existsBefore) {
+                $diskFolderCreated = Storage::disk($diskName)->makeDirectory($path);
+            }
+        } catch (\Throwable $e) {
+            logger()->warning("Tidak dapat membuat/mengecek folder disk '{$path}' pada disk '{$diskName}': " . $e->getMessage());
         }
 
         $folder = Folder::firstOrCreate(

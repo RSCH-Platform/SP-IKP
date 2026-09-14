@@ -64,7 +64,7 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
             'temporary_url' => env('AWS_URL'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => true,
+            'throw' => env('AWS_THROW_EXCEPTIONS', false),
             'report' => false,
             'visibility' => 'public', // Make files publicly accessible by default
             'options' => [
