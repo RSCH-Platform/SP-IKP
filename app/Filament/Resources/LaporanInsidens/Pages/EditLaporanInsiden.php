@@ -44,9 +44,17 @@ class EditLaporanInsiden extends EditRecord
         abort_unless(static::getResource()::canEdit($this->getRecord()), 404);
     }
 
+    public ?int $tempSeverityScore = null;
+    public ?int $tempProbabilityScore = null;
+
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $this->record->load('investigationData');
+        $this->record->load('investigationData', 'riskAssessment');
+
+        if ($this->record->riskAssessment) {
+            $data['severity_score'] = $this->record->riskAssessment->severity_score;
+            $data['probability_score'] = $this->record->riskAssessment->probability_score;
+        }
 
         $this->forgetInvestigationCountsCache();
 
@@ -57,7 +65,43 @@ class EditLaporanInsiden extends EditRecord
     {
         $this->forgetInvestigationCountsCache();
 
+        $rawState = $this->form->getRawState();
+        $this->tempSeverityScore = !empty($rawState['severity_score']) ? (int)$rawState['severity_score'] : null;
+        $this->tempProbabilityScore = !empty($rawState['probability_score']) ? (int)$rawState['probability_score'] : null;
+
         return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        if ($this->tempSeverityScore && $this->tempProbabilityScore) {
+            $engineResult = \App\Services\RiskGradingEngine::calculate(
+                $this->tempSeverityScore,
+                $this->tempProbabilityScore
+            );
+
+            $this->record->riskAssessment()->updateOrCreate(
+                ['laporan_insiden_id' => $this->record->id],
+                [
+                    'severity_score' => $engineResult['severity_score'],
+                    'severity_level' => $engineResult['severity_level'],
+                    'probability_score' => $engineResult['probability_score'],
+                    'probability_level' => $engineResult['probability_level'],
+                    'risk_score' => $engineResult['risk_score'],
+                    'risk_level' => $engineResult['risk_level'],
+                    'risk_band' => $engineResult['risk_band'],
+                    'required_action' => $engineResult['required_action'],
+                    'assessed_by' => Auth::id(),
+                    'assessed_at' => now(),
+                ]
+            );
+
+            if ($this->record->grading_risiko !== $engineResult['risk_band']) {
+                $this->record->updateQuietly([
+                    'grading_risiko' => $engineResult['risk_band'],
+                ]);
+            }
+        }
     }
 
     public function submitLaporan(): void

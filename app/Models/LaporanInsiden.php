@@ -243,6 +243,11 @@ class LaporanInsiden extends Model implements HasMedia
         return $this->hasOne(Investigation::class);
     }
 
+    public function riskAssessment()
+    {
+        return $this->hasOne(RiskAssessment::class);
+    }
+
     public function investigationStarter()
     {
         return $this->hasOneThrough(

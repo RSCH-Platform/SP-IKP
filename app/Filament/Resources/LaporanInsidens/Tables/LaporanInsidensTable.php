@@ -491,6 +491,23 @@ class LaporanInsidensTable
                         $probability = (int) $data['probability_score'];
                         $engineResult = \App\Services\RiskGradingEngine::calculate($severity, $probability);
 
+                        // Simpan atau perbarui RiskAssessment
+                        $record->riskAssessment()->updateOrCreate(
+                            ['laporan_insiden_id' => $record->id],
+                            [
+                                'severity_score' => $engineResult['severity_score'],
+                                'severity_level' => $engineResult['severity_level'],
+                                'probability_score' => $engineResult['probability_score'],
+                                'probability_level' => $engineResult['probability_level'],
+                                'risk_score' => $engineResult['risk_score'],
+                                'risk_level' => $engineResult['risk_level'],
+                                'risk_band' => $engineResult['risk_band'],
+                                'required_action' => $engineResult['required_action'],
+                                'assessed_by' => auth()->id(),
+                                'assessed_at' => now(),
+                            ]
+                        );
+
                         // Perbarui catatan dan kolom grading_risiko
                         $record->update([
                             'grading_risiko' => $engineResult['risk_band'],

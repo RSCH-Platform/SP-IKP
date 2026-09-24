@@ -27,7 +27,8 @@ class GradingResikoSection
                         4 => '4 — Mayor (Cedera luas / kehilangan fungsi irreversibel)',
                         5 => '5 — Katastropik (Kematian yang tidak berhubungan dengan perjalanan penyakit)',
                     ])
-                    ->required()
+                    ->default(fn($record) => $record?->riskAssessment?->severity_score)
+                    ->required(fn($record) => blank($record?->grading_risiko))
                     ->dehydrated(false)
                     ->live()
                     ->afterStateUpdated(fn ($set, $get) => self::calculateRisk($set, $get)),
@@ -41,18 +42,42 @@ class GradingResikoSection
                         4 => '4 — Sering / Likely (Beberapa kali/tahun)',
                         5 => '5 — Sangat sering / Almost Certain (Tiap minggu/bulan)',
                     ])
-                    ->required()
+                    ->default(fn($record) => $record?->riskAssessment?->probability_score)
+                    ->required(fn($record) => blank($record?->grading_risiko))
                     ->dehydrated(false)
                     ->live()
                     ->afterStateUpdated(fn ($set, $get) => self::calculateRisk($set, $get)),
 
                 Placeholder::make('hasil_grading')
                     ->label('Hasil Grading')
-                    ->content(function ($get) {
+                    ->content(function ($get, $record) {
                         $severity = $get('severity_score');
                         $probability = $get('probability_score');
 
                         if (!$severity || !$probability) {
+                            if (!empty($record?->grading_risiko)) {
+                                $existingBand = $record->grading_risiko;
+                                $theme = match($existingBand) {
+                                    'Merah' => ['bg' => 'bg-red-100 dark:bg-red-950/30', 'border' => 'border-red-500 dark:border-red-600', 'text' => 'text-red-900 dark:text-red-300', 'icon' => '🔴'],
+                                    'Kuning' => ['bg' => 'bg-yellow-100 dark:bg-yellow-950/30', 'border' => 'border-yellow-500 dark:border-yellow-600', 'text' => 'text-yellow-900 dark:text-yellow-300', 'icon' => '🟡'],
+                                    'Hijau' => ['bg' => 'bg-green-100 dark:bg-green-950/30', 'border' => 'border-green-500 dark:border-green-600', 'text' => 'text-green-900 dark:text-green-300', 'icon' => '🟢'],
+                                    'Biru' => ['bg' => 'bg-blue-100 dark:bg-blue-950/30', 'border' => 'border-blue-500 dark:border-blue-600', 'text' => 'text-blue-900 dark:text-blue-300', 'icon' => '🔵'],
+                                    default => ['bg' => 'bg-gray-100 dark:bg-gray-800', 'border' => 'border-gray-500', 'text' => 'text-gray-900 dark:text-gray-300', 'icon' => '⚫'],
+                                };
+
+                                return new HtmlString("
+                                    <div class='p-5 border-2 rounded-xl {$theme['bg']} {$theme['border']} {$theme['text']} transition-all duration-300 ease-in-out shadow-sm'>
+                                        <div class='flex items-center gap-3'>
+                                            <div class='text-4xl'>{$theme['icon']}</div>
+                                            <div>
+                                                <div class='text-sm opacity-80 uppercase tracking-wider font-bold'>Grading Risiko (Tersimpan)</div>
+                                                <div class='text-2xl font-black'>{$existingBand}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ");
+                            }
+
                             return new HtmlString("
                                 <div class='p-4 border border-dashed rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-500 text-center italic'>
                                     Silakan lengkapi Penilaian Dampak dan Probabilitas terlebih dahulu.
@@ -124,7 +149,8 @@ class GradingResikoSection
                     })
                     ->columnSpanFull(),
                     
-                \Filament\Forms\Components\Hidden::make('grading_risiko'),
+                \Filament\Forms\Components\Hidden::make('grading_risiko')
+                    ->default(fn($record) => $record?->grading_risiko),
             ])
             ->columns(1)
             ->collapsible()
@@ -140,8 +166,6 @@ class GradingResikoSection
         if ($severity && $probability) {
             $result = RiskGradingEngine::calculate($severity, $probability);
             $set('grading_risiko', $result['risk_band']);
-        } else {
-            $set('grading_risiko', null);
         }
     }
 }
