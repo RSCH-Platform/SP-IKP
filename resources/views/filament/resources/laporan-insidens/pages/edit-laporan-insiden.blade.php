@@ -215,9 +215,9 @@
     {{-- Tab Navigation --}}
     <div class="ikp-tabs">
         <button
-            class="ikp-tab-button"
-            :class="{ 'active': activeTab === 'form' }"
-            @click="activeTab = 'form'"
+            type="button"
+            class="ikp-tab-button {{ $activeTab === 'form' ? 'active' : '' }}"
+            wire:click="setActiveTab('form')"
             title="Edit formulir laporan insiden">
             <svg style="width: 1.125rem; height: 1.125rem;" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -225,9 +225,9 @@
             <span>Edit Laporan</span>
         </button>
         <button
-            class="ikp-tab-button"
-            :class="{ 'active': activeTab === 'preview' }"
-            @click="activeTab = 'preview'"
+            type="button"
+            class="ikp-tab-button {{ $activeTab === 'preview' ? 'active' : '' }}"
+            wire:click="setActiveTab('preview')"
             title="Lihat pratinjau laporan insiden">
             <svg style="width: 1.125rem; height: 1.125rem;" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
@@ -236,9 +236,9 @@
         </button>
         @if($record->investigation_started_at)
         <button
-            class="ikp-tab-button"
-            :class="{ 'active': activeTab === 'investigasi' }"
-            @click="activeTab = 'investigasi'"
+            type="button"
+            class="ikp-tab-button {{ $activeTab === 'investigasi' ? 'active' : '' }}"
+            wire:click="setActiveTab('investigasi')"
             title="Lihat hasil investigasi laporan insiden">
             <svg style="width: 1.125rem; height: 1.125rem;" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -247,6 +247,7 @@
         </button>
         @else
         <button
+            type="button"
             class="ikp-tab-button"
             disabled
             title="Investigasi belum dimulai"
@@ -260,8 +261,9 @@
     </div>
 
     {{-- Tab Contents --}}
+    @if($activeTab === 'form')
     {{-- Tab 1: Form Edit --}}
-    <div class="ikp-tab-content" :class="{ 'active': activeTab === 'form' }">
+    <div class="ikp-tab-content active">
         <div class="ikp-form-wrapper">
             @if($record->investigation_started_at && $record->investigationStarter)
             <div style="background-color: #ecfdf5; border: 1px solid #86efac; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
@@ -292,9 +294,9 @@
             </div>
         </div>
     </div>
-
+    @elseif($activeTab === 'preview')
     {{-- Tab 2: Preview Laporan --}}
-    <div class="ikp-tab-content" :class="{ 'active': activeTab === 'preview' }">
+    <div class="ikp-tab-content active">
         <div class="mb-6">
             <a
                 href="{{ action([\App\Http\Controllers\LaporanInsidenViewController::class, 'show'], $record->nomor_laporan) }}"
@@ -330,10 +332,9 @@
             @include('filament.resources.laporan-insidens.pages.preview-laporan-insiden-content')
         </div>
     </div>
-
+    @elseif($activeTab === 'investigasi' && $record->investigation_started_at)
     {{-- Tab 3: Preview Investigasi --}}
-    @if($record->investigation_started_at)
-    <div class="ikp-tab-content" :class="{ 'active': activeTab === 'investigasi' }">
+    <div class="ikp-tab-content active">
         <div class="mb-6">
             <a
                 href="{{ route('investigasi-laporan-insiden.show', $record->nomor_laporan) }}"

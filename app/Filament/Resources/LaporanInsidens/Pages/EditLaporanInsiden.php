@@ -44,8 +44,51 @@ class EditLaporanInsiden extends EditRecord
         abort_unless(static::getResource()::canEdit($this->getRecord()), 404);
     }
 
+    public string $activeTab = 'form';
+
+    public function setActiveTab(string $tab): void
+    {
+        $this->activeTab = $tab;
+    }
+
     public ?int $tempSeverityScore = null;
     public ?int $tempProbabilityScore = null;
+
+    public function save(bool $shouldRedirect = true, bool $shouldSendSavedNotification = true): void
+    {
+        $this->authorizeAccess();
+
+        try {
+            // Ambil state form yang sudah tervalidasi
+            $data = $this->form->getState();
+            $data = $this->mutateFormDataBeforeSave($data);
+
+            // Filter hanya kolom fillable dari tabel laporan_insidens untuk menghindari sync relationship berat
+            $fillable = $this->record->getFillable();
+            $recordData = array_intersect_key($data, array_flip($fillable));
+
+            $this->record->update($recordData);
+
+            $this->afterSave();
+
+            if ($shouldSendSavedNotification) {
+                Notification::make()
+                    ->title('Perubahan berhasil disimpan')
+                    ->success()
+                    ->send();
+            }
+        } catch (\Filament\Support\Exceptions\Halt $exception) {
+            return;
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            Notification::make()
+                ->title('Gagal menyimpan perubahan')
+                ->body($exception->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {

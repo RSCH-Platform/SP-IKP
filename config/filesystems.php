@@ -70,6 +70,10 @@ return [
             'options' => [
                 'CacheControl' => 'max-age=31536000, public',
             ],
+            'http' => [
+                'connect_timeout' => env('AWS_CONNECT_TIMEOUT', 2),
+                'timeout' => env('AWS_TIMEOUT', 5),
+            ],
         ],
 
         'minio_tmp' => [
@@ -86,6 +90,10 @@ return [
             'report' => false,
             'visibility' => 'public',
             'root' => 'livewire-tmp',
+            'http' => [
+                'connect_timeout' => env('AWS_CONNECT_TIMEOUT', 2),
+                'timeout' => env('AWS_TIMEOUT', 5),
+            ],
         ],
 
     ],

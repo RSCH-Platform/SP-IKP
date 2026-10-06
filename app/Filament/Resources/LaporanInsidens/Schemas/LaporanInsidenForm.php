@@ -86,7 +86,14 @@ class LaporanInsidenForm
                                     ))
                                 ),
 
-                            LaporanInsidenFormSchema::sectionKronologi(collapsed: false),
+                            LaporanInsidenFormSchema::sectionKronologi(collapsed: false)
+                                ->hidden(
+                                    fn($record) =>
+                                    Auth::user()?->can('Investigasi:LaporanInsiden')
+                                    && $record !== null
+                                    && in_array($record?->status, LaporanInsiden::FLOW_INVESTIGASI_DAN_SELESAI)
+                                    && $record->hasInvestigationStarted()
+                                ),
 
                             LaporanInsidenFormSchema::sectionTindakan(collapsed: false),
                             // (sectionGradingResiko dihapus dari sini karena sekarang akan selalu ada di Step 2 secara berkesinambungan)

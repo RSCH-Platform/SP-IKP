@@ -4,6 +4,15 @@ Semua perubahan yang signifikan pada proyek **SP-IKP** (Sistem Pelaporan Insiden
 
 Format changelog ini berdasarkan [Keep a Changelog](https://keepachangelog.com/id/1.0.0/), dan proyek ini mematuhi [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-10-06
+
+### Fixed / Performance
+- **Pencegahan Error Maximum Execution Time pada Edit Laporan**:
+  - Mengubah rendering tab pratinjau (`preview-laporan-insiden-content` & `preview-investigasi-laporan-insiden-content`) di `edit-laporan-insiden.blade.php` menjadi *on-demand / conditional* berbasis Livewire state (`$activeTab`), mencegah server me-render ratusan query N+1 (problem, 5 Whys, action, media URL) saat form edit sedang aktif.
+  - Menambahkan konfigurasi *fail-fast* HTTP timeout pada driver S3 dan MinIO di `config/filesystems.php` (`connect_timeout = 2s`, `timeout = 5s`) untuk mencegah request menggantung hingga batas PHP execution time saat storage remote mengalami kendala.
+  - Mengisolasi penyimpanan form utama pada `EditLaporanInsiden`: menyimpan langsung field tabel `laporan_insidens` dan kalkulasi risk assessment tanpa memicu rekonsiliasi relationship bawaan Filament yang berat.
+  - Mengeliminasi duplikasi *mount* komponen `TimelineGridManager` di dalam form wizard saat tahap investigasi aktif.
+
 ## [1.1.1] - 2026-07-03
 
 ### Added / Features
