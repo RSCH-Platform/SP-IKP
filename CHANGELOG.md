@@ -14,6 +14,7 @@ Format changelog ini berdasarkan [Keep a Changelog](https://keepachangelog.com/i
   - Mengimplementasikan **Dirty Tracking** dan **Granular Model Save** pada `EditLaporanInsiden`: mendeteksi secara akurat field yang benar-benar berubah (`isAttributeChanged`), melewati query `UPDATE` jika tidak ada perubahan, serta mencatat log perubahan per-field.
   - Menambahkan **Milestone Stopwatch & Diagnostics Logging** (`[IKP Save][M1-M5]`): mengukur durasi setiap fase simpan (ekstraksi state form, deteksi field kotor, eksekusi SQL update, kalkulasi grading risiko, dan pengiriman notifikasi) beserta konsumsi memori untuk kemudahan deteksi bottleneck.
   - Mengganti dump stack trace vendor yang panjang pada penanganan exception simpan dengan log diagnostik ringkas dan terfokus (`logSaveException`): menyajikan penjelasan manusiawi (koneksi timeout, database null constraint, dsb.), lokasi baris kode aplikasi (`app/`), dan notifikasi UI yang informatif tanpa membanjiri file log.
+  - **Memperbaiki Infinite Recursion pada Authorization Policy & Scoping Resource**: Mengganti pemanggilan rekursif `$authUser->can(...)` di dalam `LaporanInsidenPolicy` dan `LaporanInsidenResource` menjadi pengecekan langsung `checkPermissionTo(...)`, menuntaskan *bug* "Maximum call stack size reached. Infinite recursion" yang menyebabkan PHP hang hingga batas timeout 120 detik saat evaluasi izin `ForceEdit` dan route binding.
   - Mengeliminasi duplikasi *mount* komponen `TimelineGridManager` di dalam form wizard saat tahap investigasi aktif.
 
 ## [1.1.1] - 2026-07-03

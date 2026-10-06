@@ -63,7 +63,7 @@ class LaporanInsidenResource extends Resource
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return parent::getRecordRouteBindingEloquentQuery()
+        return static::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
@@ -83,21 +83,47 @@ class LaporanInsidenResource extends Resource
         $query->with('unitKerja');
 
         $user = Auth::user();
+        if (! $user) {
+            return $query;
+        }
 
-        if ($user->can('ForceEdit:LaporanInsiden') && $user->can('ViewAllData:LaporanInsiden')) {
+        $canForceEdit = method_exists($user, 'checkPermissionTo')
+            ? $user->checkPermissionTo('ForceEdit:LaporanInsiden')
+            : $user->can('ForceEdit:LaporanInsiden');
+
+        $canViewAll = method_exists($user, 'checkPermissionTo')
+            ? $user->checkPermissionTo('ViewAllData:LaporanInsiden')
+            : $user->can('ViewAllData:LaporanInsiden');
+
+        if ($canForceEdit && $canViewAll) {
             return $query;
         }
 
         // if the currently authenticated user only has submit-rights (no ability to view
         // lists of reports) then limit the query to their own rows. this covers the case
         // where a 'pelapor' can submit but shouldn't see other people's drafts.
+        $canSubmit = method_exists($user, 'checkPermissionTo')
+            ? $user->checkPermissionTo('Submit:LaporanInsiden')
+            : $user->can('Submit:LaporanInsiden');
 
-        if ($user->can('Submit:LaporanInsiden') && ! $user->can('Verifikasi:LaporanInsiden') && ! $user->can('ViewAllData:LaporanInsiden')) {
+        $canVerify = method_exists($user, 'checkPermissionTo')
+            ? $user->checkPermissionTo('Verifikasi:LaporanInsiden')
+            : $user->can('Verifikasi:LaporanInsiden');
+
+        if ($canSubmit && ! $canVerify && ! $canViewAll) {
             return $query->where('user_id', $user->getKey());
         }
 
         // existing unit‑based scoping when the user may view reports but not everything
-        if ($user && $user->hasPermissionTo('View:LaporanInsiden') && $user->hasPermissionTo('ViewAny:LaporanInsiden')) {
+        $canView = method_exists($user, 'checkPermissionTo')
+            ? $user->checkPermissionTo('View:LaporanInsiden')
+            : false;
+
+        $canViewAny = method_exists($user, 'checkPermissionTo')
+            ? $user->checkPermissionTo('ViewAny:LaporanInsiden')
+            : false;
+
+        if ($canView && $canViewAny) {
             $unitKerjaIds = $user->unitKerjas()->pluck('id');
             $query->whereIn('unit_kerja_id', $unitKerjaIds);
         }

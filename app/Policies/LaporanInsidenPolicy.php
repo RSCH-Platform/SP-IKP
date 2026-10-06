@@ -12,26 +12,34 @@ class LaporanInsidenPolicy
 {
     use HandlesAuthorization;
 
+    protected function checkPermission(AuthUser $user, string $permission): bool
+    {
+        if (method_exists($user, 'checkPermissionTo')) {
+            return $user->checkPermissionTo($permission);
+        }
+
+        return false;
+    }
+
     public function viewAllData(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAllData:LaporanInsiden');
+        return $this->checkPermission($authUser, 'ViewAllData:LaporanInsiden');
     }
     
     public function ForceEdit(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceEdit:LaporanInsiden');
+        return $this->checkPermission($authUser, 'ForceEdit:LaporanInsiden');
     }
 
     public function viewAny(AuthUser $authUser): bool
     {
-        // User harus punya unit kerja dan permission ViewAny
-        return $authUser->can('ViewAny:LaporanInsiden');
+        return $this->checkPermission($authUser, 'ViewAny:LaporanInsiden');
     }
 
     public function view(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
         // Force edit users should always be able to view the record for editing
-        if ($authUser->can('ForceEdit:LaporanInsiden')) {
+        if ($this->checkPermission($authUser, 'ForceEdit:LaporanInsiden')) {
             return true;
         }
 
@@ -41,12 +49,12 @@ class LaporanInsidenPolicy
         }
 
         // Jika punya permission ViewAllData, bisa lihat semua laporan
-        if ($authUser->can('ViewAllData:LaporanInsiden')) {
+        if ($this->checkPermission($authUser, 'ViewAllData:LaporanInsiden')) {
             return true;
         }
 
         // Jika punya View permission tapi tidak ViewAllData, hanya bisa lihat laporan dari unit kerja user
-        if ($authUser->can('View:LaporanInsiden')) {
+        if ($this->checkPermission($authUser, 'View:LaporanInsiden')) {
             $userUnitIds = $authUser->unitKerjas()->pluck('id');
             return $userUnitIds->contains($laporanInsiden->unit_kerja_id);
         }
@@ -56,80 +64,79 @@ class LaporanInsidenPolicy
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Create:LaporanInsiden');
     }
 
     public function update(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
         // allow users with a force-edit permission to edit even when the normal
         // update/submit workflow would block them
-        if ($authUser->can('ForceEdit:LaporanInsiden')) {
+        if ($this->checkPermission($authUser, 'ForceEdit:LaporanInsiden')) {
             return true;
         }
 
-        return $authUser->can('Update:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Update:LaporanInsiden');
     }
 
     public function delete(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('Delete:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Delete:LaporanInsiden');
     }
-
 
     public function restore(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('Restore:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Restore:LaporanInsiden');
     }
 
     public function forceDelete(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('ForceDelete:LaporanInsiden');
+        return $this->checkPermission($authUser, 'ForceDelete:LaporanInsiden');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:LaporanInsiden');
+        return $this->checkPermission($authUser, 'ForceDeleteAny:LaporanInsiden');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:LaporanInsiden');
+        return $this->checkPermission($authUser, 'RestoreAny:LaporanInsiden');
     }
 
     public function replicate(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('Replicate:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Replicate:LaporanInsiden');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Reorder:LaporanInsiden');
     }
     
     // --- Workflow permissions ---
 
     public function submit(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('Submit:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Submit:LaporanInsiden');
     }
 
     public function verifikasi(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('Verifikasi:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Verifikasi:LaporanInsiden');
     }
 
     public function kembalikan(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('Kembalikan:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Kembalikan:LaporanInsiden');
     }
 
     public function investigasi(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('Investigasi:LaporanInsiden');
+        return $this->checkPermission($authUser, 'Investigasi:LaporanInsiden');
     }
 
     public function kembalikanUnit(AuthUser $authUser, LaporanInsiden $laporanInsiden): bool
     {
-        return $authUser->can('KembalikanUnit:LaporanInsiden');
+        return $this->checkPermission($authUser, 'KembalikanUnit:LaporanInsiden');
     }
 }
