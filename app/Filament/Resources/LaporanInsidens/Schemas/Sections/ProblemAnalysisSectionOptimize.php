@@ -12,7 +12,8 @@ class ProblemAnalysisSectionOptimize
         return Section::make('Analisa Masalah')
             ->description('Analisis akar masalah berdasarkan metode 5 WHY')
             ->schema([
-                View::make('filament.components.problem-analysis-livewire-wrapper'),
+                View::make('filament.components.problem-analysis-livewire-wrapper')
+                    ->dehydrated(false),
             ])
             ->collapsible();
     }

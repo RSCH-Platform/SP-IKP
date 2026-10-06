@@ -26,7 +26,8 @@ class TimelineGridSection
             ->icon('heroicon-o-clock')
             ->schema([
                 // Livewire Timeline Grid Manager Component (with Export button)
-                View::make('filament.components.timeline-grid-livewire-wrapper'),
+                View::make('filament.components.timeline-grid-livewire-wrapper')
+                    ->dehydrated(false),
             ])
             ->collapsed($collapsed)
             ->collapsible();

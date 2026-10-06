@@ -68,23 +68,7 @@ class LaporanInsidenForm
                              *
                              * Ini menjaga tampilan form tetap sesuai dengan status laporan.
                              */
-                            LaporanInsidenFormSchema::sectionInsiden(true)
-                                ->visible(
-                                    fn($record) =>
-                                    $record !== null && !in_array($record?->status, array_merge(
-                                        LaporanInsiden::TAHAP_AWAL,
-                                        LaporanInsiden::TAHAP_GRADING
-                                    ))
-                                ),
-
-                            LaporanInsidenFormSchema::sectionInsiden(false)
-                                ->visible(
-                                    fn($record) =>
-                                    $record === null || in_array($record?->status, array_merge(
-                                        LaporanInsiden::TAHAP_AWAL,
-                                        LaporanInsiden::TAHAP_GRADING
-                                    ))
-                                ),
+                            LaporanInsidenFormSchema::sectionInsiden(),
 
                             LaporanInsidenFormSchema::sectionKronologi(collapsed: false)
                                 ->hidden(

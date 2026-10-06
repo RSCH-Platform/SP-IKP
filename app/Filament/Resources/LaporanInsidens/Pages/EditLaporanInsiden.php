@@ -63,12 +63,21 @@ class EditLaporanInsiden extends EditRecord
         Log::info("=================================================");
         Log::info("[IKP Save][START] Memulai proses simpan laporan #{$recordId} ({$nomorLaporan})");
 
+        $tAuth = microtime(true);
         $this->authorizeAccess();
+        $dAuth = round(microtime(true) - $tAuth, 3);
+        Log::info("[IKP Save][AUTH] Hak akses terverifikasi dalam {$dAuth}s");
 
         try {
             // Milestone 1: Form State Extraction & Validation
+            // KUNCI: shouldCallHooksBefore: false mencegah Filament memicu $this->saveRelationships()
+            // dan $this->loadStateFromRelationships(shouldHydrate: true) secara liar di dalam getState()
             $t0 = microtime(true);
-            $data = $this->form->getState();
+            Log::info("[IKP Save][M1-START] Memulai validasi dan ekstraksi state...");
+            $data = $this->form->getState(shouldCallHooksBefore: false);
+            $dExtract = round(microtime(true) - $t0, 3);
+            Log::info("[IKP Save][M1-EXTRACT] State berhasil diekstrak & divalidasi dalam {$dExtract}s");
+
             $data = $this->mutateFormDataBeforeSave($data);
             $d1 = round(microtime(true) - $t0, 3);
             Log::info("[IKP Save][M1] Form state extraction & validation selesai dalam {$d1}s");
@@ -116,6 +125,18 @@ class EditLaporanInsiden extends EditRecord
                 Log::info("[IKP Save][M3] Berhasil menyimpan field kotor ke tabel laporan_insidens dalam {$d3}s");
             } else {
                 Log::info("[IKP Save][M3] Melewati database update (skip query)");
+            }
+
+            // Milestone 3.5: Simpan relasi investigation data hanya jika pada tahap investigasi
+            if (
+                $this->record->status === LaporanInsiden::STATUS_INVESTIGASI &&
+                $this->record->hasInvestigationStarted()
+            ) {
+                $tRel = microtime(true);
+                Log::info("[IKP Save][M3.5] Menyimpan relasi investigation data...");
+                $this->form->model($this->record)->saveRelationships();
+                $dRel = round(microtime(true) - $tRel, 3);
+                Log::info("[IKP Save][M3.5] Selesai menyimpan relasi investigation data dalam {$dRel}s");
             }
 
             // Milestone 4: Risk Assessment Calculation
