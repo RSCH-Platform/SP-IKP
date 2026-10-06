@@ -143,21 +143,79 @@ class EditLaporanInsiden extends EditRecord
             return;
         } catch (\Illuminate\Validation\ValidationException $exception) {
             $totalDuration = round(microtime(true) - $startTime, 3);
-            Log::warning("[IKP Save][VALIDATION_FAILED] Validasi form gagal setelah {$totalDuration}s", [
-                'errors' => $exception->errors(),
-            ]);
+            $fieldErrors = collect($exception->errors())
+                ->map(fn($msgs, $field) => "{$field}: " . implode(', ', $msgs))
+                ->implode(' | ');
+
+            Log::warning("[IKP Save][VALIDASI] Validasi gagal ({$totalDuration}s): {$fieldErrors}");
             throw $exception;
         } catch (\Throwable $exception) {
             $totalDuration = round(microtime(true) - $startTime, 3);
-            Log::error("[IKP Save][ERROR] Terjadi exception setelah {$totalDuration}s: " . $exception->getMessage(), [
-                'trace' => $exception->getTraceAsString(),
-            ]);
+            $userExplanation = $this->logSaveException($exception, $totalDuration);
+
             Notification::make()
                 ->title('Gagal menyimpan perubahan')
-                ->body($exception->getMessage())
+                ->body($userExplanation)
                 ->danger()
                 ->send();
         }
+    }
+
+    protected function logSaveException(\Throwable $exception, float $totalDuration): string
+    {
+        $message = $exception->getMessage();
+        $exceptionClass = get_class($exception);
+        $recordId = $this->record?->id ?? 'N/A';
+        $nomorLaporan = $this->record?->nomor_laporan ?? 'N/A';
+
+        // 1. Ekstrak penjelasan penyebab yang manusiawi
+        if (str_contains($message, 'Maximum execution time') || str_contains($message, 'timed out')) {
+            $explanation = 'Batas waktu eksekusi PHP (timeout) terlampaui saat memproses penyimpanan. Kemungkinan ada request remote storage (MinIO/S3) atau query database yang lambat.';
+        } elseif ($exception instanceof \Illuminate\Database\QueryException) {
+            if (str_contains($message, 'cannot be null')) {
+                preg_match("/Column '([^']+)' cannot be null/i", $message, $matches);
+                $col = $matches[1] ?? 'tertentu';
+                $explanation = "Database: Kolom '{$col}' wajib diisi (tidak boleh NULL).";
+            } elseif (str_contains($message, 'Duplicate entry')) {
+                $explanation = 'Database: Terdapat nilai duplikat pada kolom yang harus unik.';
+            } elseif (str_contains($message, 'Server has gone away') || str_contains($message, 'Connection refused')) {
+                $explanation = 'Database: Koneksi ke server MySQL terputus atau tidak merespons.';
+            } else {
+                $explanation = 'Database: Query gagal dieksekusi (' . \Illuminate\Support\Str::limit($message, 120) . ')';
+            }
+        } elseif (str_contains($exceptionClass, 'Flysystem') || str_contains($exceptionClass, 'Aws') || str_contains($message, 'UnableToCheckFileExistence') || str_contains($message, 'UnableToCreateDirectory')) {
+            $explanation = 'Storage (MinIO/S3): Gagal berkomunikasi dengan server penyimpanan berkas/dokumen.';
+        } elseif ($exception instanceof \Illuminate\Auth\Access\AuthorizationException || $exception->getCode() === 403) {
+            $explanation = 'Akses Ditolak: Anda tidak memiliki izin untuk menyimpan laporan ini.';
+        } else {
+            $explanation = \Illuminate\Support\Str::limit($message, 150);
+        }
+
+        // 2. Cari baris sumber kode aplikasi kita (app/), bukan vendor
+        $sourceFile = str_replace(base_path() . '/', '', $exception->getFile());
+        $sourceLine = $exception->getLine();
+        $appLocation = "{$sourceFile}:{$sourceLine}";
+
+        if (str_contains($sourceFile, 'vendor/')) {
+            $appFrame = collect($exception->getTrace())->first(function ($frame) {
+                return isset($frame['file']) && str_contains($frame['file'], '/app/') && !str_contains($frame['file'], '/vendor/');
+            });
+            if ($appFrame) {
+                $appFile = str_replace(base_path() . '/', '', $appFrame['file']);
+                $appLine = $appFrame['line'] ?? '?';
+                $appLocation = "{$appFile}:{$appLine}";
+            }
+        }
+
+        // 3. Catat log ringkas dan padat tanpa stack trace vendor yang bejibun
+        Log::error("[IKP Save][GAGAL] ❌ Gagal menyimpan laporan #{$recordId} ({$nomorLaporan}) setelah {$totalDuration}s", [
+            'penyebab'  => $explanation,
+            'lokasi'    => $appLocation,
+            'tipe'      => class_basename($exception),
+            'pesan_asli' => \Illuminate\Support\Str::limit($message, 200),
+        ]);
+
+        return $explanation;
     }
 
     protected function isAttributeChanged(mixed $original, mixed $new): bool

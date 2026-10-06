@@ -13,7 +13,7 @@ Format changelog ini berdasarkan [Keep a Changelog](https://keepachangelog.com/i
   - Mengisolasi penyimpanan form utama pada `EditLaporanInsiden`: menyimpan langsung field tabel `laporan_insidens` dan kalkulasi risk assessment tanpa memicu rekonsiliasi relationship bawaan Filament yang berat.
   - Mengimplementasikan **Dirty Tracking** dan **Granular Model Save** pada `EditLaporanInsiden`: mendeteksi secara akurat field yang benar-benar berubah (`isAttributeChanged`), melewati query `UPDATE` jika tidak ada perubahan, serta mencatat log perubahan per-field.
   - Menambahkan **Milestone Stopwatch & Diagnostics Logging** (`[IKP Save][M1-M5]`): mengukur durasi setiap fase simpan (ekstraksi state form, deteksi field kotor, eksekusi SQL update, kalkulasi grading risiko, dan pengiriman notifikasi) beserta konsumsi memori untuk kemudahan deteksi bottleneck.
-  - Menambahkan eager loading `investigationData.media` pada `mutateFormDataBeforeFill` untuk mengeliminasi query N+1 pada accessor `$appends = ['file_path']`.
+  - Mengganti dump stack trace vendor yang panjang pada penanganan exception simpan dengan log diagnostik ringkas dan terfokus (`logSaveException`): menyajikan penjelasan manusiawi (koneksi timeout, database null constraint, dsb.), lokasi baris kode aplikasi (`app/`), dan notifikasi UI yang informatif tanpa membanjiri file log.
   - Mengeliminasi duplikasi *mount* komponen `TimelineGridManager` di dalam form wizard saat tahap investigasi aktif.
 
 ## [1.1.1] - 2026-07-03
