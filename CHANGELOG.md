@@ -11,6 +11,9 @@ Format changelog ini berdasarkan [Keep a Changelog](https://keepachangelog.com/i
   - Mengubah rendering tab pratinjau (`preview-laporan-insiden-content` & `preview-investigasi-laporan-insiden-content`) di `edit-laporan-insiden.blade.php` menjadi *on-demand / conditional* berbasis Livewire state (`$activeTab`), mencegah server me-render ratusan query N+1 (problem, 5 Whys, action, media URL) saat form edit sedang aktif.
   - Menambahkan konfigurasi *fail-fast* HTTP timeout pada driver S3 dan MinIO di `config/filesystems.php` (`connect_timeout = 2s`, `timeout = 5s`) untuk mencegah request menggantung hingga batas PHP execution time saat storage remote mengalami kendala.
   - Mengisolasi penyimpanan form utama pada `EditLaporanInsiden`: menyimpan langsung field tabel `laporan_insidens` dan kalkulasi risk assessment tanpa memicu rekonsiliasi relationship bawaan Filament yang berat.
+  - Mengimplementasikan **Dirty Tracking** dan **Granular Model Save** pada `EditLaporanInsiden`: mendeteksi secara akurat field yang benar-benar berubah (`isAttributeChanged`), melewati query `UPDATE` jika tidak ada perubahan, serta mencatat log perubahan per-field.
+  - Menambahkan **Milestone Stopwatch & Diagnostics Logging** (`[IKP Save][M1-M5]`): mengukur durasi setiap fase simpan (ekstraksi state form, deteksi field kotor, eksekusi SQL update, kalkulasi grading risiko, dan pengiriman notifikasi) beserta konsumsi memori untuk kemudahan deteksi bottleneck.
+  - Menambahkan eager loading `investigationData.media` pada `mutateFormDataBeforeFill` untuk mengeliminasi query N+1 pada accessor `$appends = ['file_path']`.
   - Mengeliminasi duplikasi *mount* komponen `TimelineGridManager` di dalam form wizard saat tahap investigasi aktif.
 
 ## [1.1.1] - 2026-07-03

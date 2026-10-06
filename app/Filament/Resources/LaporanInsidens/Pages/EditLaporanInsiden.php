@@ -56,32 +56,102 @@ class EditLaporanInsiden extends EditRecord
 
     public function save(bool $shouldRedirect = true, bool $shouldSendSavedNotification = true): void
     {
+        $startTime = microtime(true);
+        $recordId = $this->record?->id;
+        $nomorLaporan = $this->record?->nomor_laporan ?? 'N/A';
+
+        Log::info("=================================================");
+        Log::info("[IKP Save][START] Memulai proses simpan laporan #{$recordId} ({$nomorLaporan})");
+
         $this->authorizeAccess();
 
         try {
-            // Ambil state form yang sudah tervalidasi
+            // Milestone 1: Form State Extraction & Validation
+            $t0 = microtime(true);
             $data = $this->form->getState();
             $data = $this->mutateFormDataBeforeSave($data);
+            $d1 = round(microtime(true) - $t0, 3);
+            Log::info("[IKP Save][M1] Form state extraction & validation selesai dalam {$d1}s");
 
-            // Filter hanya kolom fillable dari tabel laporan_insidens untuk menghindari sync relationship berat
+            // Milestone 2: Dirty Field Detection
+            $t1 = microtime(true);
             $fillable = $this->record->getFillable();
             $recordData = array_intersect_key($data, array_flip($fillable));
 
-            $this->record->update($recordData);
+            $dirtyFields = [];
+            foreach ($recordData as $key => $newValue) {
+                $originalValue = $this->record->getAttribute($key);
+                if ($this->isAttributeChanged($originalValue, $newValue)) {
+                    $dirtyFields[$key] = [
+                        'old' => is_scalar($originalValue) ? (string) $originalValue : json_encode($originalValue),
+                        'new' => is_scalar($newValue) ? (string) $newValue : json_encode($newValue),
+                    ];
+                }
+            }
 
+            $d2 = round(microtime(true) - $t1, 3);
+            if (empty($dirtyFields)) {
+                Log::info("[IKP Save][M2] Tidak ada field berubah pada model LaporanInsiden [{$d2}s]");
+            } else {
+                $changedKeys = implode(', ', array_keys($dirtyFields));
+                Log::info("[IKP Save][M2] Terdeteksi " . count($dirtyFields) . " field berubah: [{$changedKeys}] [{$d2}s]");
+                foreach ($dirtyFields as $field => $change) {
+                    $oldShort = \Illuminate\Support\Str::limit($change['old'], 40);
+                    $newShort = \Illuminate\Support\Str::limit($change['new'], 40);
+                    Log::debug("[IKP Save][M2]  -> '{$field}': '{$oldShort}' => '{$newShort}'");
+                }
+            }
+
+            // Milestone 3: Granular Save (Hanya simpan jika ada field dirty)
+            $t2 = microtime(true);
+            if (!empty($dirtyFields)) {
+                $dirtyValues = [];
+                foreach (array_keys($dirtyFields) as $dirtyKey) {
+                    $dirtyValues[$dirtyKey] = $recordData[$dirtyKey];
+                }
+
+                $this->record->fill($dirtyValues);
+                $this->record->save();
+                $d3 = round(microtime(true) - $t2, 3);
+                Log::info("[IKP Save][M3] Berhasil menyimpan field kotor ke tabel laporan_insidens dalam {$d3}s");
+            } else {
+                Log::info("[IKP Save][M3] Melewati database update (skip query)");
+            }
+
+            // Milestone 4: Risk Assessment Calculation
+            $t3 = microtime(true);
             $this->afterSave();
+            $d4 = round(microtime(true) - $t3, 3);
+            Log::info("[IKP Save][M4] Selesai pengecekan / update risk assessment [{$d4}s]");
 
+            // Milestone 5: Notification & Summary
             if ($shouldSendSavedNotification) {
                 Notification::make()
-                    ->title('Perubahan berhasil disimpan')
+                    ->title(empty($dirtyFields) ? 'Tidak ada perubahan untuk disimpan' : 'Perubahan berhasil disimpan')
                     ->success()
                     ->send();
             }
+
+            $totalDuration = round(microtime(true) - $startTime, 3);
+            $memoryUsed = round(memory_get_usage(true) / 1024 / 1024, 2);
+            Log::info("[IKP Save][DONE] Seluruh proses simpan selesai dalam {$totalDuration}s | Memori: {$memoryUsed}MB");
+            Log::info("=================================================");
+
         } catch (\Filament\Support\Exceptions\Halt $exception) {
+            $totalDuration = round(microtime(true) - $startTime, 3);
+            Log::warning("[IKP Save][HALT] Proses simpan dihentikan (Filament Halt) setelah {$totalDuration}s");
             return;
         } catch (\Illuminate\Validation\ValidationException $exception) {
+            $totalDuration = round(microtime(true) - $startTime, 3);
+            Log::warning("[IKP Save][VALIDATION_FAILED] Validasi form gagal setelah {$totalDuration}s", [
+                'errors' => $exception->errors(),
+            ]);
             throw $exception;
         } catch (\Throwable $exception) {
+            $totalDuration = round(microtime(true) - $startTime, 3);
+            Log::error("[IKP Save][ERROR] Terjadi exception setelah {$totalDuration}s: " . $exception->getMessage(), [
+                'trace' => $exception->getTraceAsString(),
+            ]);
             Notification::make()
                 ->title('Gagal menyimpan perubahan')
                 ->body($exception->getMessage())
@@ -90,9 +160,33 @@ class EditLaporanInsiden extends EditRecord
         }
     }
 
+    protected function isAttributeChanged(mixed $original, mixed $new): bool
+    {
+        if (blank($original) && blank($new)) {
+            return false;
+        }
+
+        if ($original instanceof \DateTimeInterface) {
+            $originalDate = $original->format('Y-m-d H:i:s');
+            $newTimestamp = is_string($new) ? strtotime($new) : false;
+            $newDate = $newTimestamp ? date('Y-m-d H:i:s', $newTimestamp) : (string) $new;
+
+            if (substr($originalDate, 11) === '00:00:00') {
+                return substr($originalDate, 0, 10) !== substr($newDate, 0, 10);
+            }
+            return $originalDate !== $newDate;
+        }
+
+        if (is_numeric($original) && is_numeric($new)) {
+            return (string) $original !== (string) $new;
+        }
+
+        return (string) $original !== (string) $new;
+    }
+
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $this->record->load('investigationData', 'riskAssessment');
+        $this->record->load('investigationData.media', 'riskAssessment');
 
         if ($this->record->riskAssessment) {
             $data['severity_score'] = $this->record->riskAssessment->severity_score;
@@ -106,8 +200,6 @@ class EditLaporanInsiden extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $this->forgetInvestigationCountsCache();
-
         $rawState = $this->form->getRawState();
         $this->tempSeverityScore = !empty($rawState['severity_score']) ? (int)$rawState['severity_score'] : null;
         $this->tempProbabilityScore = !empty($rawState['probability_score']) ? (int)$rawState['probability_score'] : null;
@@ -118,6 +210,19 @@ class EditLaporanInsiden extends EditRecord
     protected function afterSave(): void
     {
         if ($this->tempSeverityScore && $this->tempProbabilityScore) {
+            $existingAssessment = $this->record->riskAssessment;
+
+            // Cek apakah skor risiko memang berubah
+            if (
+                $existingAssessment &&
+                (int)$existingAssessment->severity_score === $this->tempSeverityScore &&
+                (int)$existingAssessment->probability_score === $this->tempProbabilityScore
+            ) {
+                Log::info("[IKP Save][M4] Skor risiko tidak berubah (Severity: {$this->tempSeverityScore}, Probability: {$this->tempProbabilityScore}). Skip kalkulasi.");
+                return;
+            }
+
+            $startCalc = microtime(true);
             $engineResult = \App\Services\RiskGradingEngine::calculate(
                 $this->tempSeverityScore,
                 $this->tempProbabilityScore
@@ -144,6 +249,11 @@ class EditLaporanInsiden extends EditRecord
                     'grading_risiko' => $engineResult['risk_band'],
                 ]);
             }
+
+            $calcDuration = round(microtime(true) - $startCalc, 3);
+            Log::info("[IKP Save][M4] Risk assessment dikalkulasi ulang dan disimpan dalam {$calcDuration}s (Band: {$engineResult['risk_band']}).");
+        } else {
+            Log::info("[IKP Save][M4] Skor risiko kosong. Skip kalkulasi.");
         }
     }
 
