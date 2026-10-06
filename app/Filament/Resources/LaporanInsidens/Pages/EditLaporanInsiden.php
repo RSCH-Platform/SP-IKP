@@ -127,16 +127,25 @@ class EditLaporanInsiden extends EditRecord
                 Log::info("[IKP Save][M3] Melewati database update (skip query)");
             }
 
-            // Milestone 3.5: Simpan relasi investigation data hanya jika pada tahap investigasi
+            // Milestone 3.5: Simpan relasi investigation data hanya jika pada tahap investigasi DAN ada data berubah
+            $investigationChanged = false;
             if (
                 $this->record->status === LaporanInsiden::STATUS_INVESTIGASI &&
                 $this->record->hasInvestigationStarted()
             ) {
-                $tRel = microtime(true);
-                Log::info("[IKP Save][M3.5] Menyimpan relasi investigation data...");
-                $this->form->model($this->record)->saveRelationships();
-                $dRel = round(microtime(true) - $tRel, 3);
-                Log::info("[IKP Save][M3.5] Selesai menyimpan relasi investigation data dalam {$dRel}s");
+                $tRelCheck = microtime(true);
+                $investigationChanged = $this->hasInvestigationDataChanged($data);
+                $dRelCheck = round(microtime(true) - $tRelCheck, 3);
+
+                if ($investigationChanged) {
+                    $tRel = microtime(true);
+                    Log::info("[IKP Save][M3.5] Terdeteksi perubahan data investigasi. Menyimpan relasi...");
+                    $this->form->model($this->record)->saveRelationships();
+                    $dRel = round(microtime(true) - $tRel, 3);
+                    Log::info("[IKP Save][M3.5] Selesai menyimpan relasi investigation data dalam {$dRel}s");
+                } else {
+                    Log::info("[IKP Save][M3.5] Data investigasi tidak berubah (skip query relasi) [{$dRelCheck}s]");
+                }
             }
 
             // Milestone 4: Risk Assessment Calculation
@@ -147,8 +156,9 @@ class EditLaporanInsiden extends EditRecord
 
             // Milestone 5: Notification & Summary
             if ($shouldSendSavedNotification) {
+                $hasAnyChange = !empty($dirtyFields) || $investigationChanged;
                 Notification::make()
-                    ->title(empty($dirtyFields) ? 'Tidak ada perubahan untuk disimpan' : 'Perubahan berhasil disimpan')
+                    ->title(!$hasAnyChange ? 'Tidak ada perubahan untuk disimpan' : 'Perubahan berhasil disimpan')
                     ->success()
                     ->send();
             }
@@ -261,6 +271,118 @@ class EditLaporanInsiden extends EditRecord
         }
 
         return (string) $original !== (string) $new;
+    }
+
+    /**
+     * Memeriksa apakah ada perubahan pada data investigasi (interview, review dokumen, observasi)
+     */
+    protected function hasInvestigationDataChanged(array $data): bool
+    {
+        $hasInterviewInState = array_key_exists('interview_data', $data) && is_array($data['interview_data']);
+        $hasReviewInState = array_key_exists('review_data', $data) && is_array($data['review_data']);
+        $hasObservasiInState = array_key_exists('observasi_data', $data) && is_array($data['observasi_data']);
+
+        // Jika tidak ada data repeater sama sekali dalam form state, berarti tidak disentuh
+        if (!$hasInterviewInState && !$hasReviewInState && !$hasObservasiInState) {
+            return false;
+        }
+
+        // 1. Cek Interview Data
+        if ($hasInterviewInState) {
+            $interviewState = $data['interview_data'];
+            $existingInterview = $this->record->interviewData->keyBy('id');
+
+            if (count($interviewState) !== $existingInterview->count()) {
+                return true;
+            }
+
+            foreach ($interviewState as $key => $item) {
+                if (!str_starts_with((string)$key, 'record-')) {
+                    return true;
+                }
+                $id = (int)str_replace('record-', '', (string)$key);
+                $original = $existingInterview->get($id);
+                if (!$original) {
+                    return true;
+                }
+                if (trim((string)($item['sumber'] ?? '')) !== trim((string)$original->sumber)
+                    || trim((string)($item['hasil'] ?? '')) !== trim((string)$original->hasil)) {
+                    return true;
+                }
+            }
+        }
+
+        // 2. Cek Review Dokumen Data
+        if ($hasReviewInState) {
+            $reviewState = $data['review_data'];
+            $existingReview = $this->record->reviewDokumenData->keyBy('id');
+
+            if (count($reviewState) !== $existingReview->count()) {
+                return true;
+            }
+
+            foreach ($reviewState as $key => $item) {
+                if (!str_starts_with((string)$key, 'record-')) {
+                    return true;
+                }
+                $id = (int)str_replace('record-', '', (string)$key);
+                $original = $existingReview->get($id);
+                if (!$original) {
+                    return true;
+                }
+                if (trim((string)($item['sumber'] ?? '')) !== trim((string)$original->sumber)
+                    || trim((string)($item['hasil'] ?? '')) !== trim((string)$original->hasil)) {
+                    return true;
+                }
+                $docs = $item['investigation_documents'] ?? [];
+                if (is_array($docs) && !empty($docs)) {
+                    $existingUuids = $original->relationLoaded('media')
+                        ? $original->media->pluck('uuid')->toArray()
+                        : [];
+                    $hasNewFile = collect($docs)->some(fn($doc) => !in_array($doc, $existingUuids, true));
+                    if ($hasNewFile) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // 3. Cek Observasi Data
+        if ($hasObservasiInState) {
+            $observasiState = $data['observasi_data'];
+            $existingObservasi = $this->record->observasiData->keyBy('id');
+
+            if (count($observasiState) !== $existingObservasi->count()) {
+                return true;
+            }
+
+            foreach ($observasiState as $key => $item) {
+                if (!str_starts_with((string)$key, 'record-')) {
+                    return true;
+                }
+                $id = (int)str_replace('record-', '', (string)$key);
+                $original = $existingObservasi->get($id);
+                if (!$original) {
+                    return true;
+                }
+                if (trim((string)($item['lokasi'] ?? '')) !== trim((string)$original->lokasi)
+                    || trim((string)($item['hasil'] ?? '')) !== trim((string)$original->hasil)) {
+                    return true;
+                }
+                $docs = $item['investigation_documents'] ?? [];
+                if (is_array($docs) && !empty($docs)) {
+                    $existingUuids = $original->relationLoaded('media')
+                        ? $original->media->pluck('uuid')->toArray()
+                        : [];
+                    $hasNewFile = collect($docs)->some(fn($doc) => !in_array($doc, $existingUuids, true));
+                    if ($hasNewFile) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
