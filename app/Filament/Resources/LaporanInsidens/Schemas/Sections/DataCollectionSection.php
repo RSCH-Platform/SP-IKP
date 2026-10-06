@@ -64,10 +64,7 @@ class DataCollectionSection
                                 ->badge($counts['interview'] ?: null)
                                 ->schema([
                                     Repeater::make('interview_data')
-                                        ->relationship(
-                                            'investigationData',
-                                            fn($query) => $query->where('kategori', 'interview')
-                                        )
+                                        ->relationship('interviewData')
                                         ->schema([
                                             TextInput::make('sumber')
                                                 ->label('Narasumber')
@@ -103,10 +100,7 @@ class DataCollectionSection
                                 ->badge($counts['review_dokumen'] ?: null)
                                 ->schema([
                                     Repeater::make('review_data')
-                                        ->relationship(
-                                            'investigationData',
-                                            fn($query) => $query->where('kategori', 'review_dokumen')
-                                        )
+                                        ->relationship('reviewDokumenData')
                                         ->schema([
                                             TextInput::make('sumber')
                                                 ->label('Nama Dokumen')
@@ -156,10 +150,7 @@ class DataCollectionSection
                                 ->badge($counts['observasi'] ?: null)
                                 ->schema([
                                     Repeater::make('observasi_data')
-                                        ->relationship(
-                                            'investigationData',
-                                            fn($query) => $query->where('kategori', 'observasi')
-                                        )
+                                        ->relationship('observasiData')
                                         ->schema([
                                             TextInput::make('lokasi')
                                                 ->label('Lokasi Observasi')

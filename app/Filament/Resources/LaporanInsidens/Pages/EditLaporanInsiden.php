@@ -265,7 +265,13 @@ class EditLaporanInsiden extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $this->record->load('investigationData.media', 'riskAssessment');
+        $this->record->load([
+            'investigationData.media',
+            'interviewData',
+            'reviewDokumenData.media',
+            'observasiData.media',
+            'riskAssessment',
+        ]);
 
         if ($this->record->riskAssessment) {
             $data['severity_score'] = $this->record->riskAssessment->severity_score;

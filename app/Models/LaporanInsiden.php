@@ -292,6 +292,24 @@ class LaporanInsiden extends Model implements HasMedia
         return $this->hasMany(InvestigationData::class);
     }
 
+    public function interviewData(): HasMany
+    {
+        return $this->hasMany(InvestigationData::class)
+            ->where('kategori', InvestigationData::KATEGORI_INTERVIEW);
+    }
+
+    public function reviewDokumenData(): HasMany
+    {
+        return $this->hasMany(InvestigationData::class)
+            ->where('kategori', InvestigationData::KATEGORI_REVIEW_DOKUMEN);
+    }
+
+    public function observasiData(): HasMany
+    {
+        return $this->hasMany(InvestigationData::class)
+            ->where('kategori', InvestigationData::KATEGORI_OBSERVASI);
+    }
+
     /**
      * Events that belong to this incident report.
      */
