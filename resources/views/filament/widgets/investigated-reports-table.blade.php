@@ -1,10 +1,34 @@
-<x-filament-widgets::widget class="printable-widget">
+<x-filament-widgets::widget class="printable-widget w-full min-w-0 max-w-full">
     <style>
+        .custom-investigasi-scroll::-webkit-scrollbar {
+            height: 9px;
+        }
+        .custom-investigasi-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 9999px;
+        }
+        .custom-investigasi-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .custom-investigasi-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark .custom-investigasi-scroll::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+        }
+        .dark .custom-investigasi-scroll::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+        }
+        .dark .custom-investigasi-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.8);
+        }
         @media print {
             body, html { background: white !important; margin: 0 !important; padding: 0 !important; }
             .printable-widget { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
             .printable-widget button, .printable-widget .no-print, details { display: none !important; }
-            table { page-break-inside: auto !important; width: 100% !important; border-collapse: collapse !important; }
+            table { page-break-inside: auto !important; width: 100% !important; min-width: 0 !important; border-collapse: collapse !important; }
+            table colgroup col { width: auto !important; }
             tr { page-break-inside: avoid !important; page-break-after: auto !important; }
             thead { display: table-header-group !important; }
             .printable-widget .overflow-x-auto, .printable-widget .overflow-y-auto, .printable-widget .overflow-hidden { overflow: visible !important; }
@@ -33,7 +57,7 @@
         }
     </script>
     <div
-        class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-950">
+        class="w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-950">
 
         {{-- Header --}}
         <div class="border-b border-slate-200 px-4 py-3 dark:border-white/10">
@@ -191,151 +215,270 @@
             $textSize = 'text-[11px]';
         @endphp
 
-        <div class="p-3">
-            <x-report-table
-                tableClass="min-w-[1320px] border-separate border-spacing-0"
-                scrollClass="max-w-full overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10"
-            >
-                <x-slot:colgroup>
-                    <colgroup>
-                        <col class="w-[8%]">
-                        <col class="w-[22%]">
-                        <col class="w-[10%]">
-                        <col class="w-[12%]">
-                        <col class="w-[16%]">
-                        <col class="w-[16%]">
-                        <col class="w-[16%]">
-                    </colgroup>
-                </x-slot:colgroup>
+        <div
+            class="p-3 w-full min-w-0 max-w-full"
+            x-data="{
+                canScrollLeft: false,
+                canScrollRight: false,
+                scrollEl: null,
+                init() {
+                    this.$nextTick(() => {
+                        this.scrollEl = this.$refs.tableWrapper ? this.$refs.tableWrapper.querySelector('.overflow-x-auto') : null;
+                        if (!this.scrollEl) return;
+                        this.updateScroll();
+                        this.scrollEl.addEventListener('scroll', () => this.updateScroll(), { passive: true });
+                        window.addEventListener('resize', () => this.updateScroll(), { passive: true });
+                    });
+                },
+                updateScroll() {
+                    if (!this.scrollEl) return;
+                    this.canScrollLeft = this.scrollEl.scrollLeft > 6;
+                    this.canScrollRight = this.scrollEl.scrollLeft < (this.scrollEl.scrollWidth - this.scrollEl.clientWidth - 6);
+                },
+                scrollLeft() {
+                    if (this.scrollEl) {
+                        this.scrollEl.scrollBy({ left: -360, behavior: 'smooth' });
+                    }
+                },
+                scrollRight() {
+                    if (this.scrollEl) {
+                        this.scrollEl.scrollBy({ left: 360, behavior: 'smooth' });
+                    }
+                }
+            }"
+        >
+            {{-- Top Scroll Hint & Navigation Controls --}}
+            <div class="mb-2 flex items-center justify-between gap-2 px-1 no-print">
+                <div class="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                    <x-filament::icon icon="heroicon-o-arrows-right-left" class="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+                    <span>Geser tabel ke samping untuk melihat seluruh kolom</span>
+                </div>
 
-                <x-slot:header>
-                    <tr class="bg-slate-50 text-slate-700 dark:bg-white/[0.04] dark:text-slate-200">
-                        <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                            Tanggal
-                        </x-report-table.th>
+                <div class="flex items-center gap-1">
+                    <button
+                        type="button"
+                        @click="scrollLeft()"
+                        :disabled="!canScrollLeft"
+                        class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 shadow-2xs transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06]"
+                        title="Geser tabel ke kiri"
+                    >
+                        <x-filament::icon icon="heroicon-o-chevron-left" class="h-3.5 w-3.5" />
+                        <span class="hidden sm:inline">Kiri</span>
+                    </button>
 
-                        <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                            Insiden
-                        </x-report-table.th>
+                    <button
+                        type="button"
+                        @click="scrollRight()"
+                        :disabled="!canScrollRight"
+                        class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 shadow-2xs transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06]"
+                        title="Geser tabel ke kanan"
+                    >
+                        <span class="hidden sm:inline">Kanan</span>
+                        <x-filament::icon icon="heroicon-o-chevron-right" class="h-3.5 w-3.5" />
+                    </button>
+                </div>
+            </div>
 
-                        <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                            Jenis
-                        </x-report-table.th>
+            <div x-ref="tableWrapper" class="relative w-full min-w-0 max-w-full">
+                <x-report-table
+                    tableClass="min-w-[1580px] border-separate border-spacing-0"
+                    scrollClass="max-w-full overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10 custom-investigasi-scroll"
+                >
+                    <x-slot:colgroup>
+                        <colgroup>
+                            <col class="w-[110px]">
+                            <col class="w-[240px]">
+                            <col class="w-[90px]">
+                            <col class="w-[130px]">
+                            <col class="w-[270px]">
+                            <col class="w-[240px]">
+                            <col class="w-[240px]">
+                            <col class="w-[260px]">
+                        </colgroup>
+                    </x-slot:colgroup>
 
-                        <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                            Unit
-                        </x-report-table.th>
+                    <x-slot:header>
+                        <tr class="bg-slate-50 text-slate-700 dark:bg-white/[0.04] dark:text-slate-200">
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                                Tanggal
+                            </x-report-table.th>
 
-                        <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                            Penyebab Langsung
-                        </x-report-table.th>
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                                Insiden
+                            </x-report-table.th>
 
-                        <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                            Akar Masalah
-                        </x-report-table.th>
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                                Jenis
+                            </x-report-table.th>
 
-                        <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                            Rekomendasi
-                        </x-report-table.th>
-                    </tr>
-                </x-slot:header>
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                                Unit
+                            </x-report-table.th>
 
-                @forelse ($rows ?? [] as $group)
-                    @php
-                        $base = $group['base'] ?? [];
-                        $problems = $group['problems'] ?? [];
-                        $rowspan = count($problems) ?: 1;
-                    @endphp
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                                Masalah (CMP / SDP)
+                            </x-report-table.th>
 
-                    @foreach ($problems as $i => $p)
-                        <tr class="align-top transition hover:bg-slate-50/80 dark:hover:bg-white/[0.035]">
-                            @if ($i === 0)
-                                <x-report-table.td
-                                    rowspan="{{ $rowspan }}"
-                                    class="{{ $tdPadding }} {{ $textSize }} align-top whitespace-nowrap border-b border-slate-200 font-medium text-slate-600 dark:border-white/10 dark:text-slate-300"
-                                >
-                                    {{ $base['tanggal_insiden'] ?? '-' }}
-                                </x-report-table.td>
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                                Penyebab Langsung
+                            </x-report-table.th>
 
-                                <x-report-table.td
-                                    rowspan="{{ $rowspan }}"
-                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 font-medium leading-5 text-slate-900 dark:border-white/10 dark:text-white"
-                                >
-                                    <div
-                                        class="line-clamp-2"
-                                        title="{{ $base['deskripsi_kategori_insiden'] ?? '-' }}"
-                                    >
-                                        {{ $base['deskripsi_kategori_insiden'] ?? '-' }}
-                                    </div>
-                                </x-report-table.td>
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                                Akar Masalah
+                            </x-report-table.th>
 
-                                <x-report-table.td
-                                    rowspan="{{ $rowspan }}"
-                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
-                                >
-                                    <div
-                                        class="line-clamp-2 break-words"
-                                        title="{{ $base['jenis_insiden'] ?? '-' }}"
-                                    >
-                                        {{ $base['jenis_insiden'] ?? '-' }}
-                                    </div>
-                                </x-report-table.td>
-
-                                <x-report-table.td
-                                    rowspan="{{ $rowspan }}"
-                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
-                                >
-                                    <div
-                                        class="line-clamp-2 break-words"
-                                        title="{{ $base['unit_kerja'] ?? '-' }}"
-                                    >
-                                        {{ $base['unit_kerja'] ?? '-' }}
-                                    </div>
-                                </x-report-table.td>
-                            @endif
-
-                            <x-report-table.td
-                                class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
-                            >
-                                <div
-                                    class="line-clamp-3 break-words"
-                                    title="{{ $p['penyebab_langsung'] ?? '-' }}"
-                                >
-                                    {{ $p['penyebab_langsung'] ?? '-' }}
-                                </div>
-                            </x-report-table.td>
-
-                            <x-report-table.td
-                                class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
-                            >
-                                <div
-                                    class="line-clamp-3 break-words"
-                                    title="{{ $p['akar_masalah'] ?? '-' }}"
-                                >
-                                    {{ $p['akar_masalah'] ?? '-' }}
-                                </div>
-                            </x-report-table.td>
-
-                            <x-report-table.td
-                                class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
-                            >
-                                <div
-                                    class="line-clamp-3 break-words"
-                                    title="{{ $p['rekomendasi'] ?? '-' }}"
-                                >
-                                    {{ $p['rekomendasi'] ?? '-' }}
-                                </div>
-                            </x-report-table.td>
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                                Rekomendasi
+                            </x-report-table.th>
                         </tr>
-                    @endforeach
-                @empty
-                    <x-report-table.empty
-                        :colspan="7"
-                        title="Belum ada data investigasi"
-                        description="Tidak ada laporan yang sesuai dengan filter yang dipilih."
-                    />
-                @endforelse
-            </x-report-table>
+                    </x-slot:header>
+
+                    @forelse ($rows ?? [] as $group)
+                        @php
+                            $base = $group['base'] ?? [];
+                            $problems = $group['problems'] ?? [];
+                            $rowspan = count($problems) ?: 1;
+                        @endphp
+
+                        @foreach ($problems as $i => $p)
+                            <tr class="align-top transition hover:bg-slate-50/80 dark:hover:bg-white/[0.035]">
+                                @if ($i === 0)
+                                    <x-report-table.td
+                                        rowspan="{{ $rowspan }}"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top whitespace-nowrap border-b border-slate-200 font-medium text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                    >
+                                        {{ $base['tanggal_insiden'] ?? '-' }}
+                                    </x-report-table.td>
+
+                                    <x-report-table.td
+                                        rowspan="{{ $rowspan }}"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 font-medium leading-5 text-slate-900 dark:border-white/10 dark:text-white"
+                                    >
+                                        <div
+                                            class="line-clamp-2"
+                                            title="{{ $base['deskripsi_kategori_insiden'] ?? '-' }}"
+                                        >
+                                            {{ $base['deskripsi_kategori_insiden'] ?? '-' }}
+                                        </div>
+                                    </x-report-table.td>
+
+                                    <x-report-table.td
+                                        rowspan="{{ $rowspan }}"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                    >
+                                        <div
+                                            class="line-clamp-2 break-words"
+                                            title="{{ $base['jenis_insiden'] ?? '-' }}"
+                                        >
+                                            {{ $base['jenis_insiden'] ?? '-' }}
+                                        </div>
+                                    </x-report-table.td>
+
+                                    <x-report-table.td
+                                        rowspan="{{ $rowspan }}"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                    >
+                                        <div
+                                            class="line-clamp-2 break-words"
+                                            title="{{ $base['unit_kerja'] ?? '-' }}"
+                                        >
+                                            {{ $base['unit_kerja'] ?? '-' }}
+                                        </div>
+                                    </x-report-table.td>
+                                @endif
+
+                                @if (!empty($p['is_first_subrow']))
+                                    <x-report-table.td
+                                        rowspan="{{ $p['problem_rowspan'] ?? 1 }}"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                    >
+                                        @if (filled($p['problem_type']) || (filled($p['problem_description']) && $p['problem_description'] !== '-'))
+                                            <div class="space-y-1.5">
+                                                @if (filled($p['problem_type']))
+                                                    <div>
+                                                        @php
+                                                            $typeUpper = strtoupper($p['problem_type']);
+                                                        @endphp
+                                                        @if ($typeUpper === 'CMP')
+                                                            <span
+                                                                class="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30"
+                                                                title="Care Management Problem (CMP)"
+                                                            >
+                                                                CMP
+                                                            </span>
+                                                        @elseif ($typeUpper === 'SDP')
+                                                            <span
+                                                                class="inline-flex items-center rounded-md bg-purple-50 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30"
+                                                                title="Service Delivery Problem (SDP)"
+                                                            >
+                                                                SDP
+                                                            </span>
+                                                        @else
+                                                            <span
+                                                                class="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 ring-1 ring-inset ring-slate-600/10 dark:bg-slate-800 dark:text-slate-300"
+                                                            >
+                                                                {{ $typeUpper }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                @endif
+
+                                                <div
+                                                    class="line-clamp-3 break-words text-slate-800 dark:text-slate-200"
+                                                    title="{{ $p['problem_description'] ?? '-' }}"
+                                                >
+                                                    {{ $p['problem_description'] ?? '-' }}
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="text-slate-400 dark:text-slate-500">-</span>
+                                        @endif
+                                    </x-report-table.td>
+                                @endif
+
+                                <x-report-table.td
+                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                >
+                                    <div
+                                        class="line-clamp-3 break-words"
+                                        title="{{ $p['penyebab_langsung'] ?? '-' }}"
+                                    >
+                                        {{ $p['penyebab_langsung'] ?? '-' }}
+                                    </div>
+                                </x-report-table.td>
+
+                                <x-report-table.td
+                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                >
+                                    <div
+                                        class="line-clamp-3 break-words"
+                                        title="{{ $p['akar_masalah'] ?? '-' }}"
+                                    >
+                                        {{ $p['akar_masalah'] ?? '-' }}
+                                    </div>
+                                </x-report-table.td>
+
+                                <x-report-table.td
+                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                >
+                                    <div
+                                        class="line-clamp-3 break-words"
+                                        title="{{ $p['rekomendasi'] ?? '-' }}"
+                                    >
+                                        {{ $p['rekomendasi'] ?? '-' }}
+                                    </div>
+                                </x-report-table.td>
+                            </tr>
+                        @endforeach
+                    @empty
+                        <x-report-table.empty
+                            :colspan="8"
+                            title="Belum ada data investigasi"
+                            description="Tidak ada laporan yang sesuai dengan filter yang dipilih."
+                        />
+                    @endforelse
+                </x-report-table>
+            </div>
 
 
             {{-- Pagination Footer --}}
@@ -439,6 +582,7 @@
                 jenis_insiden:              { label: 'Jenis Insiden',     checked: true },
                 unit_kerja:                 { label: 'Unit Kerja',        checked: true },
                 status:                     { label: 'Status',            checked: true },
+                masalah:                    { label: 'Masalah (CMP/SDP)', checked: true },
                 penyebab_langsung:          { label: 'Penyebab Langsung', checked: true },
                 akar_masalah:               { label: 'Akar Masalah',      checked: true },
                 rekomendasi:                { label: 'Rekomendasi',       checked: true },

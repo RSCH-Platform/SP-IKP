@@ -152,9 +152,14 @@ class InvestigatedReportsTableWidget extends Widget
             if ($problemRows === []) {
                 $problemRows = [
                     [
-                        'penyebab_langsung' => '',
-                        'akar_masalah' => '',
-                        'rekomendasi' => '',
+                        'problem_id' => null,
+                        'problem_type' => null,
+                        'problem_description' => '-',
+                        'is_first_subrow' => true,
+                        'problem_rowspan' => 1,
+                        'penyebab_langsung' => '-',
+                        'akar_masalah' => '-',
+                        'rekomendasi' => '-',
                     ],
                 ];
             }
@@ -182,7 +187,7 @@ class InvestigatedReportsTableWidget extends Widget
     }
 
     /**
-     * @return array<int, array{penyebab_langsung: string, akar_masalah: string, rekomendasi: string}>
+     * @return array<int, array{problem_id: int|null, problem_type: string|null, problem_description: string|null, is_first_subrow: bool, problem_rowspan: int, penyebab_langsung: string, akar_masalah: string, rekomendasi: string}>
      */
     protected function buildProblemRows(LaporanInsiden $record): array
     {
@@ -225,6 +230,11 @@ class InvestigatedReportsTableWidget extends Widget
 
             for ($index = 0; $index < $maxRows; $index++) {
                 $rows[] = [
+                    'problem_id' => $problem->id,
+                    'problem_type' => $problem->problem_type,
+                    'problem_description' => $problem->problem_description,
+                    'is_first_subrow' => $index === 0,
+                    'problem_rowspan' => $maxRows,
                     'penyebab_langsung' => $penyebabLangsungItems[$index] ?? '-',
                     'akar_masalah' => $akarMasalahItems[$index] ?? '-',
                     'rekomendasi' => $recommendationItems[$index] ?? '-',
@@ -348,7 +358,7 @@ class InvestigatedReportsTableWidget extends Widget
             "Expires"             => "0"
         ];
         
-        $columns = ['Tanggal Insiden', 'Unit Kerja', 'Jenis Insiden', 'Kategori', 'Penyebab Langsung', 'Akar Masalah', 'Rekomendasi'];
+        $columns = ['Tanggal Insiden', 'Unit Kerja', 'Jenis Insiden', 'Kategori', 'Tipe Masalah', 'Masalah', 'Penyebab Langsung', 'Akar Masalah', 'Rekomendasi'];
 
         $callback = function() use($groups, $columns) {
             $file = fopen('php://output', 'w');
@@ -362,6 +372,8 @@ class InvestigatedReportsTableWidget extends Widget
                         $base['unit_kerja'] ?? '-',
                         $base['jenis_insiden'] ?? '-',
                         $base['deskripsi_kategori_insiden'] ?? '-',
+                        $problem['problem_type'] ?? '-',
+                        $problem['problem_description'] ?? '-',
                         $problem['penyebab_langsung'] ?? '-',
                         $problem['akar_masalah'] ?? '-',
                         $problem['rekomendasi'] ?? '-'

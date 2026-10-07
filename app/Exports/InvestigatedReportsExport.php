@@ -26,6 +26,7 @@ class InvestigatedReportsExport
         'jenis_insiden'              => 'Jenis Insiden',
         'unit_kerja'                 => 'Unit Kerja',
         'status'                     => 'Status',
+        'masalah'                    => 'Masalah (CMP/SDP)',
         'penyebab_langsung'          => 'Penyebab Langsung',
         'akar_masalah'               => 'Akar Masalah',
         'rekomendasi'                => 'Rekomendasi',
@@ -56,6 +57,7 @@ class InvestigatedReportsExport
         'jenis_insiden'              => 20,
         'unit_kerja'                 => 28,
         'status'                     => 16,
+        'masalah'                    => 42,
         'penyebab_langsung'          => 46,
         'akar_masalah'               => 46,
         'rekomendasi'                => 46,
@@ -152,6 +154,7 @@ class InvestigatedReportsExport
                         'status'                     => filled($record->status)
                                                             ? (string) $record->status
                                                             : '-',
+                        'masalah'                    => $problem['masalah'] ?? '-',
                         'penyebab_langsung'          => $problem['penyebab_langsung'] ?? '-',
                         'akar_masalah'               => $problem['akar_masalah'] ?? '-',
                         'rekomendasi'                => $problem['rekomendasi'] ?? '-',
@@ -273,17 +276,31 @@ class InvestigatedReportsExport
 
             $maxRows = max(count($penyebabLangsungItems), count($akarMasalahItems), count($recommendationItems));
 
+            $problemText = filled($problem->problem_type)
+                ? "[{$problem->problem_type}] {$problem->problem_description}"
+                : ($problem->problem_description ?: '-');
+
             for ($index = 0; $index < $maxRows; $index++) {
                 $rows[] = [
-                    'penyebab_langsung' => $penyebabLangsungItems[$index] ?? '-',
-                    'akar_masalah'      => $akarMasalahItems[$index]    ?? '-',
-                    'rekomendasi'       => $recommendationItems[$index] ?? '-',
+                    'problem_type'        => $problem->problem_type,
+                    'problem_description' => $problem->problem_description,
+                    'masalah'             => $index === 0 ? $problemText : '',
+                    'penyebab_langsung'   => $penyebabLangsungItems[$index] ?? '-',
+                    'akar_masalah'        => $akarMasalahItems[$index]    ?? '-',
+                    'rekomendasi'         => $recommendationItems[$index] ?? '-',
                 ];
             }
         }
 
         // Fallback: satu baris kosong jika tidak ada problem (sama seperti widget)
-        return $rows !== [] ? $rows : [['penyebab_langsung' => '', 'akar_masalah' => '', 'rekomendasi' => '']];
+        return $rows !== [] ? $rows : [[
+            'problem_type'        => null,
+            'problem_description' => '-',
+            'masalah'             => '-',
+            'penyebab_langsung'   => '',
+            'akar_masalah'        => '',
+            'rekomendasi'         => '',
+        ]];
     }
 
     /**
