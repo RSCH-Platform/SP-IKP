@@ -1,10 +1,39 @@
 <x-filament-widgets::widget class="printable-widget">
     <style>
+        .custom-table-scroll {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: auto;
+        }
+        .custom-table-scroll::-webkit-scrollbar {
+            height: 9px;
+        }
+        .custom-table-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-table-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-table-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark .custom-table-scroll::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+        }
+        .dark .custom-table-scroll::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+        }
+        .dark .custom-table-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.8);
+        }
         @media print {
             body, html { background: white !important; margin: 0 !important; padding: 0 !important; }
             .printable-widget { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
             .printable-widget button, .printable-widget .no-print, details { display: none !important; }
-            table { page-break-inside: auto !important; width: 100% !important; border-collapse: collapse !important; }
+            table { page-break-inside: auto !important; width: 100% !important; min-width: 0 !important; border-collapse: collapse !important; }
+            table colgroup col { width: auto !important; }
             tr { page-break-inside: avoid !important; page-break-after: auto !important; }
             thead { display: table-header-group !important; }
             .printable-widget .overflow-x-auto, .printable-widget .overflow-y-auto, .printable-widget .overflow-hidden { overflow: visible !important; }
@@ -192,19 +221,29 @@
         @endphp
 
         <div class="p-3">
+            {{-- Scroll Hint --}}
+            <div class="mb-2 flex items-center justify-between px-1 text-[11px] text-slate-500 dark:text-slate-400 no-print">
+                <span class="flex items-center gap-1.5">
+                    <x-filament::icon icon="heroicon-o-arrows-right-left" class="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+                    <span>Geser tabel ke samping untuk melihat seluruh kolom</span>
+                </span>
+            </div>
+
             <x-report-table
-                tableClass="min-w-[1320px] border-separate border-spacing-0"
-                scrollClass="max-w-full overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10"
+                style="min-width: 1460px !important; width: 1460px !important;"
+                tableClass="border-separate border-spacing-0"
+                scrollClass="custom-table-scroll max-w-full overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10"
             >
                 <x-slot:colgroup>
                     <colgroup>
-                        <col class="w-[8%]">
-                        <col class="w-[22%]">
-                        <col class="w-[10%]">
-                        <col class="w-[12%]">
-                        <col class="w-[16%]">
-                        <col class="w-[16%]">
-                        <col class="w-[16%]">
+                        <col style="width: 105px; min-width: 105px;">
+                        <col style="width: 250px; min-width: 250px;">
+                        <col style="width: 95px; min-width: 95px;">
+                        <col style="width: 130px; min-width: 130px;">
+                        <col style="width: 270px; min-width: 270px;">
+                        <col style="width: 200px; min-width: 200px;">
+                        <col style="width: 200px; min-width: 200px;">
+                        <col style="width: 210px; min-width: 210px;">
                     </colgroup>
                 </x-slot:colgroup>
 
@@ -224,6 +263,10 @@
 
                         <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
                             Unit
+                        </x-report-table.th>
+
+                        <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
+                            Masalah (CMP/SDP)
                         </x-report-table.th>
 
                         <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
@@ -294,6 +337,32 @@
                                 </x-report-table.td>
                             @endif
 
+                            {{-- Masalah (CMP/SDP) --}}
+                            @if ($p['is_first_subrow'] ?? true)
+                                <x-report-table.td
+                                    rowspan="{{ $p['problem_rowspan'] ?? 1 }}"
+                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-700 dark:border-white/10 dark:text-slate-300"
+                                >
+                                    @if (filled($p['problem_type']) || (filled($p['problem_description']) && $p['problem_description'] !== '-'))
+                                        <div class="space-y-1">
+                                            @if (filled($p['problem_type']))
+                                                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold {{ $p['problem_type'] === 'CMP' ? 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300' : 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' }}">
+                                                    {{ $p['problem_type'] }}
+                                                </span>
+                                            @endif
+                                            <div
+                                                class="line-clamp-3 break-words"
+                                                title="{{ $p['problem_description'] ?? '-' }}"
+                                            >
+                                                {{ $p['problem_description'] ?? '-' }}
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-slate-400 dark:text-slate-500">-</span>
+                                    @endif
+                                </x-report-table.td>
+                            @endif
+
                             <x-report-table.td
                                 class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
                             >
@@ -330,7 +399,7 @@
                     @endforeach
                 @empty
                     <x-report-table.empty
-                        :colspan="7"
+                        :colspan="8"
                         title="Belum ada data investigasi"
                         description="Tidak ada laporan yang sesuai dengan filter yang dipilih."
                     />
@@ -439,6 +508,7 @@
                 jenis_insiden:              { label: 'Jenis Insiden',     checked: true },
                 unit_kerja:                 { label: 'Unit Kerja',        checked: true },
                 status:                     { label: 'Status',            checked: true },
+                masalah:                    { label: 'Masalah (CMP/SDP)', checked: true },
                 penyebab_langsung:          { label: 'Penyebab Langsung', checked: true },
                 akar_masalah:               { label: 'Akar Masalah',      checked: true },
                 rekomendasi:                { label: 'Rekomendasi',       checked: true },
