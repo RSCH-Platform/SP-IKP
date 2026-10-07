@@ -1,37 +1,89 @@
 <x-filament-widgets::widget class="printable-widget w-full min-w-0 max-w-full">
     <style>
-        .custom-investigasi-scroll::-webkit-scrollbar {
-            height: 9px;
+        /* Scroll container styling */
+        .investigasi-scroll-container {
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch;
+            width: 100% !important;
+            max-width: 100% !important;
+            display: block !important;
+            cursor: grab;
+            scrollbar-width: thin !important;
+            scrollbar-color: #94a3b8 #f1f5f9 !important;
         }
-        .custom-investigasi-scroll::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 9999px;
+
+        .investigasi-top-scrollbar {
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch;
+            width: 100% !important;
+            max-width: 100% !important;
+            display: block !important;
+            height: 12px !important;
+            scrollbar-width: thin !important;
+            scrollbar-color: #94a3b8 #f1f5f9 !important;
         }
-        .custom-investigasi-scroll::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 9999px;
+
+        /* WebKit Scrollbar Styling (Always Visible & Prominent) */
+        .custom-investigasi-scroll::-webkit-scrollbar,
+        .investigasi-top-scrollbar::-webkit-scrollbar {
+            height: 10px !important;
+            display: block !important;
         }
-        .custom-investigasi-scroll::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        .custom-investigasi-scroll::-webkit-scrollbar-track,
+        .investigasi-top-scrollbar::-webkit-scrollbar-track {
+            background: #e2e8f0 !important;
+            border-radius: 9999px !important;
         }
-        .dark .custom-investigasi-scroll::-webkit-scrollbar-track {
-            background: rgba(30, 41, 59, 0.5);
+        .custom-investigasi-scroll::-webkit-scrollbar-thumb,
+        .investigasi-top-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8 !important;
+            border-radius: 9999px !important;
+            border: 2px solid #e2e8f0 !important;
         }
-        .dark .custom-investigasi-scroll::-webkit-scrollbar-thumb {
-            background: rgba(100, 116, 139, 0.5);
+        .custom-investigasi-scroll::-webkit-scrollbar-thumb:hover,
+        .investigasi-top-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b !important;
         }
-        .dark .custom-investigasi-scroll::-webkit-scrollbar-thumb:hover {
-            background: rgba(148, 163, 184, 0.8);
+
+        /* Dark Mode Scrollbars */
+        .dark .investigasi-scroll-container,
+        .dark .investigasi-top-scrollbar {
+            scrollbar-color: #64748b #1e293b !important;
         }
+        .dark .custom-investigasi-scroll::-webkit-scrollbar-track,
+        .dark .investigasi-top-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b !important;
+        }
+        .dark .custom-investigasi-scroll::-webkit-scrollbar-thumb,
+        .dark .investigasi-top-scrollbar::-webkit-scrollbar-thumb {
+            background: #64748b !important;
+            border: 2px solid #1e293b !important;
+        }
+        .dark .custom-investigasi-scroll::-webkit-scrollbar-thumb:hover,
+        .dark .investigasi-top-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8 !important;
+        }
+
+        /* Fixed table sizing (Forces horizontal overflow regardless of Tailwind build) */
+        .investigasi-table-fixed {
+            min-width: 1680px !important;
+            width: 1680px !important;
+            table-layout: fixed !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+        }
+
         @media print {
             body, html { background: white !important; margin: 0 !important; padding: 0 !important; }
             .printable-widget { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
-            .printable-widget button, .printable-widget .no-print, details { display: none !important; }
+            .printable-widget button, .printable-widget .no-print, details, .investigasi-top-scrollbar { display: none !important; }
             table { page-break-inside: auto !important; width: 100% !important; min-width: 0 !important; border-collapse: collapse !important; }
-            table colgroup col { width: auto !important; }
+            table colgroup col { width: auto !important; min-width: 0 !important; }
             tr { page-break-inside: avoid !important; page-break-after: auto !important; }
             thead { display: table-header-group !important; }
-            .printable-widget .overflow-x-auto, .printable-widget .overflow-y-auto, .printable-widget .overflow-hidden { overflow: visible !important; }
+            .printable-widget .overflow-x-auto, .printable-widget .overflow-y-auto, .printable-widget .overflow-hidden, .investigasi-scroll-container { overflow: visible !important; }
         }
     </style>
     <script>
@@ -221,79 +273,152 @@
                 canScrollLeft: false,
                 canScrollRight: false,
                 scrollEl: null,
+                topScrollEl: null,
+                isSyncing: false,
+                scrollProgress: 0,
                 init() {
                     this.$nextTick(() => {
-                        this.scrollEl = this.$refs.tableWrapper ? this.$refs.tableWrapper.querySelector('.overflow-x-auto') : null;
+                        this.scrollEl = this.$refs.tableWrapper ? this.$refs.tableWrapper.querySelector('.investigasi-scroll-container, .overflow-x-auto') : null;
+                        this.topScrollEl = this.$refs.topScroll;
                         if (!this.scrollEl) return;
+                        
                         this.updateScroll();
-                        this.scrollEl.addEventListener('scroll', () => this.updateScroll(), { passive: true });
+
+                        // Sync scroll between main table and top scrollbar
+                        this.scrollEl.addEventListener('scroll', () => {
+                            if (this.isSyncing) return;
+                            this.isSyncing = true;
+                            if (this.topScrollEl) {
+                                this.topScrollEl.scrollLeft = this.scrollEl.scrollLeft;
+                            }
+                            this.updateScroll();
+                            this.isSyncing = false;
+                        }, { passive: true });
+
+                        if (this.topScrollEl) {
+                            this.topScrollEl.addEventListener('scroll', () => {
+                                if (this.isSyncing) return;
+                                this.isSyncing = true;
+                                this.scrollEl.scrollLeft = this.topScrollEl.scrollLeft;
+                                this.updateScroll();
+                                this.isSyncing = false;
+                            }, { passive: true });
+                        }
+
+                        // Mouse drag-to-scroll
+                        let isDown = false;
+                        let startX = 0;
+                        let scrollStart = 0;
+                        this.scrollEl.addEventListener('mousedown', (e) => {
+                            if (['BUTTON', 'A', 'INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+                            isDown = true;
+                            startX = e.pageX - this.scrollEl.offsetLeft;
+                            scrollStart = this.scrollEl.scrollLeft;
+                            this.scrollEl.style.cursor = 'grabbing';
+                            this.scrollEl.style.userSelect = 'none';
+                        });
+                        window.addEventListener('mouseup', () => {
+                            if (!isDown) return;
+                            isDown = false;
+                            if (this.scrollEl) {
+                                this.scrollEl.style.cursor = '';
+                                this.scrollEl.style.userSelect = '';
+                            }
+                        });
+                        this.scrollEl.addEventListener('mousemove', (e) => {
+                            if (!isDown) return;
+                            e.preventDefault();
+                            const x = e.pageX - this.scrollEl.offsetLeft;
+                            const walk = (x - startX) * 1.5;
+                            this.scrollEl.scrollLeft = scrollStart - walk;
+                        });
+
                         window.addEventListener('resize', () => this.updateScroll(), { passive: true });
                     });
                 },
                 updateScroll() {
                     if (!this.scrollEl) return;
+                    const max = this.scrollEl.scrollWidth - this.scrollEl.clientWidth;
                     this.canScrollLeft = this.scrollEl.scrollLeft > 6;
-                    this.canScrollRight = this.scrollEl.scrollLeft < (this.scrollEl.scrollWidth - this.scrollEl.clientWidth - 6);
+                    this.canScrollRight = this.scrollEl.scrollLeft < (max - 6);
+                    this.scrollProgress = max > 0 ? Math.round((this.scrollEl.scrollLeft / max) * 100) : 0;
                 },
                 scrollLeft() {
                     if (this.scrollEl) {
-                        this.scrollEl.scrollBy({ left: -360, behavior: 'smooth' });
+                        this.scrollEl.scrollBy({ left: -380, behavior: 'smooth' });
                     }
                 },
                 scrollRight() {
                     if (this.scrollEl) {
-                        this.scrollEl.scrollBy({ left: 360, behavior: 'smooth' });
+                        this.scrollEl.scrollBy({ left: 380, behavior: 'smooth' });
                     }
                 }
             }"
         >
             {{-- Top Scroll Hint & Navigation Controls --}}
-            <div class="mb-2 flex items-center justify-between gap-2 px-1 no-print">
-                <div class="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                    <x-filament::icon icon="heroicon-o-arrows-right-left" class="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
-                    <span>Geser tabel ke samping untuk melihat seluruh kolom</span>
+            <div class="mb-2 flex flex-wrap items-center justify-between gap-2 px-1 no-print">
+                <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                    <span class="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        <x-filament::icon icon="heroicon-o-arrows-right-left" class="h-3.5 w-3.5 text-primary-500" />
+                        Tabel dapat digeser ke samping (klik drag / scrollbar)
+                    </span>
+                    <span
+                        class="hidden sm:inline text-[10px] text-slate-400 dark:text-slate-500"
+                        x-text="'Posisi: ' + scrollProgress + '%'"
+                    ></span>
                 </div>
 
-                <div class="flex items-center gap-1">
+                <div class="flex items-center gap-1.5">
                     <button
                         type="button"
                         @click="scrollLeft()"
                         :disabled="!canScrollLeft"
-                        class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 shadow-2xs transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06]"
+                        class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-white/[0.06]"
                         title="Geser tabel ke kiri"
                     >
                         <x-filament::icon icon="heroicon-o-chevron-left" class="h-3.5 w-3.5" />
-                        <span class="hidden sm:inline">Kiri</span>
+                        <span>Geser Kiri</span>
                     </button>
 
                     <button
                         type="button"
                         @click="scrollRight()"
                         :disabled="!canScrollRight"
-                        class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 shadow-2xs transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06]"
+                        class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-white/[0.06]"
                         title="Geser tabel ke kanan"
                     >
-                        <span class="hidden sm:inline">Kanan</span>
+                        <span>Geser Kanan</span>
                         <x-filament::icon icon="heroicon-o-chevron-right" class="h-3.5 w-3.5" />
                     </button>
                 </div>
             </div>
 
+            {{-- Top Scrollbar for Quick Horizontal Scrolling without scrolling down to bottom --}}
+            <div
+                x-ref="topScroll"
+                class="investigasi-top-scrollbar mb-1.5 rounded bg-slate-100/80 dark:bg-slate-900/50 no-print"
+                title="Geser scrollbar ini untuk navigasi samping"
+            >
+                <div style="width: 1680px; height: 1px;"></div>
+            </div>
+
             <div x-ref="tableWrapper" class="relative w-full min-w-0 max-w-full">
                 <x-report-table
-                    tableClass="min-w-[1580px] border-separate border-spacing-0"
-                    scrollClass="max-w-full overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10 custom-investigasi-scroll"
+                    containerClass="w-full min-w-0 max-w-full"
+                    tableClass="investigasi-table-fixed"
+                    scrollClass="investigasi-scroll-container custom-investigasi-scroll rounded-lg border border-slate-200 dark:border-white/10"
+                    style="min-width: 1680px !important; width: 1680px !important;"
                 >
                     <x-slot:colgroup>
                         <colgroup>
-                            <col class="w-[110px]">
-                            <col class="w-[240px]">
-                            <col class="w-[90px]">
-                            <col class="w-[130px]">
-                            <col class="w-[270px]">
-                            <col class="w-[240px]">
-                            <col class="w-[240px]">
-                            <col class="w-[260px]">
+                            <col style="width: 120px; min-width: 120px;">
+                            <col style="width: 260px; min-width: 260px;">
+                            <col style="width: 100px; min-width: 100px;">
+                            <col style="width: 150px; min-width: 150px;">
+                            <col style="width: 300px; min-width: 300px;">
+                            <col style="width: 250px; min-width: 250px;">
+                            <col style="width: 250px; min-width: 250px;">
+                            <col style="width: 250px; min-width: 250px;">
                         </colgroup>
                     </x-slot:colgroup>
 
