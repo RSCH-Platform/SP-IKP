@@ -68,8 +68,8 @@
 
         /* Fixed table sizing (Forces horizontal overflow regardless of Tailwind build) */
         .investigasi-table-fixed {
-            min-width: 1680px !important;
-            width: 1680px !important;
+            min-width: 1780px !important;
+            width: 1780px !important;
             table-layout: fixed !important;
             border-collapse: separate !important;
             border-spacing: 0 !important;
@@ -115,13 +115,31 @@
         <div class="border-b border-slate-200 px-4 py-3 dark:border-white/10">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h3 class="text-sm font-semibold leading-5 text-slate-900 dark:text-white">
-                        Pemantauan Investigasi
-                    </h3>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-sm font-semibold leading-5 text-slate-900 dark:text-white">
+                            Pemantauan Investigasi
+                        </h3>
+                        <span class="inline-flex items-center rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700 ring-1 ring-inset ring-violet-700/10 dark:bg-violet-900/30 dark:text-violet-300">
+                            Analisis RCA & Rekomendasi
+                        </span>
+                    </div>
 
                     <p class="mt-0.5 text-[11px] leading-4 text-slate-500 dark:text-slate-400">
-                        Pantau status laporan insiden dalam proses investigasi.
+                        Pantau status investigasi, masalah (CMP/SDP), penyebab langsung, akar masalah, dan rekomendasi perbaikan.
                     </p>
+
+                    {{-- Quick Counter Badges --}}
+                    <div class="mt-2 flex flex-wrap items-center gap-2 no-print">
+                        <span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                            <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                            <span>Total Laporan: <strong class="font-semibold text-slate-900 dark:text-white">{{ $totalReports ?? 0 }}</strong></span>
+                        </span>
+
+                        <span class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                            <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                            <span>Masalah Dianalisis: <strong class="font-semibold text-blue-900 dark:text-blue-200">{{ $totalProblems ?? 0 }}</strong></span>
+                        </span>
+                    </div>
                 </div>
 
                 {{-- Export Actions --}}
@@ -399,199 +417,343 @@
                 class="investigasi-top-scrollbar mb-1.5 rounded bg-slate-100/80 dark:bg-slate-900/50 no-print"
                 title="Geser scrollbar ini untuk navigasi samping"
             >
-                <div style="width: 1680px; height: 1px;"></div>
+                <div style="width: 1780px; height: 1px;"></div>
             </div>
 
             <div x-ref="tableWrapper" class="relative w-full min-w-0 max-w-full">
+                {{-- Left Scroll Shadow Cue --}}
+                <div
+                    x-show="canScrollLeft"
+                    x-transition.opacity
+                    class="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-6 bg-gradient-to-r from-slate-900/10 to-transparent dark:from-black/40"
+                ></div>
+
+                {{-- Right Scroll Shadow Cue --}}
+                <div
+                    x-show="canScrollRight"
+                    x-transition.opacity
+                    class="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-6 bg-gradient-to-l from-slate-900/10 to-transparent dark:from-black/40"
+                ></div>
+
                 <x-report-table
                     containerClass="w-full min-w-0 max-w-full"
                     tableClass="investigasi-table-fixed"
                     scrollClass="investigasi-scroll-container custom-investigasi-scroll rounded-lg border border-slate-200 dark:border-white/10"
-                    style="min-width: 1680px !important; width: 1680px !important;"
+                    style="min-width: 1780px !important; width: 1780px !important;"
                 >
                     <x-slot:colgroup>
                         <colgroup>
-                            <col style="width: 120px; min-width: 120px;">
+                            <col style="width: 130px; min-width: 130px;">
+                            <col style="width: 290px; min-width: 290px;">
+                            <col style="width: 115px; min-width: 115px;">
+                            <col style="width: 155px; min-width: 155px;">
+                            <col style="width: 330px; min-width: 330px;">
+                            <col style="width: 250px; min-width: 250px;">
+                            <col style="width: 250px; min-width: 250px;">
                             <col style="width: 260px; min-width: 260px;">
-                            <col style="width: 100px; min-width: 100px;">
-                            <col style="width: 150px; min-width: 150px;">
-                            <col style="width: 300px; min-width: 300px;">
-                            <col style="width: 250px; min-width: 250px;">
-                            <col style="width: 250px; min-width: 250px;">
-                            <col style="width: 250px; min-width: 250px;">
                         </colgroup>
                     </x-slot:colgroup>
 
                     <x-slot:header>
-                        <tr class="bg-slate-50 text-slate-700 dark:bg-white/[0.04] dark:text-slate-200">
-                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                                Tanggal
+                        <tr class="bg-slate-100/80 text-slate-700 dark:bg-white/[0.05] dark:text-slate-200">
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
+                                <div class="flex items-center gap-1.5">
+                                    <x-filament::icon icon="heroicon-m-calendar" class="h-3.5 w-3.5 text-slate-400" />
+                                    <span>Tanggal</span>
+                                </div>
                             </x-report-table.th>
 
-                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                                Insiden
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
+                                <div class="flex items-center gap-1.5">
+                                    <x-filament::icon icon="heroicon-m-document-text" class="h-3.5 w-3.5 text-slate-400" />
+                                    <span>Insiden</span>
+                                </div>
                             </x-report-table.th>
 
-                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                                Jenis
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
+                                <div class="flex items-center gap-1.5">
+                                    <x-filament::icon icon="heroicon-m-shield-exclamation" class="h-3.5 w-3.5 text-slate-400" />
+                                    <span>Jenis</span>
+                                </div>
                             </x-report-table.th>
 
-                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                                Unit
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
+                                <div class="flex items-center gap-1.5">
+                                    <x-filament::icon icon="heroicon-m-building-office-2" class="h-3.5 w-3.5 text-slate-400" />
+                                    <span>Unit Kerja</span>
+                                </div>
                             </x-report-table.th>
 
-                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                                Masalah (CMP / SDP)
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
+                                <div class="flex items-center gap-1.5">
+                                    <x-filament::icon icon="heroicon-m-exclamation-triangle" class="h-3.5 w-3.5 text-blue-500" />
+                                    <span>Masalah (CMP / SDP)</span>
+                                </div>
                             </x-report-table.th>
 
-                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                                Penyebab Langsung
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
+                                <div class="flex items-center gap-1.5">
+                                    <x-filament::icon icon="heroicon-m-arrow-trending-down" class="h-3.5 w-3.5 text-amber-500" />
+                                    <span>Penyebab Langsung</span>
+                                </div>
                             </x-report-table.th>
 
-                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                                Akar Masalah
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
+                                <div class="flex items-center gap-1.5">
+                                    <x-filament::icon icon="heroicon-m-magnifying-glass" class="h-3.5 w-3.5 text-rose-500" />
+                                    <span>Akar Masalah</span>
+                                </div>
                             </x-report-table.th>
 
-                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wide border-b border-slate-200 dark:border-white/10">
-                                Rekomendasi
+                            <x-report-table.th class="{{ $thPadding }} text-left {{ $textSize }} font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-white/10">
+                                <div class="flex items-center gap-1.5">
+                                    <x-filament::icon icon="heroicon-m-check-badge" class="h-3.5 w-3.5 text-emerald-500" />
+                                    <span>Rekomendasi</span>
+                                </div>
                             </x-report-table.th>
                         </tr>
                     </x-slot:header>
 
-                    @forelse ($rows ?? [] as $group)
+                    @forelse ($rows ?? [] as $groupIndex => $group)
                         @php
                             $base = $group['base'] ?? [];
                             $problems = $group['problems'] ?? [];
                             $rowspan = count($problems) ?: 1;
+                            $zebraBg = $loop->even ? 'bg-slate-50/40 dark:bg-white/[0.015]' : 'bg-white dark:bg-slate-950';
                         @endphp
 
                         @foreach ($problems as $i => $p)
-                            <tr class="align-top transition hover:bg-slate-50/80 dark:hover:bg-white/[0.035]">
+                            @php
+                                $isLastInGroup = ($i === count($problems) - 1);
+                                $rowBorder = $isLastInGroup
+                                    ? 'border-b-2 border-slate-300 dark:border-slate-800'
+                                    : 'border-b border-slate-100 dark:border-white/5';
+                            @endphp
+
+                            <tr class="align-top {{ $zebraBg }} transition-colors hover:bg-primary-50/30 dark:hover:bg-white/[0.035]">
                                 @if ($i === 0)
+                                    {{-- Tanggal --}}
                                     <x-report-table.td
                                         rowspan="{{ $rowspan }}"
-                                        class="{{ $tdPadding }} {{ $textSize }} align-top whitespace-nowrap border-b border-slate-200 font-medium text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top whitespace-nowrap {{ $rowBorder }} text-slate-600 dark:text-slate-300"
                                     >
-                                        {{ $base['tanggal_insiden'] ?? '-' }}
-                                    </x-report-table.td>
-
-                                    <x-report-table.td
-                                        rowspan="{{ $rowspan }}"
-                                        class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 font-medium leading-5 text-slate-900 dark:border-white/10 dark:text-white"
-                                    >
-                                        <div
-                                            class="line-clamp-2"
-                                            title="{{ $base['deskripsi_kategori_insiden'] ?? '-' }}"
-                                        >
-                                            {{ $base['deskripsi_kategori_insiden'] ?? '-' }}
+                                        <div class="inline-flex items-center gap-1.5 rounded-md bg-slate-100/80 px-2 py-1 font-medium text-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
+                                            <x-filament::icon icon="heroicon-m-calendar" class="h-3.5 w-3.5 text-slate-400" />
+                                            <span>{{ $base['tanggal_insiden'] ?? '-' }}</span>
                                         </div>
                                     </x-report-table.td>
 
+                                    {{-- Insiden --}}
                                     <x-report-table.td
                                         rowspan="{{ $rowspan }}"
-                                        class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top {{ $rowBorder }} text-slate-900 dark:text-white"
                                     >
-                                        <div
-                                            class="line-clamp-2 break-words"
-                                            title="{{ $base['jenis_insiden'] ?? '-' }}"
-                                        >
-                                            {{ $base['jenis_insiden'] ?? '-' }}
+                                        <div class="space-y-1">
+                                            @if (!empty($base['nomor_laporan']))
+                                                <span class="inline-block font-mono text-[10px] tracking-wide text-slate-400 dark:text-slate-500">
+                                                    {{ $base['nomor_laporan'] }}
+                                                </span>
+                                            @endif
+
+                                            <div
+                                                class="font-semibold leading-snug line-clamp-2 text-slate-900 dark:text-white"
+                                                title="{{ $base['deskripsi_kategori_insiden'] ?? '-' }}"
+                                            >
+                                                {{ $base['deskripsi_kategori_insiden'] ?? '-' }}
+                                            </div>
+
+                                            @if (!empty($base['grading_risiko']))
+                                                @php
+                                                    $grading = strtolower((string) $base['grading_risiko']);
+                                                @endphp
+                                                <div>
+                                                    @if (str_contains($grading, 'merah'))
+                                                        <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold text-rose-700 bg-rose-50 ring-1 ring-inset ring-rose-600/20 dark:bg-rose-950/40 dark:text-rose-400">
+                                                            <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                                                            Grading Merah
+                                                        </span>
+                                                    @elseif (str_contains($grading, 'kuning'))
+                                                        <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold text-amber-700 bg-amber-50 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-950/40 dark:text-amber-400">
+                                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                                            Grading Kuning
+                                                        </span>
+                                                    @elseif (str_contains($grading, 'hijau'))
+                                                        <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700 bg-emerald-50 ring-1 ring-inset ring-emerald-600/20 dark:bg-emerald-950/40 dark:text-emerald-400">
+                                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                                            Grading Hijau
+                                                        </span>
+                                                    @elseif (str_contains($grading, 'biru'))
+                                                        <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold text-blue-700 bg-blue-50 ring-1 ring-inset ring-blue-600/20 dark:bg-blue-950/40 dark:text-blue-400">
+                                                            <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                                            Grading Biru
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         </div>
                                     </x-report-table.td>
 
+                                    {{-- Jenis Insiden --}}
                                     <x-report-table.td
                                         rowspan="{{ $rowspan }}"
-                                        class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top {{ $rowBorder }} text-slate-600 dark:text-slate-300"
                                     >
-                                        <div
-                                            class="line-clamp-2 break-words"
-                                            title="{{ $base['unit_kerja'] ?? '-' }}"
-                                        >
-                                            {{ $base['unit_kerja'] ?? '-' }}
+                                        @php
+                                            $jenis = strtoupper((string) ($base['jenis_insiden'] ?? ''));
+                                        @endphp
+                                        @if (str_contains($jenis, 'SENTINEL'))
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700 ring-1 ring-inset ring-rose-600/20 dark:bg-rose-950/40 dark:text-rose-400">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                                                Sentinel
+                                            </span>
+                                        @elseif (str_contains($jenis, 'KTD'))
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-950/40 dark:text-amber-400">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                                KTD
+                                            </span>
+                                        @elseif (str_contains($jenis, 'KTC'))
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-0.5 text-[10px] font-semibold text-yellow-800 ring-1 ring-inset ring-yellow-600/20 dark:bg-yellow-950/40 dark:text-yellow-400">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>
+                                                KTC
+                                            </span>
+                                        @elseif (str_contains($jenis, 'KNC'))
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-semibold text-sky-700 ring-1 ring-inset ring-sky-600/20 dark:bg-sky-950/40 dark:text-sky-400">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-sky-500"></span>
+                                                KNC
+                                            </span>
+                                        @elseif (str_contains($jenis, 'KPC'))
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.5 text-[10px] font-semibold text-teal-700 ring-1 ring-inset ring-teal-600/20 dark:bg-teal-950/40 dark:text-teal-400">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-teal-500"></span>
+                                                KPC
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                                {{ $base['jenis_insiden'] ?? '-' }}
+                                            </span>
+                                        @endif
+                                    </x-report-table.td>
+
+                                    {{-- Unit Kerja --}}
+                                    <x-report-table.td
+                                        rowspan="{{ $rowspan }}"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top {{ $rowBorder }} text-slate-600 dark:text-slate-300"
+                                    >
+                                        <div class="inline-flex items-center gap-1.5 rounded-md bg-slate-50 px-2 py-1 font-medium text-slate-700 ring-1 ring-inset ring-slate-200/80 dark:bg-slate-900/40 dark:text-slate-300 dark:ring-white/10" title="{{ $base['unit_kerja'] ?? '-' }}">
+                                            <x-filament::icon icon="heroicon-m-building-office-2" class="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                            <span class="break-words line-clamp-2 leading-tight">{{ $base['unit_kerja'] ?? '-' }}</span>
                                         </div>
                                     </x-report-table.td>
                                 @endif
 
+                                {{-- Masalah (CMP / SDP) --}}
                                 @if (!empty($p['is_first_subrow']))
                                     <x-report-table.td
                                         rowspan="{{ $p['problem_rowspan'] ?? 1 }}"
-                                        class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                        class="{{ $tdPadding }} {{ $textSize }} align-top {{ $rowBorder }} text-slate-700 dark:text-slate-200"
                                     >
                                         @if (filled($p['problem_type']) || (filled($p['problem_description']) && $p['problem_description'] !== '-'))
-                                            <div class="space-y-1.5">
-                                                @if (filled($p['problem_type']))
-                                                    <div>
-                                                        @php
-                                                            $typeUpper = strtoupper($p['problem_type']);
-                                                        @endphp
-                                                        @if ($typeUpper === 'CMP')
-                                                            <span
-                                                                class="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30"
-                                                                title="Care Management Problem (CMP)"
-                                                            >
-                                                                CMP
-                                                            </span>
-                                                        @elseif ($typeUpper === 'SDP')
-                                                            <span
-                                                                class="inline-flex items-center rounded-md bg-purple-50 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30"
-                                                                title="Service Delivery Problem (SDP)"
-                                                            >
-                                                                SDP
-                                                            </span>
-                                                        @else
-                                                            <span
-                                                                class="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 ring-1 ring-inset ring-slate-600/10 dark:bg-slate-800 dark:text-slate-300"
-                                                            >
-                                                                {{ $typeUpper }}
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                @endif
+                                            @php
+                                                $typeUpper = strtoupper((string) $p['problem_type']);
+                                            @endphp
+                                            <div class="rounded-lg border border-slate-200/90 bg-white/90 p-2.5 shadow-xs transition hover:border-slate-300 dark:border-white/10 dark:bg-slate-900/70">
+                                                <div class="mb-1.5 flex items-center justify-between gap-1.5">
+                                                    @if ($typeUpper === 'CMP')
+                                                        <span
+                                                            class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-blue-700 ring-1 ring-inset ring-blue-700/20 dark:bg-blue-950/50 dark:text-blue-300"
+                                                            title="Care Management Problem"
+                                                        >
+                                                            <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                                            CMP
+                                                        </span>
+                                                    @elseif ($typeUpper === 'SDP')
+                                                        <span
+                                                            class="inline-flex items-center gap-1 rounded-md bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-purple-700 ring-1 ring-inset ring-purple-700/20 dark:bg-purple-950/50 dark:text-purple-300"
+                                                            title="Service Delivery Problem"
+                                                        >
+                                                            <span class="h-1.5 w-1.5 rounded-full bg-purple-500"></span>
+                                                            SDP
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 ring-1 ring-inset ring-slate-600/10 dark:bg-slate-800 dark:text-slate-300">
+                                                            {{ $typeUpper }}
+                                                        </span>
+                                                    @endif
 
-                                                <div
-                                                    class="line-clamp-3 break-words text-slate-800 dark:text-slate-200"
+                                                    @if (($base['problems_count'] ?? 1) > 1)
+                                                        <span class="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                                                            Masalah #{{ $p['problem_index'] ?? ($i + 1) }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+
+                                                <p
+                                                    class="text-[11px] leading-relaxed text-slate-800 dark:text-slate-200 break-words"
                                                     title="{{ $p['problem_description'] ?? '-' }}"
                                                 >
                                                     {{ $p['problem_description'] ?? '-' }}
-                                                </div>
+                                                </p>
                                             </div>
                                         @else
-                                            <span class="text-slate-400 dark:text-slate-500">-</span>
+                                            <span class="text-slate-400 dark:text-slate-500 italic text-[11px]">- Belum ada masalah tercatat -</span>
                                         @endif
                                     </x-report-table.td>
                                 @endif
 
+                                {{-- Penyebab Langsung --}}
                                 <x-report-table.td
-                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                    class="{{ $tdPadding }} {{ $textSize }} align-top {{ $rowBorder }} text-slate-700 dark:text-slate-300"
                                 >
-                                    <div
-                                        class="line-clamp-3 break-words"
-                                        title="{{ $p['penyebab_langsung'] ?? '-' }}"
-                                    >
-                                        {{ $p['penyebab_langsung'] ?? '-' }}
-                                    </div>
+                                    @if (filled($p['penyebab_langsung']) && $p['penyebab_langsung'] !== '-')
+                                        <div class="rounded-lg border border-amber-200/80 bg-amber-50/40 p-2.5 text-[11px] leading-relaxed text-slate-700 dark:border-amber-800/40 dark:bg-amber-950/15 dark:text-slate-300">
+                                            <div class="mb-1 flex items-center gap-1 text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+                                                <x-filament::icon icon="heroicon-m-arrow-trending-down" class="h-3 w-3 shrink-0" />
+                                                <span>Penyebab Langsung (Why 1)</span>
+                                            </div>
+                                            <div class="break-words line-clamp-3" title="{{ $p['penyebab_langsung'] }}">
+                                                {{ $p['penyebab_langsung'] }}
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-slate-400 dark:text-slate-500 italic text-[11px]">-</span>
+                                    @endif
                                 </x-report-table.td>
 
+                                {{-- Akar Masalah --}}
                                 <x-report-table.td
-                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                    class="{{ $tdPadding }} {{ $textSize }} align-top {{ $rowBorder }} text-slate-700 dark:text-slate-300"
                                 >
-                                    <div
-                                        class="line-clamp-3 break-words"
-                                        title="{{ $p['akar_masalah'] ?? '-' }}"
-                                    >
-                                        {{ $p['akar_masalah'] ?? '-' }}
-                                    </div>
+                                    @if (filled($p['akar_masalah']) && $p['akar_masalah'] !== '-')
+                                        <div class="rounded-lg border border-rose-200/80 bg-rose-50/40 p-2.5 text-[11px] leading-relaxed text-slate-700 dark:border-rose-800/40 dark:bg-rose-950/15 dark:text-slate-300">
+                                            <div class="mb-1 flex items-center gap-1 text-[10px] font-semibold text-rose-700 dark:text-rose-400">
+                                                <x-filament::icon icon="heroicon-m-magnifying-glass" class="h-3 w-3 shrink-0" />
+                                                <span>Akar Masalah (Root Cause)</span>
+                                            </div>
+                                            <div class="break-words line-clamp-3" title="{{ $p['akar_masalah'] }}">
+                                                {{ $p['akar_masalah'] }}
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-slate-400 dark:text-slate-500 italic text-[11px]">-</span>
+                                    @endif
                                 </x-report-table.td>
 
+                                {{-- Rekomendasi --}}
                                 <x-report-table.td
-                                    class="{{ $tdPadding }} {{ $textSize }} align-top border-b border-slate-200 leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300"
+                                    class="{{ $tdPadding }} {{ $textSize }} align-top {{ $rowBorder }} text-slate-700 dark:text-slate-300"
                                 >
-                                    <div
-                                        class="line-clamp-3 break-words"
-                                        title="{{ $p['rekomendasi'] ?? '-' }}"
-                                    >
-                                        {{ $p['rekomendasi'] ?? '-' }}
-                                    </div>
+                                    @if (filled($p['rekomendasi']) && $p['rekomendasi'] !== '-')
+                                        <div class="rounded-lg border border-emerald-200/80 bg-emerald-50/40 p-2.5 text-[11px] leading-relaxed text-slate-700 dark:border-emerald-800/40 dark:bg-emerald-950/15 dark:text-slate-300">
+                                            <div class="mb-1 flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+                                                <x-filament::icon icon="heroicon-m-check-badge" class="h-3 w-3 shrink-0" />
+                                                <span>Rekomendasi Tindakan</span>
+                                            </div>
+                                            <div class="break-words line-clamp-3" title="{{ $p['rekomendasi'] }}">
+                                                {{ $p['rekomendasi'] }}
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-slate-400 dark:text-slate-500 italic text-[11px]">-</span>
+                                    @endif
                                 </x-report-table.td>
                             </tr>
                         @endforeach

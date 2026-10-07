@@ -83,12 +83,14 @@ class InvestigatedReportsTableWidget extends Widget
         $groups = $this->buildRows(collect($reports->items()));
 
         $totalRows = array_sum(array_map(fn($g) => count($g['problems'] ?? []), $groups));
+        $totalProblems = array_sum(array_map(fn($g) => $g['base']['problems_count'] ?? 0, $groups));
 
         return [
             'rows' => $groups,
             'paginator' => $reports,
             'totalReports' => $reports->total(),
             'totalRows' => $totalRows,
+            'totalProblems' => $totalProblems,
         ];
     }
 
@@ -135,6 +137,10 @@ class InvestigatedReportsTableWidget extends Widget
 
         foreach ($reports as $record) {
             $baseRow = [
+                'id' => $record->id,
+                'nomor_laporan' => $record->nomor_laporan,
+                'status' => $record->status,
+                'grading_risiko' => $record->grading_risiko,
                 'tanggal_insiden' => $this->formatTanggalInsiden($record->tanggal_insiden),
                 'deskripsi_kategori_insiden' => filled($record->deskripsi_kategori_insiden)
                     ? (string) $record->deskripsi_kategori_insiden
@@ -145,6 +151,7 @@ class InvestigatedReportsTableWidget extends Widget
                 'unit_kerja' => $record->unit_kerja
                     ?? $record->unitKerja?->unit_name
                     ?? '-',
+                'problems_count' => $record->problems->count(),
             ];
 
             $problemRows = $this->buildProblemRows($record);
@@ -153,6 +160,7 @@ class InvestigatedReportsTableWidget extends Widget
                 $problemRows = [
                     [
                         'problem_id' => null,
+                        'problem_index' => 1,
                         'problem_type' => null,
                         'problem_description' => '-',
                         'is_first_subrow' => true,
@@ -193,7 +201,7 @@ class InvestigatedReportsTableWidget extends Widget
     {
         $rows = [];
 
-        foreach ($record->problems as $problem) {
+        foreach ($record->problems->values() as $pIdx => $problem) {
             $latestWhyLevel = $problem->whys->max('why_level');
 
             $penyebabLangsungItems = $problem->whys
@@ -231,6 +239,7 @@ class InvestigatedReportsTableWidget extends Widget
             for ($index = 0; $index < $maxRows; $index++) {
                 $rows[] = [
                     'problem_id' => $problem->id,
+                    'problem_index' => $pIdx + 1,
                     'problem_type' => $problem->problem_type,
                     'problem_description' => $problem->problem_description,
                     'is_first_subrow' => $index === 0,
