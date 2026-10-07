@@ -29,7 +29,6 @@ class InvestigatedReportsExporter extends Exporter
             'deskripsi_kategori_insiden' => 'Judul Insiden',
             'jenis_insiden' => 'Jenis Insiden',
             'unit_kerja' => 'Unit Kerja',
-            'masalah' => 'Masalah (CMP/SDP)',
             'penyebab_langsung' => 'Penyebab Langsung',
             'akar_masalah' => 'Akar Masalah',
             'rekomendasi' => 'Rekomendasi',
@@ -115,11 +114,6 @@ class InvestigatedReportsExporter extends Exporter
                     ?? $record->unitKerja?->unit_name
                     ?? '-'),
 
-            ExportColumn::make('masalah')
-                ->label('Masalah (CMP/SDP)')
-                ->enabledByDefault(fn (): bool => static::isFieldSelected('masalah'))
-                ->formatStateUsing(fn (mixed $state, LaporanInsiden $record): string => self::concatenateProblems($record)),
-
             ExportColumn::make('penyebab_langsung')
                 ->label('Penyebab Langsung')
                 ->enabledByDefault(fn (): bool => static::isFieldSelected('penyebab_langsung'))
@@ -128,7 +122,7 @@ class InvestigatedReportsExporter extends Exporter
             ExportColumn::make('akar_masalah')
                 ->label('Akar Masalah')
                 ->enabledByDefault(fn (): bool => static::isFieldSelected('akar_masalah'))
-                ->formatStateUsing(fn (mixed $state, LaporanInsiden $record): string => self::concatenateAkarMasalah($record)),
+                ->formatStateUsing(fn (mixed $state, LaporanInsiden $record): string => self::concatenateProblemDescriptions($record)),
 
             ExportColumn::make('rekomendasi')
                 ->label('Rekomendasi')
@@ -165,43 +159,18 @@ class InvestigatedReportsExporter extends Exporter
             : implode("\n", $items);
     }
 
-    protected static function concatenateProblems(LaporanInsiden $record): string
-    {
-        $problems = $record->problems
-            ->map(fn ($p) => filled($p->problem_type) ? "[{$p->problem_type}] {$p->problem_description}" : $p->problem_description)
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-
-        return $problems === []
-            ? '-'
-            : implode("\n", $problems);
-    }
-
-    protected static function concatenateAkarMasalah(LaporanInsiden $record): string
-    {
-        $items = $record->problems
-            ->flatMap(function ($problem) {
-                $latestWhyLevel = $problem->whys->max('why_level');
-
-                return $problem->whys
-                    ->when(filled($latestWhyLevel), fn($whys) => $whys->where('why_level', $latestWhyLevel))
-                    ->pluck('problem_statement');
-            })
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-
-        return $items === []
-            ? '-'
-            : implode("\n", $items);
-    }
-
     protected static function concatenateProblemDescriptions(LaporanInsiden $record): string
     {
-        return static::concatenateProblems($record);
+        $descriptions = $record->problems
+            ->pluck('problem_description')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return $descriptions === []
+            ? '-'
+            : implode("\n", $descriptions);
     }
 
     protected static function concatenateRecommendations(LaporanInsiden $record): string

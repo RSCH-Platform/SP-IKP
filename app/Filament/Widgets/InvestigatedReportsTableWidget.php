@@ -83,14 +83,12 @@ class InvestigatedReportsTableWidget extends Widget
         $groups = $this->buildRows(collect($reports->items()));
 
         $totalRows = array_sum(array_map(fn($g) => count($g['problems'] ?? []), $groups));
-        $totalProblems = array_sum(array_map(fn($g) => $g['base']['problems_count'] ?? 0, $groups));
 
         return [
             'rows' => $groups,
             'paginator' => $reports,
             'totalReports' => $reports->total(),
             'totalRows' => $totalRows,
-            'totalProblems' => $totalProblems,
         ];
     }
 
@@ -137,10 +135,6 @@ class InvestigatedReportsTableWidget extends Widget
 
         foreach ($reports as $record) {
             $baseRow = [
-                'id' => $record->id,
-                'nomor_laporan' => $record->nomor_laporan,
-                'status' => $record->status,
-                'grading_risiko' => $record->grading_risiko,
                 'tanggal_insiden' => $this->formatTanggalInsiden($record->tanggal_insiden),
                 'deskripsi_kategori_insiden' => filled($record->deskripsi_kategori_insiden)
                     ? (string) $record->deskripsi_kategori_insiden
@@ -151,7 +145,6 @@ class InvestigatedReportsTableWidget extends Widget
                 'unit_kerja' => $record->unit_kerja
                     ?? $record->unitKerja?->unit_name
                     ?? '-',
-                'problems_count' => $record->problems->count(),
             ];
 
             $problemRows = $this->buildProblemRows($record);
@@ -159,15 +152,9 @@ class InvestigatedReportsTableWidget extends Widget
             if ($problemRows === []) {
                 $problemRows = [
                     [
-                        'problem_id' => null,
-                        'problem_index' => 1,
-                        'problem_type' => null,
-                        'problem_description' => '-',
-                        'is_first_subrow' => true,
-                        'problem_rowspan' => 1,
-                        'penyebab_langsung' => '-',
-                        'akar_masalah' => '-',
-                        'rekomendasi' => '-',
+                        'penyebab_langsung' => '',
+                        'akar_masalah' => '',
+                        'rekomendasi' => '',
                     ],
                 ];
             }
@@ -195,13 +182,13 @@ class InvestigatedReportsTableWidget extends Widget
     }
 
     /**
-     * @return array<int, array{problem_id: int|null, problem_type: string|null, problem_description: string|null, is_first_subrow: bool, problem_rowspan: int, penyebab_langsung: string, akar_masalah: string, rekomendasi: string}>
+     * @return array<int, array{penyebab_langsung: string, akar_masalah: string, rekomendasi: string}>
      */
     protected function buildProblemRows(LaporanInsiden $record): array
     {
         $rows = [];
 
-        foreach ($record->problems->values() as $pIdx => $problem) {
+        foreach ($record->problems as $problem) {
             $latestWhyLevel = $problem->whys->max('why_level');
 
             $penyebabLangsungItems = $problem->whys
@@ -238,12 +225,6 @@ class InvestigatedReportsTableWidget extends Widget
 
             for ($index = 0; $index < $maxRows; $index++) {
                 $rows[] = [
-                    'problem_id' => $problem->id,
-                    'problem_index' => $pIdx + 1,
-                    'problem_type' => $problem->problem_type,
-                    'problem_description' => $problem->problem_description,
-                    'is_first_subrow' => $index === 0,
-                    'problem_rowspan' => $maxRows,
                     'penyebab_langsung' => $penyebabLangsungItems[$index] ?? '-',
                     'akar_masalah' => $akarMasalahItems[$index] ?? '-',
                     'rekomendasi' => $recommendationItems[$index] ?? '-',
@@ -367,7 +348,7 @@ class InvestigatedReportsTableWidget extends Widget
             "Expires"             => "0"
         ];
         
-        $columns = ['Tanggal Insiden', 'Unit Kerja', 'Jenis Insiden', 'Kategori', 'Tipe Masalah', 'Masalah', 'Penyebab Langsung', 'Akar Masalah', 'Rekomendasi'];
+        $columns = ['Tanggal Insiden', 'Unit Kerja', 'Jenis Insiden', 'Kategori', 'Penyebab Langsung', 'Akar Masalah', 'Rekomendasi'];
 
         $callback = function() use($groups, $columns) {
             $file = fopen('php://output', 'w');
@@ -381,8 +362,6 @@ class InvestigatedReportsTableWidget extends Widget
                         $base['unit_kerja'] ?? '-',
                         $base['jenis_insiden'] ?? '-',
                         $base['deskripsi_kategori_insiden'] ?? '-',
-                        $problem['problem_type'] ?? '-',
-                        $problem['problem_description'] ?? '-',
                         $problem['penyebab_langsung'] ?? '-',
                         $problem['akar_masalah'] ?? '-',
                         $problem['rekomendasi'] ?? '-'
