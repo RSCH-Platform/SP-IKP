@@ -8,6 +8,7 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 class PasienSection
 {
@@ -81,13 +82,86 @@ class PasienSection
                         ]),
                 ]),
 
-            Forms\Components\DateTimePicker::make('tanggal_masuk_rs')
-                ->label('Tanggal & Waktu Masuk RS')
-                ->native(false)
-                ->maxDate(now())
-                ->prefixIcon('heroicon-m-arrow-right-on-rectangle')
-                ->displayFormat('d F Y, H:i')
-                ->seconds(false),
+            Grid::make(2)->schema([
+                Forms\Components\DatePicker::make('tanggal_masuk')
+                    ->label('Tanggal Masuk RS')
+                    ->native(false)
+                    ->maxDate(now())
+                    ->prefixIcon('heroicon-m-calendar-days')
+                    ->displayFormat('d F Y')
+                    ->helperText('Tanggal pasien masuk rumah sakit')
+                    ->dehydrated(false)
+                    ->live()
+                    ->afterStateHydrated(function (Forms\Components\DatePicker $component, mixed $state, ?LaporanInsiden $record): void {
+                        if (blank($state) && !empty($record?->tanggal_masuk_rs)) {
+                            $tgl = $record->tanggal_masuk_rs instanceof \DateTimeInterface
+                                ? $record->tanggal_masuk_rs
+                                : \Carbon\Carbon::parse($record->tanggal_masuk_rs);
+                            $component->state($tgl->format('Y-m-d'));
+                        }
+                    })
+                    ->afterStateUpdated(function (Forms\Components\DatePicker $component, Get $get, Set $set): void {
+                        $tanggal = $component->getState();
+                        if (blank($tanggal)) {
+                            $set('tanggal_masuk_rs', null);
+                            return;
+                        }
+                        $dateOnly = substr(trim((string)$tanggal), 0, 10);
+                        $jam = $get('jam_masuk');
+                        $jamString = filled($jam) ? (strlen($jam) === 5 ? "{$jam}:00" : substr($jam, 0, 8)) : '00:00:00';
+                        $set('tanggal_masuk_rs', "{$dateOnly} {$jamString}");
+                    }),
+
+                Forms\Components\TimePicker::make('jam_masuk')
+                    ->label('Waktu Masuk RS')
+                    ->prefixIcon('heroicon-m-clock')
+                    ->seconds(false)
+                    ->helperText('Jam pasien masuk rumah sakit (format 24 jam)')
+                    ->dehydrated(false)
+                    ->live()
+                    ->afterStateHydrated(function (Forms\Components\TimePicker $component, mixed $state, ?LaporanInsiden $record): void {
+                        if (blank($state) && !empty($record?->tanggal_masuk_rs)) {
+                            $tgl = $record->tanggal_masuk_rs instanceof \DateTimeInterface
+                                ? $record->tanggal_masuk_rs
+                                : \Carbon\Carbon::parse($record->tanggal_masuk_rs);
+                            $component->state($tgl->format('H:i'));
+                        }
+                    })
+                    ->afterStateUpdated(function (Forms\Components\TimePicker $component, Get $get, Set $set): void {
+                        $jam = $component->getState();
+                        $tanggal = $get('tanggal_masuk');
+                        if (blank($tanggal)) {
+                            $set('tanggal_masuk_rs', null);
+                            return;
+                        }
+                        $dateOnly = substr(trim((string)$tanggal), 0, 10);
+                        $jamString = filled($jam) ? (strlen($jam) === 5 ? "{$jam}:00" : substr($jam, 0, 8)) : '00:00:00';
+                        $set('tanggal_masuk_rs', "{$dateOnly} {$jamString}");
+                    }),
+            ]),
+
+            Forms\Components\Hidden::make('tanggal_masuk_rs')
+                ->dehydrated(true)
+                ->afterStateHydrated(function (Forms\Components\Hidden $component, mixed $state, ?LaporanInsiden $record): void {
+                    if (blank($state) && !empty($record?->tanggal_masuk_rs)) {
+                        $tgl = $record->tanggal_masuk_rs instanceof \DateTimeInterface
+                            ? $record->tanggal_masuk_rs
+                            : \Carbon\Carbon::parse($record->tanggal_masuk_rs);
+                        $component->state($tgl->format('Y-m-d H:i:s'));
+                    }
+                })
+                ->dehydrateStateUsing(function (mixed $state, Get $get): ?string {
+                    $tanggal = $get('tanggal_masuk');
+                    if (blank($tanggal)) {
+                        return null;
+                    }
+
+                    $dateOnly = substr(trim((string)$tanggal), 0, 10);
+                    $jam = $get('jam_masuk');
+                    $jamString = filled($jam) ? (strlen($jam) === 5 ? "{$jam}:00" : substr($jam, 0, 8)) : '00:00:00';
+
+                    return "{$dateOnly} {$jamString}";
+                }),
 
             Fieldset::make('Detail Insiden Terkait Pasien')
                 ->columnSpanFull()

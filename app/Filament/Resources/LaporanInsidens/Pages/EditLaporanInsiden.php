@@ -263,9 +263,10 @@ class EditLaporanInsiden extends EditRecord
             $newTimestamp = is_string($new) ? strtotime($new) : false;
             $newDate = $newTimestamp ? date('Y-m-d H:i:s', $newTimestamp) : (string) $new;
 
-            if (substr($originalDate, 11) === '00:00:00') {
+            if (is_string($new) && strlen(trim($new)) === 10) {
                 return substr($originalDate, 0, 10) !== substr($newDate, 0, 10);
             }
+
             return $originalDate !== $newDate;
         }
 
@@ -405,6 +406,11 @@ class EditLaporanInsiden extends EditRecord
             $data['probability_score'] = $this->record->riskAssessment->probability_score;
         }
 
+        if ($this->record->tanggal_masuk_rs) {
+            $data['tanggal_masuk'] = $this->record->tanggal_masuk_rs->format('Y-m-d');
+            $data['jam_masuk'] = $this->record->tanggal_masuk_rs->format('H:i');
+        }
+
         $this->forgetInvestigationCountsCache();
 
         return $data;
@@ -415,6 +421,18 @@ class EditLaporanInsiden extends EditRecord
         $rawState = $this->form->getRawState();
         $this->tempSeverityScore = !empty($rawState['severity_score']) ? (int)$rawState['severity_score'] : null;
         $this->tempProbabilityScore = !empty($rawState['probability_score']) ? (int)$rawState['probability_score'] : null;
+
+        if (array_key_exists('tanggal_masuk', $rawState)) {
+            $tanggal = $rawState['tanggal_masuk'];
+            if (blank($tanggal)) {
+                $data['tanggal_masuk_rs'] = null;
+            } else {
+                $dateOnly = substr(trim((string)$tanggal), 0, 10);
+                $jam = $rawState['jam_masuk'] ?? null;
+                $jamString = filled($jam) ? (strlen($jam) === 5 ? "{$jam}:00" : substr($jam, 0, 8)) : '00:00:00';
+                $data['tanggal_masuk_rs'] = "{$dateOnly} {$jamString}";
+            }
+        }
 
         return $data;
     }
