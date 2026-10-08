@@ -158,5 +158,17 @@ class InvestigationData extends Model implements HasMedia
                 $model->created_by = Auth::id();
             }
         });
+
+        static::saved(function ($model) {
+            if ($model->laporan_insiden_id) {
+                \Illuminate\Support\Facades\Cache::forget("investigation_counts_{$model->laporan_insiden_id}");
+            }
+        });
+
+        static::deleted(function ($model) {
+            if ($model->laporan_insiden_id) {
+                \Illuminate\Support\Facades\Cache::forget("investigation_counts_{$model->laporan_insiden_id}");
+            }
+        });
     }
 }

@@ -65,6 +65,10 @@ class DataCollectionSection
                                 ->schema([
                                     Repeater::make('interview_data')
                                         ->relationship('interviewData')
+                                        ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                            $data['kategori'] = 'interview';
+                                            return $data;
+                                        })
                                         ->schema([
                                             TextInput::make('sumber')
                                                 ->label('Narasumber')
@@ -101,6 +105,10 @@ class DataCollectionSection
                                 ->schema([
                                     Repeater::make('review_data')
                                         ->relationship('reviewDokumenData')
+                                        ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                            $data['kategori'] = 'review_dokumen';
+                                            return $data;
+                                        })
                                         ->schema([
                                             TextInput::make('sumber')
                                                 ->label('Nama Dokumen')
@@ -151,6 +159,10 @@ class DataCollectionSection
                                 ->schema([
                                     Repeater::make('observasi_data')
                                         ->relationship('observasiData')
+                                        ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                            $data['kategori'] = 'observasi';
+                                            return $data;
+                                        })
                                         ->schema([
                                             TextInput::make('lokasi')
                                                 ->label('Lokasi Observasi')

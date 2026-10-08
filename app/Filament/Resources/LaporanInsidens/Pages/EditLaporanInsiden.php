@@ -134,7 +134,7 @@ class EditLaporanInsiden extends EditRecord
                 $this->record->hasInvestigationStarted()
             ) {
                 $tRelCheck = microtime(true);
-                $investigationChanged = $this->hasInvestigationDataChanged($data);
+                $investigationChanged = $this->hasInvestigationDataChanged($this->data ?? []);
                 $dRelCheck = round(microtime(true) - $tRelCheck, 3);
 
                 if ($investigationChanged) {
@@ -143,6 +143,9 @@ class EditLaporanInsiden extends EditRecord
                     $this->form->model($this->record)->saveRelationships();
                     $dRel = round(microtime(true) - $tRel, 3);
                     Log::info("[IKP Save][M3.5] Selesai menyimpan relasi investigation data dalam {$dRel}s");
+
+                    // Invalidate tab count cache agar badge langsung ter-update
+                    \Illuminate\Support\Facades\Cache::forget("investigation_counts_{$this->record->id}");
                 } else {
                     Log::info("[IKP Save][M3.5] Data investigasi tidak berubah (skip query relasi) [{$dRelCheck}s]");
                 }
@@ -334,15 +337,16 @@ class EditLaporanInsiden extends EditRecord
                     || trim((string)($item['hasil'] ?? '')) !== trim((string)$original->hasil)) {
                     return true;
                 }
-                $docs = $item['investigation_documents'] ?? [];
-                if (is_array($docs) && !empty($docs)) {
-                    $existingUuids = $original->relationLoaded('media')
-                        ? $original->media->pluck('uuid')->toArray()
-                        : [];
-                    $hasNewFile = collect($docs)->some(fn($doc) => !in_array($doc, $existingUuids, true));
-                    if ($hasNewFile) {
-                        return true;
-                    }
+                $docs = is_array($item['investigation_documents'] ?? null) ? $item['investigation_documents'] : [];
+                $existingUuids = $original->relationLoaded('media')
+                    ? $original->media->pluck('uuid')->toArray()
+                    : $original->getMedia('investigation_documents')->pluck('uuid')->toArray();
+                if (count($docs) !== count($existingUuids)) {
+                    return true;
+                }
+                $hasNewFile = collect($docs)->some(fn($doc) => !in_array($doc, $existingUuids, true));
+                if ($hasNewFile) {
+                    return true;
                 }
             }
         }
@@ -369,15 +373,16 @@ class EditLaporanInsiden extends EditRecord
                     || trim((string)($item['hasil'] ?? '')) !== trim((string)$original->hasil)) {
                     return true;
                 }
-                $docs = $item['investigation_documents'] ?? [];
-                if (is_array($docs) && !empty($docs)) {
-                    $existingUuids = $original->relationLoaded('media')
-                        ? $original->media->pluck('uuid')->toArray()
-                        : [];
-                    $hasNewFile = collect($docs)->some(fn($doc) => !in_array($doc, $existingUuids, true));
-                    if ($hasNewFile) {
-                        return true;
-                    }
+                $docs = is_array($item['investigation_documents'] ?? null) ? $item['investigation_documents'] : [];
+                $existingUuids = $original->relationLoaded('media')
+                    ? $original->media->pluck('uuid')->toArray()
+                    : $original->getMedia('investigation_documents')->pluck('uuid')->toArray();
+                if (count($docs) !== count($existingUuids)) {
+                    return true;
+                }
+                $hasNewFile = collect($docs)->some(fn($doc) => !in_array($doc, $existingUuids, true));
+                if ($hasNewFile) {
+                    return true;
                 }
             }
         }
