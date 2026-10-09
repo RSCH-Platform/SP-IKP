@@ -105,14 +105,31 @@ class PieChartBuilder
         $colors = [];
 
         foreach ($labels as $label) {
-            // Check apakah ada di color map
-            if (isset($this->colorMap[$label])) {
-                $colors[] = $this->colorMap[$label];
-            } else {
-                // Use default colors
-                $colorIndex = count($colors) % count($this->defaultColors);
-                $colors[] = $this->defaultColors[$colorIndex];
+            $trimmedLabel = trim($label);
+
+            // Check apakah ada di color map (exact match)
+            if (isset($this->colorMap[$trimmedLabel])) {
+                $colors[] = $this->colorMap[$trimmedLabel];
+                continue;
             }
+
+            // Check prefix / case-insensitive match di color map
+            $matchedColor = null;
+            foreach ($this->colorMap as $key => $color) {
+                if (stripos($trimmedLabel, $key) === 0 || stripos($key, $trimmedLabel) === 0) {
+                    $matchedColor = $color;
+                    break;
+                }
+            }
+
+            if ($matchedColor !== null) {
+                $colors[] = $matchedColor;
+                continue;
+            }
+
+            // Use default colors
+            $colorIndex = count($colors) % count($this->defaultColors);
+            $colors[] = $this->defaultColors[$colorIndex];
         }
 
         return $colors;

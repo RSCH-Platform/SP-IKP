@@ -146,7 +146,7 @@
             {{-- Table Jenis Insiden --}}
             @php
                 $jenisLabels = $jenisOptions['labels'] ?? [];
-                $jenisColors = $jenisOptions['colors'] ?? ['#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'];
+                $jenisColors = $jenisOptions['colors'] ?? ['#3b82f6', '#10b981', '#eab308', '#f97316', '#ef4444'];
             @endphp
             <div class="mt-4">
                 <x-report-table

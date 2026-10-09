@@ -76,6 +76,19 @@ class TrendLaporanInsiden extends ApexChartWidget implements HasForms
         'Merah' => '#ef4444',
     ];
 
+    // Jenis insiden colors map
+    protected array $jenisColors = [
+        'KPC' => '#3b82f6',
+        'KPC (Kondisi Potensial Cedera)' => '#3b82f6',
+        'KNC' => '#10b981',
+        'KNC (Kejadian Nyaris Cedera)' => '#10b981',
+        'KTC' => '#eab308',
+        'KTC (Kejadian Tidak Cedera)' => '#eab308',
+        'KTD' => '#f97316',
+        'KTD (Kejadian Tidak Diharapkan)' => '#f97316',
+        'Sentinel' => '#ef4444',
+    ];
+
     public function mount(): void
     {
         $this->tahun = (int) now()->year;
@@ -159,7 +172,8 @@ class TrendLaporanInsiden extends ApexChartWidget implements HasForms
         $jenisBuilder = new PieChartBuilder(
             clone $baseQuery,
             'jenis_insiden',
-            ['#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6']
+            ['#3b82f6', '#10b981', '#eab308', '#f97316', '#ef4444'],
+            $this->jenisColors
         );
 
         $jenisData = $jenisBuilder->getData();
@@ -198,7 +212,8 @@ class TrendLaporanInsiden extends ApexChartWidget implements HasForms
         $jenisBuilder = new PieChartBuilder(
             clone $baseQuery,
             'jenis_insiden',
-            ['#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6']
+            ['#3b82f6', '#10b981', '#eab308', '#f97316', '#ef4444'],
+            $this->jenisColors
         );
 
         $jenisData = $jenisBuilder->getData();
