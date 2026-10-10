@@ -127,27 +127,37 @@ class EditLaporanInsiden extends EditRecord
                 Log::info("[IKP Save][M3] Melewati database update (skip query)");
             }
 
-            // Milestone 3.5: Simpan relasi investigation data hanya jika pada tahap investigasi DAN ada data berubah
-            $investigationChanged = false;
-            if (
-                $this->record->status === LaporanInsiden::STATUS_INVESTIGASI &&
-                $this->record->hasInvestigationStarted()
-            ) {
+            // Milestone 3.5: Simpan relasi data jika ada perubahan
+            $relationshipsChanged = false;
+            $canSaveInvestigation = (
+                in_array($this->record->status, LaporanInsiden::FLOW_INVESTIGASI_DAN_SELESAI) ||
+                (Auth::check() && Auth::user()->can('ForceEdit:LaporanInsiden'))
+            ) && $this->record->hasInvestigationStarted();
+
+            if ($canSaveInvestigation) {
                 $tRelCheck = microtime(true);
-                $investigationChanged = $this->hasInvestigationDataChanged($this->data ?? []);
+                $stateToCheck = array_merge($this->data ?? [], $data ?? []);
+                $investigationChanged = $this->hasInvestigationDataChanged($stateToCheck);
+                $timelineChanged = $this->hasTimelineDataChanged($stateToCheck);
+                $relationshipsChanged = $investigationChanged || $timelineChanged;
                 $dRelCheck = round(microtime(true) - $tRelCheck, 3);
 
-                if ($investigationChanged) {
+                if ($relationshipsChanged) {
                     $tRel = microtime(true);
-                    Log::info("[IKP Save][M3.5] Terdeteksi perubahan data investigasi. Menyimpan relasi...");
+                    $relDetails = [];
+                    if ($investigationChanged) $relDetails[] = 'investigasi';
+                    if ($timelineChanged) $relDetails[] = 'timeline';
+                    $relTypeStr = implode(', ', $relDetails);
+
+                    Log::info("[IKP Save][M3.5] Terdeteksi perubahan data relasi ({$relTypeStr}). Menyimpan relasi...");
                     $this->form->model($this->record)->saveRelationships();
                     $dRel = round(microtime(true) - $tRel, 3);
-                    Log::info("[IKP Save][M3.5] Selesai menyimpan relasi investigation data dalam {$dRel}s");
+                    Log::info("[IKP Save][M3.5] Selesai menyimpan relasi data dalam {$dRel}s");
 
                     // Invalidate tab count cache agar badge langsung ter-update
                     \Illuminate\Support\Facades\Cache::forget("investigation_counts_{$this->record->id}");
                 } else {
-                    Log::info("[IKP Save][M3.5] Data investigasi tidak berubah (skip query relasi) [{$dRelCheck}s]");
+                    Log::info("[IKP Save][M3.5] Data relasi tidak berubah (skip query relasi) [{$dRelCheck}s]");
                 }
             }
 
@@ -159,7 +169,7 @@ class EditLaporanInsiden extends EditRecord
 
             // Milestone 5: Notification & Summary
             if ($shouldSendSavedNotification) {
-                $hasAnyChange = !empty($dirtyFields) || $investigationChanged;
+                $hasAnyChange = !empty($dirtyFields) || $relationshipsChanged;
                 Notification::make()
                     ->title(!$hasAnyChange ? 'Tidak ada perubahan untuk disimpan' : 'Perubahan berhasil disimpan')
                     ->success()
@@ -345,7 +355,15 @@ class EditLaporanInsiden extends EditRecord
                 if (count($docs) !== count($existingUuids)) {
                     return true;
                 }
-                $hasNewFile = collect($docs)->some(fn($doc) => !in_array($doc, $existingUuids, true));
+                $hasNewFile = collect($docs)->some(function ($val, $key) use ($existingUuids) {
+                    if (is_string($val) && in_array($val, $existingUuids, true)) {
+                        return false;
+                    }
+                    if (is_string($key) && in_array($key, $existingUuids, true)) {
+                        return false;
+                    }
+                    return true;
+                });
                 if ($hasNewFile) {
                     return true;
                 }
@@ -381,9 +399,80 @@ class EditLaporanInsiden extends EditRecord
                 if (count($docs) !== count($existingUuids)) {
                     return true;
                 }
-                $hasNewFile = collect($docs)->some(fn($doc) => !in_array($doc, $existingUuids, true));
+                $hasNewFile = collect($docs)->some(function ($val, $key) use ($existingUuids) {
+                    if (is_string($val) && in_array($val, $existingUuids, true)) {
+                        return false;
+                    }
+                    if (is_string($key) && in_array($key, $existingUuids, true)) {
+                        return false;
+                    }
+                    return true;
+                });
                 if ($hasNewFile) {
                     return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Memeriksa apakah ada perubahan pada data timeline events dan entries
+     */
+    protected function hasTimelineDataChanged(array $data): bool
+    {
+        if (!array_key_exists('timelineEvents', $data) || !is_array($data['timelineEvents'])) {
+            return false;
+        }
+
+        $timelineEventsState = $data['timelineEvents'];
+        $existingEvents = $this->record->timelineEvents->keyBy('id');
+
+        if (count($timelineEventsState) !== $existingEvents->count()) {
+            return true;
+        }
+
+        foreach ($timelineEventsState as $key => $eventItem) {
+            if (!str_starts_with((string)$key, 'record-')) {
+                return true;
+            }
+
+            $id = (int)str_replace('record-', '', (string)$key);
+            $originalEvent = $existingEvents->get($id);
+            if (!$originalEvent) {
+                return true;
+            }
+
+            // Cek waktu kejadian (event_datetime)
+            $newEventDatetime = $eventItem['event_datetime'] ?? null;
+            if ($this->isAttributeChanged($originalEvent->event_datetime, $newEventDatetime)) {
+                return true;
+            }
+
+            // Cek entries di dalam event
+            if (isset($eventItem['entries']) && is_array($eventItem['entries'])) {
+                $entriesState = $eventItem['entries'];
+                $existingEntries = $originalEvent->entries->keyBy('id');
+
+                if (count($entriesState) !== $existingEntries->count()) {
+                    return true;
+                }
+
+                foreach ($entriesState as $entryKey => $entryItem) {
+                    if (!str_starts_with((string)$entryKey, 'record-')) {
+                        return true;
+                    }
+
+                    $entryId = (int)str_replace('record-', '', (string)$entryKey);
+                    $originalEntry = $existingEntries->get($entryId);
+                    if (!$originalEntry) {
+                        return true;
+                    }
+
+                    if (trim((string)($entryItem['description'] ?? '')) !== trim((string)$originalEntry->description)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -398,6 +487,7 @@ class EditLaporanInsiden extends EditRecord
             'interviewData',
             'reviewDokumenData.media',
             'observasiData.media',
+            'timelineEvents.entries',
             'riskAssessment',
         ]);
 

@@ -44,7 +44,7 @@ class ProblemActionMediaPathGenerator implements PathGenerator
 
         $incident = $action->problem?->incident;
 
-        $unitName = $incident?->unitKerjas?->unit_name
+        $unitName = $incident?->unitKerja?->unit_name
             ?? $incident?->unit_kerja
             ?? 'unit-kerja-tidak-diketahui';
 

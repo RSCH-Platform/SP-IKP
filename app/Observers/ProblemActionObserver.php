@@ -93,7 +93,9 @@ class ProblemActionObserver
             ? \Illuminate\Support\Str::slug($incident->nomor_laporan, '-')
             : ($incident?->id ? (string) $incident->id : 'laporan-tidak-tersedia');
 
-        $path = trim("{$unitName}/Laporan Insiden/{$month}/{$reportSegment}", '/');
+        $unitFolder = \Illuminate\Support\Str::slug($unitName, '-');
+
+        $path = trim("{$unitFolder}/Laporan Insiden/{$month}/{$reportSegment}", '/');
 
         $folder = Folder::where('name', $path)
             ->where('collection', 'action_evidence')

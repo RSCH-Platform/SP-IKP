@@ -69,6 +69,10 @@ class DataCollectionSection
                                             $data['kategori'] = 'interview';
                                             return $data;
                                         })
+                                        ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
+                                            $data['kategori'] = 'interview';
+                                            return $data;
+                                        })
                                         ->schema([
                                             TextInput::make('sumber')
                                                 ->label('Narasumber')
@@ -106,6 +110,10 @@ class DataCollectionSection
                                     Repeater::make('review_data')
                                         ->relationship('reviewDokumenData')
                                         ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                            $data['kategori'] = 'review_dokumen';
+                                            return $data;
+                                        })
+                                        ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
                                             $data['kategori'] = 'review_dokumen';
                                             return $data;
                                         })
@@ -160,6 +168,10 @@ class DataCollectionSection
                                     Repeater::make('observasi_data')
                                         ->relationship('observasiData')
                                         ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                            $data['kategori'] = 'observasi';
+                                            return $data;
+                                        })
+                                        ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
                                             $data['kategori'] = 'observasi';
                                             return $data;
                                         })
