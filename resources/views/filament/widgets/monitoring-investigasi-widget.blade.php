@@ -17,6 +17,7 @@
                     <input type="hidden" name="unit_id" :value="$wire.unit_id">
                     <input type="hidden" name="quarter" :value="$wire.quarter">
                     <input type="hidden" name="compliance_status" :value="$wire.compliance_status">
+                    <input type="hidden" name="case_status" :value="$wire.case_status">
                     <input type="hidden" name="month" :value="$wire.month">
                     <input type="hidden" name="year" :value="$wire.year">
                     <input type="hidden" name="sortColumn" :value="$wire.sortColumn">
@@ -40,6 +41,15 @@
                         @foreach($this->quarters as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
                         @endforeach
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
+
+                <x-filament::input.wrapper>
+                    <x-filament::input.select wire:model.live="case_status">
+                        <option value="">Semua Status Kasus</option>
+                        <option value="ditutup">Kasus Ditutup (Selesai)</option>
+                        <option value="proses">Dalam Investigasi (Terbuka)</option>
+                        <option value="belum_mulai">Belum Mulai Investigasi</option>
                     </x-filament::input.select>
                 </x-filament::input.wrapper>
                 
@@ -104,6 +114,7 @@
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 whitespace-nowrap">Jenis Insiden</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Kategori Insiden</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Grading</th>
+                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Status Kasus</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Target (Hari)</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800" wire:click="sortBy('lama_investigasi')">
                                     <div class="flex items-center justify-center gap-1">
@@ -150,10 +161,28 @@
                                             <span>{{ $row->grading }}</span>
                                         </span>
                                     </td>
+                                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                                        @if($row->is_selesai)
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                                <span>✅</span>
+                                                <span>Kasus Ditutup</span>
+                                            </span>
+                                        @elseif($row->has_started)
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                                                <span>⏳</span>
+                                                <span>Dalam Investigasi</span>
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                                                <span>⏸️</span>
+                                                <span>Belum Mulai</span>
+                                            </span>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3 text-center font-medium">{{ $row->target_hari }} <span class="text-normal">hari</span></td>
-                                    <td class="px-4 py-3 text-center">
-                                        @if($row->lama_investigasi !== null)
-                                            <span class="font-bold">{{ $row->lama_investigasi }}</span> <span class="text-normal"> hari</span>
+                                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                                        @if($row->has_started && $row->lama_investigasi_formatted !== null)
+                                            <span class="font-bold text-gray-900 dark:text-gray-100">{{ $row->lama_investigasi_formatted }}</span>
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -178,7 +207,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                    <td colspan="9" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                                         Tidak ada data insiden pada periode yang dipilih.
                                     </td>
                                 </tr>

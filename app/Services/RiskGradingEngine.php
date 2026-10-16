@@ -53,7 +53,7 @@ class RiskGradingEngine
         } else {
             $level = 'Rendah';
             $band = 'Biru';
-            $action = "Investigasi sederhana";
+            $action = "Investigasi sederhana\nMaksimal 1 minggu (7 hari)";
         }
 
         return [

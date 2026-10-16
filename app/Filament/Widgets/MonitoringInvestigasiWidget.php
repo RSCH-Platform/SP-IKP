@@ -18,6 +18,7 @@ class MonitoringInvestigasiWidget extends Widget
     public ?string $quarter = null;
     public ?string $unit_id = null;
     public ?string $compliance_status = null;
+    public ?string $case_status = null;
     public string $year;
     
     public string $sortColumn = 'raw_tanggal';
@@ -40,6 +41,7 @@ class MonitoringInvestigasiWidget extends Widget
         $this->quarter = null;
         $this->unit_id = null;
         $this->compliance_status = '';
+        $this->case_status = '';
     }
 
     public function updatedMonth()
@@ -137,11 +139,11 @@ class MonitoringInvestigasiWidget extends Widget
         return $incidents->map(function ($incident) {
             $gradingLabel = $incident->grading_risiko ?? 'Belum ada';
             $gradingColor = 'gray';
-            $targetHari = 14; // Default untuk Biru/Hijau
+            $targetHari = 7; // Default
             
             if (stripos($gradingLabel, 'Biru') !== false) {
                 $gradingColor = 'blue';
-                $targetHari = 14;
+                $targetHari = 7;
             } elseif (stripos($gradingLabel, 'Hijau') !== false) {
                 $gradingColor = 'green';
                 $targetHari = 14;
@@ -171,18 +173,43 @@ class MonitoringInvestigasiWidget extends Widget
                 }
             }
             
-            $lamaInvestigasi = null;
+            $lamaInvestigasiJam = null;
+            $lamaInvestigasiFormatted = null;
+
             if ($startedAt && $completedAt) {
-                $lama = (int) $startedAt->startOfDay()->diffInDays($completedAt->startOfDay(), false);
-                $lamaInvestigasi = max(0, $lama);
+                if ($completedAt->lt($startedAt)) {
+                    $diffHours = 0;
+                } else {
+                    $diffHours = (int) $startedAt->diffInHours($completedAt);
+                }
+                $lamaInvestigasiJam = $diffHours;
             } elseif ($startedAt) {
-                $lama = (int) $startedAt->startOfDay()->diffInDays(now()->startOfDay(), false);
-                $lamaInvestigasi = max(0, $lama);
+                $lamaInvestigasiJam = max(0, (int) $startedAt->diffInHours(now()));
+            }
+
+            if ($lamaInvestigasiJam !== null) {
+                $days = (int) floor($lamaInvestigasiJam / 24);
+
+                if ($days === 0) {
+                    $lamaInvestigasiFormatted = $lamaInvestigasiJam . ' jam';
+                } else {
+                    $lamaInvestigasiFormatted = $days . ' hari';
+                }
             }
             
             $isSesuaiTarget = false;
-            if ($lamaInvestigasi !== null) {
-                $isSesuaiTarget = $lamaInvestigasi <= $targetHari;
+            if ($lamaInvestigasiJam !== null) {
+                $isSesuaiTarget = $lamaInvestigasiJam <= ($targetHari * 24);
+            }
+
+            $statusKasus = 'belum_mulai';
+            $statusKasusLabel = 'Belum Mulai';
+            if ($selesai) {
+                $statusKasus = 'ditutup';
+                $statusKasusLabel = 'Kasus Ditutup';
+            } elseif (!empty($startedAt)) {
+                $statusKasus = 'investigasi';
+                $statusKasusLabel = 'Dalam Investigasi';
             }
 
             return (object) [
@@ -194,10 +221,13 @@ class MonitoringInvestigasiWidget extends Widget
                 'grading' => $gradingLabel,
                 'gradingColor' => $gradingColor,
                 'target_hari' => $targetHari,
-                'lama_investigasi' => $lamaInvestigasi,
+                'lama_investigasi' => $lamaInvestigasiJam,
+                'lama_investigasi_formatted' => $lamaInvestigasiFormatted,
                 'is_sesuai_target' => $isSesuaiTarget,
                 'is_selesai' => $selesai,
                 'has_started' => !empty($startedAt),
+                'status_kasus' => $statusKasus,
+                'status_kasus_label' => $statusKasusLabel,
                 'unit_id' => $incident->unit_kerja_id ?? $incident->unit_kerja,
             ];
         });
@@ -211,6 +241,14 @@ class MonitoringInvestigasiWidget extends Widget
             $mapped = $mapped->filter(fn($item) => $item->is_sesuai_target === true && $item->has_started);
         } elseif ($this->compliance_status === 'tidak_sesuai') {
             $mapped = $mapped->filter(fn($item) => $item->is_sesuai_target === false && $item->has_started);
+        }
+
+        if ($this->case_status === 'ditutup') {
+            $mapped = $mapped->filter(fn($item) => $item->is_selesai === true);
+        } elseif ($this->case_status === 'proses') {
+            $mapped = $mapped->filter(fn($item) => $item->is_selesai === false && $item->has_started === true);
+        } elseif ($this->case_status === 'belum_mulai') {
+            $mapped = $mapped->filter(fn($item) => $item->has_started === false);
         }
 
         if ($this->sortDirection === 'asc') {

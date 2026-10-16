@@ -53,8 +53,9 @@
                 <th>Jenis Insiden</th>
                 <th>Kategori Insiden</th>
                 <th>Grading</th>
+                <th>Status Kasus</th>
                 <th>Target (Hari)</th>
-                <th>Lama Inv. (Hari)</th>
+                <th>Lama Inv.</th>
                 <th>Kesesuaian</th>
             </tr>
         </thead>
@@ -76,10 +77,19 @@
                     <td class="text-center">
                         <span class="badge {{ $badgeClass }}">{{ $row->grading }}</span>
                     </td>
+                    <td class="text-center">
+                        @if($row->is_selesai)
+                            <span class="badge badge-green">Ditutup</span>
+                        @elseif($row->has_started)
+                            <span class="badge badge-yellow">Dalam Investigasi</span>
+                        @else
+                            <span class="badge badge-gray">Belum Mulai</span>
+                        @endif
+                    </td>
                     <td class="text-center">{{ $row->target_hari }}</td>
                     <td class="text-center">
-                        @if($row->lama_investigasi !== null)
-                            {{ $row->lama_investigasi }}
+                        @if($row->has_started && !empty($row->lama_investigasi_formatted))
+                            {{ $row->lama_investigasi_formatted }}
                         @else
                             -
                         @endif
@@ -98,7 +108,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="text-center">Tidak ada data insiden pada periode dan filter yang dipilih.</td>
+                    <td colspan="10" class="text-center">Tidak ada data insiden pada periode dan filter yang dipilih.</td>
                 </tr>
             @endforelse
         </tbody>

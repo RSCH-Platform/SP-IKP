@@ -86,6 +86,7 @@ class ReportExportController extends Controller
         $widget->quarter = $request->input('quarter');
         $widget->unit_id = $request->input('unit_id');
         $widget->compliance_status = $request->input('compliance_status');
+        $widget->case_status = $request->input('case_status');
         $widget->sortColumn = $request->input('sortColumn', 'raw_tanggal');
         $widget->sortDirection = $request->input('sortDirection', 'asc');
 
