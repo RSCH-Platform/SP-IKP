@@ -88,7 +88,7 @@
                 <h3 class="text-base font-semibold text-gray-800 dark:text-gray-200 mb-3">Daftar Insiden & Target Penyelesaian</h3>
                 
                 <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <table class="w-full min-w-[1200px] text-left text-sm text-gray-600 dark:text-gray-300">
+                    <table class="w-full min-w-[1350px] text-left text-sm text-gray-600 dark:text-gray-300">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                             <tr>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 whitespace-nowrap cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800" wire:click="sortBy('unit')">
@@ -112,7 +112,7 @@
                                     </div>
                                 </th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 whitespace-nowrap">Jenis Insiden</th>
-                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 min-w-[320px]">Kategori Insiden</th>
+                                <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 min-w-[450px]">Insiden</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Grading</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Status Kasus</th>
                                 <th class="px-4 py-3 font-semibold border-b dark:border-gray-700 text-center whitespace-nowrap">Target (Hari)</th>
@@ -135,7 +135,7 @@
                                     <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">{{ $row->unit }}</td>
                                     <td class="px-4 py-3 whitespace-nowrap">{{ $row->tanggal }}</td>
                                     <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-gray-200">{{ $row->jenis_insiden }}</td>
-                                    <td class="px-4 py-3 min-w-[320px] max-w-md">{{ $row->insiden }}</td>
+                                    <td class="px-4 py-3 min-w-[450px] leading-relaxed">{{ $row->insiden }}</td>
                                     <td class="px-4 py-3 text-center whitespace-nowrap">
                                         @php
                                             $colorMap = [

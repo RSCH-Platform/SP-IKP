@@ -51,7 +51,7 @@
                 <th>Unit</th>
                 <th>Tanggal</th>
                 <th>Jenis Insiden</th>
-                <th>Kategori Insiden</th>
+                <th>Insiden</th>
                 <th>Grading</th>
                 <th>Status Kasus</th>
                 <th>Target (Hari)</th>
