@@ -14,6 +14,11 @@ trait HandlesWhys
             $this->editingProblemId = $problemId;
         }
 
+        if ($this->editingProblemId && ProblemWhy::where('problem_id', $this->editingProblemId)->count() >= 5) {
+            $this->dispatch('notify-error', message: 'Maksimal 5 WHY untuk satu masalah.');
+            return;
+        }
+
         $this->editingItemId = null;
         $this->editingItemType = 'why';
         $this->whyFormData = [
@@ -29,6 +34,12 @@ trait HandlesWhys
                 $why = ProblemWhy::findOrFail($this->editingItemId);
                 $why->update(['problem_statement' => $this->whyFormData['problem_statement']]);
             } else {
+                $count = ProblemWhy::where('problem_id', $this->editingProblemId)->count();
+                if ($count >= 5) {
+                    $this->dispatch('notify-error', message: 'Maksimal 5 WHY untuk satu masalah.');
+                    return;
+                }
+
                 ProblemWhy::create([
                     'problem_id' => $this->editingProblemId,
                     'problem_statement' => $this->whyFormData['problem_statement'],

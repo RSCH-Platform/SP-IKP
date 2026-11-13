@@ -26,7 +26,10 @@ class ProblemWhy extends Model
         static::creating(function ($model) {
             if (empty($model->why_level) && $model->problem_id) {
                 $maxLevel = static::where('problem_id', $model->problem_id)->max('why_level') ?? 0;
-                $model->why_level = min($maxLevel + 1, 5); // Max 5 for 5-WHY
+                if ($maxLevel >= 5) {
+                    throw new \InvalidArgumentException('Maksimal 5 WHY telah tercapai untuk masalah ini.');
+                }
+                $model->why_level = $maxLevel + 1;
             }
         });
     }

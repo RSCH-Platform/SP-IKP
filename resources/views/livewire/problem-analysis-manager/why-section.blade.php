@@ -11,11 +11,17 @@
             </div>
 
             @if(! ($isReadOnly ?? false))
-            <button
-                @click="openWhyModal = true; $wire.addWhy({{ $problem['id'] }})"
-                class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">
-                + Tambah WHY
-            </button>
+                @if(count($problem['whys'] ?? []) < 5)
+                <button
+                    @click="openWhyModal = true; $wire.addWhy({{ $problem['id'] }})"
+                    class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">
+                    + Tambah WHY
+                </button>
+                @else
+                <span class="px-3 py-1.5 text-xs font-semibold rounded-md bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-gray-400">
+                    Maks. 5 WHY
+                </span>
+                @endif
             @else
             <button disabled class="px-3 py-1.5 text-sm rounded-md bg-slate-200 text-slate-500 cursor-not-allowed">🔒 Tambah WHY</button>
             @endif
@@ -25,7 +31,7 @@
         <div class="space-y-3">
             @foreach($problem['whys'] as $index => $why)
             @php
-            $isRoot = $why['why_level'] == collect($problem['whys'])->max('why_level');
+            $isRoot = $loop->last;
             @endphp
 
             <div class="flex items-start gap-3">
@@ -96,8 +102,9 @@
         @if(! ($isReadOnly ?? false))
         <button
             wire:click="saveWhy()"
+            wire:loading.attr="disabled"
             @click="openWhyModal = false"
-            class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+            class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed">
             💾 Simpan WHY
         </button>
         @else
