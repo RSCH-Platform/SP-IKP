@@ -182,12 +182,10 @@ class InvestigatedReportsExporter extends Exporter
     protected static function concatenateAkarMasalah(LaporanInsiden $record): string
     {
         $items = $record->problems
-            ->flatMap(function ($problem) {
-                $latestWhyLevel = $problem->whys->max('why_level');
-
+            ->map(function ($problem) {
                 return $problem->whys
-                    ->when(filled($latestWhyLevel), fn($whys) => $whys->where('why_level', $latestWhyLevel))
-                    ->pluck('problem_statement');
+                    ->sortBy('why_level')
+                    ->last()?->problem_statement;
             })
             ->filter()
             ->unique()

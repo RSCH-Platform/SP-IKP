@@ -204,16 +204,11 @@ class InvestigatedReportsTableWidget extends Widget
                 ->values()
                 ->all();
 
-            $akarMasalahItems = $problem->whys
-                ->when(
-                    filled($latestWhyLevel),
-                    fn(Collection $whys): Collection => $whys->where('why_level', $latestWhyLevel),
-                )
-                ->pluck('problem_statement')
-                ->filter()
-                ->unique()
-                ->values()
-                ->all();
+            $akarMasalahItem = $problem->whys
+                ->sortBy('why_level')
+                ->last()?->problem_statement;
+
+            $akarMasalahItems = filled($akarMasalahItem) ? [$akarMasalahItem] : ['-'];
 
             $recommendationItems = $problem->recommendations
                 ->pluck('recommendation_text')
