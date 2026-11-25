@@ -127,6 +127,10 @@ class ManagerUnitKerjaAnalytics extends Widget
     {
         $month = (int) date('n');
 
+        if (in_array($this->grouping, ['year', 'tahunan', 'yearly'], true)) {
+            return 1;
+        }
+
         if ($this->grouping === 'month') {
             return $month;
         }
@@ -140,6 +144,23 @@ class ManagerUnitKerjaAnalytics extends Widget
 
     public function getTable4PeriodMonths(): array
     {
+        if (in_array($this->grouping, ['year', 'tahunan', 'yearly'], true)) {
+            return [
+                1 => 'Januari',
+                2 => 'Februari',
+                3 => 'Maret',
+                4 => 'April',
+                5 => 'Mei',
+                6 => 'Juni',
+                7 => 'Juli',
+                8 => 'Agustus',
+                9 => 'September',
+                10 => 'Oktober',
+                11 => 'November',
+                12 => 'Desember',
+            ];
+        }
+
         if ($this->grouping === 'semester') {
             return (int) $this->period === 2
                 ? [
@@ -196,11 +217,13 @@ class ManagerUnitKerjaAnalytics extends Widget
 
         [$startMonth, $endMonth] = $this->resolveMonthRange();
         
-        $query->where(function ($q) use ($startMonth, $endMonth) {
-            for ($m = $startMonth; $m <= $endMonth; $m++) {
-                $q->orWhereMonth('tanggal_insiden', $m);
-            }
-        });
+        if ($startMonth !== 1 || $endMonth !== 12) {
+            $query->where(function ($q) use ($startMonth, $endMonth) {
+                for ($m = $startMonth; $m <= $endMonth; $m++) {
+                    $q->orWhereMonth('tanggal_insiden', $m);
+                }
+            });
+        }
 
         if ($month !== null) {
             $query->whereMonth('tanggal_insiden', $month);
@@ -209,6 +232,10 @@ class ManagerUnitKerjaAnalytics extends Widget
 
     protected function resolveMonthRange(): array
     {
+        if (in_array($this->grouping, ['year', 'tahunan', 'yearly'], true)) {
+            return [1, 12];
+        }
+
         if ($this->grouping === 'month') {
             return [(int) $this->period, (int) $this->period];
         }

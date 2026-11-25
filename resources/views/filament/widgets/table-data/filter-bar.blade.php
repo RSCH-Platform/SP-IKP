@@ -32,12 +32,13 @@
             >
                 <option value="quarter">Quarterly</option>
                 <option value="semester">Semester</option>
+                <option value="year">Tahunan</option>
             </x-filament::input.select>
         </x-filament::input.wrapper>
     </div>
 
     <!-- Periode -->
-    <div class="w-24">
+    <div class="w-32">
         <label class="mb-1 block text-[11px] font-medium text-gray-500 dark:text-gray-400">
             Periode
         </label>
@@ -51,10 +52,12 @@
                     @for($i = 1; $i <= 4; $i++)
                         <option value="{{ $i }}">Q{{ $i }}</option>
                     @endfor
-                @else
+                @elseif($this->grouping === 'semester')
                     @for($i = 1; $i <= 2; $i++)
                         <option value="{{ $i }}">S{{ $i }}</option>
                     @endfor
+                @else
+                    <option value="1">1 Tahun Penuh</option>
                 @endif
             </x-filament::input.select>
         </x-filament::input.wrapper>
