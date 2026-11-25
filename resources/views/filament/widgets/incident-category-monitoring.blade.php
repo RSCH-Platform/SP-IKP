@@ -26,23 +26,41 @@
         <div x-data="{ dropdownOpen: false }" @apexhcharts-dropdown.window="dropdownOpen = $event.detail.open">
 
             {{-- Filter Panel --}}
-            <div class="mb-5 flex justify-between items-end">
-                <form action="{{ route('export.incident-category-pdf') }}" method="POST" target="_blank" class="self-end">
+            <div class="mb-5 flex flex-col md:flex-row justify-between gap-4 items-start md:items-end">
+                <form action="{{ route('export.incident-category-pdf') }}" method="POST" target="_blank" class="self-start md:self-end">
                     @csrf
+                    <input type="hidden" name="period_type" :value="$wire.periodType">
                     <input type="hidden" name="year" :value="$wire.selectedYear">
                     <input type="hidden" name="month" :value="$wire.selectedMonth">
+                    <input type="hidden" name="start_month" :value="$wire.startMonth">
+                    <input type="hidden" name="end_month" :value="$wire.endMonth">
+                    <input type="hidden" name="quarter" :value="$wire.selectedQuarter">
+                    <input type="hidden" name="semester" :value="$wire.selectedSemester">
                     <x-filament::button type="submit" color="gray" icon="heroicon-o-printer" size="sm">
                         Print Laporan
                     </x-filament::button>
                 </form>
 
                 <div class="flex flex-wrap items-end gap-3">
+                    {{-- Jenis Periode --}}
+                    <div class="min-w-[150px]">
+                        <label
+                            class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Jenis Periode</label>
+                        <x-filament::input.wrapper>
+                            <x-filament::input.select wire:model.live="periodType">
+                                @foreach ($this->getPeriodTypeOptions() as $value => $label)
+                                    <option value="{{ $value }}">{{ $label }}</option>
+                                @endforeach
+                            </x-filament::input.select>
+                        </x-filament::input.wrapper>
+                    </div>
+
+                    {{-- Tahun --}}
                     <div class="min-w-[120px]">
                         <label
                             class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Tahun</label>
                         <x-filament::input.wrapper>
                             <x-filament::input.select wire:model.live="selectedYear">
-                                <option value="">Semua Tahun</option>
                                 @foreach ($this->getAvailableYears() as $year)
                                     <option value="{{ $year }}">{{ $year }}</option>
                                 @endforeach
@@ -50,18 +68,67 @@
                         </x-filament::input.wrapper>
                     </div>
 
-                    <div class="min-w-[140px]">
-                        <label
-                            class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Bulan</label>
-                        <x-filament::input.wrapper>
-                            <x-filament::input.select wire:model.live="selectedMonth">
-                                <option value="">Semua Bulan</option>
-                                @foreach ($this->getMonthOptions() as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
-                                @endforeach
-                            </x-filament::input.select>
-                        </x-filament::input.wrapper>
-                    </div>
+                    {{-- Dinamis Mengikuti Jenis Periode --}}
+                    @if ($periodType === 'month')
+                        <div class="min-w-[140px]">
+                            <label
+                                class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Bulan</label>
+                            <x-filament::input.wrapper>
+                                <x-filament::input.select wire:model.live="selectedMonth">
+                                    @foreach ($this->getMonthOptions() as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </x-filament::input.select>
+                            </x-filament::input.wrapper>
+                        </div>
+                    @elseif ($periodType === 'month_range')
+                        <div class="min-w-[140px]">
+                            <label
+                                class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Dari Bulan</label>
+                            <x-filament::input.wrapper>
+                                <x-filament::input.select wire:model.live="startMonth">
+                                    @foreach ($this->getMonthOptions() as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </x-filament::input.select>
+                            </x-filament::input.wrapper>
+                        </div>
+                        <div class="min-w-[140px]">
+                            <label
+                                class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Sampai Bulan</label>
+                            <x-filament::input.wrapper>
+                                <x-filament::input.select wire:model.live="endMonth">
+                                    @foreach ($this->getMonthOptions() as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </x-filament::input.select>
+                            </x-filament::input.wrapper>
+                        </div>
+                    @elseif ($periodType === 'quarter')
+                        <div class="min-w-[170px]">
+                            <label
+                                class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Kuartal</label>
+                            <x-filament::input.wrapper>
+                                <x-filament::input.select wire:model.live="selectedQuarter">
+                                    @foreach ($this->getQuarterOptions() as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </x-filament::input.select>
+                            </x-filament::input.wrapper>
+                        </div>
+                    @elseif ($periodType === 'semester')
+                        <div class="min-w-[170px]">
+                            <label
+                                class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Semester</label>
+                            <x-filament::input.wrapper>
+                                <x-filament::input.select wire:model.live="selectedSemester">
+                                    @foreach ($this->getSemesterOptions() as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </x-filament::input.select>
+                            </x-filament::input.wrapper>
+                        </div>
+                    @endif
                 </div>
             </div>
 

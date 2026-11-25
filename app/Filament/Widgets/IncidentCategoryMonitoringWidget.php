@@ -26,9 +26,19 @@ class IncidentCategoryMonitoringWidget extends ApexChartWidget implements HasFor
 
     protected static ?int $sort = 10;
 
+    public string $periodType = 'year';
+
     public ?int $selectedYear = null;
 
     public ?int $selectedMonth = null;
+
+    public ?int $startMonth = null;
+
+    public ?int $endMonth = null;
+
+    public ?int $selectedQuarter = 1;
+
+    public ?int $selectedSemester = 1;
 
     protected int|string|array $columnSpan = 'full';
 
@@ -36,8 +46,13 @@ class IncidentCategoryMonitoringWidget extends ApexChartWidget implements HasFor
 
     public function mount(): void
     {
+        $this->periodType = 'year';
         $this->selectedYear = (int) now()->year;
-        $this->selectedMonth = null;
+        $this->selectedMonth = (int) now()->month;
+        $this->startMonth = 1;
+        $this->endMonth = (int) now()->month;
+        $this->selectedQuarter = (int) ceil(now()->month / 3);
+        $this->selectedSemester = now()->month <= 6 ? 1 : 2;
 
         parent::mount();
     }
@@ -51,6 +66,22 @@ class IncidentCategoryMonitoringWidget extends ApexChartWidget implements HasFor
         );
     }
 
+    public function updatedPeriodType(): void
+    {
+        if ($this->periodType === 'month_range') {
+            $this->startMonth = $this->startMonth ?: 1;
+            $this->endMonth = $this->endMonth ?: (int) now()->month;
+        } elseif ($this->periodType === 'month') {
+            $this->selectedMonth = $this->selectedMonth ?: (int) now()->month;
+        } elseif ($this->periodType === 'quarter') {
+            $this->selectedQuarter = $this->selectedQuarter ?: (int) ceil(now()->month / 3);
+        } elseif ($this->periodType === 'semester') {
+            $this->selectedSemester = $this->selectedSemester ?: (now()->month <= 6 ? 1 : 2);
+        }
+
+        $this->dispatch('refresh-charts');
+    }
+
     public function updatedSelectedYear(): void
     {
         $this->dispatch('refresh-charts');
@@ -61,17 +92,62 @@ class IncidentCategoryMonitoringWidget extends ApexChartWidget implements HasFor
         $this->dispatch('refresh-charts');
     }
 
+    public function updatedStartMonth(): void
+    {
+        if ($this->startMonth && $this->endMonth && $this->startMonth > $this->endMonth) {
+            $this->endMonth = $this->startMonth;
+        }
+        $this->dispatch('refresh-charts');
+    }
+
+    public function updatedEndMonth(): void
+    {
+        if ($this->startMonth && $this->endMonth && $this->endMonth < $this->startMonth) {
+            $this->startMonth = $this->endMonth;
+        }
+        $this->dispatch('refresh-charts');
+    }
+
+    public function updatedSelectedQuarter(): void
+    {
+        $this->dispatch('refresh-charts');
+    }
+
+    public function updatedSelectedSemester(): void
+    {
+        $this->dispatch('refresh-charts');
+    }
+
     protected function getBaseQuery(): Builder
     {
-        $query = LaporanInsiden::query()
-            ->when(
-                filled($this->selectedYear),
-                fn(Builder $query): Builder => $query->whereYear('tanggal_insiden', (int) $this->selectedYear)
-            )
-            ->when(
-                filled($this->selectedMonth),
-                fn(Builder $query): Builder => $query->whereMonth('tanggal_insiden', (int) $this->selectedMonth)
-            );
+        $query = LaporanInsiden::query();
+
+        if (filled($this->selectedYear)) {
+            $query->whereYear('tanggal_insiden', (int) $this->selectedYear);
+        }
+
+        match ($this->periodType) {
+            'month' => filled($this->selectedMonth)
+                ? $query->whereMonth('tanggal_insiden', (int) $this->selectedMonth)
+                : $query,
+            'month_range' => (filled($this->startMonth) && filled($this->endMonth))
+                ? $query->whereMonth('tanggal_insiden', '>=', min((int)$this->startMonth, (int)$this->endMonth))
+                        ->whereMonth('tanggal_insiden', '<=', max((int)$this->startMonth, (int)$this->endMonth))
+                : $query,
+            'quarter' => match ((int) $this->selectedQuarter) {
+                1 => $query->whereMonth('tanggal_insiden', '>=', 1)->whereMonth('tanggal_insiden', '<=', 3),
+                2 => $query->whereMonth('tanggal_insiden', '>=', 4)->whereMonth('tanggal_insiden', '<=', 6),
+                3 => $query->whereMonth('tanggal_insiden', '>=', 7)->whereMonth('tanggal_insiden', '<=', 9),
+                4 => $query->whereMonth('tanggal_insiden', '>=', 10)->whereMonth('tanggal_insiden', '<=', 12),
+                default => $query,
+            },
+            'semester' => match ((int) $this->selectedSemester) {
+                1 => $query->whereMonth('tanggal_insiden', '>=', 1)->whereMonth('tanggal_insiden', '<=', 6),
+                2 => $query->whereMonth('tanggal_insiden', '>=', 7)->whereMonth('tanggal_insiden', '<=', 12),
+                default => $query,
+            },
+            default => $query,
+        };
 
         $user = Auth::user();
         if (!$user) {
@@ -134,6 +210,35 @@ class IncidentCategoryMonitoringWidget extends ApexChartWidget implements HasFor
             ->toArray();
 
         return $years ?: [(int) now()->year];
+    }
+
+    public function getPeriodTypeOptions(): array
+    {
+        return [
+            'year' => 'Tahunan',
+            'month' => 'Bulanan',
+            'month_range' => 'Rentang Bulan',
+            'quarter' => 'Kuartal',
+            'semester' => 'Semester',
+        ];
+    }
+
+    public function getQuarterOptions(): array
+    {
+        return [
+            1 => 'Kuartal 1 (Jan - Mar)',
+            2 => 'Kuartal 2 (Apr - Jun)',
+            3 => 'Kuartal 3 (Jul - Sep)',
+            4 => 'Kuartal 4 (Okt - Des)',
+        ];
+    }
+
+    public function getSemesterOptions(): array
+    {
+        return [
+            1 => 'Semester 1 (Jan - Jun)',
+            2 => 'Semester 2 (Jul - Des)',
+        ];
     }
 
     public function getMonthOptions(): array
